@@ -12,7 +12,6 @@
   ],
   "components": {
     "swamp_biome": 30.0,
-    "wednesday_frogs": 15.0,
     "gravity_low": 20.0
   }
 }

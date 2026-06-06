@@ -28,6 +28,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.animal.horse.SkeletonHorse;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -705,6 +706,10 @@ public class TownProtectionHandler {
             Entity entity = event.getEntity();
             if (entity instanceof LightningBolt lightningBolt) {
                 lightningBolt.setVisualOnly(true);
+            }
+            // 阻止骷髅陷阱（Skeleton Trap）生成
+            if (entity instanceof SkeletonHorse skeletonHorse && skeletonHorse.isTrap()) {
+                event.setCanceled(true);
             }
         }
     }

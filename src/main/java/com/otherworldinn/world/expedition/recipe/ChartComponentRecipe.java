@@ -75,7 +75,6 @@ public class ChartComponentRecipe extends CustomRecipe {
         ITEM_TO_COMPONENT.put(Items.PHANTOM_MEMBRANE, "insomniacs");
         ITEM_TO_COMPONENT.put(Items.BONE, "no_drops");
         ITEM_TO_COMPONENT.put(Items.COD, "fish_out_of_water");
-        ITEM_TO_COMPONENT.put(Items.FROGSPAWN, "wednesday_frogs");
     }
 
     public ChartComponentRecipe(CraftingBookCategory category) {

@@ -314,16 +314,9 @@ public enum ChartComponentType {
             "如鱼失水", "Fish Out of Water",
             List.of("海豚的恩惠常驻"),
             List.of("只能在水中呼吸"),
-            () -> Items.COD),
+            () -> Items.COD);
 
-    WEDNESDAY_FROGS("wednesday_frogs", ComponentCategory.OTHER,
-            DimensionCategory.UNIVERSAL, Rarity.EPIC,
-            "周三青蛙", "Wednesday Frogs",
-            List.of("抗性提升II与生命恢复常驻"),
-            List.of("青蛙可以吃掉玩家"),
-            () -> Items.FROGSPAWN);
 
-    // ═══════════════════════════════════════════
 
     public enum ComponentCategory {
         WORLD_TYPE,

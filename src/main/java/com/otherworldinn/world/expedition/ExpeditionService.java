@@ -449,7 +449,6 @@ public final class ExpeditionService {
         boolean universalAnger = componentIds.contains("universal_anger");
         boolean insomniacs = componentIds.contains("insomniacs");
         boolean fishOutOfWater = componentIds.contains("fish_out_of_water");
-        boolean wednesdayFrogs = componentIds.contains("wednesday_frogs");
 
         if (thunderstorm) {
             if (!level.isThundering()) {
@@ -516,10 +515,18 @@ public final class ExpeditionService {
             }
             if (fishOutOfWater) {
                 applyPersistentEffect(player, MobEffects.DOLPHINS_GRACE, 1);
-            }
-            if (wednesdayFrogs) {
-                applyPersistentEffect(player, MobEffects.DAMAGE_RESISTANCE, 1);
-                applyPersistentEffect(player, MobEffects.REGENERATION, 0);
+                // 只能在水里呼吸：不在水中时逐渐减少空气值，归零后造成溺水伤害
+                if (!player.isInWaterOrBubble()) {
+                    int air = player.getAirSupply();
+                    if (air > -20) {
+                        player.setAirSupply(Math.max(air - 20, -20));
+                    } else {
+                        player.setAirSupply(0);
+                        player.hurt(player.damageSources().drown(), 2.0f);
+                    }
+                } else {
+                    player.setAirSupply(player.getMaxAirSupply());
+                }
             }
         }
     }
