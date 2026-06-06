@@ -57,6 +57,7 @@ public class ExpeditionChartItem extends Item {
         if (level.isClientSide) return InteractionResultHolder.success(stack);
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResultHolder.fail(stack);
 
+        if (player.getCooldowns().isOnCooldown(this)) return InteractionResultHolder.fail(stack);
         player.getCooldowns().addCooldown(this, 2400);
 
         String state = getChartState(stack);
@@ -115,7 +116,7 @@ public class ExpeditionChartItem extends Item {
 
         ServerLevel expeditionLevel = ExpeditionService.ensureExpeditionLevel(
                 player.getServer(), dimKey, getComponentIds(stack), chartUuid.getLeastSignificantBits(),
-                getChartDimension(stack));
+                getChartDimension(stack), session);
         if (expeditionLevel == null) {
             player.displayClientMessage(
                     Component.translatable("message.otherworldinn.expedition.create_failed")
@@ -135,12 +136,12 @@ public class ExpeditionChartItem extends Item {
                             .withStyle(ChatFormatting.RED), true);
             return InteractionResultHolder.fail(stack);
         }
-        ExpeditionService.registerLevel(player.getServer(), dimKey, expeditionLevel);
+        ExpeditionService.registerLevel(player.getServer(), dimKey, expeditionLevel, session);
 
         for (UUID id : members) {
             ServerPlayer mp = player.getServer().getPlayerList().getPlayer(id);
             if (mp != null) {
-                teleportToSafeSurface(mp, expeditionLevel);
+                teleportToSafeSurface(mp, expeditionLevel, session);
                 long remaining = session.deadlineTick() - player.getServer().getTickCount();
                 ModMessages.sendToPlayer(
                         new S2CExpeditionTimerPacket(remaining), mp);
@@ -154,6 +155,8 @@ public class ExpeditionChartItem extends Item {
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
+        
+        player.getCooldowns().removeCooldown(this);
         return InteractionResultHolder.success(stack);
     }
 
@@ -185,6 +188,7 @@ public class ExpeditionChartItem extends Item {
                 .withStyle(ChatFormatting.GOLD);
 
         player.getServer().getPlayerList().broadcastSystemMessage(msg, false);
+        player.getCooldowns().removeCooldown(this);
         return InteractionResultHolder.success(stack);
     }
 
@@ -251,7 +255,7 @@ public class ExpeditionChartItem extends Item {
 
         ServerLevel expeditionLevel = ExpeditionService.ensureExpeditionLevel(
                 player.getServer(), dimKey, getComponentIds(stack), chartUuid.getLeastSignificantBits(),
-                getChartDimension(stack));
+                getChartDimension(stack), session);
         if (expeditionLevel == null) {
             player.displayClientMessage(
                     Component.translatable("message.otherworldinn.expedition.create_failed")
@@ -271,12 +275,12 @@ public class ExpeditionChartItem extends Item {
                             .withStyle(ChatFormatting.RED), true);
             return InteractionResultHolder.fail(stack);
         }
-        ExpeditionService.registerLevel(player.getServer(), dimKey, expeditionLevel);
+        ExpeditionService.registerLevel(player.getServer(), dimKey, expeditionLevel, session);
 
         for (UUID id : onlineMembers) {
             ServerPlayer mp = player.getServer().getPlayerList().getPlayer(id);
             if (mp != null) {
-                teleportToSafeSurface(mp, expeditionLevel);
+                teleportToSafeSurface(mp, expeditionLevel, session);
                 long remaining = session.deadlineTick() - player.getServer().getTickCount();
                 ModMessages.sendToPlayer(
                         new S2CExpeditionTimerPacket(remaining), mp);
@@ -290,6 +294,8 @@ public class ExpeditionChartItem extends Item {
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
+        
+        player.getCooldowns().removeCooldown(this);
         return InteractionResultHolder.success(stack);
     }
 
@@ -329,21 +335,33 @@ public class ExpeditionChartItem extends Item {
         return Math.max(MIN_TIME_MINUTES, BASE_TIME_MINUTES - slots * TIME_PER_SLOT);
     }
 
-    private static void teleportToSafeSurface(ServerPlayer player, ServerLevel level) {
-        final int centerX = 0;
-        final int centerZ = 0;
+    private static void teleportToSafeSurface(ServerPlayer player, ServerLevel level, ExpeditionSession session) {
+        final int centerX = session.getCenterX();
+        final int centerZ = session.getCenterZ();
 
         int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 centerX, centerZ);
-        if (surfaceY <= level.getMinBuildHeight()) {
-            surfaceY = 64;
-        }
+                
+        if (level.dimension() == com.otherworldinn.world.dimension.TownDimensions.EXPEDITION_TEMPLATE_NETHER) {
+            surfaceY = 90;
+            for (int y = 90; y > 32; y--) {
+                BlockPos check = new BlockPos(centerX, y, centerZ);
+                if (level.getBlockState(check).isAir() && level.getBlockState(check.below()).isSolid() && !level.getBlockState(check.below()).is(Blocks.BEDROCK)) {
+                    surfaceY = y;
+                    break;
+                }
+            }
+        } else {
+            if (surfaceY <= level.getMinBuildHeight()) {
+                surfaceY = 64;
+            }
 
-        for (int y = surfaceY; y >= surfaceY - 5 && y > level.getMinBuildHeight(); y--) {
-            BlockPos check = new BlockPos(centerX, y, centerZ);
-            if (level.getBlockState(check).isSolid()) {
-                surfaceY = y;
-                break;
+            for (int y = surfaceY; y >= surfaceY - 5 && y > level.getMinBuildHeight(); y--) {
+                BlockPos check = new BlockPos(centerX, y, centerZ);
+                if (level.getBlockState(check).isSolid()) {
+                    surfaceY = y;
+                    break;
+                }
             }
         }
 

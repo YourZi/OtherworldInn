@@ -44,7 +44,6 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import sun.misc.Unsafe;
 
@@ -55,20 +54,16 @@ public final class ExpeditionService {
             new ConcurrentHashMap<>();
     private static final Map<UUID, ResourceKey<Level>> PLAYER_EXPEDITION_MAP =
             new ConcurrentHashMap<>();
-    private static final Map<ResourceKey<Level>, ServerChunkCache> ORIGINAL_TEMPLATE_CACHES =
-            new ConcurrentHashMap<>();
 
     private static final Map<ResourceKey<Level>, Set<String>> DIM_COMPONENT_FLAGS =
             new ConcurrentHashMap<>();
 
     private static volatile ExpeditionSession activeSession;
     private static volatile boolean structureBoostActive;
-    private static volatile boolean shuttingDown;
 
     private static final Unsafe UNSAFE;
     private static final long CM_RANDOM_STATE_OFFSET;
     private static final long CM_STRUCTURE_STATE_OFFSET;
-    private static final long SL_CHUNK_SOURCE_OFFSET;
 
     static {
         try {
@@ -81,9 +76,6 @@ public final class ExpeditionService {
                     cmClass.getDeclaredField("randomState"));
             CM_STRUCTURE_STATE_OFFSET = UNSAFE.objectFieldOffset(
                     cmClass.getDeclaredField("chunkGeneratorState"));
-
-            SL_CHUNK_SOURCE_OFFSET = UNSAFE.objectFieldOffset(
-                    ServerLevel.class.getDeclaredField("chunkSource"));
         } catch (Exception e) {
             throw new RuntimeException("Failed to init ExpeditionService offsets", e);
         }
@@ -97,10 +89,6 @@ public final class ExpeditionService {
 
     public static boolean isStructureBoostActive() {
         return structureBoostActive;
-    }
-
-    public static boolean isShuttingDown() {
-        return shuttingDown;
     }
 
     public static boolean hasDimComponent(ResourceKey<Level> dimKey, String componentId) {
@@ -184,13 +172,12 @@ public final class ExpeditionService {
                                 .withStyle(net.minecraft.ChatFormatting.RED),
                         false);
             }
-            clearLevelEntities(level);
+            clearLevelEntities(level, session);
         }
         Map<ResourceKey<Level>, ServerLevel> levels =
                 ((MixinMinecraftServerLevelsAccessor) server).otherworldinn$getLevels();
         levels.remove(dimKey);
         clearDimComponents(dimKey);
-        deleteDimensionFiles(server, dimKey);
         ACTIVE_EXPEDITIONS.remove(dimKey);
         for (UUID playerId : session.activePlayers()) {
             PLAYER_EXPEDITION_MAP.remove(playerId, dimKey);
@@ -203,7 +190,7 @@ public final class ExpeditionService {
 
     public static ServerLevel ensureExpeditionLevel(MinecraftServer server,
             ResourceKey<Level> dimKey, List<String> componentIds, long seed,
-            ChartComponentType.DimensionCategory chartDimension) {
+            ChartComponentType.DimensionCategory chartDimension, ExpeditionSession session) {
 
         Map<ResourceKey<Level>, ServerLevel> levels =
                 ((MixinMinecraftServerLevelsAccessor) server).otherworldinn$getLevels();
@@ -228,10 +215,6 @@ public final class ExpeditionService {
             return null;
         }
 
-        clearLevelEntities(template);
-        clearChunkCaches(template);
-        deleteTemplateRegionFiles(server, templateKey);
-
         BlockState stoneReplacement = resolveStoneType(componentIds);
 
         NoiseBasedChunkGenerator customGen =
@@ -249,10 +232,19 @@ public final class ExpeditionService {
         expGen.setDryLand(componentIds.contains("dry_land"));
         expGen.setWaterWorld(componentIds.contains("water_world"));
 
-        rebuildChunkSource(server, template, templateKey, expGen, seed);
+        ExpeditionSavedData savedData = ExpeditionSavedData.get(server);
+        int nextGrid = savedData.incrementAndGet();
+        int gridX = nextGrid % 100;
+        int gridZ = nextGrid / 100;
+
+        int offsetX = gridX * 2048;
+        int offsetZ = gridZ * 2048;
+        session.setCenter(offsetX, offsetZ);
+
+        updateChunkSourceState(server, template, templateKey, expGen, seed);
 
         template.getWorldBorder().setSize(1024.0);
-        template.getWorldBorder().setCenter(0.0, 0.0);
+        template.getWorldBorder().setCenter(offsetX, offsetZ);
 
         boolean needsBoost = ExpeditionBiomeFactory.hasStructureBoost(componentIds);
         if (needsBoost) {
@@ -283,56 +275,17 @@ public final class ExpeditionService {
         return Blocks.STONE.defaultBlockState();
     }
 
-    private static void rebuildChunkSource(MinecraftServer server, ServerLevel level,
+    private static void updateChunkSourceState(MinecraftServer server, ServerLevel level,
             ResourceKey<Level> templateKey, ExpeditionChunkGenerator expGen, long seed) {
         try {
-            ServerChunkCache oldCache = level.getChunkSource();
-
-            ORIGINAL_TEMPLATE_CACHES.putIfAbsent(templateKey, oldCache);
-
-            Field ssField = MinecraftServer.class.getDeclaredField("storageSource");
-            ssField.setAccessible(true);
-            LevelStorageSource.LevelStorageAccess storageAccess =
-                    (LevelStorageSource.LevelStorageAccess) ssField.get(server);
-
-            Field execField = MinecraftServer.class.getDeclaredField("executor");
-            execField.setAccessible(true);
-            Executor executor = (Executor) execField.get(server);
-
-            Object oldChunkMap = oldCache.chunkMap;
-            ChunkProgressListener progressListener =
-                    getPrivate(oldChunkMap, "progressListener");
-            ChunkStatusUpdateListener statusListener =
-                    getPrivate(oldChunkMap, "chunkStatusListener");
-            @SuppressWarnings("unchecked")
-            Supplier<DimensionDataStorage> storageSupplier =
-                    (Supplier<DimensionDataStorage>) getPrivate(oldChunkMap, "overworldDataStorage");
-
-            StructureTemplateManager templateManager = level.getStructureManager();
+            ServerChunkCache cache = level.getChunkSource();
+            Object chunkMap = cache.chunkMap;
 
             NoiseBasedChunkGenerator delegateGen = expGen.getDelegate();
             if (delegateGen == null) {
                 OtherworldInn.LOGGER.error("ExpeditionChunkGenerator has no delegate");
                 return;
             }
-
-            ServerChunkCache freshCache = new ServerChunkCache(
-                    level,
-                    storageAccess,
-                    server.getFixerUpper(),
-                    templateManager,
-                    executor,
-                    expGen,
-                    server.getPlayerList().getViewDistance(),
-                    server.getPlayerList().getSimulationDistance(),
-                    false,
-                    progressListener,
-                    statusListener,
-                    storageSupplier);
-
-            UNSAFE.putObject(level, SL_CHUNK_SOURCE_OFFSET, freshCache);
-
-            Object freshChunkMap = freshCache.chunkMap;
 
             NoiseGeneratorSettings settings = delegateGen.generatorSettings().value();
             HolderGetter<NormalNoise.NoiseParameters> noiseParams =
@@ -344,13 +297,13 @@ public final class ExpeditionService {
                             level.registryAccess().lookupOrThrow(Registries.STRUCTURE_SET),
                             correctState, seed);
 
-            UNSAFE.putObject(freshChunkMap, CM_RANDOM_STATE_OFFSET, correctState);
-            UNSAFE.putObject(freshChunkMap, CM_STRUCTURE_STATE_OFFSET, correctStructState);
+            UNSAFE.putObject(chunkMap, CM_RANDOM_STATE_OFFSET, correctState);
+            UNSAFE.putObject(chunkMap, CM_STRUCTURE_STATE_OFFSET, correctStructState);
 
-            OtherworldInn.LOGGER.info("Rebuilt chunk source for expedition: biomeSource={}",
+            OtherworldInn.LOGGER.info("Updated chunk map state for expedition: biomeSource={}",
                     delegateGen.getBiomeSource().getClass().getSimpleName());
         } catch (Exception e) {
-            OtherworldInn.LOGGER.error("Failed to rebuild chunk source", e);
+            OtherworldInn.LOGGER.error("Failed to update chunk map state", e);
         }
     }
 
@@ -374,12 +327,12 @@ public final class ExpeditionService {
     }
 
     public static void registerLevel(MinecraftServer server, ResourceKey<Level> dimKey,
-            ServerLevel level) {
+            ServerLevel level, ExpeditionSession session) {
         Map<ResourceKey<Level>, ServerLevel> levels =
                 ((MixinMinecraftServerLevelsAccessor) server).otherworldinn$getLevels();
         levels.put(dimKey, level);
         level.getWorldBorder().setSize(1024.0);
-        level.getWorldBorder().setCenter(0.0, 0.0);
+        level.getWorldBorder().setCenter(session.getCenterX(), session.getCenterZ());
     }
 
     @SubscribeEvent
@@ -407,7 +360,7 @@ public final class ExpeditionService {
                     }
                 }
                 if (level != null) {
-                    clearLevelEntities(level);
+                    clearLevelEntities(level, session);
                 }
                 ACTIVE_EXPEDITIONS.remove(dimKey);
                 for (UUID playerId : session.activePlayers()) {
@@ -420,7 +373,6 @@ public final class ExpeditionService {
                         ((MixinMinecraftServerLevelsAccessor) server).otherworldinn$getLevels();
                 levels.remove(dimKey);
                 clearDimComponents(dimKey);
-                deleteDimensionFiles(server, dimKey);
                 restoreTemplateDimension(server);
             } else {
                 tickComponentEffects(server, session, level);
@@ -558,12 +510,6 @@ public final class ExpeditionService {
         }
     }
 
-    @SubscribeEvent
-    public static void onServerStopping(ServerStoppingEvent event) {
-        shuttingDown = true;
-        cleanupAllExpeditionLevels(event.getServer());
-    }
-
     private static void recallPlayer(ServerPlayer player, MinecraftServer server) {
         ServerLevel townLevel = server.getLevel(TownDimensions.TOWN_LEVEL);
         if (townLevel == null) return;
@@ -590,11 +536,6 @@ public final class ExpeditionService {
         ServerLevel template = server.getLevel(key);
         if (template == null) return;
 
-        ServerChunkCache saved = ORIGINAL_TEMPLATE_CACHES.get(key);
-        if (saved != null) {
-            UNSAFE.putObject(template, SL_CHUNK_SOURCE_OFFSET, saved);
-        }
-
         ChunkGenerator gen = template.getChunkSource().getGenerator();
         if (gen instanceof ExpeditionChunkGenerator expGen) {
             expGen.setDelegate(null);
@@ -609,137 +550,30 @@ public final class ExpeditionService {
                 .set(server.getGameRules().getBoolean(
                         net.minecraft.world.level.GameRules.RULE_KEEPINVENTORY), server);
 
-        clearChunkCaches(template);
-        clearLevelEntities(template);
         template.getWorldBorder().setSize(512.0);
+        template.getWorldBorder().setCenter(0.0, 0.0);
     }
 
-    private static void deleteTemplateRegionFiles(MinecraftServer server,
-            ResourceKey<Level> templateKey) {
-        try {
-            Field sf = MinecraftServer.class.getDeclaredField("storageSource");
-            sf.setAccessible(true);
-            LevelStorageSource.LevelStorageAccess access =
-                    (LevelStorageSource.LevelStorageAccess) sf.get(server);
-
-            Path dimPath = access.getDimensionPath(templateKey);
-            Path regionPath = dimPath.resolve("region");
-
-            if (Files.isDirectory(regionPath)) {
-                try (var files = Files.list(regionPath)) {
-                    files.filter(p -> p.toString().endsWith(".mca"))
-                            .forEach(p -> {
-                                try { Files.delete(p); } catch (Exception ignored) {}
-                            });
-                }
-            }
-        } catch (Exception e) {
-            OtherworldInn.LOGGER.warn("Failed to delete template region files: {}", e.getMessage());
-        }
-    }
-
-    private static void deleteDimensionFiles(MinecraftServer server,
-            ResourceKey<Level> dimKey) {
-        try {
-            Field sf = MinecraftServer.class.getDeclaredField("storageSource");
-            sf.setAccessible(true);
-            LevelStorageSource.LevelStorageAccess access =
-                    (LevelStorageSource.LevelStorageAccess) sf.get(server);
-
-            Path dimPath = access.getDimensionPath(dimKey);
-            Path regionPath = dimPath.resolve("region");
-
-            if (Files.isDirectory(regionPath)) {
-                try (var files = Files.list(regionPath)) {
-                    files.filter(p -> p.toString().endsWith(".mca"))
-                            .forEach(p -> {
-                                try { Files.delete(p); } catch (Exception ignored) {}
-                            });
-                }
-            }
-
-            Path entitiesPath = dimPath.resolve("entities");
-            if (Files.isDirectory(entitiesPath)) {
-                try (var files = Files.list(entitiesPath)) {
-                    files.forEach(p -> {
-                        try { Files.delete(p); } catch (Exception ignored) {}
-                    });
-                }
-            }
-
-            Path poiPath = dimPath.resolve("poi");
-            if (Files.isDirectory(poiPath)) {
-                try (var files = Files.list(poiPath)) {
-                    files.forEach(p -> {
-                        try { Files.delete(p); } catch (Exception ignored) {}
-                    });
-                }
-            }
-        } catch (Exception e) {
-            OtherworldInn.LOGGER.warn("Failed to delete dimension files for {}: {}",
-                    dimKey.location(), e.getMessage());
-        }
-    }
-
-    private static void clearLevelEntities(ServerLevel level) {
+    private static void clearLevelEntities(ServerLevel level, ExpeditionSession session) {
         try {
             var snapshot = new ArrayList<net.minecraft.world.entity.Entity>();
-            level.getAllEntities().forEach(snapshot::add);
+            int minX = session.getCenterX() - 1024;
+            int maxX = session.getCenterX() + 1024;
+            int minZ = session.getCenterZ() - 1024;
+            int maxZ = session.getCenterZ() + 1024;
+
+            level.getAllEntities().forEach(entity -> {
+                if (!(entity instanceof net.minecraft.world.entity.player.Player)) {
+                    if (entity.getX() >= minX && entity.getX() <= maxX &&
+                        entity.getZ() >= minZ && entity.getZ() <= maxZ) {
+                        snapshot.add(entity);
+                    }
+                }
+            });
             for (var entity : snapshot) {
                 entity.discard();
             }
         } catch (Exception ignored) {}
-    }
-
-    private static void clearChunkCaches(ServerLevel level) {
-        try {
-            Object chunkMap = level.getChunkSource().chunkMap;
-            Class<?> cmClass = chunkMap.getClass();
-
-            String[] mapFields = {"visibleChunkMap", "updatingChunkMap",
-                    "pendingUnloads", "f_140128_", "f_140127_", "f_140129_"};
-            for (String name : mapFields) {
-                clearField(chunkMap, cmClass, name);
-            }
-
-            String[] listFields = {"pendingGenerationTasks", "f_140130_"};
-            for (String name : listFields) {
-                clearField(chunkMap, cmClass, name);
-            }
-
-            Field toDropField = findField(cmClass, "toDrop", "f_140126_");
-            if (toDropField != null) {
-                Object toDrop = toDropField.get(chunkMap);
-                if (toDrop instanceof it.unimi.dsi.fastutil.longs.LongSet ls) {
-                    ls.clear();
-                }
-            }
-        } catch (Exception e) {
-            OtherworldInn.LOGGER.warn("Failed to clear chunk caches", e);
-        }
-    }
-
-    private static void clearField(Object target, Class<?> clazz, String name) {
-        try {
-            Field f = clazz.getDeclaredField(name);
-            f.setAccessible(true);
-            Object obj = f.get(target);
-            if (obj instanceof Map<?, ?> map) map.clear();
-            else if (obj instanceof List<?> list) list.clear();
-        } catch (NoSuchFieldException ignored) {
-        } catch (Exception ignored) {}
-    }
-
-    private static Field findField(Class<?> clazz, String... names) {
-        for (String name : names) {
-            try {
-                Field f = clazz.getDeclaredField(name);
-                f.setAccessible(true);
-                return f;
-            } catch (NoSuchFieldException ignored) {}
-        }
-        if (clazz.getSuperclass() != null) return findField(clazz.getSuperclass(), names);
-        return null;
     }
 
     public static int activeExpeditionCount() {

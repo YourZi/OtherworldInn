@@ -14,8 +14,9 @@ public class MixinMinecraftServerSave {
     private void otherworldinn$cleanupExpeditionLevels(
             boolean bl, boolean bl2, boolean bl3,
             CallbackInfoReturnable<Boolean> cir) {
-        if (!ExpeditionService.isShuttingDown()) return;
         MinecraftServer self = (MinecraftServer) (Object) this;
+        // 仅在真正关服（无在线玩家）时清理远征维度，避免暂停等场景误触发
+        if (!self.getPlayerList().getPlayers().isEmpty()) return;
         ExpeditionService.cleanupAllExpeditionLevels(self);
     }
 }

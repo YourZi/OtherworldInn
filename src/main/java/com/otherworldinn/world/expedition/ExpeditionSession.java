@@ -16,6 +16,8 @@ public final class ExpeditionSession {
     private final List<String> componentIds;
     private final long deadlineTick;
     private boolean dimensionCreated;
+    private int centerX = 0;
+    private int centerZ = 0;
 
     public ExpeditionSession(ResourceKey<Level> dimensionKey, Set<UUID> activePlayers,
             List<String> componentIds, long deadlineTick) {
@@ -24,6 +26,14 @@ public final class ExpeditionSession {
         this.componentIds = new ArrayList<>(componentIds);
         this.deadlineTick = deadlineTick;
     }
+
+    public void setCenter(int x, int z) {
+        this.centerX = x;
+        this.centerZ = z;
+    }
+
+    public int getCenterX() { return centerX; }
+    public int getCenterZ() { return centerZ; }
 
     public ResourceKey<Level> dimensionKey() { return dimensionKey; }
     public Set<UUID> activePlayers() { return Set.copyOf(activePlayers); }
