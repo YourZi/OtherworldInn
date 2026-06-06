@@ -51,6 +51,10 @@ public class OtherworldInn {
             TagKey.create(
                     Registries.BLOCK,
                     ResourceLocation.fromNamespaceAndPath(MODID, "inn_free_interact"));
+    public static final TagKey<net.minecraft.world.entity.EntityType<?>> CAPTURABLE_WITH_SPACE_SPHERE =
+            TagKey.create(
+                    Registries.ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(MODID, "capturable_with_space_sphere"));
 
     public OtherworldInn(IEventBus modEventBus, ModContainer modContainer) {
         // 注册物品和方块

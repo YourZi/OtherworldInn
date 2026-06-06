@@ -28,7 +28,8 @@ public class GrocerEntity extends StoreEntity {
         this.addStoreItem("refinedstorage:storage_housing", 12, 16);
         this.addStoreItem("otherworldinn:land_deed", 32, 1);
         this.addStoreItem("otherworldinn:inn_upgrade_voucher", 128, 1);
-        this.addStoreItem("otherworldinn:facility_upgrade_template", 32,4);
+        this.addStoreItem("otherworldinn:facility_upgrade_template", 32, 4);
+        this.addLimitedStoreItem("otherworldinn:pioneer_chart", 12, 2);
         this.addVanillaBuildingBlocks();
         this.addFavorStoreItem(2, "refinedstorage:1k_storage_part", 32, 8);
         this.addFavorStoreItem(4, "refinedstorage:4k_storage_part", 64, 6);

@@ -165,7 +165,8 @@ public class ModItems {
                     .rarity(Rarity.EPIC)
                     .stacksTo(1)
                     .lang("Space Sphere", "空间球")
-                    .tooltip("Use to activate map teleport for your team", "使用后激活地图点传送功能");
+                    .tooltip("Use to activate map teleport for your team", "使用后激活地图点传送功能")
+                    .tooltip("Right-click animals to capture them", "右键动物将其捕获到空间球中");
     public static final DeferredItem<SpaceSphereItem> SPACE_SPHERE = SPACE_SPHERE_REG.register();
 
     public static final ItemReg<NetherSpaceSphereItem> NETHER_SPACE_SPHERE_REG =

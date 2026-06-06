@@ -704,6 +704,33 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.space_sphere.teleport_unlocked")
                 .zh("地图传送功能已激活")
                 .en("Map teleport has been activated");
+        entry("message.otherworldinn.space_sphere.already_captured")
+                .zh("空间球已经捕获了一个生物")
+                .en("Space sphere already contains a creature");
+        entry("message.otherworldinn.space_sphere.not_capturable")
+                .zh("这个生物无法被空间球捕获")
+                .en("This creature cannot be captured by the space sphere");
+        entry("message.otherworldinn.space_sphere.captured")
+                .zh("已捕获：%s")
+                .en("Captured: %s");
+        entry("message.otherworldinn.space_sphere.released")
+                .zh("已释放捕获的生物")
+                .en("Captured creature released");
+        entry("tooltip.otherworldinn.space_sphere.contains")
+                .zh("包含：%s（对准方块右键释放）")
+                .en("Contains: %s (right-click block to release)");
+        entry("tooltip.otherworldinn.space_sphere.release_hint")
+                .zh("对准方块右键释放")
+                .en("Right-click a block to release");
+        entry("tooltip.otherworldinn.space_sphere.capture_hint")
+                .zh("对准可捕获的生物右键")
+                .en("Right-click a capturable creature");
+        entry("message.otherworldinn.space_sphere.overlay.capture")
+                .zh("捕获生物")
+                .en("Capture creature");
+        entry("message.otherworldinn.space_sphere.overlay.release")
+                .zh("释放生物")
+                .en("Release creature");
         entry("message.otherworldinn.guest.tooltip.title").zh("旅客信息").en("Guest Info");
         entry("message.otherworldinn.guest.tooltip.vip").zh("[贵宾]").en("[VIP]");
         entry("message.otherworldinn.guest.tooltip.preference.comfort")
