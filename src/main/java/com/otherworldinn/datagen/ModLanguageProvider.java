@@ -766,14 +766,14 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.expedition.click_to_join_hover").zh("点击加入此次远征队伍").en("Click to join this expedition party");
         entry("message.otherworldinn.expedition.recruit_broadcast").zh("✦ %s 发起了一场远征组队（%s | 预估费用 §f\uE001§r%s）%s").en("✦ %s started an expedition party (%s | est. fee %s coins) %s");
         entry("message.otherworldinn.expedition.aborted").zh("远征已被管理员强制终止").en("Expedition has been forcibly terminated by admin");
-        entry("message.otherworldinn.recipe_book.unlocked").zh("配方已为队伍解锁：%s").en("Recipe unlocked for your team: %s");
-        entry("message.otherworldinn.recipe_book.locked_prefix").zh("(未解锁) %s").en("(Locked) %s");
+        entry("message.otherworldinn.recipe_book.unlocked").zh("配方已为队伍学习：%s").en("Recipe learned for your team: %s");
+        entry("message.otherworldinn.recipe_book.locked_prefix").zh("(未学习) %s").en("(Not learned) %s");
         entry("message.otherworldinn.recipe_item.overlay.use").zh("右键使用记录配方").en("Right-click to record recipe");
 
-        entry("command.otherworldinn.team.cookrecipe.unlocked").zh("已解锁食谱：%s").en("Unlocked recipe: %s");
-        entry("command.otherworldinn.team.cookrecipe.locked").zh("已锁定食谱：%s").en("Locked recipe: %s");
-        entry("command.otherworldinn.team.cookrecipe.unlocked_all").zh("已解锁全部食谱").en("All recipes unlocked");
-        entry("command.otherworldinn.team.cookrecipe.locked_all").zh("已锁定全部食谱").en("All recipes locked");
+        entry("command.otherworldinn.team.cookrecipe.unlocked").zh("已学习食谱：%s").en("Learned recipe: %s");
+        entry("command.otherworldinn.team.cookrecipe.locked").zh("未学习食谱：%s").en("Not learned recipe: %s");
+        entry("command.otherworldinn.team.cookrecipe.unlocked_all").zh("已学习全部食谱").en("All recipes learned");
+        entry("command.otherworldinn.team.cookrecipe.locked_all").zh("未学习全部食谱").en("All recipes not learned");
 
         entry("tooltip.otherworldinn.chart_component.blank_entry").zh("  ▸ 空白组件").en("  ▸ Blank Component");
         entry("tooltip.otherworldinn.chart_component.blank").zh("用于合成其它星图组件").en("Used to craft other chart components");
@@ -796,7 +796,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.expedition_chart.fee").zh("  预估费用：§f\uE001§r%s").en("  Estimated fee: %s coins");
         entry("tooltip.otherworldinn.expedition_chart.fee_with_count").zh("  费用：§f\uE001§r%s（%s 人）").en("  Fee: %s coins (%s players)");
         entry("tooltip.otherworldinn.expedition_chart.dimension").zh("  维度类别：%s").en("  Dimension: %s");
-        entry("message.otherworldinn.expedition.overlay.use").zh("使用星图").en("Use Chart");
+        entry("message.otherworldinn.expedition.overlay.use").zh("开启远征").en("Use Chart");
         entry("message.otherworldinn.expedition.overlay.launch").zh("潜行开始远征").en("Sneak To Start");
         entry("message.otherworldinn.expedition.overlay.cancel").zh("取消招募").en("Cancel Recruitment");
 
