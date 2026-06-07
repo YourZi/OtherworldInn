@@ -343,7 +343,6 @@
   "item.otherworldinn.room_register.tooltip.0": "Hold in off-hand to edit room",
   "item.otherworldinn.space_sphere": "Space Sphere",
   "item.otherworldinn.space_sphere.tooltip.0": "Use to activate map teleport for your team",
-  "item.otherworldinn.space_sphere.tooltip.1": "Right-click animals to capture them",
   "itemGroup.otherworldinn": "Otherworld Inn",
   "itemGroup.otherworldinn.expedition": "Otherworld Inn · Expedition",
   "itemGroup.otherworldinn.recipe_books": "Otherworld Inn · Recipes",
@@ -528,14 +527,8 @@
   "message.otherworldinn.room_register.validation.overlap": "Room overlaps with an existing room!",
   "message.otherworldinn.room_register.validation.too_crowded": "Room is too crowded!",
   "message.otherworldinn.room_register.validation.too_small": "Room is too small!",
-  "message.otherworldinn.space_sphere.already_captured": "Space sphere already contains a creature",
   "message.otherworldinn.space_sphere.already_unlocked": "Your team's map teleport is already unlocked",
-  "message.otherworldinn.space_sphere.captured": "Captured: %s",
   "message.otherworldinn.space_sphere.no_team": "You are not in any team",
-  "message.otherworldinn.space_sphere.not_capturable": "This creature cannot be captured by the space sphere",
-  "message.otherworldinn.space_sphere.overlay.capture": "Capture creature",
-  "message.otherworldinn.space_sphere.overlay.release": "Release creature",
-  "message.otherworldinn.space_sphere.released": "Captured creature released",
   "message.otherworldinn.space_sphere.teleport_unlocked": "Map teleport has been activated",
   "message.otherworldinn.store.overlay.open": "Open Store",
   "message.otherworldinn.store.overlay.talk": "Talk",
@@ -591,8 +584,5 @@
   "tooltip.otherworldinn.room_key.price": "Price: §f§r%d",
   "tooltip.otherworldinn.room_key.room_id": "Room ID: %d",
   "tooltip.otherworldinn.room_key.theme": "Room Theme: %s",
-  "tooltip.otherworldinn.sell_price": "Sell Price: §f§r%s",
-  "tooltip.otherworldinn.space_sphere.capture_hint": "Right-click a capturable creature",
-  "tooltip.otherworldinn.space_sphere.contains": "Contains: %s (right-click block to release)",
-  "tooltip.otherworldinn.space_sphere.release_hint": "Right-click a block to release"
+  "tooltip.otherworldinn.sell_price": "Sell Price: §f§r%s"
 }
