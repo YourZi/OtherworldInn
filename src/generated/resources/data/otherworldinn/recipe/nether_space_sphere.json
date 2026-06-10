@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:blaze_powder"
+    "N": {
+      "item": "minecraft:netherrack"
     },
-    "P": {
-      "item": "minecraft:ender_pearl"
+    "O": {
+      "item": "minecraft:obsidian"
     },
     "S": {
       "item": "otherworldinn:space_sphere"
     }
   },
   "pattern": [
-    "BPB",
-    "PSP",
-    "BPB"
+    "ONO",
+    "NSN",
+    "ONO"
   ],
   "result": {
     "count": 1,
-    "id": "otherworldinn:end_space_sphere"
+    "id": "otherworldinn:nether_space_sphere"
   }
 }

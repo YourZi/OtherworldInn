@@ -7,9 +7,10 @@
     }
   ],
   "components": {
-    "end_void": 18.0,
-    "floating_islands": 22.0,
-    "end_highlands_biome": 28.0,
-    "end_islands_biome": 20.0
+    "floating_islands": 30.0,
+    "gravity_low": 25.0,
+    "universal_anger": 20.0,
+    "thriving_realm": 15.0,
+    "one_hp": 10.0
   }
 }

@@ -704,6 +704,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.space_sphere.teleport_unlocked")
                 .zh("地图传送功能已激活")
                 .en("Map teleport has been activated");
+        entry("message.otherworldinn.end_space_sphere.overlay.use")
+                .zh("右键使用传送到末地主岛")
+                .en("Right-click to teleport to the End main island");
         entry("message.otherworldinn.guest.tooltip.title").zh("旅客信息").en("Guest Info");
         entry("message.otherworldinn.guest.tooltip.vip").zh("[贵宾]").en("[VIP]");
         entry("message.otherworldinn.guest.tooltip.preference.comfort")

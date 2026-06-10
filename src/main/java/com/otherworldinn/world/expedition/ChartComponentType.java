@@ -44,12 +44,6 @@ public enum ChartComponentType {
             List.of("下界洞穴世界"), List.of(),
             () -> Items.NETHER_BRICKS),
 
-    END_VOID("end_void", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.END, Rarity.COMMON,
-            "末地虚空", "End Void",
-            List.of("末地虚空世界"), List.of(),
-            () -> Items.END_STONE_BRICKS),
-
     // ═══════════════════════════════════════════
     // 生物群系（可共存）
     // ═══════════════════════════════════════════
@@ -161,18 +155,6 @@ public enum ChartComponentType {
             List.of("灵魂沙峡谷"),
             List.of("恶魂与骷髅生成量提升"),
             () -> Items.SOUL_SAND),
-
-    END_HIGHLANDS("end_highlands_biome", ComponentCategory.BIOME,
-            DimensionCategory.END, Rarity.COMMON,
-            "末地高地生物群系", "End Highlands Biomes",
-            List.of("末地高地、末地内陆、末地荒地"), List.of(),
-            () -> Items.CHORUS_FLOWER),
-
-    END_ISLANDS("end_islands_biome", ComponentCategory.BIOME,
-            DimensionCategory.END, Rarity.RARE,
-            "末地群岛生物群系", "End Islands Biomes",
-            List.of("末地小型岛屿"), List.of(),
-            () -> Items.CHORUS_FRUIT),
 
     // ═══════════════════════════════════════════
     // 基础岩石类型（互斥）
@@ -328,7 +310,6 @@ public enum ChartComponentType {
     public enum DimensionCategory {
         MAIN_WORLD,
         NETHER,
-        END,
         UNIVERSAL
     }
 
@@ -437,16 +418,12 @@ public enum ChartComponentType {
 
     public static DimensionCategory determineDimension(List<String> componentIds) {
         boolean hasNether = false;
-        boolean hasEnd = false;
         for (String id : componentIds) {
             ChartComponentType t = byId(id);
             if (t == null || t.isUniversal()) continue;
             if (t.dimensionCategory == DimensionCategory.NETHER) hasNether = true;
-            if (t.dimensionCategory == DimensionCategory.END) hasEnd = true;
         }
-        if (hasNether && hasEnd) return null;
         if (hasNether) return DimensionCategory.NETHER;
-        if (hasEnd) return DimensionCategory.END;
         return DimensionCategory.MAIN_WORLD;
     }
 

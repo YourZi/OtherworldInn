@@ -8,6 +8,7 @@ import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.expedition.ExpeditionDimensions;
 import com.otherworldinn.world.expedition.ExpeditionService;
+import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -130,6 +131,18 @@ public class PlayerEventHandler {
                             player.drop(scroll, false);
                         }
                     }
+                }
+            }
+
+            // 末地返回传送门拦截：将目的地从主世界出生点改为城镇维度
+            if (player.level().dimension() == Level.END
+                    && event.getDimension() != TownDimensions.TOWN_LEVEL
+                    && !ExpeditionDimensions.isExpeditionDimension(event.getDimension())) {
+                event.setCanceled(true);
+                ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
+                if (townLevel != null) {
+                    TeleportUtils.changeDimensionTo(player, townLevel,
+                            new BlockPos(10, 71, 0));
                 }
             }
         }

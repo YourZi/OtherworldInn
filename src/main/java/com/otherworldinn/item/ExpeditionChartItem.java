@@ -493,7 +493,6 @@ public class ExpeditionChartItem extends Item {
             ChartComponentType.DimensionCategory category) {
         return switch (category) {
             case NETHER -> "下界";
-            case END -> "末地";
             default -> "主世界";
         };
     }
@@ -502,7 +501,6 @@ public class ExpeditionChartItem extends Item {
         ChartComponentType.DimensionCategory dim = getChartDimension(stack);
         ChatFormatting dimColor = switch (dim) {
             case NETHER -> ChatFormatting.RED;
-            case END -> ChatFormatting.LIGHT_PURPLE;
             default -> ChatFormatting.GREEN;
         };
         lines.add(Component.translatable("tooltip.otherworldinn.expedition_chart.dimension",

@@ -50,18 +50,5 @@ public class TownDimensions {
                     Registries.DIMENSION_TYPE,
                     ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_nether_type"));
 
-    public static final ResourceKey<LevelStem> EXPEDITION_END_STEM =
-            ResourceKey.create(
-                    Registries.LEVEL_STEM,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_end"));
-    public static final ResourceKey<Level> EXPEDITION_TEMPLATE_END =
-            ResourceKey.create(
-                    Registries.DIMENSION,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_end"));
-    public static final ResourceKey<DimensionType> EXPEDITION_END_DIM_TYPE =
-            ResourceKey.create(
-                    Registries.DIMENSION_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_end_type"));
-
     public static void register() {}
 }

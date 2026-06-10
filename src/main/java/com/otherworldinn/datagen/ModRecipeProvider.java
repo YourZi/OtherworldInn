@@ -54,8 +54,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 ComponentCraftEntry.of(Items.DEEPSLATE, Items.COBBLED_DEEPSLATE));
         COMPONENT_CRAFT.put("nether_cave",
                 ComponentCraftEntry.of(Items.NETHER_BRICKS, Items.NETHERRACK));
-        COMPONENT_CRAFT.put("end_void",
-                ComponentCraftEntry.of(Items.END_STONE_BRICKS, Items.END_STONE));
         COMPONENT_CRAFT.put("stone_base",
                 ComponentCraftEntry.of(Items.STONE, Items.STONE));
         COMPONENT_CRAFT.put("deepslate_base",
@@ -124,11 +122,23 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput, "blank_chart_component");
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.END_SPACE_SPHERE.get(), 1)
-                .pattern("PPP")
-                .pattern("PPP")
-                .pattern("PPP")
+                .pattern("BPB")
+                .pattern("PSP")
+                .pattern("BPB")
+                .define('B', Items.BLAZE_POWDER)
                 .define('P', Items.ENDER_PEARL)
+                .define('S', ModItems.SPACE_SPHERE.get())
                 .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHER_SPACE_SPHERE.get(), 1)
+                .pattern("ONO")
+                .pattern("NSN")
+                .pattern("ONO")
+                .define('O', Items.OBSIDIAN)
+                .define('N', Items.NETHERRACK)
+                .define('S', ModItems.SPACE_SPHERE.get())
+                .unlockedBy("has_obsidian", has(Items.OBSIDIAN))
                 .save(recipeOutput);
 
         for (var entry : COMPONENT_CRAFT.entrySet()) {

@@ -70,13 +70,11 @@ public class ChartComponentItem extends Item {
 
         ChatFormatting dimColor = switch (type.dimensionCategory()) {
             case NETHER -> ChatFormatting.RED;
-            case END -> ChatFormatting.LIGHT_PURPLE;
             default -> ChatFormatting.GREEN;
         };
         String dimName = switch (type.dimensionCategory()) {
             case UNIVERSAL -> "通用";
             case NETHER -> "下界";
-            case END -> "末地";
             default -> "主世界";
         };
         lines.add(Component.literal("  " + dimName).withStyle(dimColor));

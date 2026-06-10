@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.mixin.MixinMinecraftServerLevelsAccessor;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.teleport.TeleportUtils;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -236,7 +238,6 @@ public final class ExpeditionService {
         int nextGrid = savedData.incrementAndGet();
         int gridX = nextGrid % 100;
         int gridZ = nextGrid / 100;
-
         int offsetX = gridX * 2048;
         int offsetZ = gridZ * 2048;
         session.setCenter(offsetX, offsetZ);
@@ -244,7 +245,7 @@ public final class ExpeditionService {
         updateChunkSourceState(server, template, templateKey, expGen, seed);
 
         template.getWorldBorder().setSize(1024.0);
-        template.getWorldBorder().setCenter(offsetX, offsetZ);
+        template.getWorldBorder().setCenter(session.getCenterX(), session.getCenterZ());
 
         boolean needsBoost = ExpeditionBiomeFactory.hasStructureBoost(componentIds);
         if (needsBoost) {
@@ -321,7 +322,6 @@ public final class ExpeditionService {
     private static ResourceKey<Level> getTemplateKey(ChartComponentType.DimensionCategory category) {
         return switch (category) {
             case NETHER -> TownDimensions.EXPEDITION_TEMPLATE_NETHER;
-            case END -> TownDimensions.EXPEDITION_TEMPLATE_END;
             default -> TownDimensions.EXPEDITION_TEMPLATE_LEVEL;
         };
     }
@@ -513,7 +513,8 @@ public final class ExpeditionService {
     private static void recallPlayer(ServerPlayer player, MinecraftServer server) {
         ServerLevel townLevel = server.getLevel(TownDimensions.TOWN_LEVEL);
         if (townLevel == null) return;
-        player.teleportTo(townLevel, 10.5, 71.0, 0.5, player.getYRot(), player.getXRot());
+        TeleportUtils.changeDimensionTo(player, townLevel,
+                new BlockPos(10, 71, 0));
     }
 
     private static void clearRecallScrolls(ServerPlayer player) {
@@ -529,7 +530,6 @@ public final class ExpeditionService {
         setStructureBoostActive(false);
         restoreSingleTemplate(server, TownDimensions.EXPEDITION_TEMPLATE_LEVEL);
         restoreSingleTemplate(server, TownDimensions.EXPEDITION_TEMPLATE_NETHER);
-        restoreSingleTemplate(server, TownDimensions.EXPEDITION_TEMPLATE_END);
     }
 
     private static void restoreSingleTemplate(MinecraftServer server, ResourceKey<Level> key) {

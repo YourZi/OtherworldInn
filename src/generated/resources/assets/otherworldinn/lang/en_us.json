@@ -401,6 +401,7 @@
   "message.otherworldinn.death_penalty": "%s collapsed, medical expenses deducted: %s",
   "message.otherworldinn.desk_bell.status.closed": "The Inn is CLOSED",
   "message.otherworldinn.desk_bell.status.open": "The Inn is OPEN",
+  "message.otherworldinn.end_space_sphere.overlay.use": "Right-click to teleport to the End main island",
   "message.otherworldinn.expedition.aborted": "Expedition has been forcibly terminated by admin",
   "message.otherworldinn.expedition.already_active": "An expedition is already in progress, wait for it to end",
   "message.otherworldinn.expedition.already_in": "You are already in another expedition",

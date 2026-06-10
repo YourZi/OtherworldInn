@@ -80,11 +80,6 @@ public final class ExpeditionBiomeFactory {
                 List.of(b("basalt_deltas")));
         BIOME_COMPONENT_MAP.put("soul_valley_biome",
                 List.of(b("soul_sand_valley")));
-
-        BIOME_COMPONENT_MAP.put("end_highlands_biome",
-                List.of(b("end_highlands"), b("end_midlands"), b("end_barrens")));
-        BIOME_COMPONENT_MAP.put("end_islands_biome",
-                List.of(b("small_end_islands")));
     }
 
     private static ResourceKey<Biome> b(String name) {
@@ -254,12 +249,6 @@ public final class ExpeditionBiomeFactory {
                     && netherLevel.getChunkSource().getGenerator() instanceof NoiseBasedChunkGenerator ng) {
                 referenceGen = ng;
             }
-        } else if (category == ChartComponentType.DimensionCategory.END) {
-            var endLevel = server.getLevel(Level.END);
-            if (endLevel != null
-                    && endLevel.getChunkSource().getGenerator() instanceof NoiseBasedChunkGenerator ng) {
-                referenceGen = ng;
-            }
         } else {
             if (server.overworld().getChunkSource().getGenerator() instanceof NoiseBasedChunkGenerator ng) {
                 referenceGen = ng;
@@ -278,7 +267,6 @@ public final class ExpeditionBiomeFactory {
             MinecraftServer server, ChartComponentType.DimensionCategory category) {
         ResourceKey<Level> dimKey = switch (category) {
             case NETHER -> Level.NETHER;
-            case END -> Level.END;
             default -> Level.OVERWORLD;
         };
         ServerLevel level = server.getLevel(dimKey);
@@ -311,11 +299,6 @@ public final class ExpeditionBiomeFactory {
             var netherLevel = server.getLevel(Level.NETHER);
             if (netherLevel != null) {
                 return netherLevel.getChunkSource().getGenerator().getBiomeSource();
-            }
-        } else if (category == ChartComponentType.DimensionCategory.END) {
-            var endLevel = server.getLevel(Level.END);
-            if (endLevel != null) {
-                return endLevel.getChunkSource().getGenerator().getBiomeSource();
             }
         }
         return server.overworld().getChunkSource().getGenerator().getBiomeSource();

@@ -3,7 +3,6 @@ package com.otherworldinn.world.expedition.recipe;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.ExpeditionChartItem;
 import com.otherworldinn.item.NetherSpaceSphereItem;
-import com.otherworldinn.item.EndSpaceSphereItem;
 import com.otherworldinn.world.expedition.ChartComponentType;
 import com.otherworldinn.world.expedition.ExpeditionNbtHelper;
 import net.minecraft.core.HolderLookup;
@@ -84,8 +83,6 @@ public class ChartDimensionRecipe extends CustomRecipe {
     private ChartComponentType.DimensionCategory getDimensionFromSphere(ItemStack sphere) {
         if (sphere.getItem() instanceof NetherSpaceSphereItem)
             return ChartComponentType.DimensionCategory.NETHER;
-        if (sphere.getItem() instanceof EndSpaceSphereItem)
-            return ChartComponentType.DimensionCategory.END;
         return null;
     }
 

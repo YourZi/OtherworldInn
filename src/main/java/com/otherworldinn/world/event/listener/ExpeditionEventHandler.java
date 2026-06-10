@@ -5,6 +5,8 @@ import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.expedition.ExpeditionDimensions;
 import com.otherworldinn.world.expedition.ExpeditionService;
 import com.otherworldinn.world.expedition.ExpeditionSession;
+import com.otherworldinn.world.teleport.TeleportUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -60,7 +62,8 @@ public class ExpeditionEventHandler {
         if (session == null && inExpeditionDim) {
             ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
             if (townLevel != null) {
-                player.teleportTo(townLevel, 10.5, 71.0, 0.5, player.getYRot(), player.getXRot());
+                TeleportUtils.changeDimensionTo(player, townLevel,
+                        new BlockPos(10, 71, 0));
             }
             return;
         }
@@ -68,7 +71,8 @@ public class ExpeditionEventHandler {
         if (session != null && session.departedPlayers().contains(player.getUUID())) {
             ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
             if (townLevel != null) {
-                player.teleportTo(townLevel, 10.5, 71.0, 0.5, player.getYRot(), player.getXRot());
+                TeleportUtils.changeDimensionTo(player, townLevel,
+                        new BlockPos(10, 71, 0));
             }
         }
     }
