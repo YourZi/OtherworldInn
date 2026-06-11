@@ -13,6 +13,9 @@ import com.otherworldinn.client.renderer.MagicianModel;
 import com.otherworldinn.client.renderer.MagicianRenderer;
   import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.RoomKeyItem;
+import com.otherworldinn.item.ChartComponentItem;
+import com.otherworldinn.world.expedition.ChartComponentType;
+import com.github.ysbbbbbb.kaleidoscopecookery.item.RecipeItem;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -113,6 +116,30 @@ public class ModClientEvents {
                     }
                     SlotIconRenderer.renderCentered(guiGraphics,
                             new ItemStack(Items.BARRIER), x, y, 200, 0.5f);
+                    return false;
+                });
+
+        event.register(
+                ModItems.CHART_COMPONENT.get(),
+                (guiGraphics, font, stack, x, y) -> {
+                    String compType = ChartComponentItem.getComponentType(stack);
+                    if ("blank".equals(compType)) return false;
+                    ChartComponentType type = ChartComponentType.byId(compType);
+                    if (type == null) return false;
+                    SlotIconRenderer.renderCentered(guiGraphics,
+                            new ItemStack(type.iconItem()), x, y, 200, 0.7f);
+                    return false;
+                });
+
+        event.register(
+                com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems.RECIPE_ITEM.get(),
+                (guiGraphics, font, stack, x, y) -> {
+                    RecipeItem.RecipeRecord record = RecipeItem.getRecipe(stack);
+                    if (record == null) return false;
+                    ItemStack output = record.output();
+                    if (output.isEmpty()) return false;
+                    SlotIconRenderer.renderCentered(guiGraphics,
+                            output, x, y, 200, 0.7f);
                     return false;
                 });
     }

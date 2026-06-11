@@ -43,15 +43,15 @@ public class ModRecipeProvider extends RecipeProvider {
 
     static {
         COMPONENT_CRAFT.put("mushroom_biome",
-                ComponentCraftEntry.of(Items.RED_MUSHROOM, Items.MYCELIUM));
+                ComponentCraftEntry.of(Items.RED_MUSHROOM, Items.BROWN_MUSHROOM));
         COMPONENT_CRAFT.put("surface_world",
-                ComponentCraftEntry.of(Items.GRASS_BLOCK, Items.DIRT));
+                ComponentCraftEntry.of(Items.COBBLESTONE, Items.DIRT));
         COMPONENT_CRAFT.put("floating_islands",
                 ComponentCraftEntry.of(Items.END_STONE, Items.FEATHER));
         COMPONENT_CRAFT.put("amplified_world",
                 ComponentCraftEntry.of(Items.MOSSY_COBBLESTONE, Items.STONE));
         COMPONENT_CRAFT.put("cave_world",
-                ComponentCraftEntry.of(Items.DEEPSLATE, Items.COBBLED_DEEPSLATE));
+                ComponentCraftEntry.of(Items.COBBLESTONE, Items.COBBLED_DEEPSLATE));
         COMPONENT_CRAFT.put("nether_cave",
                 ComponentCraftEntry.of(Items.NETHER_BRICKS, Items.NETHERRACK));
         COMPONENT_CRAFT.put("stone_base",
