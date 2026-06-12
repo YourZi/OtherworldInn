@@ -393,6 +393,37 @@ public class InnEventHandler {
 
         BlockPos pos = event.getPos();
         Player player = event.getEntity();
+        ItemStack held = player.getItemInHand(event.getHand());
+
+        // 命名牌重命名房间
+        if (held.is(Items.NAME_TAG) && held.has(DataComponents.CUSTOM_NAME)) {
+            if (level instanceof ServerLevel serverLevel
+                    && level.dimension() == TownDimensions.TOWN_LEVEL) {
+                TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
+                if (team != null && team.hasMember(player.getUUID())) {
+                    RoomData room = team.getInnData().getRoomAt(pos);
+                    if (room == null) {
+                        room = team.getInnData().getRoomAt(pos.relative(event.getFace()));
+                    }
+                    if (room != null) {
+                        String newName = held.getHoverName().getString();
+                        room.setName(newName);
+                        TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
+                        player.swing(event.getHand(), true);
+                        player.displayClientMessage(
+                                Component.translatable(
+                                                "message.otherworldinn.room_rename.success",
+                                                RoomData.getDisplayName(room))
+                                        .withStyle(style -> style.withColor(ModColors.SUCCESS)),
+                                true);
+                        event.setCanceled(true);
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
         if (!player.isShiftKeyDown()) return;
 
         if (level.getBlockEntity(pos)
@@ -469,34 +500,6 @@ public class InnEventHandler {
                                             .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                                     true);
                         }
-                        event.setCanceled(true);
-                    }
-                }
-            }
-        }
-
-        // 命名牌重命名房间
-        ItemStack held = player.getItemInHand(event.getHand());
-        if (held.is(Items.NAME_TAG) && held.has(DataComponents.CUSTOM_NAME)) {
-            if (level instanceof ServerLevel serverLevel
-                    && level.dimension() == TownDimensions.TOWN_LEVEL) {
-                TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
-                if (team != null && team.hasMember(player.getUUID())) {
-                    RoomData room = team.getInnData().getRoomAt(pos);
-                    if (room == null) {
-                        BlockPos innerPos = pos.relative(event.getFace());
-                        room = team.getInnData().getRoomAt(innerPos);
-                    }
-                    if (room != null) {
-                        String newName = held.getHoverName().getString();
-                        room.setName(newName);
-                        TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
-                        player.displayClientMessage(
-                                Component.translatable(
-                                                "message.otherworldinn.room_rename.success",
-                                                RoomData.getDisplayName(room))
-                                        .withStyle(style -> style.withColor(ModColors.SUCCESS)),
-                                true);
                         event.setCanceled(true);
                     }
                 }

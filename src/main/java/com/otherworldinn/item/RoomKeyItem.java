@@ -293,11 +293,11 @@ public class RoomKeyItem extends Item {
                             if (team != null) {
                                 RoomData room = team.getInnData().getRoom(roomId);
                                 if (room != null) {
-                                    // 房间名称
+                                    // 房间编号
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.room_key.room_id",
-                                                            RoomData.getDisplayName(room))
+                                                            roomId)
                                                     .withStyle(ChatFormatting.GOLD));
 
                                     // 位置

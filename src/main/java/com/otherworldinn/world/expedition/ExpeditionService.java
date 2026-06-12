@@ -244,7 +244,7 @@ public final class ExpeditionService {
 
         updateChunkSourceState(server, template, templateKey, expGen, seed);
 
-        template.getWorldBorder().setSize(1024.0);
+        template.getWorldBorder().setSize(8192.0);
         template.getWorldBorder().setCenter(session.getCenterX(), session.getCenterZ());
 
         boolean needsBoost = ExpeditionBiomeFactory.hasStructureBoost(componentIds);
@@ -331,7 +331,7 @@ public final class ExpeditionService {
         Map<ResourceKey<Level>, ServerLevel> levels =
                 ((MixinMinecraftServerLevelsAccessor) server).otherworldinn$getLevels();
         levels.put(dimKey, level);
-        level.getWorldBorder().setSize(1024.0);
+        level.getWorldBorder().setSize(8192.0);
         level.getWorldBorder().setCenter(session.getCenterX(), session.getCenterZ());
     }
 

@@ -35,11 +35,14 @@
     "MixinRecipeItemUnlock",
     "MixinPotBlockEntityCookCheck",
     "MixinStockpotBlockEntityCookCheck",
-    "MixinSchematicTableCreativeBlueprint"
+    "MixinSchematicItemToggle",
+    "MixinSchematicPlacePacketSurvivalPrint"
   ],
   "client": [
     "MixinPlayerRendererMapModeHidden",
-    "MixinEntityRenderDispatcherMapMode"
+    "MixinEntityRenderDispatcherMapMode",
+    "MixinToolTypeSurvivalPrint",
+    "MixinSchematicItemTooltipSurvivalPrint"
   ],
   "injectors": {
     "defaultRequire": 1

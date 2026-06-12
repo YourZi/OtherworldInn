@@ -16,7 +16,6 @@ import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.RoomRegisterItem;
 import com.otherworldinn.item.SpaceSphereItem;
 import com.otherworldinn.item.ChartComponentItem;
-import com.otherworldinn.item.CreativeBlueprintItem;
 import com.otherworldinn.item.ExpeditionChartItem;
 
 import java.util.HashMap;
@@ -203,15 +202,6 @@ public class ModItems {
                     .tooltip("Attach to a Pioneer Chart to customize expedition terrain", "附加到开拓者星图以定制远征地形");
     public static final DeferredItem<ChartComponentItem> CHART_COMPONENT =
             CHART_COMPONENT_REG.register();
-
-    public static final ItemReg<CreativeBlueprintItem> CREATIVE_BLUEPRINT_REG =
-            new ItemReg<>("creative_blueprint", CreativeBlueprintItem::new)
-                    .rarity(Rarity.EPIC)
-                    .stacksTo(1)
-                    .lang("Creative Blueprint", "创造蓝图")
-                    .tooltip("Store and place schematics directly in survival mode", "存储并直接放置结构蓝图（生存模式可用）");
-    public static final DeferredItem<CreativeBlueprintItem> CREATIVE_BLUEPRINT =
-            CREATIVE_BLUEPRINT_REG.register();
 
     // --- 辅助方法 ---
 

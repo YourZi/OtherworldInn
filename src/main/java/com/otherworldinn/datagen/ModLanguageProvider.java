@@ -452,6 +452,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.room_rename.success")
                 .zh("房间已重命名为：%s")
                 .en("Room renamed to: %s");
+        entry("message.otherworldinn.room_rename.overlay")
+                .zh("重命名房间")
+                .en("Rename room");
 
         // 生物群系
         entry("biome.otherworldinn.town").zh("城镇").en("Town");
@@ -715,9 +718,15 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.end_space_sphere.overlay.use")
                 .zh("右键使用传送到末地主岛")
                 .en("Right-click to teleport to the End main island");
-        entry("tooltip.otherworldinn.creative_blueprint.survival_place")
-                .zh("生存模式右键直接放置结构（消耗蓝图）")
-                .en("Right-click to place structure directly (consumes blueprint)");
+        entry("tooltip.otherworldinn.schematic.survival_print")
+                .zh("生存模式可使用打印工具")
+                .en("Print tool usable in survival mode");
+        entry("message.otherworldinn.schematic.survival_print.enabled")
+                .zh("生存打印已启用")
+                .en("Survival Print enabled");
+        entry("message.otherworldinn.schematic.survival_print.disabled")
+                .zh("生存打印已禁用")
+                .en("Survival Print disabled");
         entry("message.otherworldinn.guest.tooltip.title").zh("旅客信息").en("Guest Info");
         entry("message.otherworldinn.guest.tooltip.vip").zh("[贵宾]").en("[VIP]");
         entry("message.otherworldinn.guest.tooltip.preference.comfort")
