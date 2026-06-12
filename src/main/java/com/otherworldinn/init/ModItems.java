@@ -180,7 +180,8 @@ public class ModItems {
             new ItemReg<>("end_space_sphere", EndSpaceSphereItem::new)
                     .rarity(Rarity.EPIC)
                     .stacksTo(16)
-                    .lang("End Space Sphere", "末地空间球");
+                    .lang("End Space Sphere", "末地空间球")
+                    .tooltip("Right-click to teleport to the End main island", "右键使用传送到末地主岛黑曜石平台");
     public static final DeferredItem<EndSpaceSphereItem> END_SPACE_SPHERE =
             END_SPACE_SPHERE_REG.register();
 

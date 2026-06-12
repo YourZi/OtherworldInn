@@ -115,7 +115,7 @@ public class ModClientEvents {
                         return false;
                     }
                     SlotIconRenderer.renderCentered(guiGraphics,
-                            new ItemStack(Items.BARRIER), x, y, 200, 0.5f);
+                            new ItemStack(Items.BARRIER), x, y, 0, 1.0f);
                     return false;
                 });
 
@@ -127,7 +127,7 @@ public class ModClientEvents {
                     ChartComponentType type = ChartComponentType.byId(compType);
                     if (type == null) return false;
                     SlotIconRenderer.renderCentered(guiGraphics,
-                            new ItemStack(type.iconItem()), x, y, 200, 0.7f);
+                            new ItemStack(type.iconItem()), x, y, 0, 0.7f);
                     return false;
                 });
 
@@ -139,7 +139,7 @@ public class ModClientEvents {
                     ItemStack output = record.output();
                     if (output.isEmpty()) return false;
                     SlotIconRenderer.renderCentered(guiGraphics,
-                            output, x, y, 200, 0.7f);
+                            output, x, y, 0, 0.7f);
                     return false;
                 });
     }

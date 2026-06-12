@@ -105,8 +105,7 @@ public class TownProtectionHandler {
     }
 
     /**
-     * 免保区判定：旅社范围内无人入住的房间区域，或温室区域。
-     * 满足任一条件即为免保区。
+     * 免保区判定（服务端）。旅社范围内无人入住的房间区域，或温室区域。
      */
     private static boolean isFreeZone(ServerLevel level, BlockPos pos) {
         if (level == null || pos == null || !isTownDimension(level)) return false;
@@ -118,6 +117,59 @@ public class TownProtectionHandler {
 
         RoomData room = team.getInnData().getRoomAffectedBy(pos);
         return room == null || room.getCurrentGuests().isEmpty();
+    }
+
+    /**
+     * 客户端免保区判定。仅使用客户端缓存的队伍数据。
+     */
+    private static boolean isFreeZoneClient(Level level, BlockPos pos) {
+        if (level == null || pos == null || !isTownDimension(level)) return false;
+
+        TeamData team = TeamManager.getInstance().getClientPlayerTeam();
+        if (team == null || !team.isInInnZone(pos)) return false;
+
+        // 温室判定
+        int ghLevel = Math.max(0, team.getInnData().getFacilityLevel(GREENHOUSE_FACILITY_ID));
+        if (ghLevel > 0) {
+            FacilityRegistry.FacilityDefinition greenhouse = FacilityRegistry.get(GREENHOUSE_FACILITY_ID);
+            if (greenhouse != null) {
+                if (greenhouse.facilityRange().contains(pos)) return true;
+                for (FacilityRegistry.FacilityRange range : greenhouse.getExtraBuildAllowRanges(ghLevel)) {
+                    if (range.contains(pos)) return true;
+                }
+            }
+        }
+
+        RoomData room = team.getInnData().getRoomAffectedBy(pos);
+        return room == null || room.getCurrentGuests().isEmpty();
+    }
+
+    /** 免保区判定，自动区分服务端/客户端。 */
+    private static boolean isFreeZoneAny(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel sl) return isFreeZone(sl, pos);
+        return isFreeZoneClient(level, pos);
+    }
+
+    /** 根据坐标是否在有人入住的房间内，返回对应的拒绝提示消息。 */
+    private static Component getDenyMessage(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
+            if (team != null && team.isInInnZone(pos)) {
+                RoomData room = team.getInnData().getRoomAffectedBy(pos);
+                if (room != null && !room.getCurrentGuests().isEmpty()) {
+                    return Component.translatable("message.otherworldinn.protection.deny_guest_in_room");
+                }
+            }
+        } else {
+            TeamData team = TeamManager.getInstance().getClientPlayerTeam();
+            if (team != null && team.isInInnZone(pos)) {
+                RoomData room = team.getInnData().getRoomAffectedBy(pos);
+                if (room != null && !room.getCurrentGuests().isEmpty()) {
+                    return Component.translatable("message.otherworldinn.protection.deny_guest_in_room");
+                }
+            }
+        }
+        return Component.translatable("message.otherworldinn.protection.deny");
     }
 
     public static boolean isInnRestrictionLiftedAt(ServerLevel level, BlockPos pos) {
@@ -295,7 +347,7 @@ public class TownProtectionHandler {
         if (!(player instanceof ServerPlayer) || player instanceof FakePlayer || !player.isCreative()) {
             event.setCanceled(true);
             if (player instanceof ServerPlayer && !(player instanceof FakePlayer))
-                sendDenyMessage(player, Component.translatable("message.otherworldinn.protection.deny"));
+                sendDenyMessage(player, getDenyMessage(level, event.getPos()));
         }
     }
 
@@ -335,7 +387,7 @@ public class TownProtectionHandler {
 
             if (player instanceof ServerPlayer && !(player instanceof FakePlayer)) {
                 event.setCanceled(true);
-                sendDenyMessage(player, Component.translatable("message.otherworldinn.protection.deny"));
+                sendDenyMessage(player, getDenyMessage(level, event.getPos()));
                 syncInventoryIfServerPlayer(player);
             } else {
                 event.setCanceled(true);
@@ -395,48 +447,43 @@ public class TownProtectionHandler {
         }
 
         BlockState clickedState = level.getBlockState(event.getPos());
+        BlockPos placePos = event.getPos().relative(event.getFace());
 
         // 3. 始终放行：Depot 展示块
         if (isDepotDisplayBlock(clickedState)) return;
 
-        // 4. 免保区放行
-        if (level instanceof ServerLevel sl && isFreeZone(sl, event.getPos())) return;
-
-        // 5. 限制区内：
+        // 4. 限制区内：
         //    a) 方块实体交互 (容器、工作台等) → 放行
+        //       （免保区内直接放行，限制区内允许容器交互）
         if (clickedState.hasBlockEntity()
-                && !(clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock))
-            return;
+                && !(clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock)) {
+            if (isFreeZoneAny(level, event.getPos())) return;   // 免保区放行
+            return;  // 限制区内允许容器交互
+        }
 
-        //    b) 饰纹陶罐 → 仅创造放行
+        //    b) 饰纹陶罐 → 免保区放行，限制区内仅创造放行
         if (clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock) {
+            if (isFreeZoneAny(level, event.getPos())) return;
             if (!player.isCreative())
                 denyRightClickBlock(event, player,
-                        Component.translatable("message.otherworldinn.protection.deny"));
+                        getDenyMessage(level, event.getPos()));
             return;
         }
 
-        //    c) 手持方块 → 拒绝（免保区交互块除外）
+        //    c) 手持方块 → 以放置目标位置判定
         if (!player.isCreative() && !stack.isEmpty()) {
             if (stack.getItem() instanceof BlockItem blockItem) {
-                BlockPos placePos = event.getPos().relative(event.getFace());
-                if (!isInnFreeInteractBlock(blockItem.getBlock().defaultBlockState())
-                        || !isPlacePosFreeOrOutsideRestriction(level, event.getPos(), placePos)) {
+                if (isFreeZoneAny(level, placePos)) return;
+                if (!isInnFreeInteractBlock(blockItem.getBlock().defaultBlockState())) {
                     denyRightClickBlock(event, player,
-                            Component.translatable("message.otherworldinn.protection.deny"));
+                            getDenyMessage(level, placePos));
                 }
             } else if (stack.getItem() instanceof HoeItem) {
+                if (isFreeZoneAny(level, event.getPos())) return;
                 denyRightClickBlock(event, player,
-                        Component.translatable("message.otherworldinn.protection.deny"));
+                        getDenyMessage(level, event.getPos()));
             }
         }
-    }
-
-    /** 免保区交互块仅当点击位置或放置位置在免保区内时才放行。 */
-    private static boolean isPlacePosFreeOrOutsideRestriction(
-            Level level, BlockPos clickedPos, BlockPos placePos) {
-        if (!(level instanceof ServerLevel sl)) return false;
-        return isFreeZone(sl, clickedPos) || isFreeZone(sl, placePos);
     }
 
     // ── 右键空气 ──────────────────────────────────────────

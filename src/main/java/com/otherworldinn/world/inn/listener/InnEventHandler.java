@@ -430,57 +430,6 @@ public class InnEventHandler {
                 instanceof com.simibubi.create.content.redstone.deskBell.DeskBellBlockEntity) {
             ItemStack heldItem = player.getItemInHand(event.getHand());
 
-            if (heldItem.is(ModItems.INN_KEY.get())) {
-                if (level instanceof ServerLevel serverLevel
-                        && level.dimension() == TownDimensions.TOWN_LEVEL) {
-                    TeamData team =
-                            TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
-
-                    if (team != null) {
-                        if (!team.hasMember(player.getUUID())) {
-                            player.displayClientMessage(
-                                    Component.translatable(
-                                                    "message.otherworldinn.inn_key.no_permission")
-                                            .withStyle(style -> style.withColor(ModColors.ERROR)),
-                                    true);
-                            event.setCanceled(true);
-                            return;
-                        }
-
-                        InnData innData = team.getInnData();
-                        InnData.InnState currentState = innData.getState();
-                        InnData.InnState newState;
-                        SoundEvent sound;
-                        MutableComponent message;
-                        int color;
-
-                        if (currentState == InnData.InnState.OPEN) {
-                            sound = SoundEvents.WOODEN_DOOR_OPEN;
-                            newState = InnData.InnState.CLOSED;
-                            message =
-                                    Component.translatable("message.otherworldinn.inn_key.closed");
-                            color = ModColors.RED;
-                        } else {
-                            sound = SoundEvents.WOODEN_DOOR_CLOSE;
-                            newState = InnData.InnState.OPEN;
-                            message = Component.translatable("message.otherworldinn.inn_key.open");
-                            color = ModColors.GREEN;
-                        }
-
-                        innData.setState(newState);
-                        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
-                        TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
-                        if (newState == InnData.InnState.OPEN) {
-                            innData.setInitialChartsGiven(true);
-                        }
-                        player.swing(event.getHand(), true);
-                        player.displayClientMessage(
-                                message.copy().withStyle(style -> style.withColor(color)),
-                                true);
-                    }
-                }
-            }
-
             if (heldItem.is(Items.BOOK) || heldItem.is(Items.WRITABLE_BOOK) || heldItem.is(Items.WRITTEN_BOOK)) {
                 if (level instanceof ServerLevel serverLevel
                         && level.dimension() == TownDimensions.TOWN_LEVEL) {

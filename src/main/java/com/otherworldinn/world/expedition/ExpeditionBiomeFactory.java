@@ -225,7 +225,7 @@ public final class ExpeditionBiomeFactory {
         ResourceKey<NoiseGeneratorSettings> presetKey = switch (worldType.id()) {
             case "amplified_world" -> NoiseGeneratorSettings.AMPLIFIED;
             case "floating_islands" -> NoiseGeneratorSettings.FLOATING_ISLANDS;
-            case "cave_world", "nether_cave" -> NoiseGeneratorSettings.CAVES;
+            case "cave_world" -> NoiseGeneratorSettings.CAVES;
             default -> null;
         };
 

@@ -27,7 +27,6 @@ public class ChartComponentRecipe extends CustomRecipe {
         ITEM_TO_COMPONENT.put(Items.END_STONE, "floating_islands");
         ITEM_TO_COMPONENT.put(Items.MOSSY_COBBLESTONE, "amplified_world");
         ITEM_TO_COMPONENT.put(Items.DEEPSLATE, "cave_world");
-        ITEM_TO_COMPONENT.put(Items.NETHER_BRICKS, "nether_cave");
 
         ITEM_TO_COMPONENT.put(Items.SUNFLOWER, "plains_biome");
         ITEM_TO_COMPONENT.put(Items.OAK_SAPLING, "forests_biome");

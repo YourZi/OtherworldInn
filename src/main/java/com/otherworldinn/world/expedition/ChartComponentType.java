@@ -15,34 +15,28 @@ public enum ChartComponentType {
     // 世界类型（互斥）
     // ═══════════════════════════════════════════
     SURFACE_WORLD("surface_world", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.MAIN_WORLD, Rarity.COMMON,
+            DimensionCategory.UNIVERSAL, Rarity.COMMON,
             "地表世界", "Surface World",
             List.of("基础地形以主世界的方式生成"), List.of(),
             () -> Items.GRASS_BLOCK),
 
     FLOATING_ISLANDS("floating_islands", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.MAIN_WORLD, Rarity.RARE,
+            DimensionCategory.UNIVERSAL, Rarity.COMMON,
             "浮岛世界", "Floating Islands",
             List.of("基础地形以浮岛世界的方式生成"), List.of(),
             () -> Items.END_STONE),
 
     AMPLIFIED_WORLD("amplified_world", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.MAIN_WORLD, Rarity.RARE,
+            DimensionCategory.UNIVERSAL, Rarity.COMMON,
             "放大化世界", "Amplified World",
             List.of("基础地形以放大化世界的方式生成"), List.of(),
             () -> Items.MOSSY_COBBLESTONE),
 
     CAVE_WORLD("cave_world", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.MAIN_WORLD, Rarity.EPIC,
+            DimensionCategory.UNIVERSAL, Rarity.COMMON,
             "洞穴世界", "Cave World",
             List.of("基础地形以洞穴世界的方式生成"), List.of(),
             () -> Items.DEEPSLATE),
-
-    NETHER_CAVE("nether_cave", ComponentCategory.WORLD_TYPE,
-            DimensionCategory.NETHER, Rarity.COMMON,
-            "下界洞穴", "Nether Cave",
-            List.of("下界洞穴世界"), List.of(),
-            () -> Items.NETHER_BRICKS),
 
     // ═══════════════════════════════════════════
     // 生物群系（可共存）

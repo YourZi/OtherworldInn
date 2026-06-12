@@ -36,7 +36,7 @@ public class EndSpaceSphereItem extends Item {
         }
 
         TeleportUtils.changeDimensionTo(serverPlayer, endLevel,
-                new BlockPos(0, 71, 0));
+                new BlockPos(100, 49, 0));
 
         serverPlayer.level().playSound(
                 null,

@@ -52,8 +52,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 ComponentCraftEntry.of(Items.MOSSY_COBBLESTONE, Items.STONE));
         COMPONENT_CRAFT.put("cave_world",
                 ComponentCraftEntry.of(Items.COBBLESTONE, Items.COBBLED_DEEPSLATE));
-        COMPONENT_CRAFT.put("nether_cave",
-                ComponentCraftEntry.of(Items.NETHER_BRICKS, Items.NETHERRACK));
         COMPONENT_CRAFT.put("stone_base",
                 ComponentCraftEntry.of(Items.STONE, Items.STONE));
         COMPONENT_CRAFT.put("deepslate_base",
