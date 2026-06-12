@@ -362,10 +362,11 @@ public class InnData {
     }
 
     public void removeRoom(int roomId, Level level, TeamData team, Component reason) {
-        this.rooms.remove(roomId);
+        RoomData removed = this.rooms.remove(roomId);
 
         // 通知队伍所有成员
-        if (level != null && team != null) {
+        if (level != null && team != null && removed != null) {
+            String roomDisplay = RoomData.getDisplayName(removed);
             team.getMembers()
                     .forEach(
                             uuid -> {
@@ -375,7 +376,7 @@ public class InnData {
                                         player.displayClientMessage(
                                                 Component.translatable(
                                                                 "message.otherworldinn.room_register.remove_success_with_reason",
-                                                                roomId,
+                                                                roomDisplay,
                                                                 reason)
                                                         .withStyle(
                                                                 style ->
@@ -386,7 +387,7 @@ public class InnData {
                                         player.displayClientMessage(
                                                 Component.translatable(
                                                                 "message.otherworldinn.room_register.remove_success",
-                                                                roomId)
+                                                                roomDisplay)
                                                         .withStyle(
                                                                 style ->
                                                                         style.withColor(
@@ -444,7 +445,7 @@ public class InnData {
             BlockState state = level.getBlockState(pos);
             net.minecraft.world.level.block.Block block = state.getBlock();
             int count = blockCounts.getOrDefault(block, 0);
-            if (count >= 2) {
+            if (count >= 3) {
                 continue;
             }
             blockCounts.put(block, count + 1);
@@ -1326,7 +1327,8 @@ public class InnData {
                 if (bedMessy) {
                     String todoText =
                             Component.translatable(
-                                            "todo.otherworldinn.room_cleaning", targetRoom.getId())
+                                            "todo.otherworldinn.room_cleaning",
+                                            RoomData.getDisplayName(targetRoom))
                                     .getString();
                     this.addTodo(level, team, todoText);
                 }

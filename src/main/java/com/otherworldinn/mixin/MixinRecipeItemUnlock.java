@@ -1,6 +1,7 @@
 package com.otherworldinn.mixin;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.item.RecipeItem;
+import com.otherworldinn.init.ModGameRules;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import net.minecraft.ChatFormatting;
@@ -13,6 +14,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +26,9 @@ public class MixinRecipeItemUnlock {
     @Inject(method = "useOn", at = @At("HEAD"), cancellable = true)
     private void otherworldinn$handleRecipeUnlock(UseOnContext context,
             CallbackInfoReturnable<InteractionResult> cir) {
-        if (context.getLevel().isClientSide) return;
+        Level level = context.getLevel();
+        if (level.isClientSide) return;
+        if (!level.getGameRules().getBoolean(ModGameRules.RULE_ENABLE_RECIPE_UNLOCK)) return;
 
         Player player = context.getPlayer();
         if (player == null) return;
@@ -61,7 +65,8 @@ public class MixinRecipeItemUnlock {
     private void otherworldinn$prependUnlockedPrefix(ItemStack stack,
             CallbackInfoReturnable<Component> cir) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null || mc.level == null) return;
+        if (!mc.level.getGameRules().getBoolean(ModGameRules.RULE_ENABLE_RECIPE_UNLOCK)) return;
 
         RecipeItem.RecipeRecord record = RecipeItem.getRecipe(stack);
         if (record == null) return;

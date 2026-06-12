@@ -27,17 +27,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        // 定义“城镇维度禁用”标签
-        tag(OtherworldInn.BANNED_IN_TOWN)
-                .add(Items.TNT)
-                .add(Items.END_CRYSTAL)
-                .add(Items.FIRE_CHARGE)
-                .add(Items.FIREWORK_ROCKET)
-                .add(Items.WIND_CHARGE)
-                .add(Items.SPLASH_POTION)
-                .add(Items.LINGERING_POTION);
+        tag(OtherworldInn.BANNED_IN_TOWN);
 
-        // 定义“仅城镇维度可用”标签
         tag(OtherworldInn.ONLY_IN_TOWN)
                 .add(ModItems.ROOM_REGISTER.get())
                 .add(ModItems.LAND_DEED.get())

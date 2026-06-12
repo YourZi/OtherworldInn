@@ -177,7 +177,8 @@ public class RoomKeyItem extends Item {
 
                 player.displayClientMessage(
                         Component.translatable(
-                                        "message.otherworldinn.room_key.checkin_success", roomId)
+                                        "message.otherworldinn.room_key.checkin_success",
+                                        RoomData.getDisplayName(room))
                                 .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                         true);
                 return InteractionResult.SUCCESS;
@@ -208,7 +209,8 @@ public class RoomKeyItem extends Item {
                     bindRoom(stack, room.getId(), room.getUuid());
                     player.displayClientMessage(
                             Component.translatable(
-                                            "message.otherworldinn.room_key.bound", room.getId())
+                                            "message.otherworldinn.room_key.bound",
+                                            RoomData.getDisplayName(room))
                                     .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                             true);
 
@@ -239,10 +241,22 @@ public class RoomKeyItem extends Item {
         Optional<Integer> roomId = getBoundRoomId(stack);
         if (roomId.isPresent()) {
             int id = roomId.get();
-            if (isBoundRoomFull(stack)) {
-                return Component.translatable("item.otherworldinn.room_key.bound_full", id);
+            // 尝试获取房间显示名称
+            TeamData clientTeam = TeamManager.getInstance().getClientPlayerTeam();
+            String roomDisplay = null;
+            if (clientTeam != null) {
+                RoomData room = clientTeam.getInnData().getRoom(id);
+                if (room != null) {
+                    roomDisplay = RoomData.getDisplayName(room);
+                }
             }
-            return Component.translatable("item.otherworldinn.room_key.bound", id);
+            if (roomDisplay == null) {
+                roomDisplay = id + ""; // 回退到数字ID
+            }
+            if (isBoundRoomFull(stack)) {
+                return Component.translatable("item.otherworldinn.room_key.bound_full", roomDisplay);
+            }
+            return Component.translatable("item.otherworldinn.room_key.bound", roomDisplay);
         }
         return super.getName(stack);
     }
@@ -279,11 +293,11 @@ public class RoomKeyItem extends Item {
                             if (team != null) {
                                 RoomData room = team.getInnData().getRoom(roomId);
                                 if (room != null) {
-                                    // 房间ID
+                                    // 房间名称
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.room_key.room_id",
-                                                            roomId)
+                                                            RoomData.getDisplayName(room))
                                                     .withStyle(ChatFormatting.GOLD));
 
                                     // 位置

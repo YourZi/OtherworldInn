@@ -34,7 +34,8 @@
     "MixinNeutralMobAnger",
     "MixinRecipeItemUnlock",
     "MixinPotBlockEntityCookCheck",
-    "MixinStockpotBlockEntityCookCheck"
+    "MixinStockpotBlockEntityCookCheck",
+    "MixinSchematicTableCreativeBlueprint"
   ],
   "client": [
     "MixinPlayerRendererMapModeHidden",

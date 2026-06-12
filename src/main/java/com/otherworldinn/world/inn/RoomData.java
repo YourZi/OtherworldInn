@@ -58,6 +58,9 @@ public class RoomData {
     @Setter(AccessLevel.NONE)
     private String theme = "";
 
+    @Setter(AccessLevel.NONE)
+    private String name = "";
+
     private final Set<UUID> currentGuests = new HashSet<>();
 
     /**
@@ -116,6 +119,22 @@ public class RoomData {
 
     public void setTheme(String theme) {
         this.theme = theme == null ? "" : theme;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? "" : name;
+    }
+
+    /**
+     * 获取房间的显示名称。如果有自定义名称则返回该名称，否则返回"X号房间"。
+     *
+     * @param room 房间数据（可为 null，返回 "?"）
+     * @return 房间显示名称
+     */
+    public static String getDisplayName(RoomData room) {
+        if (room == null) return "?";
+        if (room.name != null && !room.name.isEmpty()) return room.name;
+        return room.id + "号房间";
     }
 
     public boolean addGuest(UUID guestId) {
@@ -529,6 +548,9 @@ public class RoomData {
         tag.putInt("MaxGuests", maxGuests);
         tag.putInt("TotalBeds", totalBeds);
         tag.putString("Theme", theme);
+        if (name != null && !name.isEmpty()) {
+            tag.putString("Name", name);
+        }
         ListTag guestsTag = new ListTag();
         for (UUID uuid : currentGuests) {
             CompoundTag guestTag = new CompoundTag();
@@ -577,6 +599,10 @@ public class RoomData {
 
         if (tag.contains("Theme")) {
             room.setTheme(tag.getString("Theme"));
+        }
+
+        if (tag.contains("Name")) {
+            room.setName(tag.getString("Name"));
         }
 
         if (tag.contains("CurrentGuests")) {

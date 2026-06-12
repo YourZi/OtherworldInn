@@ -1,11 +1,3 @@
 {
-  "values": [
-    "minecraft:tnt",
-    "minecraft:end_crystal",
-    "minecraft:fire_charge",
-    "minecraft:firework_rocket",
-    "minecraft:wind_charge",
-    "minecraft:splash_potion",
-    "minecraft:lingering_potion"
-  ]
+  "values": []
 }

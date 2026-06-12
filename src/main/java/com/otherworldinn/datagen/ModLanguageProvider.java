@@ -46,6 +46,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("itemGroup.otherworldinn.expedition").zh("旅社物语 · 星图组件").en("Otherworld Inn · Expedition");
         entry("itemGroup.otherworldinn.recipe_books").zh("旅社物语 · 食谱").en("Otherworld Inn · Recipes");
 
+        entry("gamerule.enableSponsorGuest").zh("启用赞助旅客").en("Enable Sponsor Guests");
+        entry("gamerule.enableRecipeUnlock").zh("启用菜谱学习系统").en("Enable Recipe Unlock System");
+
         entry("key.categories.otherworldinn").zh("旅社物语").en("Otherworld Inn");
 
         entry("key.otherworldinn.map_mode").zh("地图视图").en("Map View");
@@ -394,8 +397,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("当前共有%s个房间")
                 .en("There are currently %s rooms");
         entry("message.otherworldinn.room_register.remove_success")
-                .zh("%s号房间已被移除")
-                .en("Room %s has been removed");
+                .zh("%s已被移除")
+                .en("%s has been removed");
         entry("message.otherworldinn.room_register.invalid_room")
                 .zh("无效的房间结构")
                 .en("Invalid room structure!");
@@ -424,8 +427,8 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("房间与已有房间重叠！")
                 .en("Room overlaps with an existing room!");
         entry("message.otherworldinn.room_register.remove_success_with_reason")
-                .zh("%s号房间已被移除。原因：%s")
-                .en("Room %s has been removed. Reason: %s");
+                .zh("%s已被移除。原因：%s")
+                .en("%s has been removed. Reason: %s");
         entry("message.otherworldinn.room_register.manual_removal").zh("手动移除").en("Manual removal");
         entry("message.otherworldinn.room_register.validation.too_crowded")
                 .zh("房间过于拥挤")
@@ -438,12 +441,17 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.room_register.overlay.show_room").zh("显示房间").en("Show Rooms");
 
         // 待办事项
-        entry("todo.otherworldinn.room_cleaning").zh("%s 号房间需要打扫").en("Room %s needs cleaning");
+        entry("todo.otherworldinn.room_cleaning").zh("%s需要打扫").en("%s needs cleaning");
         entry("todo.otherworldinn.guest_waiting").zh("%s 正在等待办理入住").en("%s is waiting to check in");
         entry("todo.otherworldinn.vip_meal_order").zh("贵宾 %s 选订了餐品 %s").en("VIP %s ordered meal %s");
         entry("todo.otherworldinn.town_commission_pending")
                 .zh("有待完成的居民委托")
                 .en("Pending town commission");
+
+        // 房间重命名
+        entry("message.otherworldinn.room_rename.success")
+                .zh("房间已重命名为：%s")
+                .en("Room renamed to: %s");
 
         // 生物群系
         entry("biome.otherworldinn.town").zh("城镇").en("Town");
@@ -500,11 +508,11 @@ public class ModLanguageProvider extends LanguageProvider {
                 .en("Expanded Area: %s / Remaining: %s");
 
         // 房间钥匙
-        entry("item.otherworldinn.room_key.bound").zh("%d号房间钥匙").en("Room %d Key");
-        entry("item.otherworldinn.room_key.bound_full").zh("%d号房间钥匙（已满员）").en("Room %d Key (Full)");
+        entry("item.otherworldinn.room_key.bound").zh("%s钥匙").en("%s Key");
+        entry("item.otherworldinn.room_key.bound_full").zh("%s钥匙（已满员）").en("%s Key (Full)");
         entry("message.otherworldinn.room_key.bound")
-                .zh("成功绑定到 %d 号房间")
-                .en("Successfully bound to Room %d");
+                .zh("成功绑定到 %s")
+                .en("Successfully bound to %s");
         entry("message.otherworldinn.room_key.unbound").zh("已解除绑定").en("Unbound from room");
         entry("message.otherworldinn.room_key.no_room").zh("此处没有房间").en("No room here");
         entry("message.otherworldinn.room_key.overlay.bind").zh("绑定房间").en("Bind Room");
@@ -521,8 +529,8 @@ public class ModLanguageProvider extends LanguageProvider {
 
         // 旅客入住
         entry("message.otherworldinn.room_key.checkin_success")
-                .zh("旅客成功入住到 %d 号房间！")
-                .en("Guest successfully checked into Room %d!");
+                .zh("旅客成功入住到 %s！")
+                .en("Guest successfully checked into %s!");
         entry("message.otherworldinn.room_key.checkin_fail_guest_busy")
                 .zh("该旅客已经住在其他房间了")
                 .en("This guest is already staying in another room.");
@@ -707,6 +715,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.end_space_sphere.overlay.use")
                 .zh("右键使用传送到末地主岛")
                 .en("Right-click to teleport to the End main island");
+        entry("tooltip.otherworldinn.creative_blueprint.survival_place")
+                .zh("生存模式右键直接放置结构（消耗蓝图）")
+                .en("Right-click to place structure directly (consumes blueprint)");
         entry("message.otherworldinn.guest.tooltip.title").zh("旅客信息").en("Guest Info");
         entry("message.otherworldinn.guest.tooltip.vip").zh("[贵宾]").en("[VIP]");
         entry("message.otherworldinn.guest.tooltip.preference.comfort")

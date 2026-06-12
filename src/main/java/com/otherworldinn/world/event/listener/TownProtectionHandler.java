@@ -34,9 +34,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AttachedStemBlock;
 import net.minecraft.world.level.block.CocoaBlock;
@@ -63,92 +61,97 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 
+/**
+ * 城镇维度方块保护系统。
+ *
+ * <h3>核心概念</h3>
+ * <p>城镇维度分为两类区域：
+ * <ul>
+ *   <li><b>免保区</b> — 旅社范围（无人入住房间）或温室范围。除爆炸外所有操作放行。</li>
+ *   <li><b>限制区</b> — 城镇维度中免保区以外的全部区域。方块破坏/放置被拦截，某些交互受限。</li>
+ * </ul>
+ *
+ * <h3>限制区拦截一览</h3>
+ * <table>
+ *   <tr><th>操作</th><th>规则</th></tr>
+ *   <tr><td>方块破坏</td><td>仅创造模式放行</td></tr>
+ *   <tr><td>方块放置（玩家）</td><td>仅创造模式放行</td></tr>
+ *   <tr><td>方块放置（掉落方块）</td><td>转为掉落物</td></tr>
+ *   <tr><td>方块放置（自然生长）</td><td>按 0.3x 概率放行</td></tr>
+ *   <tr><td>右键交互（容器等）</td><td>放行</td></tr>
+ *   <tr><td>右键交互（手持方块/锄头）</td><td>拒绝</td></tr>
+ *   <tr><td>农作物生长</td><td>0.3x 倍速，树苗/树木禁止</td></tr>
+ *   <tr><td>耕地践踏</td><td>阻止</td></tr>
+ *   <tr><td>邻方块更新破坏</td><td>阻止</td></tr>
+ *   <tr><td>活塞</td><td>跨队阻止，同队放行</td></tr>
+ *   <tr><td>爆炸</td><td>零破坏（清空方块列表）</td></tr>
+ * </table>
+ */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class TownProtectionHandler {
+
+    // ── 常量 ──────────────────────────────────────────────
+
     private static final double TOWN_CROP_GROWTH_MULTIPLIER = 0.3D;
     private static final double GREENHOUSE_CROP_GROWTH_MULTIPLIER = 1.5D;
     private static final String GREENHOUSE_FACILITY_ID = "greenhouse";
     private static final ResourceLocation CREATE_DEPOT_ID =
             ResourceLocation.fromNamespaceAndPath("create", "depot");
 
-
-    //  核心判定 — 免保区 (Free Zone)
-
+    // ── 顶层判定 ──────────────────────────────────────────
 
     private static boolean isTownDimension(Level level) {
         return level.dimension() == TownDimensions.TOWN_LEVEL;
     }
 
     /**
-     * 免保区判定。
-     *
-     * <p>旅社范围（排除有旅客入住的房间）或温室范围（等级 &gt; 0）。
-     * 在免保区内，除爆炸破坏外一切操作放行。
+     * 免保区判定：旅社范围内无人入住的房间区域，或温室区域。
+     * 满足任一条件即为免保区。
      */
     private static boolean isFreeZone(ServerLevel level, BlockPos pos) {
-        if (level == null || pos == null || !isTownDimension(level)) {
-            return false;
-        }
+        if (level == null || pos == null || !isTownDimension(level)) return false;
 
-        if (isInsideGreenhouseZone(level, pos)) {
-            return true;
-        }
+        if (isInsideGreenhouseZone(level, pos)) return true;
 
         TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
-        if (team == null) {
-            return false;
-        }
-        if (!team.isInInnZone(pos)) {
-            return false;
-        }
+        if (team == null || !team.isInInnZone(pos)) return false;
 
-        InnData innData = team.getInnData();
-        RoomData room = innData.getRoomAffectedBy(pos);
-        if (room != null && !room.getCurrentGuests().isEmpty()) {
-            return false;
-        }
-
-        return true;
+        RoomData room = team.getInnData().getRoomAffectedBy(pos);
+        return room == null || room.getCurrentGuests().isEmpty();
     }
 
     public static boolean isInnRestrictionLiftedAt(ServerLevel level, BlockPos pos) {
         return isFreeZone(level, pos);
     }
 
+    /** 女仆操作权限：免保区或创造模式放行，否则拒绝。 */
     public static boolean canMaidOperateAt(Entity maidEntity, BlockPos pos, Level level) {
         if (maidEntity == null || pos == null || level == null) return false;
         if (!isTownDimension(level)) return true;
-        if (level instanceof ServerLevel serverLevel && isFreeZone(serverLevel, pos)) return true;
+        if (level instanceof ServerLevel sl && isFreeZone(sl, pos)) return true;
 
         Player actor = resolveActorPlayer(maidEntity);
-        if (actor != null) {
-            if (actor.isCreative()) return true;
-            if (level instanceof ServerLevel serverLevel
-                    && isFreeZone(serverLevel, pos)) {
-                return true;
-            }
-        }
-        return false;
+        return actor != null && actor.isCreative();
     }
 
-
-    //  温室判定
-
+    // ── 温室判定 ──────────────────────────────────────────
 
     private static boolean isInsideGreenhouseZone(Level level, BlockPos pos) {
         return getGreenhouseLevelAtPos(level, pos) > 0;
     }
 
     private static int getGreenhouseLevelAtPos(Level level, BlockPos pos) {
-        if (!(level instanceof ServerLevel serverLevel) || pos == null || !isTownDimension(level)) {
+        if (!(level instanceof ServerLevel serverLevel) || pos == null || !isTownDimension(level))
             return 0;
-        }
-        FacilityRegistry.FacilityDefinition greenhouse = FacilityRegistry.get(GREENHOUSE_FACILITY_ID);
+        FacilityRegistry.FacilityDefinition greenhouse =
+                FacilityRegistry.get(GREENHOUSE_FACILITY_ID);
         if (greenhouse == null) return 0;
+
         TeamManager manager = TeamManager.getInstance();
         TeamData teamAtPos = manager.getTeamAt(pos, serverLevel.getServer());
         int levelAtPos = getGreenhouseLevelForTeam(teamAtPos, greenhouse, pos);
         if (levelAtPos > 0) return levelAtPos;
+
         TeamData nearestTeam = manager.getNearestInn(pos, serverLevel.getServer());
         if (nearestTeam == null || nearestTeam == teamAtPos) return 0;
         return getGreenhouseLevelForTeam(nearestTeam, greenhouse, pos);
@@ -166,9 +169,7 @@ public class TownProtectionHandler {
         return 0;
     }
 
-
-    //  农作物
-
+    // ── 农作物 ────────────────────────────────────────────
 
     private static boolean isFarmingBlock(BlockState state) {
         if (state == null) return false;
@@ -185,8 +186,8 @@ public class TownProtectionHandler {
 
     private static boolean shouldRestrictNaturalGrowthBlock(BlockState state) {
         if (state == null) return false;
-        if (isFarmingBlock(state)) return true;
-        return state.is(net.minecraft.world.level.block.Blocks.PUMPKIN)
+        return isFarmingBlock(state)
+                || state.is(net.minecraft.world.level.block.Blocks.PUMPKIN)
                 || state.is(net.minecraft.world.level.block.Blocks.MELON)
                 || state.is(net.minecraft.world.level.block.Blocks.SUGAR_CANE)
                 || state.is(net.minecraft.world.level.block.Blocks.BAMBOO)
@@ -198,37 +199,32 @@ public class TownProtectionHandler {
     private static double getCropGrowthMultiplier(Level level, BlockPos pos, BlockState state) {
         if (!isTownDimension(level)) return 1.0D;
         if (state != null && (state.getBlock() instanceof SaplingBlock
-                || state.is(net.minecraft.tags.BlockTags.SAPLINGS))) {
+                || state.is(net.minecraft.tags.BlockTags.SAPLINGS)))
             return 0.0D;
-        }
         int ghLevel = getGreenhouseLevelAtPos(level, pos);
-        if (ghLevel > 0) {
+        if (ghLevel > 0)
             return GREENHOUSE_CROP_GROWTH_MULTIPLIER + (1.0D * (ghLevel - 1));
-        }
         return TOWN_CROP_GROWTH_MULTIPLIER;
     }
 
-    //  辅助判定
+    // ── 辅助判定 ──────────────────────────────────────────
 
     private static boolean isDepotDisplayBlock(BlockState state) {
-        return state != null && CREATE_DEPOT_ID.equals(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+        return state != null && CREATE_DEPOT_ID.equals(
+                BuiltInRegistries.BLOCK.getKey(state.getBlock()));
     }
 
     private static boolean isInnFreeInteractBlock(BlockState state) {
         if (state == null || state.isAir()) return false;
-        if (state.is(OtherworldInn.INN_FREE_INTERACT)) return true;
-        return state.getBlock() instanceof FoodBlock || state.getBlock() instanceof BottleBlock;
-    }
-
-    private static boolean isInnFreeInteractBlockItem(BlockItem blockItem) {
-        return isInnFreeInteractBlock(blockItem.getBlock().defaultBlockState());
+        return state.is(OtherworldInn.INN_FREE_INTERACT)
+                || state.getBlock() instanceof FoodBlock
+                || state.getBlock() instanceof BottleBlock;
     }
 
     private static boolean isBedSheetCleaningUpdate(Player player, BlockState state) {
         if (!(state.getBlock() instanceof net.minecraft.world.level.block.BedBlock)
-                || !state.hasProperty(ModBlockProperties.MESSY)) {
+                || !state.hasProperty(ModBlockProperties.MESSY))
             return false;
-        }
         ItemStack main = player.getMainHandItem();
         ItemStack off = player.getOffhandItem();
         return main.is(ModItems.BED_SHEET.get())
@@ -241,30 +237,24 @@ public class TownProtectionHandler {
         return isTownDimension(level) && !isFreeZone(level, pos);
     }
 
-    private static boolean willSelfUpdateDestroyBlock(
-            ServerLevel level, BlockPos pos, BlockState currentState, Direction notifiedSide) {
-        BlockPos neighborPos = pos.relative(notifiedSide);
-        BlockState neighborState = level.getBlockState(neighborPos);
-        BlockState updatedState =
-                currentState.updateShape(notifiedSide, neighborState, level, pos, neighborPos);
-        return updatedState.isAir();
-    }
-
     private static boolean isTouhouLittleMaid(Entity entity) {
         if (entity == null || entity.getType() == null) return false;
         ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
-        if (key == null) return false;
-        return "touhou_little_maid".equals(key.getNamespace()) && "maid".equals(key.getPath());
+        return key != null
+                && "touhou_little_maid".equals(key.getNamespace())
+                && "maid".equals(key.getPath());
     }
 
     private static Player resolveActorPlayer(Entity entity) {
         if (entity instanceof Player player) return player;
-        if (!(entity instanceof OwnableEntity ownable) || !(entity.level() instanceof ServerLevel serverLevel))
+        if (!(entity instanceof OwnableEntity ownable) || !(entity.level() instanceof ServerLevel sl))
             return null;
         UUID ownerId = ownable.getOwnerUUID();
         if (ownerId == null) return null;
-        return serverLevel.getServer().getPlayerList().getPlayer(ownerId);
+        return sl.getServer().getPlayerList().getPlayer(ownerId);
     }
+
+    // ── 副作用帮助方法 ────────────────────────────────────
 
     private static void sendDenyMessage(Player player, Component message) {
         player.displayClientMessage(
@@ -272,17 +262,11 @@ public class TownProtectionHandler {
     }
 
     private static void syncInventoryIfServerPlayer(Player player) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.inventoryMenu.sendAllDataToRemote();
-        }
+        if (player instanceof ServerPlayer sp) sp.inventoryMenu.sendAllDataToRemote();
     }
 
-    private static void denyBuildForPlayer(Player player, Component message) {
-        sendDenyMessage(player, message);
-        syncInventoryIfServerPlayer(player);
-    }
-
-    private static void denyRightClickBlock(PlayerInteractEvent.RightClickBlock event, Player player) {
+    private static void denyRightClickBlock(
+            PlayerInteractEvent.RightClickBlock event, Player player) {
         event.setCanceled(true);
         event.setUseItem(TriState.FALSE);
         event.setUseBlock(TriState.FALSE);
@@ -296,346 +280,151 @@ public class TownProtectionHandler {
         sendDenyMessage(player, message);
     }
 
-    private static void spawnFallingBlockDrop(
-            ServerLevel level, FallingBlockEntity fallingBlock, BlockState state, BlockPos pos) {
-        Item item = state.getBlock().asItem();
-        if (item == net.minecraft.world.item.Items.AIR) return;
-        ItemStack drop = new ItemStack(item);
-        ItemEntity itemEntity =
-                new ItemEntity(level, fallingBlock.getX(), fallingBlock.getY(), fallingBlock.getZ(), drop);
-        itemEntity.setDeltaMovement(fallingBlock.getDeltaMovement());
-        level.addFreshEntity(itemEntity);
-    }
+    // ══════════════════════════════════════════════════════
+    //  事件处理
+    // ══════════════════════════════════════════════════════
 
-    //  方块更新 / 生长
-
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onPreventDestructiveNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
-        BlockPos pos = event.getPos();
-        if (!isNormalTownDecorArea(level, pos)) return;
-        BlockState currentState = level.getBlockState(pos);
-        if (currentState.isAir()) return;
-
-        if (!currentState.canSurvive(level, pos)) {
-            event.setCanceled(true);
-            return;
-        }
-        for (Direction side : event.getNotifiedSides()) {
-            if (willSelfUpdateDestroyBlock(level, pos, currentState, side)) {
-                event.setCanceled(true);
-                return;
-            }
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onBlockGrowFeature(BlockGrowFeatureEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
-        BlockState stateAtPos = level.getBlockState(event.getPos());
-        if (stateAtPos.getBlock() instanceof SaplingBlock
-                || stateAtPos.is(net.minecraft.tags.BlockTags.SAPLINGS)) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onCropGrowPre(CropGrowEvent.Pre event) {
-        if (!(event.getLevel() instanceof ServerLevel serverLevel) || !isTownDimension(serverLevel))
-            return;
-        double multiplier = getCropGrowthMultiplier(serverLevel, event.getPos(), event.getState());
-        if (multiplier <= 0.0D) {
-            event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
-            return;
-        }
-        if (multiplier < 1.0D && serverLevel.random.nextDouble() >= multiplier) {
-            event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onCropGrowPost(CropGrowEvent.Post event) {
-        if (!(event.getLevel() instanceof ServerLevel serverLevel) || !isTownDimension(serverLevel))
-            return;
-        BlockPos pos = event.getPos();
-        BlockState state = serverLevel.getBlockState(pos);
-        if (state.getBlock() instanceof SaplingBlock
-                || state.is(net.minecraft.tags.BlockTags.SAPLINGS)) return;
-        double multiplier = getCropGrowthMultiplier(serverLevel, pos, state);
-        if (multiplier <= 1.0D) return;
-        double extraGrowth = multiplier - 1.0D;
-        int guaranteedExtraSteps = (int) Math.floor(extraGrowth);
-        double fractionalChance = extraGrowth - guaranteedExtraSteps;
-        int extraSteps = guaranteedExtraSteps;
-        if (fractionalChance > 0.0D && serverLevel.random.nextDouble() < fractionalChance) {
-            extraSteps++;
-        }
-        for (int i = 0; i < extraSteps; i++) {
-            BlockState current = serverLevel.getBlockState(pos);
-            if (!tryApplyExtraGrowth(serverLevel, pos, current)) break;
-        }
-    }
-
-    private static boolean tryApplyExtraGrowth(ServerLevel level, BlockPos pos, BlockState state) {
-        if (state.getBlock() instanceof CropBlock crop) {
-            if (!crop.isMaxAge(state)) {
-                level.setBlockAndUpdate(pos, crop.getStateForAge(crop.getAge(state) + 1));
-                return true;
-            }
-            return false;
-        }
-        if (state.getBlock() instanceof StemBlock && state.hasProperty(StemBlock.AGE)) {
-            int age = state.getValue(StemBlock.AGE);
-            if (age < 7) {
-                level.setBlockAndUpdate(pos, state.setValue(StemBlock.AGE, age + 1));
-                return true;
-            }
-            return false;
-        }
-        if (state.getBlock() instanceof NetherWartBlock && state.hasProperty(NetherWartBlock.AGE)) {
-            int age = state.getValue(NetherWartBlock.AGE);
-            if (age < 3) {
-                level.setBlockAndUpdate(pos, state.setValue(NetherWartBlock.AGE, age + 1));
-                return true;
-            }
-            return false;
-        }
-        if (state.getBlock() instanceof CocoaBlock && state.hasProperty(CocoaBlock.AGE)) {
-            int age = state.getValue(CocoaBlock.AGE);
-            if (age < 2) {
-                level.setBlockAndUpdate(pos, state.setValue(CocoaBlock.AGE, age + 1));
-                return true;
-            }
-            return false;
-        }
-        if (state.getBlock() instanceof SweetBerryBushBlock
-                && state.hasProperty(SweetBerryBushBlock.AGE)) {
-            int age = state.getValue(SweetBerryBushBlock.AGE);
-            if (age < 3) {
-                level.setBlockAndUpdate(pos, state.setValue(SweetBerryBushBlock.AGE, age + 1));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @SubscribeEvent
-    public static void onFarmlandTrample(BlockEvent.FarmlandTrampleEvent event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel
-                && isFreeZone(serverLevel, event.getPos())) {
-            return;
-        }
-        event.setCanceled(true);
-    }
-
-    //  客户端预处理
-
-    @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
-    public static class ClientHandler {
-        @SubscribeEvent(priority = EventPriority.HIGHEST)
-        public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-            if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
-            ItemStack stack = event.getItemStack();
-            if (stack.is(OtherworldInn.BANNED_IN_TOWN)) {
-                event.setCanceled(true);
-                event.setUseItem(TriState.FALSE);
-                event.setUseBlock(TriState.FALSE);
-                event.setCancellationResult(InteractionResult.FAIL);
-            }
-        }
-
-        @SubscribeEvent(priority = EventPriority.HIGHEST)
-        public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-            if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
-            ItemStack stack = event.getItemStack();
-            if (stack.is(OtherworldInn.BANNED_IN_TOWN)) {
-                event.setCanceled(true);
-                event.setCancellationResult(InteractionResult.FAIL);
-            }
-        }
-    }
-
-    //  实体事件
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onEntityMobGriefing(EntityMobGriefingEvent event) {
-        Entity entity = event.getEntity();
-        if (!(entity.level() instanceof ServerLevel serverLevel) || !isTownDimension(serverLevel))
-            return;
-        if (!isTouhouLittleMaid(entity)) return;
-
-        BlockPos pos = entity.blockPosition();
-        if (isFreeZone(serverLevel, pos)) {
-            event.setCanGrief(true);
-            return;
-        }
-        event.setCanGrief(false);
-    }
-
-
-    //  破坏 — 限制区拦截
+    // ── 方块破坏 ──────────────────────────────────────────
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (isFreeZone(level, event.getPos())) return;
+
         Player player = event.getPlayer();
-        Level level = (Level) event.getLevel();
-        if (!isTownDimension(level)) return;
-
-        if (level instanceof ServerLevel serverLevel && isFreeZone(serverLevel, event.getPos())) {
-            return;
-        }
-
-        if (player instanceof ServerPlayer && !(player instanceof FakePlayer)) {
-            if (!player.isCreative()) {
-                event.setCanceled(true);
-                sendDenyMessage(player,
-                        Component.translatable("message.otherworldinn.protection.deny"));
-            }
-        } else {
+        if (!(player instanceof ServerPlayer) || player instanceof FakePlayer || !player.isCreative()) {
             event.setCanceled(true);
+            if (player instanceof ServerPlayer && !(player instanceof FakePlayer))
+                sendDenyMessage(player, Component.translatable("message.otherworldinn.protection.deny"));
         }
     }
 
-    //  放置 — 限制区拦截
+    // ── 方块放置 ──────────────────────────────────────────
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel serverLevel) || !isTownDimension(serverLevel))
-            return;
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (isFreeZone(level, event.getPos())) return;
 
-        BlockPos pos = event.getPos();
-
-        if (isFreeZone(serverLevel, pos)) return;
-
-        if (event.getEntity() == null && shouldRestrictNaturalGrowthBlock(event.getState())) {
-            double multiplier = getCropGrowthMultiplier(serverLevel, pos, event.getState());
-            if (multiplier <= 0.0D) {
-                event.setCanceled(true);
-                return;
-            }
-            if (multiplier < 1.0D && serverLevel.random.nextDouble() >= multiplier) {
-                event.setCanceled(true);
-            }
+        // 自然生长方块 (作物、南瓜藤、竹子等)
+        if (event.getEntity() == null) {
+            handleNaturalGrowthPlacement(level, event);
             return;
         }
 
+        // 掉落方块 → 转为掉落物
         if (event.getEntity() instanceof FallingBlockEntity fallingBlock) {
             event.setCanceled(true);
-            spawnFallingBlockDrop(serverLevel, fallingBlock, event.getState(), pos);
+            ItemStack drop = new ItemStack(event.getState().getBlock().asItem());
+            if (!drop.isEmpty()) {
+                ItemEntity itemEntity = new ItemEntity(
+                        level,
+                        fallingBlock.getX(), fallingBlock.getY(), fallingBlock.getZ(),
+                        drop);
+                itemEntity.setDeltaMovement(fallingBlock.getDeltaMovement());
+                level.addFreshEntity(itemEntity);
+            }
             fallingBlock.discard();
             return;
         }
 
+        // 玩家/女仆放置
         if (event.getEntity() instanceof Player player) {
             if (isBedSheetCleaningUpdate(player, event.getState())) return;
             if (player.isCreative()) return;
 
             if (player instanceof ServerPlayer && !(player instanceof FakePlayer)) {
                 event.setCanceled(true);
-                denyBuildForPlayer(player,
-                        Component.translatable("message.otherworldinn.protection.deny"));
+                sendDenyMessage(player, Component.translatable("message.otherworldinn.protection.deny"));
+                syncInventoryIfServerPlayer(player);
             } else {
                 event.setCanceled(true);
             }
             return;
         }
 
+        // 其余一切实体放置 → 拒绝
         event.setCanceled(true);
     }
 
-    //  右键物品
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        Level level = event.getLevel();
-        ItemStack stack = event.getItemStack();
-
-        if (level.dimension() == TownDimensions.TOWN_LEVEL) {
-            if (stack.is(OtherworldInn.BANNED_IN_TOWN)) {
-                event.setCanceled(true);
-                if (event.getEntity() instanceof ServerPlayer player) {
-                    player.displayClientMessage(
-                            Component.translatable("message.otherworldinn.protection.banned_item"), true);
-                }
-            }
-        } else {
-            if (stack.is(OtherworldInn.ONLY_IN_TOWN)) {
-                event.setCanceled(true);
-                if (event.getEntity() instanceof ServerPlayer player) {
-                    player.displayClientMessage(
-                            Component.translatable("message.otherworldinn.protection.only_in_town"), true);
-                }
-            }
+    /** 限制区内禁止一切自然生长方块 */
+    private static void handleNaturalGrowthPlacement(
+            ServerLevel level, BlockEvent.EntityPlaceEvent event) {
+        if (shouldRestrictNaturalGrowthBlock(event.getState())) {
+            event.setCanceled(true);
         }
     }
 
+    // ── 右键方块 ──────────────────────────────────────────
 
-    //  右键方块
-
+    /**
+     * 右键方块拦截流程：
+     * <ol>
+     *   <li>非城镇维度 + only_in_town 物品 → 拒绝</li>
+     *   <li>城镇维度 + banned_in_town 物品 → 拒绝</li>
+     *   <li>免保区 → 放行</li>
+     *   <li>限制区：容器/方块实体交互放行；手持方块/锄头拒绝</li>
+     * </ol>
+     */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Level level = event.getLevel();
         Player player = event.getEntity();
-        BlockPos pos = event.getPos();
         ItemStack stack = event.getItemStack();
 
-        if (level.dimension() != TownDimensions.TOWN_LEVEL) {
+        // 1. 维度外限制：仅限城镇物品在其他维度使用
+        if (!isTownDimension(level)) {
             if (stack.is(OtherworldInn.ONLY_IN_TOWN)) {
                 denyRightClickBlock(event, player);
-                if (player instanceof ServerPlayer serverPlayer) {
-                    serverPlayer.displayClientMessage(
-                            Component.translatable("message.otherworldinn.protection.only_in_town"), true);
-                }
+                if (player instanceof ServerPlayer sp)
+                    sp.displayClientMessage(
+                            Component.translatable("message.otherworldinn.protection.only_in_town"),
+                            true);
             }
             return;
         }
 
-        BlockState clickedState = level.getBlockState(pos);
-
-        if (isDepotDisplayBlock(clickedState)) return;
-
+        // 2. 城镇维度 + 禁用物品
         if (stack.is(OtherworldInn.BANNED_IN_TOWN)) {
             denyRightClickBlock(event, player);
-            if (player instanceof ServerPlayer serverPlayer) {
-                player.displayClientMessage(
-                        Component.translatable("message.otherworldinn.protection.banned_item"), true);
-            }
+            if (player instanceof ServerPlayer sp)
+                sp.displayClientMessage(
+                        Component.translatable("message.otherworldinn.protection.banned_item"),
+                        true);
             return;
         }
 
+        BlockState clickedState = level.getBlockState(event.getPos());
+
+        // 3. 始终放行：Depot 展示块
+        if (isDepotDisplayBlock(clickedState)) return;
+
+        // 4. 免保区放行
+        if (level instanceof ServerLevel sl && isFreeZone(sl, event.getPos())) return;
+
+        // 5. 限制区内：
+        //    a) 方块实体交互 (容器、工作台等) → 放行
         if (clickedState.hasBlockEntity()
-                && !(clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock)) {
+                && !(clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock))
             return;
-        }
 
-        if (level instanceof ServerLevel serverLevel && isFreeZone(serverLevel, pos)) {
-            return;
-        }
-
+        //    b) 饰纹陶罐 → 仅创造放行
         if (clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock) {
-            if (!player.isCreative()) {
+            if (!player.isCreative())
                 denyRightClickBlock(event, player,
                         Component.translatable("message.otherworldinn.protection.deny"));
-            }
             return;
         }
 
+        //    c) 手持方块 → 拒绝（免保区交互块除外）
         if (!player.isCreative() && !stack.isEmpty()) {
             if (stack.getItem() instanceof BlockItem blockItem) {
-                BlockPos placePos = pos.relative(event.getFace());
-
-                if (isInnFreeInteractBlockItem(blockItem)) {
-                    if (level instanceof ServerLevel sl
-                            && (isFreeZone(sl, pos) || isFreeZone(sl, placePos))) {
-                        return;
-                    }
+                BlockPos placePos = event.getPos().relative(event.getFace());
+                if (!isInnFreeInteractBlock(blockItem.getBlock().defaultBlockState())
+                        || !isPlacePosFreeOrOutsideRestriction(level, event.getPos(), placePos)) {
+                    denyRightClickBlock(event, player,
+                            Component.translatable("message.otherworldinn.protection.deny"));
                 }
-
-                if (level instanceof ServerLevel sl && isFreeZone(sl, placePos)) return;
-
-                denyRightClickBlock(event, player,
-                        Component.translatable("message.otherworldinn.protection.deny"));
             } else if (stack.getItem() instanceof HoeItem) {
                 denyRightClickBlock(event, player,
                         Component.translatable("message.otherworldinn.protection.deny"));
@@ -643,45 +432,166 @@ public class TownProtectionHandler {
         }
     }
 
+    /** 免保区交互块仅当点击位置或放置位置在免保区内时才放行。 */
+    private static boolean isPlacePosFreeOrOutsideRestriction(
+            Level level, BlockPos clickedPos, BlockPos placePos) {
+        if (!(level instanceof ServerLevel sl)) return false;
+        return isFreeZone(sl, clickedPos) || isFreeZone(sl, placePos);
+    }
 
-    //  活塞
+    // ── 右键空气 ──────────────────────────────────────────
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        Level level = event.getLevel();
+        ItemStack stack = event.getItemStack();
+        boolean inTown = level.dimension() == TownDimensions.TOWN_LEVEL;
+
+        if (inTown && stack.is(OtherworldInn.BANNED_IN_TOWN)) {
+            event.setCanceled(true);
+            if (event.getEntity() instanceof ServerPlayer sp)
+                sp.displayClientMessage(
+                        Component.translatable("message.otherworldinn.protection.banned_item"),
+                        true);
+        } else if (!inTown && stack.is(OtherworldInn.ONLY_IN_TOWN)) {
+            event.setCanceled(true);
+            if (event.getEntity() instanceof ServerPlayer sp)
+                sp.displayClientMessage(
+                        Component.translatable("message.otherworldinn.protection.only_in_town"),
+                        true);
+        }
+    }
+
+    // ── 方块更新 / 生长 ───────────────────────────────────
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onPreventDestructiveNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (!isNormalTownDecorArea(level, event.getPos())) return;
+
+        BlockState currentState = level.getBlockState(event.getPos());
+        if (currentState.isAir()) return;
+        if (!currentState.canSurvive(level, event.getPos())) {
+            event.setCanceled(true);
+            return;
+        }
+        for (Direction side : event.getNotifiedSides()) {
+            if (willSelfUpdateDestroyBlock(level, event.getPos(), currentState, side)) {
+                event.setCanceled(true);
+                return;
+            }
+        }
+    }
+
+    private static boolean willSelfUpdateDestroyBlock(
+            ServerLevel level, BlockPos pos, BlockState currentState, Direction notifiedSide) {
+        BlockPos neighborPos = pos.relative(notifiedSide);
+        BlockState neighborState = level.getBlockState(neighborPos);
+        return currentState.updateShape(
+                notifiedSide, neighborState, level, pos, neighborPos).isAir();
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onBlockGrowFeature(BlockGrowFeatureEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        BlockState state = level.getBlockState(event.getPos());
+        if (state.getBlock() instanceof SaplingBlock
+                || state.is(net.minecraft.tags.BlockTags.SAPLINGS))
+            event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onCropGrowPre(CropGrowEvent.Pre event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (!isFreeZone(level, event.getPos())) {
+            event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
+            return;
+        }
+        double multiplier = getCropGrowthMultiplier(level, event.getPos(), event.getState());
+        if (multiplier < 1.0D && level.random.nextDouble() >= multiplier) {
+            event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onCropGrowPost(CropGrowEvent.Post event) {
+        if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (!isFreeZone(level, event.getPos())) return;
+        BlockPos pos = event.getPos();
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof SaplingBlock
+                || state.is(net.minecraft.tags.BlockTags.SAPLINGS))
+            return;
+        double multiplier = getCropGrowthMultiplier(level, pos, state);
+        if (multiplier <= 1.0D) return;
+
+        double extraGrowth = multiplier - 1.0D;
+        int guaranteedExtraSteps = (int) Math.floor(extraGrowth);
+        if (fractionalExtraGrowth(level, extraGrowth)) guaranteedExtraSteps++;
+        for (int i = 0; i < guaranteedExtraSteps; i++) {
+            if (!tryApplyExtraGrowth(level, pos, level.getBlockState(pos))) break;
+        }
+    }
+
+    private static boolean fractionalExtraGrowth(ServerLevel level, double extraGrowth) {
+        double frac = extraGrowth - Math.floor(extraGrowth);
+        return frac > 0.0D && level.random.nextDouble() < frac;
+    }
+
+    private static boolean tryApplyExtraGrowth(ServerLevel level, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof CropBlock crop && !crop.isMaxAge(state)) {
+            level.setBlockAndUpdate(pos, crop.getStateForAge(crop.getAge(state) + 1));
+            return true;
+        }
+        if (state.getBlock() instanceof StemBlock && state.hasProperty(StemBlock.AGE)) {
+            int age = state.getValue(StemBlock.AGE);
+            if (age < 7) { level.setBlockAndUpdate(pos, state.setValue(StemBlock.AGE, age + 1)); return true; }
+        }
+        if (state.getBlock() instanceof NetherWartBlock && state.hasProperty(NetherWartBlock.AGE)) {
+            int age = state.getValue(NetherWartBlock.AGE);
+            if (age < 3) { level.setBlockAndUpdate(pos, state.setValue(NetherWartBlock.AGE, age + 1)); return true; }
+        }
+        if (state.getBlock() instanceof CocoaBlock && state.hasProperty(CocoaBlock.AGE)) {
+            int age = state.getValue(CocoaBlock.AGE);
+            if (age < 2) { level.setBlockAndUpdate(pos, state.setValue(CocoaBlock.AGE, age + 1)); return true; }
+        }
+        if (state.getBlock() instanceof SweetBerryBushBlock && state.hasProperty(SweetBerryBushBlock.AGE)) {
+            int age = state.getValue(SweetBerryBushBlock.AGE);
+            if (age < 3) { level.setBlockAndUpdate(pos, state.setValue(SweetBerryBushBlock.AGE, age + 1)); return true; }
+        }
+        return false;
+    }
+
+    @SubscribeEvent
+    public static void onFarmlandTrample(BlockEvent.FarmlandTrampleEvent event) {
+        if (event.getLevel() instanceof ServerLevel sl && isFreeZone(sl, event.getPos())) return;
+        event.setCanceled(true);
+    }
+
+    // ── 活塞 ──────────────────────────────────────────────
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onPistonPre(PistonEvent.Pre event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
 
         BlockPos pos = event.getPos();
-        PistonStructureResolver resolver =
-                new PistonStructureResolver(
-                        level, pos, event.getDirection(),
-                        event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND);
+        Direction moveDir = event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND
+                ? event.getDirection() : event.getDirection().getOpposite();
+
+        PistonStructureResolver resolver = new PistonStructureResolver(
+                level, pos, event.getDirection(),
+                event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND);
         if (!resolver.resolve()) return;
 
-        Set<BlockPos> pointsToCheck = new HashSet<>();
-        pointsToCheck.add(pos);
-        if (event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND) {
-            pointsToCheck.add(pos.relative(event.getDirection()));
-        }
-        pointsToCheck.addAll(resolver.getToDestroy());
+        Set<BlockPos> points = collectPistonAffectedPositions(
+                event, pos, resolver, moveDir);
 
-        Direction moveDir = event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND
-                ? event.getDirection()
-                : event.getDirection().getOpposite();
-        for (BlockPos p : resolver.getToPush()) {
-            pointsToCheck.add(p);
-            pointsToCheck.add(p.relative(moveDir));
-        }
+        // 全部在免保区 → 放行
+        if (points.stream().allMatch(p -> isFreeZone(level, p))) return;
 
-        boolean allFree = true;
-        for (BlockPos p : pointsToCheck) {
-            if (!isFreeZone(level, p)) {
-                allFree = false;
-                break;
-            }
-        }
-        if (allFree) return;
-
+        // 检查是否跨越多个队伍
         TeamData firstTeam = null;
-        for (BlockPos p : pointsToCheck) {
+        for (BlockPos p : points) {
             TeamData teamAt = TeamManager.getInstance().getTeamAt(p, level.getServer());
             if (firstTeam == null) {
                 firstTeam = teamAt;
@@ -692,24 +602,69 @@ public class TownProtectionHandler {
         }
     }
 
-    //  爆炸 / 实体加入 — 全局拦截
+    private static Set<BlockPos> collectPistonAffectedPositions(
+            PistonEvent.Pre event, BlockPos origin,
+            PistonStructureResolver resolver, Direction moveDir) {
+        Set<BlockPos> points = new HashSet<>();
+        points.add(origin);
+        if (event.getPistonMoveType() == PistonEvent.PistonMoveType.EXTEND)
+            points.add(origin.relative(event.getDirection()));
+        points.addAll(resolver.getToDestroy());
+        for (BlockPos p : resolver.getToPush()) {
+            points.add(p);
+            points.add(p.relative(moveDir));
+        }
+        return points;
+    }
+
+    // ── 爆炸 / 实体 ───────────────────────────────────────
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onExplosionDetonate(ExplosionEvent.Detonate event) {
-        if (event.getLevel().dimension() == TownDimensions.TOWN_LEVEL) {
+        if (event.getLevel().dimension() == TownDimensions.TOWN_LEVEL)
             event.getAffectedBlocks().clear();
-        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (event.getLevel().dimension() == TownDimensions.TOWN_LEVEL) {
-            Entity entity = event.getEntity();
-            if (entity instanceof LightningBolt lightningBolt) {
-                lightningBolt.setVisualOnly(true);
-            }
-            // 阻止骷髅陷阱（Skeleton Trap）生成
-            if (entity instanceof SkeletonHorse skeletonHorse && skeletonHorse.isTrap()) {
+        if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
+        Entity entity = event.getEntity();
+        if (entity instanceof LightningBolt bolt) bolt.setVisualOnly(true);
+        if (entity instanceof SkeletonHorse horse && horse.isTrap()) event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onEntityMobGriefing(EntityMobGriefingEvent event) {
+        Entity entity = event.getEntity();
+        if (!(entity.level() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (!isTouhouLittleMaid(entity)) return;
+        event.setCanGrief(isFreeZone(level, entity.blockPosition()));
+    }
+
+    // ── 客户端预处理 ───────────────────────────────────────
+
+    /**
+     * 客户端侧预先拦截 banned_in_town 物品，避免客户端预测放行后又被服务端拒绝造成闪烁。
+     */
+    @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
+    public static class ClientHandler {
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+            if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
+            if (event.getItemStack().is(OtherworldInn.BANNED_IN_TOWN)) {
                 event.setCanceled(true);
+                event.setUseItem(TriState.FALSE);
+                event.setUseBlock(TriState.FALSE);
+                event.setCancellationResult(InteractionResult.FAIL);
+            }
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+            if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
+            if (event.getItemStack().is(OtherworldInn.BANNED_IN_TOWN)) {
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.FAIL);
             }
         }
     }

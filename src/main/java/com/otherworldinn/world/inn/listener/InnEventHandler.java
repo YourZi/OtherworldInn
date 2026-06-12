@@ -385,8 +385,6 @@ public class InnEventHandler {
 
     /**
      * 处理玩家右键点击方块事件 (服务器端)
-     *
-     * <p>1. 铃铛：手持工具切换装修模式
      */
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -476,6 +474,34 @@ public class InnEventHandler {
                 }
             }
         }
+
+        // 命名牌重命名房间
+        ItemStack held = player.getItemInHand(event.getHand());
+        if (held.is(Items.NAME_TAG) && held.has(DataComponents.CUSTOM_NAME)) {
+            if (level instanceof ServerLevel serverLevel
+                    && level.dimension() == TownDimensions.TOWN_LEVEL) {
+                TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
+                if (team != null && team.hasMember(player.getUUID())) {
+                    RoomData room = team.getInnData().getRoomAt(pos);
+                    if (room == null) {
+                        BlockPos innerPos = pos.relative(event.getFace());
+                        room = team.getInnData().getRoomAt(innerPos);
+                    }
+                    if (room != null) {
+                        String newName = held.getHoverName().getString();
+                        room.setName(newName);
+                        TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
+                        player.displayClientMessage(
+                                Component.translatable(
+                                                "message.otherworldinn.room_rename.success",
+                                                RoomData.getDisplayName(room))
+                                        .withStyle(style -> style.withColor(ModColors.SUCCESS)),
+                                true);
+                        event.setCanceled(true);
+                    }
+                }
+            }
+        }
     }
 
     @Nullable
@@ -495,7 +521,7 @@ public class InnEventHandler {
         final int MAX_LINES = 13;
 
         for (RoomData room : rooms) {
-            MutableComponent header = Component.literal(" -   " + room.getId() + "号房 ")
+            MutableComponent header = Component.literal(" -   " + RoomData.getDisplayName(room) + " ")
                     .withStyle(ChatFormatting.GRAY);
 
             Set<UUID> guestUuids = room.getCurrentGuests();

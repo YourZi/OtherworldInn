@@ -53,6 +53,7 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModItems.END_SPACE_SPHERE.get());
                                                 output.accept(ModItems.FACILITY_UPGRADE_TEMPLATE.get());
                                                 output.accept(ModItems.COIN.get());
+                                                output.accept(ModItems.CREATIVE_BLUEPRINT.get());
                                                 output.accept(ModBlocks.COMMISSION_BOARD.get());
                                             })
                                     .build());

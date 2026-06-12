@@ -1,6 +1,7 @@
 package com.otherworldinn.mixin;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.StockpotBlockEntity;
+import com.otherworldinn.init.ModGameRules;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +29,8 @@ public class MixinStockpotBlockEntityCookCheck {
         if (level.isClientSide) return;
         if (result.isEmpty()) return;
         if (!(entity instanceof ServerPlayer sp)) return;
+
+        if (!level.getGameRules().getBoolean(ModGameRules.RULE_ENABLE_RECIPE_UNLOCK)) return;
 
         ResourceLocation foodId = BuiltInRegistries.ITEM.getKey(result.getItem());
         String recipeId = foodId.toString();
