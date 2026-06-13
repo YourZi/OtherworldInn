@@ -306,14 +306,7 @@ public abstract class VipGuestEntity extends GuestEntity {
     private ResourceLocation pickVipMealItem(TeamData team) {
         List<ResourceLocation> all = ItemSellPriceManager.getConfiguredItemsAbovePrice(
                 getVipMealMinPriceExclusive() - 1);
-        List<ResourceLocation> candidates = new ArrayList<>();
-        for (ResourceLocation id : all) {
-            if ("kaleidoscope_tavern".equals(id.getNamespace())) continue;
-            String recipeId = id.toString();
-            if (team.isCookRecipeUnlocked(recipeId)) {
-                candidates.add(id);
-            }
-        }
+        List<ResourceLocation> candidates = new ArrayList<>(all);
         if (candidates.isEmpty()) {
             candidates = ItemSellPriceManager.getTopPricedItems(5);
             candidates.removeIf(id -> "kaleidoscope_tavern".equals(id.getNamespace()));

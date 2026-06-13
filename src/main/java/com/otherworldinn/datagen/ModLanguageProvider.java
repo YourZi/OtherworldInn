@@ -43,11 +43,8 @@ public class ModLanguageProvider extends LanguageProvider {
 
     private void addManualTranslations() {
         entry("itemGroup.otherworldinn").zh("旅社物语").en("Otherworld Inn");
-        entry("itemGroup.otherworldinn.expedition").zh("旅社物语 · 星图组件").en("Otherworld Inn · Expedition");
-        entry("itemGroup.otherworldinn.recipe_books").zh("旅社物语 · 食谱").en("Otherworld Inn · Recipes");
-
-        entry("gamerule.enableSponsorGuest").zh("启用赞助旅客").en("Enable Sponsor Guests");
-        entry("gamerule.enableRecipeUnlock").zh("启用菜谱学习系统").en("Enable Recipe Unlock System");
+        entry("itemGroup.otherworldinn.expedition").zh("旅社物语 · 远征").en("Otherworld Inn · Expedition");
+        entry("gamerule.enableSponsorGuest").zh("启用赞助旅客").en("Enable Sponsor Guest");
 
         entry("key.categories.otherworldinn").zh("旅社物语").en("Otherworld Inn");
 
@@ -789,14 +786,6 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.expedition.click_to_join_hover").zh("点击加入此次远征队伍").en("Click to join this expedition party");
         entry("message.otherworldinn.expedition.recruit_broadcast").zh("✦ %s 发起了一场远征组队（%s | 预估费用 §f\uE001§r%s）%s").en("✦ %s started an expedition party (%s | est. fee %s coins) %s");
         entry("message.otherworldinn.expedition.aborted").zh("远征已被管理员强制终止").en("Expedition has been forcibly terminated by admin");
-        entry("message.otherworldinn.recipe_book.unlocked").zh("配方已为队伍学习：%s").en("Recipe learned for your team: %s");
-        entry("message.otherworldinn.recipe_book.locked_prefix").zh("(未学习) %s").en("(Not learned) %s");
-        entry("message.otherworldinn.recipe_item.overlay.use").zh("右键使用记录配方").en("Right-click to record recipe");
-
-        entry("command.otherworldinn.team.cookrecipe.unlocked").zh("已学习食谱：%s").en("Learned recipe: %s");
-        entry("command.otherworldinn.team.cookrecipe.locked").zh("未学习食谱：%s").en("Not learned recipe: %s");
-        entry("command.otherworldinn.team.cookrecipe.unlocked_all").zh("已学习全部食谱").en("All recipes learned");
-        entry("command.otherworldinn.team.cookrecipe.locked_all").zh("未学习全部食谱").en("All recipes not learned");
 
         entry("tooltip.otherworldinn.chart_component.blank_entry").zh("  ▸ 空白组件").en("  ▸ Blank Component");
         entry("tooltip.otherworldinn.chart_component.blank").zh("用于合成其它星图组件").en("Used to craft other chart components");

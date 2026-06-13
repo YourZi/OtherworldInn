@@ -32,9 +32,6 @@
     "MixinMinecraftServerSave",
     "MixinStructurePlacement",
     "MixinNeutralMobAnger",
-    "MixinRecipeItemUnlock",
-    "MixinPotBlockEntityCookCheck",
-    "MixinStockpotBlockEntityCookCheck",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"
   ],

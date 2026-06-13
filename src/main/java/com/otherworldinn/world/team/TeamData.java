@@ -147,18 +147,6 @@ public class TeamData {
         unlockedMapPoints.remove(pointId);
     }
 
-    public boolean isCookRecipeUnlocked(String recipeId) {
-        return unlockedCookRecipes.contains(recipeId);
-    }
-
-    public void unlockCookRecipe(String recipeId) {
-        unlockedCookRecipes.add(recipeId);
-    }
-
-    public Set<String> getUnlockedCookRecipes() {
-        return unlockedCookRecipes;
-    }
-
     public void setCoins(int coins) {
         if (this.coins != coins) {
             this.coins = Math.max(0, coins);
@@ -479,14 +467,6 @@ public class TeamData {
             coins = tag.getInt("Coins");
         } else {
             coins = 0;
-        }
-
-        unlockedCookRecipes.clear();
-        if (tag.contains("UnlockedCookRecipes")) {
-            ListTag recipesTag = tag.getList("UnlockedCookRecipes", Tag.TAG_STRING);
-            for (Tag t : recipesTag) {
-                unlockedCookRecipes.add(t.getAsString());
-            }
         }
 
         // 优先加载 InnData，因为后续可能需要用到它

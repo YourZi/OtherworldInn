@@ -473,9 +473,6 @@ public class TeamManager {
         clientTeamCache.setTeleportUnlocked(teleportUnlocked);
         clientTeamCache.setCoins(coins);
 
-        clientTeamCache.getUnlockedCookRecipes().clear();
-        clientTeamCache.getUnlockedCookRecipes().addAll(unlockedCookRecipes);
-
         // 更新旅社数据
         if (innDataTag != null) {
             clientTeamCache.getInnData().load(innDataTag);

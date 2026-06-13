@@ -130,17 +130,5 @@ public class ModClientEvents {
                             new ItemStack(type.iconItem()), x, y, 0, 0.7f);
                     return false;
                 });
-
-        event.register(
-                com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems.RECIPE_ITEM.get(),
-                (guiGraphics, font, stack, x, y) -> {
-                    RecipeItem.RecipeRecord record = RecipeItem.getRecipe(stack);
-                    if (record == null) return false;
-                    ItemStack output = record.output();
-                    if (output.isEmpty()) return false;
-                    SlotIconRenderer.renderCentered(guiGraphics,
-                            output, x, y, 0, 0.7f);
-                    return false;
-                });
     }
 }
