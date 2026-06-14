@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.block.CommissionBoardBlock;
+import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.foundation.BlockDataGenInfo;
 import com.otherworldinn.foundation.BlockReg;
 import java.util.HashMap;
@@ -38,6 +39,16 @@ public class ModBlocks {
                     .lang("Commission Board", "委托板");
     public static final DeferredBlock<CommissionBoardBlock> COMMISSION_BOARD =
             COMMISSION_BOARD_REG.register();
+
+    public static final BlockReg<CrystalBallBlock> CRYSTAL_BALL_REG =
+            register("crystal_ball", CrystalBallBlock::new)
+                    .properties(props -> props.strength(2.0F).noOcclusion())
+                    .cutout()
+                    .lang("Crystal Ball", "水晶球")
+                    .tooltip("Right-click to enter the Magic Space", "右键进入魔法空间")
+                    .tooltip("Only one Crystal Ball can exist in the world at a time", "同一存档只能放置一个水晶球");
+    public static final DeferredBlock<CrystalBallBlock> CRYSTAL_BALL =
+            CRYSTAL_BALL_REG.register();
 
     /** 判断实体是否可以在该方块上生成 用于 isValidSpawn 属性 */
     private static boolean never(

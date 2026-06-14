@@ -50,7 +50,7 @@ public enum ChartComponentType {
     FORESTS("forests_biome", ComponentCategory.BIOME,
             DimensionCategory.MAIN_WORLD, Rarity.COMMON,
             "森林生物群系", "Forest Biomes",
-            List.of("森林、繁花森林、樱花树林、桦木森林"), List.of(),
+            List.of("森林、繁花森林、樱花树林、桦木森林、蚂蚁花园"), List.of(),
             () -> Items.OAK_SAPLING),
 
     TAIGAS("taigas_biome", ComponentCategory.BIOME,

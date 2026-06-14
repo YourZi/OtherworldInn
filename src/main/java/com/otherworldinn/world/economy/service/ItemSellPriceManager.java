@@ -1,5 +1,7 @@
 package com.otherworldinn.world.economy.service;
 
+import com.github.ysbbbbbb.kaleidoscopecookery.item.quality.Quality;
+import com.github.ysbbbbbb.kaleidoscopecookery.item.quality.QualityUtils;
 import com.github.ysbbbbbb.kaleidoscopetavern.item.BottleBlockItem;
 import com.github.ysbbbbbb.kaleidoscopetavern.item.DrinkBlockItem;
 import java.util.ArrayList;
@@ -194,15 +196,28 @@ public class ItemSellPriceManager {
         if (basePrice <= 0) {
             return 0;
         }
+
+        // 根据菜品品质调整售价
+        double qualityMultiplier = 1.0;
+        if (QualityUtils.hasQuality(itemStack)) {
+            Quality quality = QualityUtils.getQuality(itemStack);
+            qualityMultiplier = switch (quality) {
+                case SUPERB -> 1.2;
+                case EXCELLENT -> 1.0;
+                case STANDARD -> 0.6;
+                case POOR -> 0.3;
+            };
+        }
+
         if (!(itemStack.getItem() instanceof DrinkBlockItem)) {
-            return basePrice;
+            return (int) Math.max(1, Math.round(basePrice * qualityMultiplier));
         }
         int brewLevel = Math.max(1, Math.min(7, BottleBlockItem.getBrewLevel(itemStack)));
         int price = basePrice;
         for (int level = 2; level <= brewLevel; level++) {
             price = (int) Math.floor(price * 1.4d);
         }
-        return price;
+        return (int) Math.max(1, Math.round(price * qualityMultiplier));
     }
 
     public static int getConfiguredPrice(ResourceLocation itemId) {

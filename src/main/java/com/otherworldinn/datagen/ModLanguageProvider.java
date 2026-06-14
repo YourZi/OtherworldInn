@@ -592,6 +592,15 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.overlay.view")
                 .zh("查看委托")
                 .en("View Commission");
+        entry("message.otherworldinn.crystal_ball.overlay.enter")
+                .zh("进入魔法空间")
+                .en("Enter Magic Space");
+        entry("message.otherworldinn.crystal_ball.already_exists")
+                .zh("此存档已存在一个水晶球，无法放置第二个")
+                .en("A Crystal Ball already exists in this world; you cannot place another.");
+        entry("message.otherworldinn.crystal_ball.cannot_break_in_use")
+                .zh("魔法空间中仍有玩家，无法破坏水晶球")
+                .en("Cannot break the Crystal Ball while players are in the Magic Space.");
         entry("message.otherworldinn.commission.completed")
                 .zh("委托已完成！")
                 .en("Commission Completed!");

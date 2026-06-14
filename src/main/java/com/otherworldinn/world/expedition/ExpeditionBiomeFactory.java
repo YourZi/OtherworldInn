@@ -39,7 +39,8 @@ public final class ExpeditionBiomeFactory {
                 List.of(b("plains"), b("meadow"), b("sunflower_plains")));
         BIOME_COMPONENT_MAP.put("forests_biome",
                 List.of(b("forest"), b("flower_forest"), b("cherry_grove"),
-                        b("birch_forest"), b("old_growth_birch_forest")));
+                        b("birch_forest"), b("old_growth_birch_forest"),
+                        nb("spawn", "ant_gardens")));
         BIOME_COMPONENT_MAP.put("taigas_biome",
                 List.of(b("taiga"), b("old_growth_pine_taiga"),
                         b("old_growth_spruce_taiga")));
@@ -85,6 +86,12 @@ public final class ExpeditionBiomeFactory {
     private static ResourceKey<Biome> b(String name) {
         return ResourceKey.create(Registries.BIOME,
                 ResourceLocation.withDefaultNamespace(name));
+    }
+
+    /** 创建指定命名空间的群系 Key */
+    private static ResourceKey<Biome> nb(String namespace, String name) {
+        return ResourceKey.create(Registries.BIOME,
+                ResourceLocation.fromNamespaceAndPath(namespace, name));
     }
 
     private ExpeditionBiomeFactory() {}

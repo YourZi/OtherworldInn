@@ -1,0 +1,10 @@
+{
+  "type": "otherworldinn:magic_space_type",
+  "generator": {
+    "type": "otherworldinn:town_chunk_generator",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:the_void"
+    }
+  }
+}

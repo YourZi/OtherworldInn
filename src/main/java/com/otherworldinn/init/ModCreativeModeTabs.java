@@ -40,6 +40,7 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModItems.FACILITY_UPGRADE_TEMPLATE.get());
                                                 output.accept(ModItems.COIN.get());
                                                 output.accept(ModBlocks.COMMISSION_BOARD.get());
+                                                output.accept(ModBlocks.CRYSTAL_BALL.get());
                                             })
                                     .build());
 

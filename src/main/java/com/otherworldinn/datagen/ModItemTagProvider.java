@@ -1,6 +1,7 @@
 package com.otherworldinn.datagen;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -34,6 +35,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.LAND_DEED.get())
                 .add(ModItems.INN_KEY.get())
                 .add(ModItems.ROOM_KEY.get())
+                .add(ModBlocks.CRYSTAL_BALL.asItem())
                 ;
     }
 }

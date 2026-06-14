@@ -41,9 +41,9 @@ import com.otherworldinn.world.expedition.ExpeditionNbtHelper;
 
 public class ExpeditionChartItem extends Item {
 
-    private static final int BASE_TIME_MINUTES = 45;
-    private static final int TIME_PER_SLOT = 5;
-    private static final int MIN_TIME_MINUTES = 15;
+    private static final int BASE_TIME_MINUTES = 90;
+    private static final int TIME_PER_SLOT = 10;
+    private static final int MIN_TIME_MINUTES = 30;
     private static final int BASE_FEE = 10;
     private static final int FEE_PER_PERSON = 5;
 

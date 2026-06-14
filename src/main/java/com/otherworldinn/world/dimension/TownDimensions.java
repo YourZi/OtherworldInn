@@ -50,5 +50,19 @@ public class TownDimensions {
                     Registries.DIMENSION_TYPE,
                     ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_nether_type"));
 
+    // 魔法空间维度
+    public static final ResourceKey<LevelStem> MAGIC_SPACE_STEM =
+            ResourceKey.create(
+                    Registries.LEVEL_STEM,
+                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "magic_space"));
+    public static final ResourceKey<Level> MAGIC_SPACE_LEVEL =
+            ResourceKey.create(
+                    Registries.DIMENSION,
+                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "magic_space"));
+    public static final ResourceKey<DimensionType> MAGIC_SPACE_DIM_TYPE =
+            ResourceKey.create(
+                    Registries.DIMENSION_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "magic_space_type"));
+
     public static void register() {}
 }
