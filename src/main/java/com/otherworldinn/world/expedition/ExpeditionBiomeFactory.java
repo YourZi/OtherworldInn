@@ -60,7 +60,16 @@ public final class ExpeditionBiomeFactory {
                 List.of(b("ocean"), b("warm_ocean"), b("lukewarm_ocean"),
                         b("cold_ocean"), b("frozen_ocean"), b("deep_ocean"),
                         b("deep_warm_ocean"), b("deep_lukewarm_ocean"),
-                        b("deep_cold_ocean"), b("deep_frozen_ocean")));
+                        b("deep_cold_ocean"), b("deep_frozen_ocean"),
+                        nb("spawn", "seagrass_meadow"),
+                        nb("spawn", "rocky_shore"),
+                        nb("spawn", "deep_warm_ocean"),
+                        nb("spawn", "tropical_island"),
+                        nb("spawn", "sandy_island"),
+                        nb("spawn", "cold_island"),
+                        nb("spawn", "dodo_island"),
+                        nb("spawn", "tide_pool"),
+                        nb("spawn", "volcanic_island")));
         BIOME_COMPONENT_MAP.put("mountain_biome",
                 List.of(b("jagged_peaks"), b("frozen_peaks"), b("stony_peaks"),
                         b("meadow"), b("snowy_slopes")));

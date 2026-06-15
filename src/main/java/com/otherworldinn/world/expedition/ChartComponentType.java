@@ -92,7 +92,7 @@ public enum ChartComponentType {
     OCEAN("ocean_biome", ComponentCategory.BIOME,
             DimensionCategory.MAIN_WORLD, Rarity.UNCOMMON,
             "海洋生物群系", "Ocean Biomes",
-            List.of("暖海、温水海、冷水海、冻洋及其深海变种"), List.of(),
+            List.of("暖海、温水海、冷水海、冻洋及其深海变种、海草床、岩岸、暖水深海、热带岛屿、覆沙岛屿、寒冷岛屿、渡渡鸟岛屿、潮池、火山岛屿"), List.of(),
             () -> Items.WATER_BUCKET),
 
     MOUNTAIN("mountain_biome", ComponentCategory.BIOME,

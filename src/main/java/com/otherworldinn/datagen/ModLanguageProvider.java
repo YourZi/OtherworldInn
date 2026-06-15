@@ -455,6 +455,15 @@ public class ModLanguageProvider extends LanguageProvider {
 
         // 生物群系
         entry("biome.otherworldinn.town").zh("城镇").en("Town");
+        entry("biome.spawn.seagrass_meadow").zh("海草床").en("Seagrass Meadow");
+        entry("biome.spawn.rocky_shore").zh("岩岸").en("Rocky Shore");
+        entry("biome.spawn.deep_warm_ocean").zh("暖水深海").en("Deep Warm Ocean");
+        entry("biome.spawn.tropical_island").zh("热带岛屿").en("Tropical Island");
+        entry("biome.spawn.sandy_island").zh("覆沙岛屿").en("Sandy Island");
+        entry("biome.spawn.cold_island").zh("寒冷岛屿").en("Cold Island");
+        entry("biome.spawn.dodo_island").zh("渡渡鸟岛屿").en("Dodo Island");
+        entry("biome.spawn.tide_pool").zh("潮池").en("Tide Pool");
+        entry("biome.spawn.volcanic_island").zh("火山岛屿").en("Volcanic Island");
 
         // 家具属性
         entry("tooltip.otherworldinn.furniture.comfort")
