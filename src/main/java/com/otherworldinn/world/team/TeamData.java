@@ -31,6 +31,12 @@ import net.minecraft.sounds.SoundSource;
 @Data
 public class TeamData {
 
+    /** 全局最大旅社范围：整个大地块的边界 */
+    public static final int GLOBAL_MAX_MIN_X = 30;
+    public static final int GLOBAL_MAX_MIN_Z = -28;
+    public static final int GLOBAL_MAX_MAX_X = 80;
+    public static final int GLOBAL_MAX_MAX_Z = 27;
+
     public record InnRegion(int minX, int minZ, int maxX, int maxZ) {
 
         public boolean contains(int x, int z) {
@@ -374,6 +380,19 @@ public class TeamData {
             }
         }
         return false;
+    }
+
+    /**
+     * 检查坐标是否在全局最大旅社范围内（整个大地块边界）
+     *
+     * <p>与 {@link #isInInnZone} 不同，此方法使用硬编码的最大范围，
+     * 不依赖队伍当前购买的地皮。用于建造保护等场景。
+     */
+    public static boolean isInGlobalMaxInnZone(BlockPos pos) {
+        int x = pos.getX();
+        int z = pos.getZ();
+        return x >= GLOBAL_MAX_MIN_X && x <= GLOBAL_MAX_MAX_X
+                && z >= GLOBAL_MAX_MIN_Z && z <= GLOBAL_MAX_MAX_Z;
     }
 
     // --- NBT 序列化 ---

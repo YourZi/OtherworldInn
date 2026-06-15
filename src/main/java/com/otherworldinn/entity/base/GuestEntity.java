@@ -1472,7 +1472,7 @@ public abstract class GuestEntity extends PathfinderMob {
                     if (y < minY || y > maxY) {
                         return;
                     }
-                    if (!team.isInInnZone(pos)) {
+                    if (!TeamData.isInGlobalMaxInnZone(pos)) {
                         return;
                     }
                     double dist = origin.distSqr(pos);

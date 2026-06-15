@@ -105,28 +105,34 @@ public class TownProtectionHandler {
     }
 
     /**
-     * 免保区判定（服务端）。旅社范围内无人入住的房间区域，或温室区域。
+     * 免保区判定（服务端）。旅社最大范围内无人入住的房间区域，或温室区域。
      */
     private static boolean isFreeZone(ServerLevel level, BlockPos pos) {
         if (level == null || pos == null || !isTownDimension(level)) return false;
 
         if (isInsideGreenhouseZone(level, pos)) return true;
 
+        // 使用全局最大旅社范围（而非队伍已购买的地皮范围）
+        if (!TeamData.isInGlobalMaxInnZone(pos)) return false;
+
         TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
-        if (team == null || !team.isInInnZone(pos)) return false;
+        if (team == null) return false;
 
         RoomData room = team.getInnData().getRoomAffectedBy(pos);
         return room == null || room.getCurrentGuests().isEmpty();
     }
 
     /**
-     * 客户端免保区判定。仅使用客户端缓存的队伍数据。
+     * 客户端免保区判定。使用全局最大旅社范围。
      */
     private static boolean isFreeZoneClient(Level level, BlockPos pos) {
         if (level == null || pos == null || !isTownDimension(level)) return false;
 
+        // 使用全局最大旅社范围（而非队伍已购买的地皮范围）
+        if (!TeamData.isInGlobalMaxInnZone(pos)) return false;
+
         TeamData team = TeamManager.getInstance().getClientPlayerTeam();
-        if (team == null || !team.isInInnZone(pos)) return false;
+        if (team == null) return false;
 
         // 温室判定
         int ghLevel = Math.max(0, team.getInnData().getFacilityLevel(GREENHOUSE_FACILITY_ID));

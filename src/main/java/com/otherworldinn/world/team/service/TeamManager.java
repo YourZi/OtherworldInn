@@ -354,10 +354,23 @@ public class TeamManager {
         int chunkZ = pos.getZ() >> 4;
         List<TeamData> teamsInChunk = teamChunkIndex.get(chunkKey(chunkX, chunkZ));
         if (teamsInChunk == null) {
+            // 如果在块索引中找不到，但坐标在全局最大旅社范围内，尝试遍历所有队伍
+            if (!TeamData.isInGlobalMaxInnZone(pos)) return null;
+            var allTeams = getData(server).getTeams().values();
+            for (TeamData team : allTeams) {
+                if (TeamData.isInGlobalMaxInnZone(pos)) return team;
+            }
             return null;
         }
+        // 优先匹配已购买的地皮范围
         for (TeamData team : teamsInChunk) {
             if (team.isInInnZone(pos)) {
+                return team;
+            }
+        }
+        // 回退到全局最大范围匹配
+        for (TeamData team : teamsInChunk) {
+            if (TeamData.isInGlobalMaxInnZone(pos)) {
                 return team;
             }
         }
