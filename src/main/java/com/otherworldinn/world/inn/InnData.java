@@ -329,6 +329,16 @@ public class InnData {
         guestIds.remove(uuid);
     }
 
+    /** 清除所有旅客数据并移除待入住待办事项（调试用） */
+    public void clearAllGuests(Level level, TeamData team) {
+        for (String todo : List.copyOf(todoList)) {
+            if (todo.contains("guest_waiting")) {
+                removeTodo(level, team, todo);
+            }
+        }
+        guestIds.clear();
+    }
+
     /**
      * 获取旅客数据
      *

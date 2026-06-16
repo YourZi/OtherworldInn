@@ -6,6 +6,7 @@ import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamSavedData;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,11 @@ public class TeamManager {
 
     public TeamSavedData getData(MinecraftServer server) {
         return TeamSavedData.get(server.overworld());
+    }
+
+    /** 获取所有队伍（调试用） */
+    public Collection<TeamData> getAllTeams(MinecraftServer server) {
+        return getData(server).getTeams().values();
     }
 
     private static long chunkKey(int chunkX, int chunkZ) {

@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.commission.CommissionService;
 import com.otherworldinn.world.event.TownStructurePlacer;
@@ -14,6 +15,7 @@ import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.expedition.ExpeditionService;
 import com.otherworldinn.world.expedition.ExpeditionSession;
+import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -90,7 +92,12 @@ public class AdminCommands {
                                 Commands.literal("store")
                                         .then(
                                                 Commands.literal("reset_all_npcs")
-                                                        .executes(AdminCommands::resetAllStoreNpcs))));
+                                                        .executes(AdminCommands::resetAllStoreNpcs)))
+                        .then(
+                                Commands.literal("guests")
+                                        .then(
+                                                Commands.literal("clear_all")
+                                                        .executes(AdminCommands::clearAllGuests))));
     }
 
     private static int abortExpedition(CommandContext<CommandSourceStack> context) {
@@ -255,6 +262,39 @@ public class AdminCommands {
                                 Component.translatable(
                                         "command.otherworldinn.admin.store.reset_all.success",
                                         finalResetCount),
+                        true);
+        return 1;
+    }
+
+    private static int clearAllGuests(CommandContext<CommandSourceStack> context) {
+        ServerLevel townLevel = context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource()
+                    .sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+
+        // 1. 杀死所有旅客实体
+        List<GuestEntity> guests = townLevel.getEntitiesOfClass(
+                GuestEntity.class, new AABB(-1024, -64, -1024, 1024, 384, 1024));
+        for (GuestEntity guest : guests) {
+            guest.kill();
+        }
+
+        // 2. 清除所有队伍的旅客数据和待办事项
+        TeamManager manager = TeamManager.getInstance();
+        int teamCount = 0;
+        for (TeamData team : manager.getAllTeams(context.getSource().getServer())) {
+            team.getInnData().clearAllGuests(townLevel, team);
+            teamCount++;
+        }
+
+        final int killed = guests.size();
+        final int teams = teamCount;
+        context.getSource()
+                .sendSuccess(
+                        () -> Component.literal(
+                                "已清除 " + killed + " 个旅客实体，重置 " + teams + " 支队伍的入住数据"),
                         true);
         return 1;
     }
