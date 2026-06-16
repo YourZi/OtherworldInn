@@ -10,6 +10,8 @@ import com.otherworldinn.client.renderer.ButcherModel;
 import com.otherworldinn.client.renderer.ButcherRenderer;
 import com.otherworldinn.client.renderer.FarmerModel;
 import com.otherworldinn.client.renderer.FarmerRenderer;
+import com.otherworldinn.client.renderer.FishermanModel;
+import com.otherworldinn.client.renderer.FishermanRenderer;
 import com.otherworldinn.client.renderer.GrocerModel;
 import com.otherworldinn.client.renderer.GrocerRenderer;
 import com.otherworldinn.client.renderer.GuestRenderer;
@@ -80,6 +82,9 @@ public class ModClientEvents {
         event.registerEntityRenderer(ModEntities.MAGICIAN.get(), MagicianRenderer::new);
         event.registerEntityRenderer(ModEntities.FARMER.get(), FarmerRenderer::new);
         event.registerEntityRenderer(ModEntities.GROCER.get(), GrocerRenderer::new);
+        event.registerEntityRenderer(ModEntities.BUTCHER.get(), ButcherRenderer::new);
+        event.registerEntityRenderer(ModEntities.BUILDER.get(), BuilderRenderer::new);
+        event.registerEntityRenderer(ModEntities.FISHERMAN.get(), FishermanRenderer::new);
         event.registerEntityRenderer(ModEntities.COIN_PROJECTILE.get(), ThrownItemRenderer::new);
     }
 
@@ -94,6 +99,7 @@ public class ModClientEvents {
         event.registerLayerDefinition(GrocerModel.LAYER_LOCATION, GrocerModel::createBodyLayer);
         event.registerLayerDefinition(ButcherModel.LAYER_LOCATION, ButcherModel::createBodyLayer);
         event.registerLayerDefinition(BuilderModel.LAYER_LOCATION, BuilderModel::createBodyLayer);
+        event.registerLayerDefinition(FishermanModel.LAYER_LOCATION, FishermanModel::createBodyLayer);
     }
 
     @SubscribeEvent

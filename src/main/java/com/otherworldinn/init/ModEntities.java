@@ -12,6 +12,7 @@ import com.otherworldinn.entity.store.BlacksmithEntity;
 import com.otherworldinn.entity.store.BuilderEntity;
 import com.otherworldinn.entity.store.ButcherEntity;
 import com.otherworldinn.entity.store.FarmerEntity;
+import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
 import com.otherworldinn.world.entity.projectile.CoinProjectileEntity;
@@ -180,6 +181,19 @@ public class ModEntities {
                                     .updateInterval(2)
                                     .setShouldReceiveVelocityUpdates(true)
                                     .build("builder"));
+
+    public static final Supplier<EntityType<FishermanEntity>> FISHERMAN =
+            ENTITY_TYPES.register(
+                    "fisherman",
+                    () ->
+                            EntityType.Builder.of(
+                                            FishermanEntity::new,
+                                            MobCategory.MISC)
+                                    .sized(0.6F, 1.95F)
+                                    .clientTrackingRange(80)
+                                    .updateInterval(2)
+                                    .setShouldReceiveVelocityUpdates(true)
+                                    .build("fisherman"));
 
     public static final Supplier<EntityType<CoinProjectileEntity>> COIN_PROJECTILE =
             ENTITY_TYPES.register(

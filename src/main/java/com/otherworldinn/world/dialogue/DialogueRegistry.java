@@ -2,7 +2,10 @@ package com.otherworldinn.world.dialogue;
 
 import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.store.BlacksmithEntity;
+import com.otherworldinn.entity.store.BuilderEntity;
+import com.otherworldinn.entity.store.ButcherEntity;
 import com.otherworldinn.entity.store.FarmerEntity;
+import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
 import java.util.ArrayList;
@@ -80,6 +83,51 @@ public final class DialogueRegistry {
                     LocalizedText.of(
                             "一些乱七八糟的东西，随意看看吧",
                             "A bunch of odds and ends. Feel free to browse."));
+
+    private static final DialogueDefinition BUTCHER_DIALOGUE =
+            buildSimpleStoreDialogueWithChat(
+                    "butcher",
+                    LocalizedText.of(
+                            "新鲜的肉，刚宰的！要买点什么？",
+                            "Fresh meat, just butchered! What do you need?"),
+                    LocalizedText.of(
+                            "生肉、皮革、骨头都有，做饭前先来我这儿转转。",
+                            "Raw meat, leather, and bones. Come by before you start cooking."),
+                    LocalizedText.of("最近什么肉卖得好",
+                            "What\'s been selling well lately?"),
+                    LocalizedText.of(
+                            "牛肉和猪肉最抢手，鸡肉也不差。鱼嘛...偶尔有人买。",
+                            "Beef and pork sell out fastest. Chicken too. Fish... well, occasionally."));
+
+    private static final DialogueDefinition BUILDER_DIALOGUE =
+            buildSimpleStoreDialogueWithChat(
+                    "builder",
+                    LocalizedText.of(
+                            "要盖房子？找我准没错！",
+                            "Building something? You\'ve come to the right person!"),
+                    LocalizedText.of(
+                            "木材、石料、砖瓦——好材料才能盖好房子。",
+                            "Timber, stone, and bricks. Only good materials make good buildings."),
+                    LocalizedText.of("可以帮忙修建吗",
+                            "Can you help me build something?"),
+                    LocalizedText.of(
+                            "可以啊，挑几个蓝图看看喜欢哪个",
+                            "I can. Pick some blueprints."));
+
+    private static final DialogueDefinition FISHERMAN_DIALOGUE =
+            buildSimpleStoreDialogueWithChat(
+                    "fisherman",
+                    LocalizedText.of(
+                            "今天的鱼获不错，来看看？",
+                            "Today\'s catch is decent. Take a look?"),
+                    LocalizedText.of(
+                            "鱼、水产、还有一些海里的稀罕东西。",
+                            "Fish, seafood, and some rare finds from the sea."),
+                    LocalizedText.of("钓鱼有什么诀窍吗",
+                            "Any tips for fishing?"),
+                    LocalizedText.of(
+                            "有耐心就行。雨天鱼更容易上钩，清晨和傍晚也是好时候。",
+                            "Patience is key. Rain helps, and dawn or dusk are best."));
     private static final List<DialogueDefinition> GUEST_DIALOGUES =
             List.of(
                     buildGuestLineDialogue(
@@ -389,7 +437,8 @@ public final class DialogueRegistry {
     static {
         List<DialogueDefinition> all =
                 new ArrayList<>(
-                        List.of(BLACKSMITH_DIALOGUE, FARMER_DIALOGUE, MAGICIAN_DIALOGUE, GROCER_DIALOGUE));
+                        List.of(BLACKSMITH_DIALOGUE, FARMER_DIALOGUE, MAGICIAN_DIALOGUE, GROCER_DIALOGUE,
+                                BUTCHER_DIALOGUE, BUILDER_DIALOGUE, FISHERMAN_DIALOGUE));
         all.addAll(GUEST_DIALOGUES);
         ALL_DIALOGUES = Collections.unmodifiableList(all);
         Map<String, DialogueDefinition> byId = new LinkedHashMap<>();
@@ -417,6 +466,15 @@ public final class DialogueRegistry {
         }
         if (entity instanceof GrocerEntity) {
             return GROCER_DIALOGUE;
+        }
+        if (entity instanceof ButcherEntity) {
+            return BUTCHER_DIALOGUE;
+        }
+        if (entity instanceof BuilderEntity) {
+            return BUILDER_DIALOGUE;
+        }
+        if (entity instanceof FishermanEntity) {
+            return FISHERMAN_DIALOGUE;
         }
         return null;
     }
@@ -786,6 +844,88 @@ public final class DialogueRegistry {
                                 List.copyOf(boilerLocationOptions)));
             }
         }
+        return new DialogueDefinition(npcId, root, nodes);
+    }
+
+    private static DialogueDefinition buildSimpleStoreDialogueWithChat(
+            String npcId, LocalizedText rootText, LocalizedText askGoodsText,
+            LocalizedText chatLabel, LocalizedText chatText) {
+        String root = "root";
+        String askGoods = "ask_goods";
+        String chatNode = "small_talk";
+        Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
+        nodes.put(
+                root,
+                new DialogueNodeDef(
+                        root,
+                        rootText,
+                        List.of(
+                                new DialogueOptionDef(
+                                        "open_store",
+                                        LocalizedText.of("打开商店", "Open Shop"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_STORE),
+                                new DialogueOptionDef(
+                                        "ask_goods",
+                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        DialogueOptionType.BRANCH,
+                                        askGoods,
+                                        null),
+                                new DialogueOptionDef(
+                                        "small_talk",
+                                        chatLabel,
+                                        DialogueOptionType.BRANCH,
+                                        chatNode,
+                                        null),
+                                new DialogueOptionDef(
+                                        "leave",
+                                        LocalizedText.of("先告辞", "Leave"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        nodes.put(
+                askGoods,
+                new DialogueNodeDef(
+                        askGoods,
+                        askGoodsText,
+                        List.of(
+                                new DialogueOptionDef(
+                                        "open_store",
+                                        LocalizedText.of("打开商店", "Open Shop"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_STORE),
+                                new DialogueOptionDef(
+                                        "small_talk",
+                                        chatLabel,
+                                        DialogueOptionType.BRANCH,
+                                        chatNode,
+                                        null),
+                                new DialogueOptionDef(
+                                        "leave",
+                                        LocalizedText.of("先告辞", "Leave"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        nodes.put(
+                chatNode,
+                new DialogueNodeDef(
+                        chatNode,
+                        chatText,
+                        List.of(
+                                new DialogueOptionDef(
+                                        "open_store",
+                                        LocalizedText.of("打开商店", "Open Shop"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_STORE),
+                                new DialogueOptionDef(
+                                        "leave",
+                                        LocalizedText.of("先告辞", "Leave"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
         return new DialogueDefinition(npcId, root, nodes);
     }
 
