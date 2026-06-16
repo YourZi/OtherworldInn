@@ -152,7 +152,7 @@ public class PlayerEventHandler {
                 ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
                 if (townLevel != null) {
                     TeleportUtils.changeDimensionTo(player, townLevel,
-                            new BlockPos(10, 71, 0));
+                            new BlockPos(51, 71, 0));
                 }
             }
         }
@@ -180,7 +180,7 @@ public class PlayerEventHandler {
                 if (session == null || session.departedPlayers().contains(player.getUUID())) {
                     ServerLevel townLevel = server.getLevel(TownDimensions.TOWN_LEVEL);
                     if (townLevel != null) {
-                        BlockPos spawnPos = new BlockPos(10, 71, 0);
+                        BlockPos spawnPos = new BlockPos(51, 71, 0);
                         player.teleportTo(townLevel,
                                 spawnPos.getX() + 0.5,
                                 spawnPos.getY() + 1,
@@ -195,7 +195,7 @@ public class PlayerEventHandler {
             if (!player.getTags().contains("otherworldinn.joined")) {
                 ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
                 if (townLevel != null) {
-                    BlockPos spawnPos = new BlockPos(10, 71, 0);
+                    BlockPos spawnPos = new BlockPos(51, 71, 0);
                     player.teleportTo(
                             townLevel,
                             spawnPos.getX() + 0.5,
@@ -223,7 +223,7 @@ public class PlayerEventHandler {
                     || player.getRespawnPosition() == null) {
                 ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
                 if (townLevel != null) {
-                    BlockPos spawnPos = new BlockPos(10, 71, 0);
+                    BlockPos spawnPos = new BlockPos(51, 71, 0);
                     player.teleportTo(
                             townLevel,
                             spawnPos.getX() + 0.5,
@@ -259,7 +259,7 @@ public class PlayerEventHandler {
                     ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
                     if (townLevel != null) {
                         TeleportUtils.changeDimensionTo(player, townLevel,
-                                new BlockPos(10, 71, 0));
+                                new BlockPos(51, 71, 0));
                     }
                 }
             }

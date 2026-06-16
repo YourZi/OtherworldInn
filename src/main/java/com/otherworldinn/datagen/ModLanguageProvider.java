@@ -930,6 +930,10 @@ public class ModLanguageProvider extends LanguageProvider {
         entry(ModEntities.MAGICIAN.get()).zh("魔法使").en("Magician");
         entry(ModEntities.FARMER.get()).zh("农夫").en("Farmer");
         entry(ModEntities.GROCER.get()).zh("杂货店老板").en("Grocer");
+        entry(ModEntities.BUTCHER.get()).zh("屠夫").en("Butcher");
+        entry(ModEntities.BUILDER.get()).zh("建筑工").en("Builder");
+        entry(ModEntities.FISHERMAN.get()).zh("渔夫").en("Fisherman");
+        entry(ModEntities.WANDERING_TRADER.get()).zh("游商").en("Wandering Trader");
 
         // 商店 GUI
         entry("gui.otherworldinn.store.confirm").zh("确定").en("Confirm");

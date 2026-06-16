@@ -99,8 +99,8 @@ public class TeamData {
     public TeamData(UUID teamId) {
         this.teamId = teamId;
         this.name = "Team-" + teamId.toString().substring(0, 8);
-        // 初始化默认区域 (30, -14) ~ (51, 14)
-        addRegion(new InnRegion(30, -14, 51, 14));
+        // 初始化默认区域 (30, -32) ~ (82, 27)
+        addRegion(new InnRegion(55, -15, 78, 13));
     }
 
     public void addMember(UUID playerId) {
