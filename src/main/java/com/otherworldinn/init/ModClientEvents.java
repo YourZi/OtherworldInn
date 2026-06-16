@@ -17,6 +17,8 @@ import com.otherworldinn.client.renderer.GrocerRenderer;
 import com.otherworldinn.client.renderer.GuestRenderer;
 import com.otherworldinn.client.renderer.MagicianModel;
 import com.otherworldinn.client.renderer.MagicianRenderer;
+import com.otherworldinn.client.renderer.WanderingTraderModel;
+import com.otherworldinn.client.renderer.WanderingTraderRenderer;
   import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.ChartComponentItem;
@@ -85,6 +87,7 @@ public class ModClientEvents {
         event.registerEntityRenderer(ModEntities.BUTCHER.get(), ButcherRenderer::new);
         event.registerEntityRenderer(ModEntities.BUILDER.get(), BuilderRenderer::new);
         event.registerEntityRenderer(ModEntities.FISHERMAN.get(), FishermanRenderer::new);
+        event.registerEntityRenderer(ModEntities.WANDERING_TRADER.get(), WanderingTraderRenderer::new);
         event.registerEntityRenderer(ModEntities.COIN_PROJECTILE.get(), ThrownItemRenderer::new);
     }
 
@@ -100,6 +103,7 @@ public class ModClientEvents {
         event.registerLayerDefinition(ButcherModel.LAYER_LOCATION, ButcherModel::createBodyLayer);
         event.registerLayerDefinition(BuilderModel.LAYER_LOCATION, BuilderModel::createBodyLayer);
         event.registerLayerDefinition(FishermanModel.LAYER_LOCATION, FishermanModel::createBodyLayer);
+        event.registerLayerDefinition(WanderingTraderModel.LAYER_LOCATION, WanderingTraderModel::createBodyLayer);
     }
 
     @SubscribeEvent

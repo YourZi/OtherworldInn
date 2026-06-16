@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "otherworldinn:chart_component"
+    },
+    "M": {
+      "item": "minecraft:crimson_fungus"
+    }
+  },
+  "pattern": [
+    "MMM",
+    "MBM",
+    "MMM"
+  ],
+  "result": {
+    "components": {
+      "minecraft:custom_data": {
+        "component_type": "crimson_biome"
+      }
+    },
+    "count": 1,
+    "id": "otherworldinn:chart_component"
+  }
+}

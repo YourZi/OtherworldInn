@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "otherworldinn:chart_component"
+    },
+    "M": {
+      "item": "minecraft:jungle_sapling"
+    }
+  },
+  "pattern": [
+    "MMM",
+    "MBM",
+    "MMM"
+  ],
+  "result": {
+    "components": {
+      "minecraft:custom_data": {
+        "component_type": "jungle_biome"
+      }
+    },
+    "count": 1,
+    "id": "otherworldinn:chart_component"
+  }
+}

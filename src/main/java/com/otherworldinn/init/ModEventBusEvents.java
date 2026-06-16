@@ -9,6 +9,7 @@ import com.otherworldinn.entity.store.FarmerEntity;
 import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
+import com.otherworldinn.entity.store.WanderingTraderEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -33,5 +34,6 @@ public class ModEventBusEvents {
         event.put(ModEntities.BUTCHER.get(), ButcherEntity.createAttributes().build());
         event.put(ModEntities.BUILDER.get(), BuilderEntity.createAttributes().build());
         event.put(ModEntities.FISHERMAN.get(), FishermanEntity.createAttributes().build());
+        event.put(ModEntities.WANDERING_TRADER.get(), WanderingTraderEntity.createAttributes().build());
     }
 }

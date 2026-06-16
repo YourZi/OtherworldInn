@@ -15,6 +15,7 @@ import com.otherworldinn.entity.store.FarmerEntity;
 import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
+import com.otherworldinn.entity.store.WanderingTraderEntity;
 import com.otherworldinn.world.entity.projectile.CoinProjectileEntity;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -194,6 +195,19 @@ public class ModEntities {
                                     .updateInterval(2)
                                     .setShouldReceiveVelocityUpdates(true)
                                     .build("fisherman"));
+
+    public static final Supplier<EntityType<WanderingTraderEntity>> WANDERING_TRADER =
+            ENTITY_TYPES.register(
+                    "wandering_trader",
+                    () ->
+                            EntityType.Builder.of(
+                                            WanderingTraderEntity::new,
+                                            MobCategory.MISC)
+                                    .sized(0.6F, 1.95F)
+                                    .clientTrackingRange(80)
+                                    .updateInterval(2)
+                                    .setShouldReceiveVelocityUpdates(true)
+                                    .build("wandering_trader"));
 
     public static final Supplier<EntityType<CoinProjectileEntity>> COIN_PROJECTILE =
             ENTITY_TYPES.register(

@@ -3,7 +3,9 @@ package com.otherworldinn.entity.store;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
 import java.util.List;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
@@ -41,7 +43,10 @@ public class FishermanEntity extends StoreEntity {
 
     private void initDefaultStoreItems() {
 
-        this.addFavorStoreItem(2, new ItemStack(Items.FISHING_ROD), 8, 1);
+        ItemStack rod = new ItemStack(Items.FISHING_ROD);
+        var enchReg = this.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        rod.enchant(enchReg.getOrThrow(Enchantments.LURE), 3);
+        this.addFavorStoreItem(2, rod, 8, 1);
         this.addFavorStoreItem(4, new ItemStack(Items.HEART_OF_THE_SEA), 32, 1);
         this.addFavorStoreItem(6, new ItemStack(Items.TRIDENT), 64, 1);
         this.refreshRandomItems();
@@ -62,7 +67,7 @@ public class FishermanEntity extends StoreEntity {
         long seed = this.level().random.nextLong() ^ day;
         List<RandomProduct> pool = new java.util.ArrayList<>(DAILY_FISH_POOL);
         java.util.Collections.shuffle(pool, new java.util.Random(seed));
-        int count = Math.min(4, pool.size());
+        int count = Math.min(5, pool.size());
         for (int i = 0; i < count; i++) {
             RandomProduct p = pool.get(i);
             int price = p.minPrice()

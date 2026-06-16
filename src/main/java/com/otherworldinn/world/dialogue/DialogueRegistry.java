@@ -852,7 +852,7 @@ public final class DialogueRegistry {
             LocalizedText chatLabel, LocalizedText chatText) {
         String root = "root";
         String askGoods = "ask_goods";
-        String chatNode = "small_talk";
+        String chatNode = "small_talk_" + npcId;
         Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
         nodes.put(
                 root,

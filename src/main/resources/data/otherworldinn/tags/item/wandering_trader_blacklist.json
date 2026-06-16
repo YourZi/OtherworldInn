@@ -1,0 +1,20 @@
+{
+  "values": [
+    "minecraft:spawner",
+    "minecraft:barrier",
+    "minecraft:command_block",
+    "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
+    "minecraft:light",
+    "minecraft:structure_block",
+    "minecraft:structure_void",
+    "minecraft:jigsaw",
+    "minecraft:debug_stick",
+    "minecraft:command_block_minecart",
+    "minecraft:knowledge_book",
+    "create:creative_crate",
+    "create:creative_fluid_tank",
+    "create:creative_motor",
+    "create:creative_blaze_cake"
+  ]
+}

@@ -36,18 +36,17 @@ public class ButcherEntity extends StoreEntity {
 
     private void initDefaultStoreItems() {
         // 生肉
-        this.addStoreItem("minecraft:beef", 4, 64);
-        this.addStoreItem("minecraft:porkchop", 4, 64);
-        this.addStoreItem("minecraft:chicken", 3, 64);
-        this.addStoreItem("minecraft:mutton", 3, 64);
+        this.addStoreItem("minecraft:beef", 4, 8);
+        this.addStoreItem("minecraft:porkchop", 4, 8);
+        this.addStoreItem("minecraft:chicken", 3, 8);
+        this.addStoreItem("minecraft:mutton", 3, 8);
         this.addStoreItem("minecraft:rabbit", 4, 32);
-        this.addStoreItem("minecraft:cod", 3, 64);
-        this.addStoreItem("minecraft:salmon", 3, 64);
-        this.addStoreItem("minecraft:tropical_fish", 5, 16);
+        this.addStoreItem("minecraft:cod", 3, 8);
+        this.addStoreItem("minecraft:salmon", 3, 8);
 
-        this.addStoreItem("minecraft:leather", 4, 64);
-        this.addStoreItem("minecraft:bone", 3, 64);
-        this.addStoreItem("minecraft:egg", 2, 32);
+        this.addStoreItem("minecraft:leather", 4, 8);
+        this.addStoreItem("minecraft:bone", 3, 8);
+        this.addStoreItem("minecraft:egg", 2, 8);
 
         this.addStoreItem(new ItemStack(ModItems.IRON_KITCHEN_KNIFE.get()), 16, 1);
 
