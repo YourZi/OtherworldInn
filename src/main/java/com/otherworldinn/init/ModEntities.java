@@ -9,6 +9,8 @@ import com.otherworldinn.entity.guest.RichGuestEntity;
 import com.otherworldinn.entity.guest.SponsorGuestEntity;
 import com.otherworldinn.entity.guest.UltraRichGuestEntity;
 import com.otherworldinn.entity.store.BlacksmithEntity;
+import com.otherworldinn.entity.store.BuilderEntity;
+import com.otherworldinn.entity.store.ButcherEntity;
 import com.otherworldinn.entity.store.FarmerEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
@@ -152,6 +154,32 @@ public class ModEntities {
                                     .updateInterval(2)
                                     .setShouldReceiveVelocityUpdates(true)
                                     .build("grocer"));
+
+    public static final Supplier<EntityType<ButcherEntity>> BUTCHER =
+            ENTITY_TYPES.register(
+                    "butcher",
+                    () ->
+                            EntityType.Builder.of(
+                                            ButcherEntity::new,
+                                            MobCategory.MISC)
+                                    .sized(0.6F, 1.95F)
+                                    .clientTrackingRange(80)
+                                    .updateInterval(2)
+                                    .setShouldReceiveVelocityUpdates(true)
+                                    .build("butcher"));
+
+    public static final Supplier<EntityType<BuilderEntity>> BUILDER =
+            ENTITY_TYPES.register(
+                    "builder",
+                    () ->
+                            EntityType.Builder.of(
+                                            BuilderEntity::new,
+                                            MobCategory.MISC)
+                                    .sized(0.6F, 1.95F)
+                                    .clientTrackingRange(80)
+                                    .updateInterval(2)
+                                    .setShouldReceiveVelocityUpdates(true)
+                                    .build("builder"));
 
     public static final Supplier<EntityType<CoinProjectileEntity>> COIN_PROJECTILE =
             ENTITY_TYPES.register(

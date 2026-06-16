@@ -38,7 +38,8 @@ import net.minecraft.world.level.Level;
 
 public final class CommissionService {
     private static final int BOARD_SIZE = 2;
-    private static final long UNACCEPTED_REFRESH_INTERVAL_DAYS = 3L;
+    private static final long UNACCEPTED_REFRESH_INTERVAL_DAYS = 2L;
+    private static final long COMPLETED_REFRESH_INTERVAL_DAYS = 1L;
     private static final String TOWN_COMMISSION_TODO_TEXT_KEY =
             "todo.otherworldinn.town_commission_pending";
 

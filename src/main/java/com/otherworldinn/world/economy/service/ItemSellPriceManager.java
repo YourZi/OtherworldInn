@@ -1,6 +1,5 @@
 package com.otherworldinn.world.economy.service;
 
-import com.github.ysbbbbbb.kaleidoscopecookery.item.quality.Quality;
 import com.github.ysbbbbbb.kaleidoscopecookery.item.quality.QualityUtils;
 import com.github.ysbbbbbb.kaleidoscopetavern.item.BottleBlockItem;
 import com.github.ysbbbbbb.kaleidoscopetavern.item.DrinkBlockItem;
@@ -15,11 +14,13 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 物品售价管理器
  *
- * <p>用于管理玩家旅社出售物品的价格
+ * <p>BASE_PRICES 存配置的基准价格。
+ * floatedPrices 由服务端计算后通过 S2CPriceSyncPacket 同步到客户端。
  */
 public class ItemSellPriceManager {
 
-    private static final Map<ResourceLocation, Integer> PRICES = new HashMap<>();
+    static final Map<ResourceLocation, Integer> BASE_PRICES = new HashMap<>();
+    private static final Map<String, Integer> floatedPrices = new HashMap<>();
 
     static {
         // 原版水果
@@ -53,7 +54,7 @@ public class ItemSellPriceManager {
         addPrice("kaleidoscope_cookery:fondant_spider_eye", 12); // 翻糖蛛眼
         addPrice("kaleidoscope_cookery:chorus_fried_egg", 16); // 荷包紫颂烧
         addPrice("kaleidoscope_cookery:braised_fish", 20); // 红烧鱼
-        addPrice("kaleidoscope_cookery:golden_salad", 48); // 黄金沙拉
+        addPrice("kaleidoscope_cookery:golden_salad", 38); // 黄金沙拉
         addPrice("kaleidoscope_cookery:spicy_chicken", 16); // 辣子鸡
         addPrice("kaleidoscope_cookery:yakitori", 14); // 烧鸟串
         addPrice("kaleidoscope_cookery:crystal_lamb_chop", 22); // 水晶羊排
@@ -212,38 +213,33 @@ public class ItemSellPriceManager {
         addPrice("kaleidoscope_tavern:watermelon_juice", 8); // 西瓜汁
     }
 
-    /**
-     * 添加物品售价
-     *
-     * @param itemId 物品 ID
-     * @param price 售价
-     */
     public static void addPrice(String itemId, int price) {
         ResourceLocation rl = ResourceLocation.tryParse(itemId);
         if (rl != null) {
-            PRICES.put(rl, price);
+            BASE_PRICES.put(rl, price);
         }
     }
 
-    /**
-     * 获取物品的单价
-     *
-     * @param itemStack 物品栈
-     * @return 单价，如果未定义则返回 0
-     */
+    /** 设置浮动后价格表 */
+    public static void setFloatedPrices(Map<String, Integer> prices) {
+        floatedPrices.clear();
+        floatedPrices.putAll(prices);
+    }
+
+    /** 清空浮动价格表 */
+    public static void clearFloatedPrices() {
+        floatedPrices.clear();
+    }
+
     public static int getPrice(ItemStack itemStack) {
         if (itemStack.isEmpty()) return 0;
         ResourceLocation rl = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
-        int basePrice = PRICES.getOrDefault(rl, 0);
-        if (basePrice <= 0) {
-            return 0;
-        }
+        int base = getBasePrice(rl);
+        if (base <= 0) return 0;
 
-        // 根据菜品品质调整售价
-        double qualityMultiplier = 1.0;
+        double qm = 1.0;
         if (QualityUtils.hasQuality(itemStack)) {
-            Quality quality = QualityUtils.getQuality(itemStack);
-            qualityMultiplier = switch (quality) {
+            qm = switch (QualityUtils.getQuality(itemStack)) {
                 case SUPERB -> 1.2;
                 case EXCELLENT -> 1.0;
                 case STANDARD -> 0.6;
@@ -252,27 +248,35 @@ public class ItemSellPriceManager {
         }
 
         if (!(itemStack.getItem() instanceof DrinkBlockItem)) {
-            return (int) Math.max(1, Math.round(basePrice * qualityMultiplier));
+            return Math.max(1, (int) Math.round(base * qm));
         }
         int brewLevel = Math.max(1, Math.min(7, BottleBlockItem.getBrewLevel(itemStack)));
-        int price = basePrice;
+        double price = base;
         for (int level = 2; level <= brewLevel; level++) {
-            price = (int) Math.floor(price * 1.4d);
+            price = Math.floor(price * 1.4d);
         }
-        return (int) Math.max(1, Math.round(price * qualityMultiplier));
+        return Math.max(1, (int) Math.round(price * qm));
+    }
+
+    private static int getBasePrice(ResourceLocation rl) {
+        Integer f = floatedPrices.get(rl.toString());
+        if (f != null) return f;
+        return BASE_PRICES.getOrDefault(rl, 0);
     }
 
     public static int getConfiguredPrice(ResourceLocation itemId) {
-        if (itemId == null) {
-            return 0;
-        }
-        return PRICES.getOrDefault(itemId, 0);
+        if (itemId == null) return 0;
+        return getBasePrice(itemId);
+    }
+
+    public static Map<ResourceLocation, Integer> getConfiguredPrices() {
+        return Map.copyOf(BASE_PRICES);
     }
 
     public static List<ResourceLocation> getConfiguredItemsAbovePrice(int minPriceExclusive) {
         List<ResourceLocation> result = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, Integer> entry : PRICES.entrySet()) {
-            if (entry.getValue() != null && entry.getValue() > minPriceExclusive) {
+        for (var entry : BASE_PRICES.entrySet()) {
+            if (entry.getValue() > minPriceExclusive) {
                 result.add(entry.getKey());
             }
         }
@@ -280,7 +284,7 @@ public class ItemSellPriceManager {
     }
 
     public static List<ResourceLocation> getTopPricedItems(int count) {
-        return PRICES.entrySet().stream()
+        return BASE_PRICES.entrySet().stream()
                 .sorted(Map.Entry.<ResourceLocation, Integer>comparingByValue().reversed())
                 .limit(count)
                 .map(Map.Entry::getKey)

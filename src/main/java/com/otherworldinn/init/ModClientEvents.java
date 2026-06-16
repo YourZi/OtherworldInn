@@ -4,6 +4,10 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.gui.screen.StoreScreen;
 import com.otherworldinn.client.renderer.BlacksmithModel;
 import com.otherworldinn.client.renderer.BlacksmithRenderer;
+import com.otherworldinn.client.renderer.BuilderModel;
+import com.otherworldinn.client.renderer.BuilderRenderer;
+import com.otherworldinn.client.renderer.ButcherModel;
+import com.otherworldinn.client.renderer.ButcherRenderer;
 import com.otherworldinn.client.renderer.FarmerModel;
 import com.otherworldinn.client.renderer.FarmerRenderer;
 import com.otherworldinn.client.renderer.GrocerModel;
@@ -88,6 +92,8 @@ public class ModClientEvents {
                 MagicianModel.LAYER_LOCATION, MagicianModel::createBodyLayer);
         event.registerLayerDefinition(FarmerModel.LAYER_LOCATION, FarmerModel::createBodyLayer);
         event.registerLayerDefinition(GrocerModel.LAYER_LOCATION, GrocerModel::createBodyLayer);
+        event.registerLayerDefinition(ButcherModel.LAYER_LOCATION, ButcherModel::createBodyLayer);
+        event.registerLayerDefinition(BuilderModel.LAYER_LOCATION, BuilderModel::createBodyLayer);
     }
 
     @SubscribeEvent

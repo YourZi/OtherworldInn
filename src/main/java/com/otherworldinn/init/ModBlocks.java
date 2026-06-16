@@ -50,12 +50,6 @@ public class ModBlocks {
     public static final DeferredBlock<CrystalBallBlock> CRYSTAL_BALL =
             CRYSTAL_BALL_REG.register();
 
-    /** 判断实体是否可以在该方块上生成 用于 isValidSpawn 属性 */
-    private static boolean never(
-            BlockState state, BlockGetter level, BlockPos pos, EntityType<?> entityType) {
-        return false;
-    }
-
     // --- 辅助方法 ---
 
     /**

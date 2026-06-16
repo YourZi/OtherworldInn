@@ -3,6 +3,8 @@ package com.otherworldinn.init;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.store.BlacksmithEntity;
+import com.otherworldinn.entity.store.BuilderEntity;
+import com.otherworldinn.entity.store.ButcherEntity;
 import com.otherworldinn.entity.store.FarmerEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;

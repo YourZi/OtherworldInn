@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "otherworldinn:crystal_ball"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "otherworldinn:space_sphere"
+  }
+}

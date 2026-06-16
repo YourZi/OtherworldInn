@@ -16,6 +16,12 @@ public final class SchematicSurvivalPrintHelper {
         return tag.getBoolean(KEY);
     }
 
+    public static void enable(ItemStack stack) {
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        tag.putBoolean(KEY, true);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
     public static void toggle(ItemStack stack) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         tag.putBoolean(KEY, !tag.getBoolean(KEY));

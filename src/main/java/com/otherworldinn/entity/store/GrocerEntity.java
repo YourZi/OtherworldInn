@@ -39,38 +39,34 @@ public class GrocerEntity extends StoreEntity {
                     ExpeditionNbtHelper.writeTag(stack, tag);
                 });
         this.addLimitedStoreItem("otherworldinn:chart_component", 8, 1);
-        this.addVanillaBuildingBlocks();
+        this.addStoreItem("minecraft:book", 6, 16);
+        this.addStoreItem("minecraft:paper", 2, 64);
+        this.addStoreItem("minecraft:name_tag", 12, 8);
+        this.addStoreItem("minecraft:slime_ball", 10, 16);
+        this.addAllDyes();
         this.addFavorStoreItem(2, "refinedstorage:1k_storage_part", 32, 8);
         this.addFavorStoreItem(4, "refinedstorage:4k_storage_part", 64, 6);
         this.addFavorStoreItem(6, "refinedstorage:16k_storage_part", 128, 4);
         this.addFavorStoreItem(8, "refinedstorage:64k_storage_part", 256, 2);
     }
 
-    private void addVanillaBuildingBlocks() {
-        this.addAllPlanks();
-        this.addStoreItem("minecraft:cobblestone", 2, 64);
-        this.addStoreItem("minecraft:stone", 2, 64);
-        this.addStoreItem("minecraft:granite", 2, 64);
-        this.addStoreItem("minecraft:diorite", 2, 64);
-        this.addStoreItem("minecraft:andesite", 2, 64);
-        this.addStoreItem("minecraft:tuff", 3, 64);
-        this.addStoreItem("minecraft:calcite", 3, 64);
-        this.addStoreItem("minecraft:cobbled_deepslate", 3, 64);
-        this.addStoreItem("minecraft:white_wool", 2, 64);
-    }
-
-    private void addAllPlanks() {
-        this.addStoreItem("minecraft:oak_planks", 2, 64);
-        this.addStoreItem("minecraft:spruce_planks", 2, 64);
-        this.addStoreItem("minecraft:birch_planks", 2, 64);
-        this.addStoreItem("minecraft:jungle_planks", 2, 64);
-        this.addStoreItem("minecraft:acacia_planks", 2, 64);
-        this.addStoreItem("minecraft:dark_oak_planks", 2, 64);
-        this.addStoreItem("minecraft:mangrove_planks", 3, 64);
-        this.addStoreItem("minecraft:cherry_planks", 3, 64);
-        this.addStoreItem("minecraft:bamboo_planks", 3, 64);
-        this.addStoreItem("minecraft:crimson_planks", 3, 64);
-        this.addStoreItem("minecraft:warped_planks", 3, 64);
+    private void addAllDyes() {
+        this.addStoreItem("minecraft:white_dye", 2, 32);
+        this.addStoreItem("minecraft:orange_dye", 2, 32);
+        this.addStoreItem("minecraft:magenta_dye", 2, 32);
+        this.addStoreItem("minecraft:light_blue_dye", 2, 32);
+        this.addStoreItem("minecraft:yellow_dye", 2, 32);
+        this.addStoreItem("minecraft:lime_dye", 2, 32);
+        this.addStoreItem("minecraft:pink_dye", 2, 32);
+        this.addStoreItem("minecraft:gray_dye", 2, 32);
+        this.addStoreItem("minecraft:light_gray_dye", 2, 32);
+        this.addStoreItem("minecraft:cyan_dye", 2, 32);
+        this.addStoreItem("minecraft:purple_dye", 2, 32);
+        this.addStoreItem("minecraft:blue_dye", 2, 32);
+        this.addStoreItem("minecraft:brown_dye", 2, 32);
+        this.addStoreItem("minecraft:green_dye", 2, 32);
+        this.addStoreItem("minecraft:red_dye", 2, 32);
+        this.addStoreItem("minecraft:black_dye", 2, 32);
     }
 
     @Override

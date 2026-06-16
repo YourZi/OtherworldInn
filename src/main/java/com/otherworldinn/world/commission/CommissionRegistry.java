@@ -365,6 +365,129 @@ public final class CommissionRegistry {
                 .rewardCoins(320)
                 .rewardItem("minecraft:totem_of_undying", 1)
                 .build();
+
+        // ── 屠夫委托 ──
+
+        register("butcher_meat_supply")
+                .stars(1, 2)
+                .weight(10)
+                .description(
+                        LocalizedText.of(
+                                "屠夫收一批生肉补货，带些猪肉和牛肉过来。",
+                                "The butcher needs raw meat to restock. Bring porkchops and beef."))
+                .submit("minecraft:porkchop", 16)
+                .submit("minecraft:beef", 16)
+                .rewardCoins(50)
+                .rewardFavor("otherworldinn:butcher", 65)
+                .build();
+
+        register("butcher_poultry_order")
+                .stars(1, 2)
+                .weight(10)
+                .description(
+                        LocalizedText.of(
+                                "屠夫收一批禽肉，带些鸡肉和鸡蛋过来。",
+                                "The butcher needs poultry. Bring chicken and eggs."))
+                .submit("minecraft:chicken", 20)
+                .submit("minecraft:egg", 16)
+                .rewardCoins(45)
+                .rewardFavor("otherworldinn:butcher", 60)
+                .build();
+
+        register("butcher_seafood_order")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "屠夫想拓展水产生意，带些鱼过来看看反应。",
+                                "The butcher wants to try seafood. Bring cod and salmon for a trial."))
+                .submit("minecraft:cod", 20)
+                .submit("minecraft:salmon", 20)
+                .rewardCoins(60)
+                .rewardFavor("otherworldinn:butcher", 70)
+                .build();
+
+        register("butcher_leather_order")
+                .stars(2, 3)
+                .weight(7)
+                .description(
+                        LocalizedText.of(
+                                "屠夫接了一批皮革，需要帮忙凑足皮革和骨粉原料。",
+                                "The butcher took a leather commission. Help gather leather and bones."))
+                .submit("minecraft:leather", 16)
+                .submit("minecraft:bone", 24)
+                .rewardCoins(70)
+                .rewardFavor("otherworldinn:butcher", 75)
+                .build();
+
+        register("butcher_exotic_hunt")
+                .stars(4, 5)
+                .weight(4)
+                .description(
+                        LocalizedText.of(
+                                "屠夫想要些稀罕货，弄点兔子脚和墨囊来。",
+                                "The butcher wants exotic goods. Fetch some rabbit feet and ink sacs."))
+                .submit("minecraft:rabbit_foot", 4)
+                .submit("minecraft:ink_sac", 8)
+                .submit("minecraft:glow_ink_sac", 2)
+                .rewardCoins(110)
+                .rewardFavor("otherworldinn:butcher", 85)
+                .build();
+
+        // ── 建筑工委托 ──
+
+        register("builder_timber_order")
+                .stars(1, 2)
+                .weight(10)
+                .description(
+                        LocalizedText.of(
+                                "建筑工缺木材，送一批原木和木板过来。",
+                                "The builder is short on timber. Deliver logs and planks."))
+                .submit("minecraft:oak_log", 32)
+                .submit("minecraft:oak_planks", 32)
+                .rewardCoins(50)
+                .rewardFavor("otherworldinn:builder", 65)
+                .build();
+
+        register("builder_stone_order")
+                .stars(2, 3)
+                .weight(9)
+                .description(
+                        LocalizedText.of(
+                                "建筑工有地基要打，需要大量石料。",
+                                "The builder needs stone for a foundation. Bring cobblestone and stone."))
+                .submit("minecraft:cobblestone", 48)
+                .submit("minecraft:stone", 32)
+                .rewardCoins(65)
+                .rewardFavor("otherworldinn:builder", 70)
+                .build();
+
+        register("builder_sand_gravel_order")
+                .stars(1, 2)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "建筑工需要沙子和砾石配砂浆。",
+                                "The builder needs sand and gravel for mortar mixing."))
+                .submit("minecraft:sand", 32)
+                .submit("minecraft:gravel", 32)
+                .rewardCoins(55)
+                .rewardFavor("otherworldinn:builder", 60)
+                .build();
+
+        register("builder_decorative_order")
+                .stars(3, 4)
+                .weight(6)
+                .description(
+                        LocalizedText.of(
+                                "建筑工承接了一栋精装修，需要砖块和玻璃。",
+                                "The builder is working on a fine interior. Needs bricks and glass."))
+                .submit("minecraft:bricks", 32)
+                .submit("minecraft:glass", 16)
+                .submit("minecraft:terracotta", 16)
+                .rewardCoins(100)
+                .rewardFavor("otherworldinn:builder", 80)
+                .build();
     }
 
     private CommissionRegistry() {}
