@@ -27,7 +27,7 @@
     "MixinCoralBlock",
     "MixinCoralFanBlock",
     "MixinCoralWallFanBlock",
-    "MixinBaseFireBlockTownPortal",
+    "MixinEntityTownPortalBlock",
     "MixinMinecraftServerLevelsAccessor",
     "MixinMinecraftServerSave",
     "MixinStructurePlacement",
