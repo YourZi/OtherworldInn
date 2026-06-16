@@ -69,6 +69,8 @@ public class MapPageManager {
                 1, 0, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "blacksmith"));
         registerPoint(
                 1, 0, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "boiler_room"));
+        registerPoint(
+                1, -1, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "dock"));
 
         //温室方向页
         //registerPoint(0, 1, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "greenhouse"));

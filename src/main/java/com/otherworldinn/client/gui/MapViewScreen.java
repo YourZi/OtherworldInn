@@ -177,7 +177,27 @@ public class MapViewScreen extends Screen {
         updateButtonPositionsForFrame(0.0f, 1.0f);
     }
 
-    /** 初始化四个方向的导航按钮 */
+    /** 初始化按钮 */
+    private void refreshCurrentPageButtons() {
+        this.clearWidgets();
+        pointButtons.clear();
+        prevNavButtons.clear();
+
+        MapPageManager manager = MapPageManager.getInstance();
+        int cx = CameraHandler.getCurrentGridX();
+        int cz = CameraHandler.getCurrentGridZ();
+        Set<ResourceLocation> pagePoints = manager.getPointsForPage(cx, cz);
+
+        for (MapPoint point : TownDataProvider.getPoints()) {
+            if (pagePoints.contains(point.id())) {
+                MapPointButton button = new MapPointButton(point);
+                pointButtons.add(button);
+                this.addRenderableWidget(button);
+            }
+        }
+        initNavigationButtons();
+    }
+
     private void initNavigationButtons() {
         int currentX = CameraHandler.getCurrentGridX();
         int currentZ = CameraHandler.getCurrentGridZ();
@@ -352,6 +372,8 @@ public class MapViewScreen extends Screen {
 
             if (smoothProgress >= 1.0f) {
                 isSwitchingPage = false;
+                // 动画完成后重建按钮列表，只显示当前页的标点
+                refreshCurrentPageButtons();
             }
         }
 

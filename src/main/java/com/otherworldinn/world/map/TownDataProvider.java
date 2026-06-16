@@ -83,13 +83,25 @@ public class TownDataProvider {
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_gate"),
                         new Vec3(-30, 71, 0),
-                        new Vec2(30, 20),
+                        new Vec2(0, 0),
                         MapIconAtlas.ATLAS_TEXTURE,
                         MapIconAtlas.SLOT_TOWN_GATE,
                         Component.translatable("map_point.otherworldinn.town_gate"),
                         MapPoint.MapPointType.EXIT_GATE,
                         null // 默认解锁
                         ));
+
+        // 码头 (Dock)
+        registerPoint(
+                new MapPoint(
+                        ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "dock"),
+                        new Vec3(70, 74, -80),
+                        new Vec2(70, 30),
+                        MapIconAtlas.ATLAS_TEXTURE,
+                        MapIconAtlas.SLOT_DOCK,
+                        Component.translatable("map_point.otherworldinn.dock"),
+                        MapPoint.MapPointType.LANDMARK,
+                        null));
 
         syncFacilityPoints();
     }

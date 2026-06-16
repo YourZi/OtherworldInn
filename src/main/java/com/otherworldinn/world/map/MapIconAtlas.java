@@ -20,6 +20,7 @@ public final class MapIconAtlas {
     public static final int SLOT_GREENHOUSE = 4;
     public static final int SLOT_MAGICIAN_WORKSHOP = 5;
     public static final int SLOT_MARKET = 6;
+    public static final int SLOT_DOCK = 7;
 
     public static final int STATE_NORMAL = 0;
     public static final int STATE_NORMAL_HOVER_OR_PRESSED = 1;
@@ -41,6 +42,7 @@ public final class MapIconAtlas {
             case "greenhouse" -> SLOT_GREENHOUSE;
             case "magician_workshop" -> SLOT_MAGICIAN_WORKSHOP;
             case "market" -> SLOT_MARKET;
+            case "dock" -> SLOT_DOCK;
             default -> SLOT_INN;
         };
     }
