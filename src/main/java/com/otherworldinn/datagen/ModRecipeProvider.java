@@ -44,6 +44,8 @@ public class ModRecipeProvider extends RecipeProvider {
 
     private static final Map<String, ComponentCraftEntry> COMPONENT_CRAFT = new LinkedHashMap<>();
 
+    private static final Map<String, Item> BIOME_CRAFT = new LinkedHashMap<>();
+
     static {
         COMPONENT_CRAFT.put("mushroom_biome",
                 ComponentCraftEntry.of(Items.RED_MUSHROOM, Items.BROWN_MUSHROOM));
@@ -69,6 +71,24 @@ public class ModRecipeProvider extends RecipeProvider {
                 ComponentCraftEntry.of(Items.SANDSTONE, Items.SANDSTONE));
         COMPONENT_CRAFT.put("tuff_base",
                 ComponentCraftEntry.of(Items.TUFF, Items.TUFF));
+
+        BIOME_CRAFT.put("plains_biome", Items.SUNFLOWER);
+        BIOME_CRAFT.put("forests_biome", Items.OAK_SAPLING);
+        BIOME_CRAFT.put("taigas_biome", Items.SPRUCE_SAPLING);
+        BIOME_CRAFT.put("savannas_biome", Items.ACACIA_SAPLING);
+        BIOME_CRAFT.put("desert_biome", Items.SAND);
+        BIOME_CRAFT.put("snowy_biome", Items.SNOWBALL);
+        BIOME_CRAFT.put("jungle_biome", Items.JUNGLE_SAPLING);
+        BIOME_CRAFT.put("swamp_biome", Items.LILY_PAD);
+        BIOME_CRAFT.put("ocean_biome", Items.KELP);
+        BIOME_CRAFT.put("mountain_biome", Items.SNOW_BLOCK);
+        BIOME_CRAFT.put("dark_forest_biome", Items.DARK_OAK_SAPLING);
+        BIOME_CRAFT.put("sculk_biome", Items.ECHO_SHARD);
+        BIOME_CRAFT.put("nether_wastes_biome", Items.NETHERRACK);
+        BIOME_CRAFT.put("crimson_biome", Items.CRIMSON_FUNGUS);
+        BIOME_CRAFT.put("warped_biome", Items.WARPED_FUNGUS);
+        BIOME_CRAFT.put("basalt_biome", Items.BASALT);
+        BIOME_CRAFT.put("soul_valley_biome", Items.SOUL_SAND);
     }
 
     public ModRecipeProvider(
@@ -158,6 +178,35 @@ public class ModRecipeProvider extends RecipeProvider {
                 .requires(ModBlocks.CRYSTAL_BALL.get())
                 .unlockedBy("has_crystal_ball", has(ModBlocks.CRYSTAL_BALL.get()))
                 .save(recipeOutput, "space_sphere_from_crystal_ball");
+
+        for (var entry : BIOME_CRAFT.entrySet()) {
+            String componentId = entry.getKey();
+            Item material = entry.getValue();
+            ChartComponentType type = ChartComponentType.byId(componentId);
+            if (type == null) continue;
+
+            ItemStack result = new ItemStack(ModItems.CHART_COMPONENT.get());
+            CompoundTag tag = ExpeditionNbtHelper.readTag(result);
+            tag.putString("component_type", componentId);
+            ExpeditionNbtHelper.writeTag(result, tag);
+
+            Map<Character, Ingredient> keys = Map.of(
+                    'M', Ingredient.of(material),
+                    'B', Ingredient.of(ModItems.CHART_COMPONENT.get()));
+
+            ShapedRecipePattern pattern = ShapedRecipePattern.of(
+                    keys,
+                    List.of("MMM", "MBM", "MMM"));
+
+            ShapedRecipe recipe = new ShapedRecipe("", CraftingBookCategory.MISC,
+                    pattern, result);
+
+            recipeOutput.accept(
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                            "otherworldinn", "chart_component_" + componentId),
+                    recipe,
+                    null);
+        }
 
         for (var entry : COMPONENT_CRAFT.entrySet()) {
             String componentId = entry.getKey();

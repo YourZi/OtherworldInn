@@ -74,6 +74,26 @@ public class MagicianEntity extends StoreEntity {
                     2,
                     stack -> stack.enchant(selected.enchantment(), selected.level()));
         }
+
+        // 每日随机下界/稀有材料
+        long day = this.level().getGameTime() / 24000L;
+        RandomSource dailyRandom = RandomSource.create(this.level().random.nextLong() ^ day);
+        List<ItemStack> dailyPool = new ArrayList<>();
+        dailyPool.add(new ItemStack(Items.ECHO_SHARD));
+        dailyPool.add(new ItemStack(Items.CRIMSON_FUNGUS));
+        dailyPool.add(new ItemStack(Items.WARPED_FUNGUS));
+        dailyPool.add(new ItemStack(Items.SOUL_SAND));
+        java.util.Collections.shuffle(dailyPool, new java.util.Random(day));
+        int types = 1 + dailyRandom.nextInt(3); // 1~3 种
+        for (int i = 0; i < Math.min(types, dailyPool.size()); i++) {
+            ItemStack stack = dailyPool.get(i);
+            int stock = 2 + dailyRandom.nextInt(4); // 2~5
+            int price;
+            if (stack.is(Items.ECHO_SHARD)) price = 16;
+            else if (stack.is(Items.CRIMSON_FUNGUS) || stack.is(Items.WARPED_FUNGUS)) price = 6;
+            else price = 4; // soul_sand
+            this.addRandomStoreItem(stack, price, price, stock, stock);
+        }
     }
 
     private List<EnchantmentOffer> buildAllOffers() {
