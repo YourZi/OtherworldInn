@@ -107,7 +107,6 @@ public class TownSavedData extends SavedData {
     /** 游商离开：标记为非活跃，设置下次到达时间 */
     public void setTraderInactive(long nextArrivalTime) {
         this.traderActive = false;
-        this.traderEntityUuid = null;
         this.traderDepartureTime = 0;
         this.nextTraderArrivalTime = nextArrivalTime;
         this.setDirty();

@@ -30,6 +30,8 @@ public final class WanderingTraderManager {
     // === 坐标 ===
     /** 游商生成位置 */
     private static final BlockPos TRADER_POS = new BlockPos(101, 73, -81);
+    /** 游商隐藏位置：离开时传送到原位置下方 30 格 */
+    private static final BlockPos HIDDEN_TRADER_POS = TRADER_POS.below(30);
     /** 游商面朝方向（West = 90°） */
     private static final float TRADER_YAW = 90.0F;
     /** 商船结构放置原点 */
@@ -76,7 +78,7 @@ public final class WanderingTraderManager {
     private static void tickArrived(ServerLevel townLevel, TownSavedData data, long gameTime) {
         // 停留时间结束 → 离开
         if (gameTime >= data.getTraderDepartureTime()) {
-            despawnTrader(townLevel, data);
+            moveTraderToHiddenPosition(townLevel, data);
             removeShip(townLevel);
 
             long nextArrival = gameTime + randomWaitTicks(townLevel);
@@ -88,7 +90,7 @@ public final class WanderingTraderManager {
 
     private static void tickWaiting(ServerLevel townLevel, TownSavedData data, long gameTime) {
         if (gameTime >= data.getNextTraderArrivalTime()) {
-            spawnTrader(townLevel, data);
+            arriveTrader(townLevel, data);
             placeShip(townLevel);
             broadcastArrival(townLevel);
 
@@ -98,25 +100,56 @@ public final class WanderingTraderManager {
 
     // === 生成 / 移除 ===
 
-    private static void spawnTrader(ServerLevel townLevel, TownSavedData data) {
-        WanderingTraderEntity trader =
-                new WanderingTraderEntity(ModEntities.WANDERING_TRADER.get(), townLevel);
-        trader.setPos(TRADER_POS.getX() + 0.5, TRADER_POS.getY(), TRADER_POS.getZ() + 0.5);
-        trader.setYRot(TRADER_YAW);
-        trader.yHeadRot = TRADER_YAW;
-        townLevel.addFreshEntity(trader);
-        data.setTraderEntityUuid(trader.getUUID());
+    private static void arriveTrader(ServerLevel townLevel, TownSavedData data) {
+        WanderingTraderEntity trader = getOrCreateTrader(townLevel, data);
+        trader.restockAll();
+        teleportTrader(trader, TRADER_POS);
     }
 
-    private static void despawnTrader(ServerLevel townLevel, TownSavedData data) {
-        UUID uuid = data.getTraderEntityUuid();
-        if (uuid != null) {
-            Entity entity = townLevel.getEntity(uuid);
-            if (entity != null) {
-                entity.discard();
-            }
-            data.setTraderEntityUuid(null);
+    private static void moveTraderToHiddenPosition(ServerLevel townLevel, TownSavedData data) {
+        WanderingTraderEntity trader = findTrader(townLevel, data);
+        if (trader != null) {
+            trader.setCurrentRecyclePlayer(null);
+            teleportTrader(trader, HIDDEN_TRADER_POS);
         }
+    }
+
+    private static WanderingTraderEntity getOrCreateTrader(ServerLevel townLevel, TownSavedData data) {
+        WanderingTraderEntity trader = findTrader(townLevel, data);
+        if (trader != null) {
+            return trader;
+        }
+
+        trader = new WanderingTraderEntity(ModEntities.WANDERING_TRADER.get(), townLevel);
+        teleportTrader(trader, HIDDEN_TRADER_POS);
+        townLevel.addFreshEntity(trader);
+        data.setTraderEntityUuid(trader.getUUID());
+        return trader;
+    }
+
+    private static WanderingTraderEntity findTrader(ServerLevel townLevel, TownSavedData data) {
+        UUID uuid = data.getTraderEntityUuid();
+        if (uuid == null) {
+            return null;
+        }
+        Entity entity = townLevel.getEntity(uuid);
+        return entity instanceof WanderingTraderEntity trader ? trader : null;
+    }
+
+    private static void teleportTrader(WanderingTraderEntity trader, BlockPos pos) {
+        double x = pos.getX() + 0.5D;
+        double y = pos.getY();
+        double z = pos.getZ() + 0.5D;
+        trader.moveTo(x, y, z, TRADER_YAW, 0.0F);
+        trader.setDeltaMovement(0.0D, 0.0D, 0.0D);
+        trader.setYRot(TRADER_YAW);
+        trader.yRotO = TRADER_YAW;
+        trader.yHeadRot = TRADER_YAW;
+        trader.yHeadRotO = TRADER_YAW;
+        trader.setXRot(0.0F);
+        trader.xRotO = 0.0F;
+        trader.fallDistance = 0.0F;
+        trader.hurtMarked = true;
     }
 
     private static void placeShip(ServerLevel townLevel) {
@@ -151,14 +184,7 @@ public final class WanderingTraderManager {
      */
     public static boolean forceArrive(ServerLevel townLevel) {
         TownSavedData data = TownSavedData.get(townLevel);
-
-        // 如果已在停留中，先清理旧实体
-        if (data.isTraderActive()) {
-            despawnTrader(townLevel, data);
-            removeShip(townLevel);
-        }
-
-        spawnTrader(townLevel, data);
+        arriveTrader(townLevel, data);
         placeShip(townLevel);
         broadcastArrival(townLevel);
 
@@ -180,7 +206,7 @@ public final class WanderingTraderManager {
             return false;
         }
 
-        despawnTrader(townLevel, data);
+        moveTraderToHiddenPosition(townLevel, data);
         removeShip(townLevel);
 
         long nextArrival = townLevel.getGameTime() + randomWaitTicks(townLevel);

@@ -139,6 +139,10 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             }
         }
         if (total > 0) {
+            Entity entity = serverPlayer.level().getEntity(traderEntityId);
+            if (entity instanceof WanderingTraderEntity trader) {
+                trader.addFavorProgress(total);
+            }
             TeamData team = TeamManager.getInstance().getPlayerTeam(serverPlayer);
             if (team != null) {
                 team.addCoins(total, serverPlayer.server);

@@ -43,8 +43,6 @@ public class TownStructurePlacer {
 
     /**
      * 放置结构，可控制是否产生方块掉落物。
-     *
-     * @param flags 标志位：2 = 方块更新，18 = 方块更新 + 不掉落
      */
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
