@@ -23,7 +23,7 @@ public class NpcDialogueScreen extends Screen {
     private static final String FUNCTION_ICON = "\uE008";
     private static final int OPTION_WIDTH = 180;
     private static final int OPTION_HEIGHT = 20;
-    private static final int OPTION_GAP = 6;
+    private static final int OPTION_GAP = 3;
     private static final int DIALOG_BOX_HEIGHT = 110;
     private static final int DIALOG_BOX_WIDTH = 720;
     private static final int DIALOG_MARGIN = 18;

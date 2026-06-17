@@ -6,6 +6,8 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -24,13 +26,11 @@ public class TownStructurePlacer {
     public static void onLevelLoad(LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel level
                 && level.dimension() == TownDimensions.TOWN_LEVEL) {
-            // 常加载中心 5x5 区块，降低关键设施被卸载风险
             ensureCenterChunksAlwaysLoaded(level);
         }
     }
 
     private static void ensureCenterChunksAlwaysLoaded(ServerLevel level) {
-        // 半径 2 个区块 => (2*2+1)^2 = 25 区块
         for (int chunkX = -CENTER_CHUNK_RADIUS; chunkX <= CENTER_CHUNK_RADIUS; chunkX++) {
             for (int chunkZ = -CENTER_CHUNK_RADIUS; chunkZ <= CENTER_CHUNK_RADIUS; chunkZ++) {
                 level.setChunkForced(chunkX, chunkZ, true);
@@ -40,13 +40,23 @@ public class TownStructurePlacer {
 
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin) {
-        return placeStructureTemplate(level, structureId, origin, 2);
+        return placeStructureTemplate(level, structureId, origin, Block.UPDATE_CLIENTS);
+    }
+
+    public static boolean placeStructureTemplateWithoutDrops(
+            ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
+        GameRules.BooleanValue doTileDrops = level.getGameRules().getRule(GameRules.RULE_DOBLOCKDROPS);
+        boolean original = doTileDrops.get();
+        doTileDrops.set(false, level.getServer());
+        try {
+            return placeStructureTemplate(level, structureId, origin, flags);
+        } finally {
+            doTileDrops.set(original, level.getServer());
+        }
     }
 
     /**
-     * 放置结构，可控制是否产生方块掉落物。
-     *
-     * @param flags 标志位：2 = 方块更新，18 = 方块更新 + 不掉落
+     * 放置结构，可控制是否触发方块更新及产生方块掉落物。
      */
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
