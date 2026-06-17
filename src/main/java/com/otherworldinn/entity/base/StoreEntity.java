@@ -279,6 +279,15 @@ public abstract class StoreEntity extends PathfinderMob {
     public void lerpMotion(double x, double y, double z) {
     }
 
+    //传送到指定位置并同步刷新位置锁，避免下一 tick 被旧锁定坐标拉回
+    public void moveToAndLockPosition(double x, double y, double z, float yRot, float xRot) {
+        this.positionLockInitialized = true;
+        this.lockedX = x;
+        this.lockedY = y;
+        this.lockedZ = z;
+        this.moveTo(x, y, z, yRot, xRot);
+    }
+
     private void enforceLockedPosition() {
         if (!this.positionLockInitialized) {
             this.positionLockInitialized = true;

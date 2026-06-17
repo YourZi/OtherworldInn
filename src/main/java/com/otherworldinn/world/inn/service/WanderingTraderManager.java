@@ -13,6 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -38,6 +40,8 @@ public final class WanderingTraderManager {
     private static final BlockPos SHIP_POS = new BlockPos(103, 66, -105);
     /** 移除商船时覆盖的空水域结构原点 */
     private static final BlockPos WATER_POS = new BlockPos(103, 61, -105);
+    /** 结构切换后清理掉落物的扫描范围 */
+    private static final AABB SHIP_DROP_CLEANUP_BOX = new AABB(105, 63, -104, 124, 86, -60);
 
     // === 结构 NBT ID ===
     private static final ResourceLocation SHIP_STRUCTURE =
@@ -140,7 +144,7 @@ public final class WanderingTraderManager {
         double x = pos.getX() + 0.5D;
         double y = pos.getY();
         double z = pos.getZ() + 0.5D;
-        trader.moveTo(x, y, z, TRADER_YAW, 0.0F);
+        trader.moveToAndLockPosition(x, y, z, TRADER_YAW, 0.0F);
         trader.setDeltaMovement(0.0D, 0.0D, 0.0D);
         trader.setYRot(TRADER_YAW);
         trader.yRotO = TRADER_YAW;
@@ -153,11 +157,19 @@ public final class WanderingTraderManager {
     }
 
     private static void placeShip(ServerLevel townLevel) {
-        TownStructurePlacer.placeStructureTemplate(townLevel, SHIP_STRUCTURE, SHIP_POS, 18);
+        TownStructurePlacer.placeStructureTemplateNoDrops(townLevel, SHIP_STRUCTURE, SHIP_POS);
+        clearShipDrops(townLevel);
     }
 
     private static void removeShip(ServerLevel townLevel) {
-        TownStructurePlacer.placeStructureTemplate(townLevel, WATER_STRUCTURE, WATER_POS, 18);
+        TownStructurePlacer.placeStructureTemplateNoDrops(townLevel, WATER_STRUCTURE, WATER_POS);
+        clearShipDrops(townLevel);
+    }
+
+    private static void clearShipDrops(ServerLevel townLevel) {
+        for (ItemEntity itemEntity : townLevel.getEntitiesOfClass(ItemEntity.class, SHIP_DROP_CLEANUP_BOX)) {
+            itemEntity.discard();
+        }
     }
 
     private static void broadcastArrival(ServerLevel townLevel) {
