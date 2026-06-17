@@ -6,8 +6,6 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -40,23 +38,13 @@ public class TownStructurePlacer {
 
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin) {
-        return placeStructureTemplate(level, structureId, origin, Block.UPDATE_CLIENTS);
-    }
-
-    public static boolean placeStructureTemplateWithoutDrops(
-            ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
-        GameRules.BooleanValue doTileDrops = level.getGameRules().getRule(GameRules.RULE_DOBLOCKDROPS);
-        boolean original = doTileDrops.get();
-        doTileDrops.set(false, level.getServer());
-        try {
-            return placeStructureTemplate(level, structureId, origin, flags);
-        } finally {
-            doTileDrops.set(original, level.getServer());
-        }
+        return placeStructureTemplate(level, structureId, origin, 2);
     }
 
     /**
-     * 放置结构，可控制是否触发方块更新及产生方块掉落物。
+     * 放置结构，可控制是否产生方块掉落物。
+     *
+     * @param flags 标志位：2 = 方块更新，18 = 方块更新 + 不掉落
      */
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {

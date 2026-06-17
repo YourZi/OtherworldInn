@@ -13,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -121,19 +120,11 @@ public final class WanderingTraderManager {
     }
 
     private static void placeShip(ServerLevel townLevel) {
-        TownStructurePlacer.placeStructureTemplateWithoutDrops(
-                townLevel,
-                SHIP_STRUCTURE,
-                SHIP_POS,
-                Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS);
+        TownStructurePlacer.placeStructureTemplate(townLevel, SHIP_STRUCTURE, SHIP_POS, 18);
     }
 
     private static void removeShip(ServerLevel townLevel) {
-        TownStructurePlacer.placeStructureTemplateWithoutDrops(
-                townLevel,
-                WATER_STRUCTURE,
-                WATER_POS,
-                Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS);
+        TownStructurePlacer.placeStructureTemplate(townLevel, WATER_STRUCTURE, WATER_POS, 18);
     }
 
     private static void broadcastArrival(ServerLevel townLevel) {
