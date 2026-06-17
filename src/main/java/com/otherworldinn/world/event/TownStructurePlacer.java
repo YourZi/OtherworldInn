@@ -40,6 +40,16 @@ public class TownStructurePlacer {
 
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin) {
+        return placeStructureTemplate(level, structureId, origin, 2);
+    }
+
+    /**
+     * 放置结构，可控制是否产生方块掉落物。
+     *
+     * @param flags 标志位：2 = 方块更新，18 = 方块更新 + 不掉落
+     */
+    public static boolean placeStructureTemplate(
+            ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
         StructureTemplateManager manager = level.getStructureManager();
         Optional<StructureTemplate> templateOptional = manager.get(structureId);
         if (templateOptional.isEmpty()) {
@@ -53,6 +63,6 @@ public class TownStructurePlacer {
                         .setRotation(Rotation.NONE)
                         .setMirror(Mirror.NONE)
                         .setIgnoreEntities(false);
-        return template.placeInWorld(level, origin, BlockPos.ZERO, settings, level.getRandom(), 2);
+        return template.placeInWorld(level, origin, BlockPos.ZERO, settings, level.getRandom(), flags);
     }
 }

@@ -8,6 +8,7 @@ import com.otherworldinn.entity.store.FarmerEntity;
 import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
+import com.otherworldinn.entity.store.WanderingTraderEntity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -128,6 +129,15 @@ public final class DialogueRegistry {
                     LocalizedText.of(
                             "有耐心就行。雨天鱼更容易上钩，清晨和傍晚也是好时候。",
                             "Patience is key. Rain helps, and dawn or dusk are best."));
+    private static final DialogueDefinition WANDERING_TRADER_DIALOGUE =
+            buildSimpleStoreDialogue(
+                    "wandering_trader",
+                    LocalizedText.of(
+                            "从远方运来的稀奇货物，看看有没有你需要的？",
+                            "Rare goods from distant lands — see anything you like?"),
+                    LocalizedText.of(
+                            "到处收集来的小玩意，也许有你要的呢？",
+                            "Scattered items from my travels. What are you looking for?"));
     private static final List<DialogueDefinition> GUEST_DIALOGUES =
             List.of(
                     buildGuestLineDialogue(
@@ -438,7 +448,7 @@ public final class DialogueRegistry {
         List<DialogueDefinition> all =
                 new ArrayList<>(
                         List.of(BLACKSMITH_DIALOGUE, FARMER_DIALOGUE, MAGICIAN_DIALOGUE, GROCER_DIALOGUE,
-                                BUTCHER_DIALOGUE, BUILDER_DIALOGUE, FISHERMAN_DIALOGUE));
+                                BUTCHER_DIALOGUE, BUILDER_DIALOGUE, FISHERMAN_DIALOGUE, WANDERING_TRADER_DIALOGUE));
         all.addAll(GUEST_DIALOGUES);
         ALL_DIALOGUES = Collections.unmodifiableList(all);
         Map<String, DialogueDefinition> byId = new LinkedHashMap<>();
@@ -475,6 +485,9 @@ public final class DialogueRegistry {
         }
         if (entity instanceof FishermanEntity) {
             return FISHERMAN_DIALOGUE;
+        }
+        if (entity instanceof WanderingTraderEntity) {
+            return WANDERING_TRADER_DIALOGUE;
         }
         return null;
     }

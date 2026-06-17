@@ -331,6 +331,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.town.boundary_warning")
                 .zh("前面的区域，还是不要去探索了吧...")
                 .en("You should not explore the area ahead...");
+        entry("message.otherworldinn.wandering_trader_arrival")
+                .zh("游商的商船已经到达")
+                .en("The Wandering Trader's ship has arrived");
 
         // 保护提示
         entry("message.otherworldinn.protection.deny")

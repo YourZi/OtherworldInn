@@ -82,6 +82,9 @@ public abstract class StoreEntity extends PathfinderMob {
 
     private int totalSpentCoins = 0;
     private int favorLevel = 1;
+
+    /** 子类设为 true 可禁止每日自动补货 — 用于由外部管理器控制生命周期的实体（如游商） */
+    protected boolean suppressAutoRestock = false;
     private final List<FavorStoreItemData> favorStoreItems = new ArrayList<>();
     private boolean positionLockInitialized = false;
     private double lockedX;
@@ -122,10 +125,12 @@ public abstract class StoreEntity extends PathfinderMob {
             this.idleAnimationState.startIfStopped(this.tickCount);
         } else {
             this.enforceLockedPosition();
-            long currentDay = this.level().getGameTime() / 24000L;
-            if (currentDay > this.lastRestockDay) {
-                this.restockAll();
-                this.lastRestockDay = currentDay;
+            if (!this.suppressAutoRestock) {
+                long currentDay = this.level().getGameTime() / 24000L;
+                if (currentDay > this.lastRestockDay) {
+                    this.restockAll();
+                    this.lastRestockDay = currentDay;
+                }
             }
         }
         super.tick();

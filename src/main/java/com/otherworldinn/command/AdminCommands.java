@@ -15,6 +15,7 @@ import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.expedition.ExpeditionService;
 import com.otherworldinn.world.expedition.ExpeditionSession;
+import com.otherworldinn.world.inn.service.WanderingTraderManager;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -97,7 +98,16 @@ public class AdminCommands {
                                 Commands.literal("guests")
                                         .then(
                                                 Commands.literal("clear_all")
-                                                        .executes(AdminCommands::clearAllGuests))));
+                                                        .executes(AdminCommands::clearAllGuests)))
+                        .then(
+                                Commands.literal("wandering_trader")
+                                        .then(
+                                                Commands.literal("arrive")
+                                                        .executes(AdminCommands::forceTraderArrive))
+                                        .then(
+                                                Commands.literal("leave")
+                                                        .executes(AdminCommands::forceTraderLeave)))
+        );
     }
 
     private static int abortExpedition(CommandContext<CommandSourceStack> context) {
@@ -297,5 +307,33 @@ public class AdminCommands {
                                 "已清除 " + killed + " 个旅客实体，重置 " + teams + " 支队伍的入住数据"),
                         true);
         return 1;
+    }
+
+    private static int forceTraderArrive(CommandContext<CommandSourceStack> context) {
+        ServerLevel townLevel = context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+        WanderingTraderManager.forceArrive(townLevel);
+        context.getSource().sendSuccess(
+                () -> Component.literal("已强制使游商到达并刷新商品"), true);
+        return 1;
+    }
+
+    private static int forceTraderLeave(CommandContext<CommandSourceStack> context) {
+        ServerLevel townLevel = context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+        boolean removed = WanderingTraderManager.forceLeave(townLevel);
+        if (removed) {
+            context.getSource().sendSuccess(
+                    () -> Component.literal("已强制使游商离开，将在 2-5 天后再次出现"), true);
+        } else {
+            context.getSource().sendFailure(Component.literal("游商当前不在城镇中"));
+        }
+        return removed ? 1 : 0;
     }
 }
