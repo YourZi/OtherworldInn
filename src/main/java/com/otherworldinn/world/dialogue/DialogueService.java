@@ -1,6 +1,7 @@
 package com.otherworldinn.world.dialogue;
 
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.entity.store.WanderingTraderEntity;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
@@ -79,6 +80,9 @@ public final class DialogueService {
                 storeEntity.openStoreForPlayer(player);
             } else if (DialogueRegistry.FUNCTION_OPEN_VIRTUAL_ANVIL.equals(selected.functionId())) {
                 openVirtualAnvil(player);
+            } else if (DialogueRegistry.FUNCTION_OPEN_RECYCLE.equals(selected.functionId())
+                    && entity instanceof WanderingTraderEntity trader) {
+                trader.tryOpenRecycleMenu(player);
             }
             closeDialogue(player, true);
             return;

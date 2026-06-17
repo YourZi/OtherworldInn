@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.gui.screen.StoreScreen;
+import com.otherworldinn.client.gui.screen.WanderingTraderRecycleScreen;
 import com.otherworldinn.client.renderer.BlacksmithModel;
 import com.otherworldinn.client.renderer.BlacksmithRenderer;
 import com.otherworldinn.client.renderer.BuilderModel;
@@ -109,6 +110,7 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void onRegisterScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.STORE_MENU.get(), StoreScreen::new);
+        event.register(ModMenuTypes.WANDERING_TRADER_RECYCLE.get(), WanderingTraderRecycleScreen::new);
     }
 
     @SubscribeEvent

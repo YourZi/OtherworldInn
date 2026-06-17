@@ -233,28 +233,27 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     public void push(Entity entity) {
-        // 覆盖为空，防止被推动
     }
 
     @Override
     public void knockback(double strength, double x, double z) {
-        // 覆盖为空，防止任何击退来源改变位置
+    }
+
+    @Override
+    public void push(double x, double y, double z) {
     }
 
     @Override
     protected void doPush(Entity entity) {
-        // 覆盖为空，防止被推动
     }
 
     @Override
     public boolean isPickable() {
-        // 可被选取 (攻击/交互)
         return true;
     }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        // 仅放行：创造模式攻击 / 虚空伤害；其余一律免疫（含药水等）
         if (source.isCreativePlayer() || source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             return super.hurt(source, amount);
         }
@@ -278,7 +277,6 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     public void lerpMotion(double x, double y, double z) {
-        // 覆盖为空，防止网络同步动量导致位移
     }
 
     private void enforceLockedPosition() {
@@ -295,10 +293,9 @@ public abstract class StoreEntity extends PathfinderMob {
         this.hasImpulse = false;
     }
 
-    // 拦截受伤变红效果 (EntityEvent ID 2)
     @Override
     public void handleEntityEvent(byte id) {
-        if (id == 2) { // 2 是受伤动画 (Damage)
+        if (id == 2) {
             return;
         }
         super.handleEntityEvent(id);

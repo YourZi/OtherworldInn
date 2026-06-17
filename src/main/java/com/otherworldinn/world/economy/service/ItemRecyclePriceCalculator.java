@@ -98,7 +98,79 @@ public final class ItemRecyclePriceCalculator {
             Map.entry(rl("minecraft:brushes"), 1),
             Map.entry(rl("minecraft:armadillo_scute"), 4),
             Map.entry(rl("minecraft:breeze_rod"), 6),
-            Map.entry(rl("minecraft:heavy_core"), 10)
+            Map.entry(rl("minecraft:heavy_core"), 10),
+
+            // === 原版工具 ===
+            // 木工具
+            Map.entry(rl("minecraft:wooden_pickaxe"), 2),
+            Map.entry(rl("minecraft:wooden_axe"), 2),
+            Map.entry(rl("minecraft:wooden_shovel"), 1),
+            Map.entry(rl("minecraft:wooden_hoe"), 2),
+            Map.entry(rl("minecraft:wooden_sword"), 2),
+            // 石工具
+            Map.entry(rl("minecraft:stone_pickaxe"), 3),
+            Map.entry(rl("minecraft:stone_axe"), 3),
+            Map.entry(rl("minecraft:stone_shovel"), 2),
+            Map.entry(rl("minecraft:stone_hoe"), 3),
+            Map.entry(rl("minecraft:stone_sword"), 3),
+            // 铁工具
+            Map.entry(rl("minecraft:iron_pickaxe"), 5),
+            Map.entry(rl("minecraft:iron_axe"), 5),
+            Map.entry(rl("minecraft:iron_shovel"), 4),
+            Map.entry(rl("minecraft:iron_hoe"), 5),
+            Map.entry(rl("minecraft:iron_sword"), 5),
+            // 金工具
+            Map.entry(rl("minecraft:golden_pickaxe"), 6),
+            Map.entry(rl("minecraft:golden_axe"), 6),
+            Map.entry(rl("minecraft:golden_shovel"), 4),
+            Map.entry(rl("minecraft:golden_hoe"), 6),
+            Map.entry(rl("minecraft:golden_sword"), 6),
+            // 钻石工具
+            Map.entry(rl("minecraft:diamond_pickaxe"), 10),
+            Map.entry(rl("minecraft:diamond_axe"), 10),
+            Map.entry(rl("minecraft:diamond_shovel"), 8),
+            Map.entry(rl("minecraft:diamond_hoe"), 10),
+            Map.entry(rl("minecraft:diamond_sword"), 10),
+            // 下界合金工具
+            Map.entry(rl("minecraft:netherite_pickaxe"), 14),
+            Map.entry(rl("minecraft:netherite_axe"), 14),
+            Map.entry(rl("minecraft:netherite_shovel"), 12),
+            Map.entry(rl("minecraft:netherite_hoe"), 14),
+            Map.entry(rl("minecraft:netherite_sword"), 14),
+
+            // === 原版护甲 ===
+            Map.entry(rl("minecraft:leather_helmet"), 2),
+            Map.entry(rl("minecraft:leather_chestplate"), 3),
+            Map.entry(rl("minecraft:leather_leggings"), 3),
+            Map.entry(rl("minecraft:leather_boots"), 2),
+            Map.entry(rl("minecraft:iron_helmet"), 4),
+            Map.entry(rl("minecraft:iron_chestplate"), 5),
+            Map.entry(rl("minecraft:iron_leggings"), 5),
+            Map.entry(rl("minecraft:iron_boots"), 4),
+            Map.entry(rl("minecraft:golden_helmet"), 5),
+            Map.entry(rl("minecraft:golden_chestplate"), 6),
+            Map.entry(rl("minecraft:golden_leggings"), 6),
+            Map.entry(rl("minecraft:golden_boots"), 5),
+            Map.entry(rl("minecraft:chainmail_helmet"), 3),
+            Map.entry(rl("minecraft:chainmail_chestplate"), 4),
+            Map.entry(rl("minecraft:chainmail_leggings"), 4),
+            Map.entry(rl("minecraft:chainmail_boots"), 3),
+            Map.entry(rl("minecraft:diamond_helmet"), 8),
+            Map.entry(rl("minecraft:diamond_chestplate"), 10),
+            Map.entry(rl("minecraft:diamond_leggings"), 9),
+            Map.entry(rl("minecraft:diamond_boots"), 7),
+            Map.entry(rl("minecraft:netherite_helmet"), 13),
+            Map.entry(rl("minecraft:netherite_chestplate"), 15),
+            Map.entry(rl("minecraft:netherite_leggings"), 14),
+            Map.entry(rl("minecraft:netherite_boots"), 12),
+
+            // === 原版弓 / 弩 / 钓竿 / 盾牌 ===
+            Map.entry(rl("minecraft:bow"), 4),
+            Map.entry(rl("minecraft:crossbow"), 5),
+            Map.entry(rl("minecraft:fishing_rod"), 3),
+            Map.entry(rl("minecraft:shield"), 4),
+            Map.entry(rl("minecraft:shears"), 3),
+            Map.entry(rl("minecraft:flint_and_steel"), 3)
     );
 
     private ItemRecyclePriceCalculator() {}

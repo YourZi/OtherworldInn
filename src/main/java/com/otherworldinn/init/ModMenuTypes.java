@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.inventory.StoreMenu;
+import com.otherworldinn.world.inventory.WanderingTraderRecycleMenu;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.MenuType;
@@ -22,4 +23,9 @@ public class ModMenuTypes {
                             IMenuTypeExtension.create(
                                     (windowId, inv, data) ->
                                             new com.otherworldinn.world.inventory.CommissionBoardMenu(windowId, inv)));
+
+    public static final Supplier<MenuType<WanderingTraderRecycleMenu>> WANDERING_TRADER_RECYCLE =
+            MENU_TYPES.register(
+                    "wandering_trader_recycle",
+                    () -> IMenuTypeExtension.create(WanderingTraderRecycleMenu::new));
 }

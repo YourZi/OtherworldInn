@@ -2,6 +2,7 @@ package com.otherworldinn.world.inn.service;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
+import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModEntities;
 import com.otherworldinn.world.data.TownSavedData;
 import com.otherworldinn.world.dimension.TownDimensions;
@@ -127,7 +128,8 @@ public final class WanderingTraderManager {
     }
 
     private static void broadcastArrival(ServerLevel townLevel) {
-        Component msg = Component.translatable(ARRIVAL_MSG_KEY);
+        Component msg = Component.translatable(ARRIVAL_MSG_KEY)
+                .withStyle(style -> style.withColor(ModColors.BLUE));
         townLevel.getServer().getPlayerList().broadcastSystemMessage(msg, false);
     }
 

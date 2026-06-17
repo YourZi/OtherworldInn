@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public final class DialogueRegistry {
     public static final String FUNCTION_OPEN_STORE = "open_store";
     public static final String FUNCTION_OPEN_VIRTUAL_ANVIL = "open_virtual_anvil";
+    public static final String FUNCTION_OPEN_RECYCLE = "open_recycle";
 
 
     private static final DialogueDefinition BLACKSMITH_DIALOGUE =
@@ -130,14 +131,7 @@ public final class DialogueRegistry {
                             "有耐心就行。雨天鱼更容易上钩，清晨和傍晚也是好时候。",
                             "Patience is key. Rain helps, and dawn or dusk are best."));
     private static final DialogueDefinition WANDERING_TRADER_DIALOGUE =
-            buildSimpleStoreDialogue(
-                    "wandering_trader",
-                    LocalizedText.of(
-                            "从远方运来的稀奇货物，看看有没有你需要的？",
-                            "Rare goods from distant lands — see anything you like?"),
-                    LocalizedText.of(
-                            "到处收集来的小玩意，也许有你要的呢？",
-                            "Scattered items from my travels. What are you looking for?"));
+            buildWanderingTraderDialogue();
     private static final List<DialogueDefinition> GUEST_DIALOGUES =
             List.of(
                     buildGuestLineDialogue(
@@ -940,6 +934,71 @@ public final class DialogueRegistry {
                                         null,
                                         null))));
         return new DialogueDefinition(npcId, root, nodes);
+    }
+
+    private static DialogueDefinition buildWanderingTraderDialogue() {
+        String root = "root";
+        String askGoods = "ask_goods";
+        Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
+        nodes.put(
+                root,
+                new DialogueNodeDef(
+                        root,
+                        LocalizedText.of(
+                                "从远方运来的稀奇货物，看看有没有你需要的？",
+                                "Rare goods from distant lands — see anything you like?"),
+                        List.of(
+                                new DialogueOptionDef(
+                                        "open_store",
+                                        LocalizedText.of("打开商店", "Open Shop"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_STORE),
+                                new DialogueOptionDef(
+                                        "open_recycle",
+                                        LocalizedText.of("出售物品", "Sell Items"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_RECYCLE),
+                                new DialogueOptionDef(
+                                        "ask_goods",
+                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        DialogueOptionType.BRANCH,
+                                        askGoods,
+                                        null),
+                                new DialogueOptionDef(
+                                        "leave",
+                                        LocalizedText.of("先告辞", "Leave"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        nodes.put(
+                askGoods,
+                new DialogueNodeDef(
+                        askGoods,
+                        LocalizedText.of(
+                                "这次带的都是市面上的新鲜货，想找点什么？",
+                                "Fresh stock from my travels. What are you looking for?"),
+                        List.of(
+                                new DialogueOptionDef(
+                                        "open_store",
+                                        LocalizedText.of("打开商店", "Open Shop"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_STORE),
+                                new DialogueOptionDef(
+                                        "open_recycle",
+                                        LocalizedText.of("出售物品", "Sell Items"),
+                                        DialogueOptionType.FUNCTION,
+                                        null,
+                                        FUNCTION_OPEN_RECYCLE),
+                                new DialogueOptionDef(
+                                        "leave",
+                                        LocalizedText.of("先告辞", "Leave"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        return new DialogueDefinition("wandering_trader", root, nodes);
     }
 
 }

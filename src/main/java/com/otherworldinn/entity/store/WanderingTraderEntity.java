@@ -2,24 +2,31 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.world.inventory.WanderingTraderRecycleMenu;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class WanderingTraderEntity extends StoreEntity {
 
@@ -116,6 +123,37 @@ public class WanderingTraderEntity extends StoreEntity {
 
     @Override
     protected SoundEvent getOpenStoreSound() {
-        return SoundEvents.WANDERING_TRADER_AMBIENT;
+        return SoundEvents.BARREL_OPEN;
+    }
+
+    // === 回收 ===
+
+    /** 当前正在使用回收菜单的玩家（互斥锁） */
+    @Nullable
+    private Player currentRecyclePlayer;
+
+    @Nullable
+    public Player getCurrentRecyclePlayer() {
+        return currentRecyclePlayer;
+    }
+
+    public void setCurrentRecyclePlayer(@Nullable Player player) {
+        this.currentRecyclePlayer = player;
+    }
+
+    /**
+     * 尝试为此玩家打开回收菜单。已有玩家占用时返回 false。
+     */
+    public boolean tryOpenRecycleMenu(ServerPlayer player) {
+        if (currentRecyclePlayer != null && currentRecyclePlayer != player) {
+            return false;
+        }
+        currentRecyclePlayer = player;
+
+        MenuProvider provider = new SimpleMenuProvider(
+                (containerId, inv, p) -> new WanderingTraderRecycleMenu(containerId, inv, this.getId()),
+                Component.translatable("screen.otherworldinn.recycle.title"));
+        player.openMenu(provider, buf -> buf.writeInt(this.getId()));
+        return true;
     }
 }
