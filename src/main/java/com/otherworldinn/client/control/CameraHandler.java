@@ -313,7 +313,11 @@ public class CameraHandler {
         if (mc.level != null) {
             ResourceKey<Level> currentDimension = mc.level.dimension();
             if (lastClientDimension != null && currentDimension != lastClientDimension) {
-                forceExitMapViewOnDimensionChange();
+                if (hasActiveMapViewState(mc)) {
+                    forceExitMapViewOnDimensionChange();
+                } else {
+                    originalCameraEntity = null;
+                }
             }
             lastClientDimension = currentDimension;
         } else {
@@ -389,16 +393,13 @@ public class CameraHandler {
             mc.setScreen(null);
         }
 
-        if (originalCameraEntity != null) {
-            mc.setCameraEntity(originalCameraEntity);
-        } else {
-            mc.setCameraEntity(mc.player);
-        }
+        mc.setCameraEntity(mc.player);
 
         if (dummyCameraEntity != null) {
             dummyCameraEntity.remove(Entity.RemovalReason.DISCARDED);
             dummyCameraEntity = null;
         }
+        originalCameraEntity = null;
     }
 
     /**
@@ -442,6 +443,7 @@ public class CameraHandler {
             dummyCameraEntity.remove(Entity.RemovalReason.DISCARDED);
             dummyCameraEntity = null;
         }
+        originalCameraEntity = null;
     }
 
     private static void sendMapModeSync(int action, Vec3 pos, float yaw, float pitch) {
@@ -452,5 +454,12 @@ public class CameraHandler {
 
         ModMessages.sendToServer(
                 new C2SMapModeSyncPacket(action, pos.x, pos.y, pos.z, yaw, pitch));
+    }
+
+    private static boolean hasActiveMapViewState(Minecraft mc) {
+        return isMapMode
+                || dummyCameraEntity != null
+                || mc.screen instanceof MapViewScreen
+                || mc.getCameraEntity() == dummyCameraEntity;
     }
 }

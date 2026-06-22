@@ -78,7 +78,7 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 城镇大门 (Exit Gate)
+        // 城镇大门 (Town Gate)
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_gate"),

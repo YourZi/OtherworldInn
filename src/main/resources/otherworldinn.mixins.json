@@ -27,7 +27,6 @@
     "MixinCoralBlock",
     "MixinCoralFanBlock",
     "MixinCoralWallFanBlock",
-    "MixinEntityTownPortalBlock",
     "MixinMinecraftServerLevelsAccessor",
     "MixinStarcatcherCatchModifiers",
     "MixinSellingBinEvents",

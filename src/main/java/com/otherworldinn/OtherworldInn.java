@@ -6,6 +6,7 @@ import com.otherworldinn.compat.KaleidoscopeCompat;
 import com.otherworldinn.compat.ReskillableCompat;
 import com.otherworldinn.foundation.ClientConfig;
 import com.otherworldinn.init.ModBlocks;
+import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModCreativeModeTabs;
 import com.otherworldinn.init.ModDimensions;
 import com.otherworldinn.init.ModEntities;
@@ -54,6 +55,7 @@ public class OtherworldInn {
     public OtherworldInn(IEventBus modEventBus, ModContainer modContainer) {
         // 注册物品和方块
         ModBlocks.BLOCKS.register(modEventBus);
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModMenuTypes.MENU_TYPES.register(modEventBus);

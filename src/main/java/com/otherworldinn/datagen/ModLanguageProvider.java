@@ -56,7 +56,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("map_point.otherworldinn.blacksmith").zh("铁匠铺").en("Blacksmith");
         entry("map_point.otherworldinn.magician_workshop").zh("魔女工坊").en("Magician Workshop");
         entry("map_point.otherworldinn.market").zh("集市").en("Market");
-        entry("map_point.otherworldinn.town_gate").zh("城镇大门").en("Town Gate");
+        entry("map_point.otherworldinn.town_gate").zh("前往探险").en("Adventure Exit");
         entry("map_point.otherworldinn.dock").zh("码头").en("Dock");
         entry("map_point.otherworldinn.locked").zh("未解锁").en("Locked");
         entry("map_point.otherworldinn.cant_teleport").zh("无法传送至").en("Cannot teleport to");
@@ -350,6 +350,33 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.death_penalty")
                 .zh("%s 体力不支倒下，支付医疗费用 %s")
                 .en("%s collapsed, medical expenses deducted: %s");
+        entry("message.otherworldinn.exploration.wild_spawn_denied")
+                .zh("野外不太安全，你无法在此安居...")
+                .en("The wilderness is unsafe. You cannot settle down here...");
+        entry("item.otherworldinn.recall_scroll.fail_in_town")
+                .zh("回程卷轴无法在城镇中使用！")
+                .en("Recall Scroll cannot be used in Town!");
+        entry("item.otherworldinn.recall_scroll.hud.hint")
+                .zh("持续使用3秒后回到城镇")
+                .en("Hold for 3s to return to Town");
+        entry("message.otherworldinn.exploration.wild_death_return")
+                .zh("你在野外重伤昏迷，被探险队带回城镇时遗失了一些物品...")
+                .en("You were badly injured in the wilds and lost some belongings on the way back to town...");
+        entry("message.otherworldinn.exploration.wild_death_broadcast")
+                .zh("%s在野外力竭晕倒，支付了城镇医疗费用%s")
+                .en("%s collapsed in the wilds and paid town medical fees of %s");
+        entry("message.otherworldinn.fatigue.stage_1")
+                .zh("你感到有点累...")
+                .en("You are starting to feel a little tired...");
+        entry("message.otherworldinn.fatigue.stage_2")
+                .zh("你越来越疲惫了...")
+                .en("You are getting more and more exhausted...");
+        entry("message.otherworldinn.fatigue.stage_3")
+                .zh("你感到浑身酸痛乏力...")
+                .en("Your whole body aches and feels weak...");
+        entry("message.otherworldinn.fatigue.stage_4")
+                .zh("你真的撑不住了，想好好休息...")
+                .en("You can barely keep going. You desperately need a real rest...");
         entry("message.otherworldinn.reskillable.auto_level_up")
                 .zh("技能 %s 已升级至等级 %s")
                 .en("Skill %s has been upgraded to level %s");
@@ -724,9 +751,6 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.space_sphere.teleport_unlocked")
                 .zh("地图传送功能已激活")
                 .en("Map teleport has been activated");
-        entry("message.otherworldinn.end_space_sphere.overlay.use")
-                .zh("右键使用传送到末地主岛")
-                .en("Right-click to teleport to the End main island");
         entry("tooltip.otherworldinn.schematic.survival_print")
                 .zh("生存模式可使用打印工具")
                 .en("Print tool usable in survival mode");

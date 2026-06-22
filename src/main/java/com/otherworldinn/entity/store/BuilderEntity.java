@@ -33,13 +33,10 @@ public class BuilderEntity extends StoreEntity {
         this.addStoreItem("minecraft:stone_bricks", 4, 64);
         this.addStoreItem("minecraft:smooth_stone", 4, 64);
         this.addStoreItem("minecraft:terracotta", 6, 64);
-        this.addStoreItem("minecraft:clay", 3, 32);
-        this.addStoreItem("minecraft:brick", 3, 32);
         this.addStoreItem("minecraft:gravel", 2, 64);
         this.addStoreItem("minecraft:sand", 2, 64);
         this.addStoreItem("minecraft:red_sand", 3, 64);
         this.addStoreItem("minecraft:sandstone", 3, 64);
-        this.addStoreItem("minecraft:red_sandstone", 4, 64);
         this.addStoreItem("minecraft:nether_bricks", 6, 64);
         this.addStoreItem("minecraft:prismarine", 8, 32);
         this.addStoreItem("minecraft:prismarine_bricks", 10, 32);

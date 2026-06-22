@@ -22,6 +22,7 @@ public class ModCreativeModeTabs {
                                     .icon(() -> new ItemStack(ModItems.ROOM_REGISTER.get()))
                                     .displayItems(
                                             (parameters, output) -> {
+                                                output.accept(ModItems.RECALL_SCROLL.get());
                                                 output.accept(ModItems.ROOM_REGISTER.get());
                                                 output.accept(ModItems.BED_SHEET.get());
                                                 output.accept(ModItems.MESSY_BED_SHEET.get());

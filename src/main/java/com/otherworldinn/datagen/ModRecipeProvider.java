@@ -54,12 +54,12 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(recipeOutput);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.END_SPACE_SPHERE.get(), 1)
-                .pattern("BPB")
+                .pattern("EPE")
                 .pattern("PSP")
-                .pattern("BPB")
-                .define('B', Items.BLAZE_POWDER)
+                .pattern("EPE")
+                .define('E', Items.END_STONE)
                 .define('P', Items.ENDER_PEARL)
-                .define('S', ModItems.SPACE_SPHERE.get())
+                .define('S', ModItems.NETHER_SPACE_SPHERE.get())
                 .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
                 .save(recipeOutput);
 
@@ -89,5 +89,10 @@ public class ModRecipeProvider extends RecipeProvider {
                 .requires(ModBlocks.CRYSTAL_BALL.get())
                 .unlockedBy("has_crystal_ball", has(ModBlocks.CRYSTAL_BALL.get()))
                 .save(recipeOutput, "space_sphere_from_crystal_ball");
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.PAPER, 1)
+                .requires(ModItems.RECALL_SCROLL.get())
+                .unlockedBy("has_recall_scroll", has(ModItems.RECALL_SCROLL.get()))
+                .save(recipeOutput);
     }
 }

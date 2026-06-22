@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.AABB;
@@ -93,6 +95,12 @@ public final class WanderingTraderManager {
     // === WAITING 阶段 ===
 
     private static void tickWaiting(ServerLevel townLevel, TownSavedData data, long gameTime) {
+        // 首次创建世界时 nextTraderArrivalTime 默认为 0，初始化为随机延迟，避免一开档就到达
+        if (data.getNextTraderArrivalTime() == 0) {
+            data.setTraderInactive(gameTime + randomWaitTicks(townLevel));
+            return;
+        }
+
         if (gameTime >= data.getNextTraderArrivalTime()) {
             arriveTrader(townLevel, data);
             placeShip(townLevel);
@@ -176,6 +184,16 @@ public final class WanderingTraderManager {
         Component msg = Component.translatable(ARRIVAL_MSG_KEY)
                 .withStyle(style -> style.withColor(ModColors.BLUE));
         townLevel.getServer().getPlayerList().broadcastSystemMessage(msg, false);
+
+        townLevel.playSound(
+                null,
+                TRADER_POS.getX() + 0.5D,
+                TRADER_POS.getY(),
+                TRADER_POS.getZ() + 0.5D,
+                SoundEvents.NOTE_BLOCK_PLING.value(),
+                SoundSource.NEUTRAL,
+                0.8F,
+                1.0F);
     }
 
     // === 工具方法 ===

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
@@ -55,6 +56,7 @@ public class ModBlocks {
     public static final BlockReg<ClutterBlock> CLUTTER_REG =
             register("clutter", ClutterBlock::new)
                     .copyProperties(Blocks.FLOWER_POT)
+                    .sound(SoundType.WOOL)
                     .noCollision()
                     .noOcclusion()
                     .noModel()

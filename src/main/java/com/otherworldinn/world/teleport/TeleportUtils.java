@@ -10,31 +10,29 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 
 public class TeleportUtils {
-
     public static void changeDimensionTo(ServerPlayer player, ServerLevel targetLevel, BlockPos safePos) {
-        DimensionTransition transition = new DimensionTransition(
+        player.teleportTo(
                 targetLevel,
-                new Vec3(safePos.getX() + 0.5, safePos.getY(), safePos.getZ() + 0.5),
-                player.getDeltaMovement(),
+                safePos.getX() + 0.5D,
+                safePos.getY(),
+                safePos.getZ() + 0.5D,
+                Set.of(),
                 player.getYRot(),
-                player.getXRot(),
-                DimensionTransition.PLACE_PORTAL_TICKET);
-        player.changeDimension(transition);
+                player.getXRot());
     }
 
     public static void changeDimensionTo(ServerPlayer player, ServerLevel targetLevel, Vec3 target) {
-        DimensionTransition transition = new DimensionTransition(
+        player.teleportTo(
                 targetLevel,
-                target,
-                player.getDeltaMovement(),
+                target.x,
+                target.y,
+                target.z,
+                Set.of(),
                 player.getYRot(),
-                player.getXRot(),
-                DimensionTransition.PLACE_PORTAL_TICKET);
-        player.changeDimension(transition);
+                player.getXRot());
     }
 
     public static BlockPos findSafeSpawnPos(ServerLevel level, BlockPos basePos) {
@@ -70,6 +68,36 @@ public class TeleportUtils {
         }
 
         return level.getSharedSpawnPos().above();
+    }
+
+    public static BlockPos findRandomSafeSpawnPos(
+            ServerLevel level, BlockPos centerPos, int radius, int attempts) {
+        if (radius <= 0 || attempts <= 0) {
+            return findSafeSpawnPos(level, centerPos);
+        }
+
+        Set<Long> ensuredChunks = new HashSet<>();
+        for (int i = 0; i < attempts; i++) {
+            BlockPos randomBase = randomizeHorizontalBase(level, centerPos, radius);
+            BlockPos safePos = findSafeSpawnPosNear(level, randomBase, 8, ensuredChunks);
+            if (safePos != null) {
+                return safePos;
+            }
+
+            ensureChunk(level, randomBase.getX(), randomBase.getZ(), ensuredChunks);
+            int y =
+                    level.getHeight(
+                            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                            randomBase.getX(),
+                            randomBase.getZ());
+            BlockPos fallback =
+                    findSafeYAround(level, randomBase.getX(), Math.max(y, level.getSeaLevel() + 1), randomBase.getZ(), 64);
+            if (fallback != null) {
+                return fallback;
+            }
+        }
+
+        return findSafeSpawnPos(level, centerPos);
     }
 
     private static boolean isSafeSpawn(ServerLevel level, BlockPos pos) {
@@ -175,8 +203,12 @@ public class TeleportUtils {
             return basePos;
         }
         RandomSource random = level.getRandom();
-        int offsetX = random.nextInt(radius * 2 + 1) - radius;
-        int offsetZ = random.nextInt(radius * 2 + 1) - radius;
+        int offsetX;
+        int offsetZ;
+        do {
+            offsetX = random.nextInt(radius * 2 + 1) - radius;
+            offsetZ = random.nextInt(radius * 2 + 1) - radius;
+        } while ((long) offsetX * offsetX + (long) offsetZ * offsetZ > (long) radius * radius);
         return basePos.offset(offsetX, 0, offsetZ);
     }
 }

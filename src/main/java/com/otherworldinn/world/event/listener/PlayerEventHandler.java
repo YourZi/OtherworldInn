@@ -2,25 +2,34 @@ package com.otherworldinn.world.event.listener;
 
 import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
+import com.otherworldinn.init.ModItems;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerSetSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -28,6 +37,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /** 玩家事件处理器 */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class PlayerEventHandler {
+    private static final BlockPos TOWN_SPAWN_POS = new BlockPos(51, 71, 0);
     private static final double TOWN_BOUNDARY_CENTER_X = -19.0D;
     private static final double TOWN_BOUNDARY_CENTER_Z = 0.0D;
     private static final double TOWN_BOUNDARY_WARNING_DISTANCE = 150.0D;
@@ -42,52 +52,54 @@ public class PlayerEventHandler {
     private static final String TOWN_BOUNDARY_WARNING_KEY =
             "message.otherworldinn.town.boundary_warning";
     private static final Component TOWN_BOUNDARY_WARNING_TEXT =
-            Component.translatable(TOWN_BOUNDARY_WARNING_KEY).withStyle(ChatFormatting.RED);
+            Component.translatable(TOWN_BOUNDARY_WARNING_KEY)
+                    .withStyle(style -> style.withColor(ModColors.ERROR));
 
-    private static final double DEATH_PENALTY_MIN_RATIO = 0.05;
-    private static final double DEATH_PENALTY_MAX_RATIO = 0.10;
+    private static final String WILD_SPAWN_DENIED_KEY =
+            "message.otherworldinn.exploration.wild_spawn_denied";
+    private static final String WILD_DEATH_RETURN_KEY =
+            "message.otherworldinn.exploration.wild_death_return";
+    private static final String WILD_DEATH_BROADCAST_KEY =
+            "message.otherworldinn.exploration.wild_death_broadcast";
+    private static final int DEATH_PENALTY_MIN_PERCENT = 5;
+    private static final int DEATH_PENALTY_MAX_PERCENT = 10;
     private static final int DEATH_PENALTY_MAX_AMOUNT = 500;
+    private static final Set<UUID> FORCED_TOWN_RESPAWNS = new HashSet<>();
 
 
     /**
      * 处理玩家死亡事件
      *
-     * <p>在非城镇维度死亡时扣除队伍余额的5%-10%（上限500），并通知全队。
+     * <p>在非城镇维度死亡时强制回城且给予惩罚。
      */
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
-        Level level = player.level();
-        if (level.dimension() == TownDimensions.TOWN_LEVEL) return;
+        ServerLevel level = player.serverLevel();
+        if (isTownDimension(level)) return;
+
+        FORCED_TOWN_RESPAWNS.add(player.getUUID());
+
+        if (!isPenaltyDimension(level)) return;
 
         MinecraftServer server = player.getServer();
         if (server == null) return;
 
-        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
-        if (team == null || team.getCoins() <= 0) return;
-
-        double ratio = DEATH_PENALTY_MIN_RATIO
-                + (DEATH_PENALTY_MAX_RATIO - DEATH_PENALTY_MIN_RATIO) * level.random.nextDouble();
-        int penalty = Math.max(1, (int) Math.round(team.getCoins() * ratio));
-        penalty = Math.min(penalty, DEATH_PENALTY_MAX_AMOUNT);
-        penalty = Math.min(penalty, team.getCoins());
-
-        team.removeCoins(penalty, server);
-        TeamManager.getInstance().syncTeam(team, server);
-
-        Component coinIcon = Component.literal("\uE001").withStyle(ChatFormatting.WHITE);
-        Component msg = Component.translatable("message.otherworldinn.death_penalty",
-                player.getName().copy().withStyle(ChatFormatting.YELLOW),
-                coinIcon.copy().append(Component.literal(String.valueOf(penalty)).withStyle(ChatFormatting.GOLD)))
-                .withStyle(ChatFormatting.RED);
-
-        for (UUID memberId : team.getMembers()) {
-            ServerPlayer member = server.getPlayerList().getPlayer(memberId);
-            if (member != null) {
-                member.sendSystemMessage(msg);
-            }
+        if (level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+            dropRandomInventorySlots(player, level);
         }
+        int penalty = applyMedicalFee(player, server);
+
+        player.sendSystemMessage(Component.translatable(WILD_DEATH_RETURN_KEY)
+                .withStyle(style -> style.withColor(ModColors.ERROR)));
+
+        Component broadcast = Component.translatable(
+                        WILD_DEATH_BROADCAST_KEY,
+                        player.getName().copy().withStyle(style -> style.withColor(ModColors.WHITE)),
+                        formatCoinAmount(penalty))
+                .withStyle(style -> style.withColor(ModColors.ERROR));
+        server.getPlayerList().broadcastSystemMessage(broadcast, false);
     }
 
     /**
@@ -96,6 +108,14 @@ public class PlayerEventHandler {
     @SubscribeEvent
     public static void onDimensionChange(EntityTravelToDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            if (player.level().dimension() == TownDimensions.TOWN_LEVEL
+                    && event.getDimension() != TownDimensions.TOWN_LEVEL) {
+                ItemStack scroll = new ItemStack(ModItems.RECALL_SCROLL.get());
+                if (!player.getInventory().contains(scroll) && !player.getInventory().add(scroll)) {
+                    player.drop(scroll, false);
+                }
+            }
+
             // 魔法空间进出追踪
             boolean leavingMagic = player.level().dimension() == TownDimensions.MAGIC_SPACE_LEVEL;
             boolean enteringMagic = event.getDimension() == TownDimensions.MAGIC_SPACE_LEVEL;
@@ -123,19 +143,9 @@ public class PlayerEventHandler {
 
             // 首次加入逻辑
             if (!player.getTags().contains("otherworldinn.joined")) {
-                ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
-                if (townLevel != null) {
-                    BlockPos spawnPos = new BlockPos(51, 71, 0);
-                    player.teleportTo(
-                            townLevel,
-                            spawnPos.getX() + 0.5,
-                            spawnPos.getY() + 1,
-                            spawnPos.getZ() + 0.5,
-                            player.getYRot(),
-                            player.getXRot());
-                    player.setRespawnPosition(TownDimensions.TOWN_LEVEL, spawnPos, 0, true, false);
-                    player.addTag("otherworldinn.joined");
-                }
+                teleportToTownSpawn(player);
+                setTownRespawn(player);
+                player.addTag("otherworldinn.joined");
             }
         }
     }
@@ -148,22 +158,34 @@ public class PlayerEventHandler {
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            if (FORCED_TOWN_RESPAWNS.remove(player.getUUID())) {
+                teleportToTownSpawn(player);
+                setTownRespawn(player);
+                return;
+            }
 
             if (player.getRespawnDimension() == Level.OVERWORLD
                     || player.getRespawnPosition() == null) {
-                ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
-                if (townLevel != null) {
-                    BlockPos spawnPos = new BlockPos(51, 71, 0);
-                    player.teleportTo(
-                            townLevel,
-                            spawnPos.getX() + 0.5,
-                            spawnPos.getY() + 1,
-                            spawnPos.getZ() + 0.5,
-                            player.getYRot(),
-                            player.getXRot());
-                }
+                teleportToTownSpawn(player);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerSetSpawn(PlayerSetSpawnEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (event.getNewSpawn() == null) {
+            return;
+        }
+        if (event.getSpawnLevel() == TownDimensions.TOWN_LEVEL) {
+            return;
+        }
+
+        event.setCanceled(true);
+        player.sendSystemMessage(Component.translatable(WILD_SPAWN_DENIED_KEY)
+                .withStyle(style -> style.withColor(ModColors.ERROR)));
     }
 
     @SubscribeEvent
@@ -239,7 +261,8 @@ public class PlayerEventHandler {
             if (event.getPlayer() instanceof ServerPlayer sp) {
                 sp.displayClientMessage(
                         Component.translatable("message.otherworldinn.crystal_ball.cannot_break_in_use")
-                                .withStyle(ChatFormatting.RED), true);
+                                .withStyle(style -> style.withColor(ModColors.ERROR)),
+                        true);
             }
         }
     }
@@ -250,6 +273,121 @@ public class PlayerEventHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.remove(player.getUUID());
             CrystalBallBlock.RETURN_POSITIONS.remove(player.getUUID());
+            FORCED_TOWN_RESPAWNS.remove(player.getUUID());
+        }
+    }
+
+    private static boolean isTownDimension(Level level) {
+        return level.dimension() == TownDimensions.TOWN_LEVEL;
+    }
+
+    private static boolean isPenaltyDimension(Level level) {
+        return level.dimension() == Level.OVERWORLD
+                || level.dimension() == Level.NETHER
+                || level.dimension() == Level.END;
+    }
+
+    private static void teleportToTownSpawn(ServerPlayer player) {
+        ServerLevel townLevel = player.getServer() != null
+                ? player.getServer().getLevel(TownDimensions.TOWN_LEVEL)
+                : null;
+        if (townLevel == null) {
+            return;
+        }
+        player.teleportTo(
+                townLevel,
+                TOWN_SPAWN_POS.getX() + 0.5,
+                TOWN_SPAWN_POS.getY() + 1,
+                TOWN_SPAWN_POS.getZ() + 0.5,
+                player.getYRot(),
+                player.getXRot());
+    }
+
+    private static void setTownRespawn(ServerPlayer player) {
+        player.setRespawnPosition(TownDimensions.TOWN_LEVEL, TOWN_SPAWN_POS, 0, true, false);
+    }
+
+    private static int applyMedicalFee(ServerPlayer player, MinecraftServer server) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null || team.getCoins() <= 0) {
+            return 0;
+        }
+
+        int percent =
+                DEATH_PENALTY_MIN_PERCENT
+                        + player.serverLevel()
+                                .random
+                                .nextInt(DEATH_PENALTY_MAX_PERCENT - DEATH_PENALTY_MIN_PERCENT + 1);
+        int penalty = Math.max(1, (int) Math.ceil(team.getCoins() * (percent / 100.0D)));
+        penalty = Math.min(penalty, Math.min(DEATH_PENALTY_MAX_AMOUNT, team.getCoins()));
+
+        if (penalty > 0 && team.removeCoins(penalty, server)) {
+            TeamManager.getInstance().syncTeam(team, server);
+            return penalty;
+        }
+        return 0;
+    }
+
+    private static void dropRandomInventorySlots(ServerPlayer player, ServerLevel level) {
+        List<InventorySlotRef> candidates = collectDropCandidates(player);
+        if (candidates.isEmpty()) {
+            return;
+        }
+
+        int dropCount = Math.min(candidates.size(), 1 + level.random.nextInt(3));
+        for (int i = 0; i < dropCount; i++) {
+            int pickedIndex = level.random.nextInt(candidates.size());
+            InventorySlotRef target = candidates.remove(pickedIndex);
+            ItemStack stack = target.getStack();
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            ItemStack dropped = stack.copy();
+            target.clear();
+
+            ItemEntity itemEntity = new ItemEntity(level, player.getX(), player.getY(), player.getZ(), dropped);
+            itemEntity.setDeltaMovement(
+                    (level.random.nextDouble() - 0.5D) * 0.3D,
+                    0.2D + level.random.nextDouble() * 0.15D,
+                    (level.random.nextDouble() - 0.5D) * 0.3D);
+            level.addFreshEntity(itemEntity);
+        }
+
+        player.getInventory().setChanged();
+    }
+
+    private static List<InventorySlotRef> collectDropCandidates(ServerPlayer player) {
+        List<InventorySlotRef> candidates = new ArrayList<>();
+        collectDropCandidates(candidates, player.getInventory().items);
+        collectDropCandidates(candidates, player.getInventory().armor);
+        collectDropCandidates(candidates, player.getInventory().offhand);
+        return candidates;
+    }
+
+    private static void collectDropCandidates(
+            List<InventorySlotRef> output, List<ItemStack> container) {
+        for (int i = 0; i < container.size(); i++) {
+            if (!container.get(i).isEmpty()) {
+                output.add(new InventorySlotRef(container, i));
+            }
+        }
+    }
+
+    private static Component formatCoinAmount(int amount) {
+        return Component.literal("\uE001")
+                .withStyle(style -> style.withColor(ModColors.WHITE))
+                .append(Component.literal(String.valueOf(amount))
+                        .withStyle(style -> style.withColor(ModColors.YELLOW)));
+    }
+
+    private record InventorySlotRef(List<ItemStack> container, int index) {
+        private ItemStack getStack() {
+            return this.container.get(this.index);
+        }
+
+        private void clear() {
+            this.container.set(this.index, ItemStack.EMPTY);
         }
     }
 }

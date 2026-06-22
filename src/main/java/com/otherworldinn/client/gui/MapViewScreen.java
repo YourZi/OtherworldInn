@@ -683,6 +683,7 @@ public class MapViewScreen extends Screen {
 
     /** 地图点按钮 */
     private class MapPointButton extends Button {
+        private static final String TOWN_GATE_POINT_ID = "otherworldinn:town_gate";
         private final MapPoint point;
 
         protected MapPointButton(MapPoint point) {
@@ -724,8 +725,15 @@ public class MapViewScreen extends Screen {
         }
 
         private boolean canTeleport() {
+            if (isTownGate()) {
+                return true;
+            }
             TeamData teamData = TeamManager.getInstance().getClientPlayerTeam();
             return teamData.isTeleportUnlocked() && !isFacilityLocked();
+        }
+
+        private boolean isTownGate() {
+            return TOWN_GATE_POINT_ID.equals(point.id().toString());
         }
 
         @Override
@@ -779,8 +787,9 @@ public class MapViewScreen extends Screen {
                 int textWidth = Minecraft.getInstance().font.width(text);
                 int textX = getX() + (width - textWidth) / 2;
                 int textY = getY() - 10;
+                int color = isTownGate() ? ModColors.YELLOW : ModColors.WHITE;
                 guiGraphics.drawString(
-                        Minecraft.getInstance().font, text, textX, textY, ModColors.WHITE, true);
+                        Minecraft.getInstance().font, text, textX, textY, color, true);
             }
 
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

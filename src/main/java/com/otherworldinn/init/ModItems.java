@@ -5,12 +5,11 @@ import com.otherworldinn.foundation.ItemDataGenInfo;
 import com.otherworldinn.foundation.ItemReg;
 import com.otherworldinn.item.BedSheetItem;
 import com.otherworldinn.item.CoinItem;
-import com.otherworldinn.item.EndSpaceSphereItem;
 import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
-import com.otherworldinn.item.NetherSpaceSphereItem;
+import com.otherworldinn.item.RecallScrollItem;
 import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.RoomRegisterItem;
 import com.otherworldinn.item.SpaceSphereItem;
@@ -43,6 +42,15 @@ public class ModItems {
     public static final Map<DeferredItem<?>, ItemDataGenInfo> ITEM_INFOS = new HashMap<>();
 
     // --- 物品注册 ---
+
+    public static final ItemReg<RecallScrollItem> RECALL_SCROLL_REG =
+            new ItemReg<>("recall_scroll", RecallScrollItem::new)
+                    .rarity(Rarity.EPIC)
+                    .stacksTo(1)
+                    .fireResistant()
+                    .tooltip("Hold right-click for 3 seconds to return to Town", "持续使用3秒后回到城镇")
+                    .lang("Recall Scroll", "回程卷轴");
+    public static final DeferredItem<RecallScrollItem> RECALL_SCROLL = RECALL_SCROLL_REG.register();
 
     public static final ItemReg<RoomRegisterItem> ROOM_REGISTER_REG =
             new ItemReg<>("room_register", RoomRegisterItem::new)
@@ -148,27 +156,26 @@ public class ModItems {
 
     public static final ItemReg<SpaceSphereItem> SPACE_SPHERE_REG =
             new ItemReg<>("space_sphere", SpaceSphereItem::new)
-                    .rarity(Rarity.EPIC)
+                    .rarity(Rarity.UNCOMMON)
                     .stacksTo(1)
                     .lang("Space Sphere", "空间球")
                     .tooltip("Use to activate map teleport for your team", "使用后激活地图点传送功能");
     public static final DeferredItem<SpaceSphereItem> SPACE_SPHERE = SPACE_SPHERE_REG.register();
 
-    public static final ItemReg<NetherSpaceSphereItem> NETHER_SPACE_SPHERE_REG =
-            new ItemReg<>("nether_space_sphere", NetherSpaceSphereItem::new)
-                    .rarity(Rarity.EPIC)
+    public static final ItemReg<Item> NETHER_SPACE_SPHERE_REG =
+            register("nether_space_sphere")
+                    .rarity(Rarity.RARE)
                     .stacksTo(16)
                     .lang("Nether Space Sphere", "下界空间球");
-    public static final DeferredItem<NetherSpaceSphereItem> NETHER_SPACE_SPHERE =
+    public static final DeferredItem<Item> NETHER_SPACE_SPHERE =
             NETHER_SPACE_SPHERE_REG.register();
 
-    public static final ItemReg<EndSpaceSphereItem> END_SPACE_SPHERE_REG =
-            new ItemReg<>("end_space_sphere", EndSpaceSphereItem::new)
+    public static final ItemReg<Item> END_SPACE_SPHERE_REG =
+            register("end_space_sphere")
                     .rarity(Rarity.EPIC)
                     .stacksTo(16)
-                    .lang("End Space Sphere", "末地空间球")
-                    .tooltip("Right-click to teleport to the End main island", "右键使用传送到末地主岛黑曜石平台");
-    public static final DeferredItem<EndSpaceSphereItem> END_SPACE_SPHERE =
+                    .lang("End Space Sphere", "末地空间球");
+    public static final DeferredItem<Item> END_SPACE_SPHERE =
             END_SPACE_SPHERE_REG.register();
     // --- 辅助方法 ---
 
