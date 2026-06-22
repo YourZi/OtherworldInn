@@ -1,10 +1,6 @@
 package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.item.ChartComponentItem;
-import com.otherworldinn.world.expedition.ChartComponentType;
-import com.otherworldinn.world.expedition.ExpeditionNbtHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -23,10 +19,9 @@ public class ModCreativeModeTabs {
                     () ->
                             CreativeModeTab.builder()
                                     .title(Component.translatable("itemGroup.otherworldinn"))
-                                    .icon(() -> new ItemStack(ModItems.RECALL_SCROLL.get()))
+                                    .icon(() -> new ItemStack(ModItems.ROOM_REGISTER.get()))
                                     .displayItems(
                                             (parameters, output) -> {
-                                                output.accept(ModItems.RECALL_SCROLL.get());
                                                 output.accept(ModItems.ROOM_REGISTER.get());
                                                 output.accept(ModItems.BED_SHEET.get());
                                                 output.accept(ModItems.MESSY_BED_SHEET.get());
@@ -41,40 +36,7 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModItems.COIN.get());
                                                 output.accept(ModBlocks.COMMISSION_BOARD.get());
                                                 output.accept(ModBlocks.CRYSTAL_BALL.get());
-                                            })
-                                    .build());
-
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXPEDITION_TAB =
-            CREATIVE_MODE_TABS.register(
-                    "expedition_tab",
-                    () ->
-                            CreativeModeTab.builder()
-                                    .title(Component.translatable("itemGroup.otherworldinn.expedition"))
-                                    .icon(() -> {
-                                        ItemStack icon = new ItemStack(ModItems.CHART_COMPONENT.get());
-                                        CompoundTag tag = new CompoundTag();
-                                        tag.putString("component_type", "ocean_biome");
-                                        ExpeditionNbtHelper.writeTag(icon, tag);
-                                        return icon;
-                                    })
-                                    .displayItems(
-                                            (parameters, output) -> {
-                                                ItemStack maxChart = new ItemStack(ModItems.PIONEER_CHART.get());
-                                                CompoundTag chartTag = new CompoundTag();
-                                                chartTag.putInt("max_slots", 6);
-                                                ExpeditionNbtHelper.writeTag(maxChart, chartTag);
-                                                output.accept(maxChart);
-
-                                                ItemStack blankComponent = new ItemStack(ModItems.CHART_COMPONENT.get());
-                                                output.accept(blankComponent);
-
-                                                for (ChartComponentType type : ChartComponentType.values()) {
-                                                    ItemStack stack = new ItemStack(ModItems.CHART_COMPONENT.get());
-                                                    CompoundTag tag = new CompoundTag();
-                                                    tag.putString("component_type", type.id());
-                                                    ExpeditionNbtHelper.writeTag(stack, tag);
-                                                    output.accept(stack);
-                                                }
+                                                output.accept(ModBlocks.CLUTTER.get());
                                             })
                                     .build());
 }

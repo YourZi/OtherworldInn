@@ -14,7 +14,6 @@ import com.otherworldinn.init.ModItems;
 import com.otherworldinn.init.ModLootModifiers;
 import com.otherworldinn.init.ModMenuTypes;
 import com.otherworldinn.init.ModSounds;
-import com.otherworldinn.world.expedition.recipe.ExpeditionRecipeSerializers;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -62,7 +61,6 @@ public class OtherworldInn {
         ModDimensions.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
         ModLootModifiers.GLM.register(modEventBus);
-        ExpeditionRecipeSerializers.register(modEventBus);
         ModGameRules.init();
 
         // 注册配置

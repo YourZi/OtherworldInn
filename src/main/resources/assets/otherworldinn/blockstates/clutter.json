@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "": [
+      { "model": "otherworldinn:block/clutter_1" },
+      { "model": "otherworldinn:block/clutter_2" },
+      { "model": "otherworldinn:block/clutter_3" },
+      { "model": "otherworldinn:block/clutter_4" }
+    ]
+  }
+}

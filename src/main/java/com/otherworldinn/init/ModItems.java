@@ -11,12 +11,9 @@ import com.otherworldinn.item.InnUpgradeVoucherItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
 import com.otherworldinn.item.NetherSpaceSphereItem;
-import com.otherworldinn.item.RecallScrollItem;
 import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.RoomRegisterItem;
 import com.otherworldinn.item.SpaceSphereItem;
-import com.otherworldinn.item.ChartComponentItem;
-import com.otherworldinn.item.ExpeditionChartItem;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,17 +43,6 @@ public class ModItems {
     public static final Map<DeferredItem<?>, ItemDataGenInfo> ITEM_INFOS = new HashMap<>();
 
     // --- 物品注册 ---
-
-    public static final ItemReg<RecallScrollItem> RECALL_SCROLL_REG =
-            new ItemReg<>("recall_scroll", RecallScrollItem::new)
-                    .rarity(Rarity.EPIC)
-                    .stacksTo(1)
-                    .fireResistant()
-                    .lang("Recall Scroll", "回程卷轴")
-                    .tooltip(
-                            "Teleports back to the inn after using for 3 seconds",
-                            "持续使用3秒后传送回旅社位置");
-    public static final DeferredItem<RecallScrollItem> RECALL_SCROLL = RECALL_SCROLL_REG.register();
 
     public static final ItemReg<RoomRegisterItem> ROOM_REGISTER_REG =
             new ItemReg<>("room_register", RoomRegisterItem::new)
@@ -184,26 +170,6 @@ public class ModItems {
                     .tooltip("Right-click to teleport to the End main island", "右键使用传送到末地主岛黑曜石平台");
     public static final DeferredItem<EndSpaceSphereItem> END_SPACE_SPHERE =
             END_SPACE_SPHERE_REG.register();
-
-    public static final ItemReg<ExpeditionChartItem> PIONEER_CHART_REG =
-            new ItemReg<>("pioneer_chart", ExpeditionChartItem::new)
-                    .rarity(Rarity.RARE)
-                    .stacksTo(1)
-                    .lang("Pioneer Chart", "开拓者星图")
-                    .tooltip("Add Chart Components via crafting to customize the expedition", "通过合成附加星图组件来定制远征");
-    public static final DeferredItem<ExpeditionChartItem> PIONEER_CHART =
-            PIONEER_CHART_REG.register();
-
-    public static final ItemReg<ChartComponentItem> CHART_COMPONENT_REG =
-            new ItemReg<>("chart_component", ChartComponentItem::new)
-                    .rarity(Rarity.COMMON)
-                    .stacksTo(64)
-                    .lang("Chart Component", "星图组件")
-                    .tooltip("Craft with a blank component + materials to create a specific component", "使用空白组件+特定材料合成特定组件")
-                    .tooltip("Attach to a Pioneer Chart to customize expedition terrain", "附加到开拓者星图以定制远征地形");
-    public static final DeferredItem<ChartComponentItem> CHART_COMPONENT =
-            CHART_COMPONENT_REG.register();
-
     // --- 辅助方法 ---
 
     /**

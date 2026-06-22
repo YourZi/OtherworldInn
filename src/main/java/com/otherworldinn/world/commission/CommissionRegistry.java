@@ -328,13 +328,13 @@ public final class CommissionRegistry {
                 .rewardItem("minecraft:echo_shard", 2)
                 .build();
 
-        register("adventurers_guild_enderman_expedition")
+        register("adventurers_guild_enderman_patrol")
                 .stars(4, 5)
                 .weight(4)
                 .description(
                         LocalizedText.of(
-                                "冒险家协会发布远征委托：清理游荡末影人并回收样本。",
-                                "Adventurers Guild expedition request: clear roaming Endermen and recover samples."))
+                                "冒险家协会发布巡查委托：清理游荡末影人并回收样本。",
+                                "Adventurers Guild patrol request: clear roaming Endermen and recover samples."))
                 .kill("minecraft:enderman", 20)
                 .rewardCoins(260)
                 .rewardItem("minecraft:ender_pearl", 8)
@@ -487,6 +487,15 @@ public final class CommissionRegistry {
                 .submit("minecraft:terracotta", 16)
                 .rewardCoins(100)
                 .rewardFavor("otherworldinn:builder", 80)
+                .build();
+
+        register(FishingCommissionGenerator.TEMPLATE_ID)
+                .stars(1, 5)
+                .weight(7)
+                .description(
+                        LocalizedText.of(
+                                "渔夫正在收购一条指定的鲜鱼。带回委托要求的目标鱼即可完成这份钓鱼委托。",
+                                "The fisherman is buying a specific fresh catch. Bring back the requested fish to finish this fishing commission."))
                 .build();
     }
 

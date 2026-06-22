@@ -1,21 +1,4 @@
 {
   "replace": false,
-  "entries": [
-    "otherworldinn:ocean_components",
-    "otherworldinn:cave_components",
-    "otherworldinn:desert_components",
-    "otherworldinn:jungle_components",
-    "otherworldinn:nether_components",
-    "otherworldinn:end_components",
-    "otherworldinn:woodland_components",
-    "otherworldinn:snow_components",
-    "otherworldinn:stronghold_components",
-    "otherworldinn:ancient_city_components",
-    "otherworldinn:swamp_components",
-    "otherworldinn:pillager_components",
-    "otherworldinn:plains_components",
-    "otherworldinn:savanna_biome_components",
-    "otherworldinn:taiga_biome_components",
-    "otherworldinn:snowy_biome_components"
-  ]
+  "entries": []
 }

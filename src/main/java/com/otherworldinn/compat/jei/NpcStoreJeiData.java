@@ -170,7 +170,6 @@ final class NpcStoreJeiData {
         add(recipes, MAGICIAN, new ItemStack(Items.GLASS_BOTTLE), 2, 2, 64, 64, 1, null, false);
         add(recipes, MAGICIAN, new ItemStack(Items.BLAZE_ROD), 16, 16, 32, 32, 1, null, false);
         add(recipes, MAGICIAN, new ItemStack(Items.GLOWSTONE_DUST), 8, 8, 48, 48, 1, null, false);
-        add(recipes, MAGICIAN, new ItemStack(com.otherworldinn.init.ModItems.CHART_COMPONENT.get()), 12, 12, 8, 8, 1, null, false);
 
         add(recipes, MAGICIAN, new ItemStack(ModItems.SPACE_SPHERE.get()), 64, 64, 4, 4, 2, null, false);
         add(recipes, MAGICIAN, new ItemStack(Items.BOOK), 8, 8, 64, 64, 2, null, false);

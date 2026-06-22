@@ -19,16 +19,16 @@ public class FishermanEntity extends StoreEntity {
     private static final String STARCATCHER = "starcatcher";
     private static final List<RandomProduct> DAILY_FISH_POOL =
             List.of(
-                    new RandomProduct(1, "kaleidoscope_cookery:sashimi", 2, 12, 16, 2, 4),
-                    new RandomProduct(1, "minecraft:ink_sac", 4, 4, 6, 2, 4),
-                    new RandomProduct(2, "starcatcher:fish_bones", 2, 8, 12, 2, 4),
-                    new RandomProduct(2, "minecraft:bone_meal", 8, 2, 4, 3, 6),
-                    new RandomProduct(4, "minecraft:glow_ink_sac", 2, 10, 14, 1, 2),
-                    new RandomProduct(4, "minecraft:dried_kelp", 12, 2, 3, 3, 5),
+                    new RandomProduct(1, "kaleidoscope_cookery:sashimi", 1, 12, 16, 2, 4),
+                    new RandomProduct(1, "minecraft:ink_sac", 1, 4, 6, 2, 4),
+                    new RandomProduct(2, "starcatcher:fish_bones", 1, 8, 12, 2, 4),
+                    new RandomProduct(2, "minecraft:bone_meal", 1, 2, 4, 3, 6),
+                    new RandomProduct(4, "minecraft:glow_ink_sac", 1, 10, 14, 1, 2),
+                    new RandomProduct(4, "minecraft:dried_kelp", 1, 2, 3, 3, 5),
                     new RandomProduct(6, "minecraft:nautilus_shell", 1, 18, 24, 1, 2),
                     new RandomProduct(6, "starcatcher:pearl", 1, 14, 18, 1, 2),
-                    new RandomProduct(8, "minecraft:prismarine_shard", 4, 10, 14, 1, 2),
-                    new RandomProduct(8, "minecraft:prismarine_crystals", 3, 12, 16, 1, 2));
+                    new RandomProduct(8, "minecraft:prismarine_shard", 1, 10, 14, 1, 2),
+                    new RandomProduct(8, "minecraft:prismarine_crystals", 1, 12, 16, 1, 2));
 
     public FishermanEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -40,19 +40,14 @@ public class FishermanEntity extends StoreEntity {
         }
     }
 
-    @Override
-    protected int getCoinsPerFavorLevel() {
-        return StoreEntity.getCoinsPerFavorLevelValue() * 2;
-    }
-
     private void initDefaultStoreItems() {
         this.addBaseStarcatcherItem("starcatcher_guide", 6, 1);
         this.addBaseStarcatcherItem("starcatcher_rod", 10, 1);
         this.addBaseStarcatcherItem("hook", 4, 4);
         this.addBaseStarcatcherItem("bobber", 4, 4);
-        this.addBaseStarcatcherItem("worm", 4, 16, 8);
+        this.addBaseStarcatcherItem("worm", 4, 16);
 
-        this.addFavorStarcatcherItem(2, "starcatcher_twine", 5, 8, 2);
+        this.addFavorStarcatcherItem(2, "starcatcher_twine", 5, 8);
         this.addFavorStarcatcherItem(2, "vanilla_hook", 6, 2);
         this.addFavorStarcatcherItem(2, "vanilla_bobber", 6, 2);
         this.addFavorStarcatcherItem(2, "tackle_box", 18, 1);
@@ -60,12 +55,12 @@ public class FishermanEntity extends StoreEntity {
         this.addFavorStarcatcherItem(4, "steady_bobber", 12, 2);
         this.addFavorStarcatcherItem(4, "leaf_bobber", 12, 2);
         this.addFavorStarcatcherItem(4, "mossy_hook", 14, 2);
-        this.addFavorStarcatcherItem(4, "murkwater_bait", 10, 4, 3);
+        this.addFavorStarcatcherItem(4, "murkwater_bait", 10, 4);
 
         this.addFavorStarcatcherItem(6, "shiny_hook", 22, 1);
         this.addFavorStarcatcherItem(6, "aqua_bobber", 18, 1);
-        this.addFavorStarcatcherItem(6, "seeking_worm", 18, 2, 2);
-        this.addFavorStarcatcherItem(6, "meteorological_bait", 18, 2, 2);
+        this.addFavorStarcatcherItem(6, "seeking_worm", 18, 2);
+        this.addFavorStarcatcherItem(6, "meteorological_bait", 18, 2);
 
         this.addFavorStarcatcherItem(8, "fish_radar", 32, 1);
         this.addFavorStarcatcherItem(8, "aquarium", 48, 1);

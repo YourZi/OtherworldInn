@@ -4,15 +4,10 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.otherworldinn.init.ModItems;
-import com.otherworldinn.item.ChartComponentItem;
-import com.otherworldinn.world.expedition.ChartComponentType;
-import com.otherworldinn.world.expedition.ExpeditionNbtHelper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -62,14 +57,6 @@ public class ChartComponentLootModifier extends LootModifier {
                 break;
             }
         }
-        if (picked == null) return generatedLoot;
-
-        ItemStack component = new ItemStack(ModItems.CHART_COMPONENT.get());
-        CompoundTag tag = ExpeditionNbtHelper.readTag(component);
-        tag.putString("component_type", picked);
-        ExpeditionNbtHelper.writeTag(component, tag);
-
-        generatedLoot.add(component);
         return generatedLoot;
     }
 

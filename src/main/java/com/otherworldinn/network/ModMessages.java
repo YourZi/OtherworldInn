@@ -5,14 +5,12 @@ import com.otherworldinn.network.packet.C2SDialogueClosePacket;
 import com.otherworldinn.network.packet.C2SDialogueOptionPacket;
 import com.otherworldinn.network.packet.C2SMapModeSyncPacket;
 import com.otherworldinn.network.packet.C2SAcceptCommissionPacket;
-import com.otherworldinn.network.packet.C2SExpeditionCancelPacket;
 import com.otherworldinn.network.packet.C2SStorePurchasePacket;
 import com.otherworldinn.network.packet.C2STeleportPacket;
 import com.otherworldinn.network.packet.C2SWithdrawCoinPacket;
 import com.otherworldinn.network.packet.S2CCommissionBoardPacket;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
-import com.otherworldinn.network.packet.S2CExpeditionTimerPacket;
 import com.otherworldinn.network.packet.S2CPriceSyncPacket;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -51,10 +49,6 @@ public class ModMessages {
                 S2CCommissionBoardPacket.STREAM_CODEC,
                 S2CCommissionBoardPacket::handle);
         registrar.playToClient(
-                S2CExpeditionTimerPacket.TYPE,
-                S2CExpeditionTimerPacket.STREAM_CODEC,
-                S2CExpeditionTimerPacket::handle);
-        registrar.playToClient(
                 S2CPriceSyncPacket.TYPE,
                 S2CPriceSyncPacket.STREAM_CODEC,
                 S2CPriceSyncPacket::handle);
@@ -90,10 +84,6 @@ public class ModMessages {
                 C2SAcceptCommissionPacket.TYPE,
                 C2SAcceptCommissionPacket.STREAM_CODEC,
                 C2SAcceptCommissionPacket::handle);
-        registrar.playToServer(
-                C2SExpeditionCancelPacket.TYPE,
-                C2SExpeditionCancelPacket.STREAM_CODEC,
-                C2SExpeditionCancelPacket::handle);
     }
 
     /**

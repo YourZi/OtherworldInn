@@ -105,11 +105,7 @@ public class BedSheetItem extends Item {
             InnData innData = team.getInnData();
             RoomData room = innData.getRoomAt(pos);
             if (room != null) {
-                room.setMaxGuests(room.getMaxGuests() + 1);
-                String todoText =
-                        Component.translatable("todo.otherworldinn.room_cleaning", room.getId())
-                                .getString();
-                innData.removeTodo(level, team, todoText);
+                innData.checkAndUpdateRoom(room.getId(), level, team);
                 TeamManager.getInstance().syncTeam(team, level.getServer());
             }
         }

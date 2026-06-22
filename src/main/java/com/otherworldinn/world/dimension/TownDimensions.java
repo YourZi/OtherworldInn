@@ -24,32 +24,6 @@ public class TownDimensions {
                     Registries.DIMENSION_TYPE,
                     ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_type"));
 
-    public static final ResourceKey<LevelStem> EXPEDITION_STEM =
-            ResourceKey.create(
-                    Registries.LEVEL_STEM,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition"));
-    public static final ResourceKey<Level> EXPEDITION_TEMPLATE_LEVEL =
-            ResourceKey.create(
-                    Registries.DIMENSION,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition"));
-    public static final ResourceKey<DimensionType> EXPEDITION_DIM_TYPE =
-            ResourceKey.create(
-                    Registries.DIMENSION_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_type"));
-
-    public static final ResourceKey<LevelStem> EXPEDITION_NETHER_STEM =
-            ResourceKey.create(
-                    Registries.LEVEL_STEM,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_nether"));
-    public static final ResourceKey<Level> EXPEDITION_TEMPLATE_NETHER =
-            ResourceKey.create(
-                    Registries.DIMENSION,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_nether"));
-    public static final ResourceKey<DimensionType> EXPEDITION_NETHER_DIM_TYPE =
-            ResourceKey.create(
-                    Registries.DIMENSION_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "expedition_nether_type"));
-
     // 魔法空间维度
     public static final ResourceKey<LevelStem> MAGIC_SPACE_STEM =
             ResourceKey.create(

@@ -3,13 +3,9 @@ package com.otherworldinn.world.event.listener;
 import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.init.ModBlocks;
-import com.otherworldinn.init.ModItems;
-import com.otherworldinn.item.ExpeditionChartItem;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
-import com.otherworldinn.world.expedition.ExpeditionDimensions;
-import com.otherworldinn.world.expedition.ExpeditionService;
 import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -20,7 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -97,8 +92,6 @@ public class PlayerEventHandler {
 
     /**
      * 处理玩家维度切换事件
-     *
-     * <p>当玩家从城镇维度离开时，给予回程卷轴。
      */
     @SubscribeEvent
     public static void onDimensionChange(EntityTravelToDimensionEvent event) {
@@ -108,52 +101,6 @@ public class PlayerEventHandler {
             boolean enteringMagic = event.getDimension() == TownDimensions.MAGIC_SPACE_LEVEL;
             if (leavingMagic && !enteringMagic) {
                 CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.remove(player.getUUID());
-            }
-
-            if (ExpeditionDimensions.isExpeditionDimension(event.getDimension())) {
-                if (!ExpeditionService.canEnter(player.getUUID(), event.getDimension())) {
-                    event.setCanceled(true);
-                    player.displayClientMessage(
-                            Component.translatable("message.otherworldinn.expedition.cannot_enter")
-                                    .withStyle(ChatFormatting.RED), true);
-                    return;
-                }
-                ExpeditionChartItem.giveRecallScroll(player);
-                return;
-            }
-
-            if (ExpeditionDimensions.isExpeditionDimension(player.level().dimension())) {
-                if (event.getDimension() != TownDimensions.TOWN_LEVEL) {
-                    event.setCanceled(true);
-                    player.displayClientMessage(
-                            Component.translatable("message.otherworldinn.expedition.cannot_leave")
-                                    .withStyle(ChatFormatting.RED), true);
-                }
-                return;
-            }
-
-            if (player.level().dimension() == TownDimensions.TOWN_LEVEL) {
-                if (event.getDimension() != TownDimensions.TOWN_LEVEL
-                        && !ExpeditionDimensions.isExpeditionDimension(event.getDimension())) {
-                    ItemStack scroll = new ItemStack(ModItems.RECALL_SCROLL.get());
-                    if (!player.getInventory().contains(scroll)) {
-                        if (!player.getInventory().add(scroll)) {
-                            player.drop(scroll, false);
-                        }
-                    }
-                }
-            }
-
-            // 末地返回传送门拦截：将目的地从主世界出生点改为城镇维度
-            if (player.level().dimension() == Level.END
-                    && event.getDimension() != TownDimensions.TOWN_LEVEL
-                    && !ExpeditionDimensions.isExpeditionDimension(event.getDimension())) {
-                event.setCanceled(true);
-                ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
-                if (townLevel != null) {
-                    TeleportUtils.changeDimensionTo(player, townLevel,
-                            new BlockPos(51, 71, 0));
-                }
             }
         }
     }
@@ -172,23 +119,6 @@ public class PlayerEventHandler {
             // 确保玩家加入队伍
             if (server != null) {
                 TeamManager.getInstance().onPlayerJoin(player, server);
-            }
-
-            // 如果玩家在远征维度但没有活跃Session，送回城镇
-            if (ExpeditionDimensions.isExpeditionDimension(player.level().dimension())) {
-                var session = ExpeditionService.getPlayerSession(player.getUUID());
-                if (session == null || session.departedPlayers().contains(player.getUUID())) {
-                    ServerLevel townLevel = server.getLevel(TownDimensions.TOWN_LEVEL);
-                    if (townLevel != null) {
-                        BlockPos spawnPos = new BlockPos(51, 71, 0);
-                        player.teleportTo(townLevel,
-                                spawnPos.getX() + 0.5,
-                                spawnPos.getY() + 1,
-                                spawnPos.getZ() + 0.5,
-                                player.getYRot(), player.getXRot());
-                    }
-                }
-                return;
             }
 
             // 首次加入逻辑

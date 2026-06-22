@@ -10,9 +10,14 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModBlockProperties;
+import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.BedSheetItem;
 import com.otherworldinn.item.MessyBedSheetItem;
+import com.otherworldinn.world.inn.InnData;
+import com.otherworldinn.world.inn.RoomData;
+import com.otherworldinn.world.team.TeamData;
+import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +79,17 @@ public class RoomCleanTask implements IMaidTask{
                         new MaidMoveToPredicateBlockTask(
                                 0.8f,
                                 CLEAN_SEARCH_RANGE,
+                                RoomCleanTask::shouldCleanClutter,
+                                RoomCleanTask::isClutter)),
+                Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanClutterAt)),
+                Pair.of(
+                        9,
+                        new MaidMoveToPredicateBlockTask(
+                                0.8f,
+                                CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldWashDirtySheets,
                                 RoomCleanTask::isWashTarget)),
-                Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)));
+                Pair.of(10, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)));
     }
 
     private static boolean hasCleanSheet(EntityMaid maid) {
@@ -89,6 +102,10 @@ public class RoomCleanTask implements IMaidTask{
 
     private static boolean shouldCleanBeds(EntityMaid maid) {
         return hasCleanSheet(maid) && !shouldWashDirtySheets(maid);
+    }
+
+    private static boolean shouldCleanClutter(EntityMaid maid) {
+        return true;
     }
 
     private static boolean isWashOnCooldown(EntityMaid maid) {
@@ -123,6 +140,10 @@ public class RoomCleanTask implements IMaidTask{
 
     private static boolean isWashTarget(EntityMaid maid, BlockPos pos) {
         return MessyBedSheetItem.isWashTarget(maid.level().getBlockState(pos));
+    }
+
+    private static boolean isClutter(EntityMaid maid, BlockPos pos) {
+        return maid.level().getBlockState(pos).is(ModBlocks.CLUTTER.get());
     }
 
     private static void cleanMessyBedAt(EntityMaid maid, BlockPos pos) {
@@ -168,6 +189,30 @@ public class RoomCleanTask implements IMaidTask{
         maid.swing(InteractionHand.MAIN_HAND, true);
         level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.PLAYERS, 0.8F, 1.0F);
         setWashCooldown(maid);
+        clearTarget(maid);
+    }
+
+    private static void cleanClutterAt(EntityMaid maid, BlockPos pos) {
+        if (!(maid.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (!level.getBlockState(pos).is(ModBlocks.CLUTTER.get())) {
+            clearTarget(maid);
+            return;
+        }
+        level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+        maid.swing(InteractionHand.MAIN_HAND, true);
+        level.playSound(null, pos, SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 0.7F, 1.1F);
+
+        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
+        if (team != null) {
+            InnData innData = team.getInnData();
+            RoomData room = innData.getRoomAt(pos);
+            if (room != null) {
+                innData.checkAndUpdateRoom(room.getId(), level, team);
+                TeamManager.getInstance().syncTeam(team, level.getServer());
+            }
+        }
         clearTarget(maid);
     }
 

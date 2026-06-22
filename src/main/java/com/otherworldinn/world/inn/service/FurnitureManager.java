@@ -43,7 +43,8 @@ public class FurnitureManager {
             new KeywordRule("sink", new FurnitureStats(2, 0, 7)),
             new KeywordRule("couch", new FurnitureStats(3, 0, 0)),
             new KeywordRule("chaise", new FurnitureStats(3, 0, 0)),
-            new KeywordRule("toilet", new FurnitureStats(5, 0, 10))
+            new KeywordRule("toilet", new FurnitureStats(5, 0, 10)),
+            new KeywordRule("clutter", new FurnitureStats(-20, 0, 0))
         );
 
     static {

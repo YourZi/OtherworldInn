@@ -21,7 +21,7 @@ public final class StarcatcherFishingSaleFavor {
             return;
         }
 
-        int favorProgress = Math.max(1, Math.round(saleValue * 0.5F));
+        int favorProgress = saleValue;
         FishermanEntity fisherman = findNearestFisherman(serverLevel, sourcePos);
         if (fisherman != null) {
             fisherman.addFavorProgress(favorProgress);

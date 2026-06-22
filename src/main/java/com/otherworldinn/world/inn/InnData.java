@@ -4,6 +4,7 @@ import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.base.VipGuestEntity;
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.world.inn.service.ClipboardManager;
 import com.otherworldinn.world.inn.service.FurnitureManager;
@@ -115,6 +116,9 @@ public class InnData {
     private static final double SPAWN_DELAY_JITTER_RATIO = 0.20D;
     private static final int MIN_SPAWN_DELAY_TICKS = 600;
     private static final int MAX_SPAWN_DELAY_TICKS = 7200;
+    private static final float CLUTTER_SPAWN_CHANCE = 0.65F;
+    private static final int MIN_CLUTTER_PER_CHECKOUT = 1;
+    private static final int MAX_CLUTTER_PER_CHECKOUT = 3;
     private static final int[] REPUTATION_REQUIREMENTS_BY_RATING = {200, 450, 850, 1300, 1800, 2500};
     private static final int[] ROOM_REQUIREMENTS_BY_RATING = {2, 4, 6, 8, 10, 12};
     private static final int[] TOTAL_INCOME_REQUIREMENTS_BY_RATING = {200, 500, 2000, 4500, 9000, 20000};
@@ -705,8 +709,64 @@ public class InnData {
         room.setTotalBeds(bedStats[2]);
 
         calculateRoomStats(roomId, level);
+        if (level instanceof ServerLevel serverLevel && team != null) {
+            syncRoomCleaningTodo(serverLevel, team, room);
+        }
 
         return true;
+    }
+
+    private void syncRoomCleaningTodo(ServerLevel level, TeamData team, RoomData room) {
+        if (room == null || team == null) {
+            return;
+        }
+        String todoText = getRoomCleaningTodoText(room);
+        if (roomNeedsCleaning(room, level)) {
+            addTodo(level, team, todoText);
+        } else {
+            removeTodo(level, team, todoText);
+        }
+    }
+
+    private String getRoomCleaningTodoText(RoomData room) {
+        return Component.translatable("todo.otherworldinn.room_cleaning", RoomData.getDisplayName(room))
+                .getString();
+    }
+
+    private boolean roomNeedsCleaning(RoomData room, Level level) {
+        return roomHasMessyBed(room, level) || roomHasClutter(room, level);
+    }
+
+    private boolean roomHasMessyBed(RoomData room, Level level) {
+        BlockPos min = room.getMinPos();
+        BlockPos max = room.getMaxPos();
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            BlockState state = level.getBlockState(pos);
+            if (state.getBlock() instanceof BedBlock
+                    && state.hasProperty(ModBlockProperties.MESSY)
+                    && state.getValue(ModBlockProperties.MESSY)
+                    && state.hasProperty(BedBlock.PART)
+                    && state.getValue(BedBlock.PART) == BedPart.HEAD) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean roomHasClutter(RoomData room, Level level) {
+        return countRoomClutter(room, level) > 0;
+    }
+
+    private int countRoomClutter(RoomData room, Level level) {
+        int count = 0;
+        BlockPos min = room.getMinPos();
+        BlockPos max = room.getMaxPos();
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            if (level.getBlockState(pos).is(ModBlocks.CLUTTER.get())) {
+                count++;
+            }
+        }
+        return count;
     }
 
     // --- 入住/退房 ---
@@ -1144,6 +1204,62 @@ public class InnData {
         return true;
     }
 
+    private boolean trySpawnRoomClutter(RoomData room, ServerLevel level) {
+        if (room == null || level.random.nextFloat() >= CLUTTER_SPAWN_CHANCE) {
+            return false;
+        }
+
+        List<BlockPos> candidates = collectRoomClutterSpawnPositions(room, level);
+        if (candidates.isEmpty()) {
+            return false;
+        }
+
+        Collections.shuffle(candidates, new Random(level.random.nextLong()));
+        int spawnCount =
+                Math.min(
+                        candidates.size(),
+                        MIN_CLUTTER_PER_CHECKOUT
+                                + level.random.nextInt(MAX_CLUTTER_PER_CHECKOUT - MIN_CLUTTER_PER_CHECKOUT + 1));
+
+        boolean spawned = false;
+        BlockState clutterState = ModBlocks.CLUTTER.get().defaultBlockState();
+        for (int i = 0; i < spawnCount; i++) {
+            BlockPos pos = candidates.get(i);
+            if (!level.getBlockState(pos).isAir()) {
+                continue;
+            }
+            level.setBlock(pos, clutterState, 3);
+            spawned = true;
+        }
+        return spawned;
+    }
+
+    private List<BlockPos> collectRoomClutterSpawnPositions(RoomData room, ServerLevel level) {
+        List<BlockPos> candidates = new ArrayList<>();
+        int floorY = room.getMinPos().getY();
+
+        for (int x = room.getMinPos().getX(); x <= room.getMaxPos().getX(); x++) {
+            for (int z = room.getMinPos().getZ(); z <= room.getMaxPos().getZ(); z++) {
+                BlockPos pos = new BlockPos(x, floorY, z);
+                if (!isValidClutterSpawnPos(level, pos)) {
+                    continue;
+                }
+                candidates.add(pos);
+            }
+        }
+        return candidates;
+    }
+
+    private boolean isValidClutterSpawnPos(ServerLevel level, BlockPos pos) {
+        if (!level.getBlockState(pos).isAir()) {
+            return false;
+        }
+        BlockPos belowPos = pos.below();
+        BlockState belowState = level.getBlockState(belowPos);
+        return net.minecraft.world.level.block.Block.isFaceFull(
+                belowState.getCollisionShape(level, belowPos), Direction.UP);
+    }
+
     /**
      * 每 tick 更新
      *
@@ -1311,10 +1427,8 @@ public class InnData {
         TeamData team = null;
         if (targetRoom != null) {
             BlockPos boundBedPos = guest == null ? null : guest.getAssignedBedPos();
-            boolean bedMessy = setRoomBedMessy(targetRoom.getId(), level, boundBedPos);
-            if (bedMessy) {
-                targetRoom.setMaxGuests(Math.max(0, targetRoom.getMaxGuests() - 1));
-            }
+            setRoomBedMessy(targetRoom.getId(), level, boundBedPos);
+            trySpawnRoomClutter(targetRoom, level);
             targetRoom.removeGuest(guestId);
             team = TeamManager.getInstance().getTeamAt(targetRoom.getMinPos(), level.getServer());
             if (team == null) {
@@ -1334,14 +1448,6 @@ public class InnData {
                 int price = targetRoom.getBedPrice(this.rating);
                 team.addCoins(price, level.getServer());
                 this.recordLodgingIncome(price, level);
-                if (bedMessy) {
-                    String todoText =
-                            Component.translatable(
-                                            "todo.otherworldinn.room_cleaning",
-                                            RoomData.getDisplayName(targetRoom))
-                                    .getString();
-                    this.addTodo(level, team, todoText);
-                }
             }
             if (isNormalCheckout && guest != null) {
                 guest.updatePreferenceScore(targetRoom);
@@ -1359,6 +1465,9 @@ public class InnData {
                         this.addReputation(scaleGuestReputationDelta(guestEntity, -vipReputationLoss));
                     }
                 }
+            }
+            if (team != null) {
+                checkAndUpdateRoom(targetRoom.getId(), level, team);
             }
         }
         if (guest != null) {

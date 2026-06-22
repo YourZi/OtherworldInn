@@ -1,6 +1,7 @@
 package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.block.ClutterBlock;
 import com.otherworldinn.block.CommissionBoardBlock;
 import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.foundation.BlockDataGenInfo;
@@ -8,6 +9,7 @@ import com.otherworldinn.foundation.BlockReg;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
@@ -49,6 +51,16 @@ public class ModBlocks {
                     .tooltip("Only one Crystal Ball can exist in the world at a time", "同一存档只能放置一个水晶球");
     public static final DeferredBlock<CrystalBallBlock> CRYSTAL_BALL =
             CRYSTAL_BALL_REG.register();
+
+    public static final BlockReg<ClutterBlock> CLUTTER_REG =
+            register("clutter", ClutterBlock::new)
+                    .copyProperties(Blocks.FLOWER_POT)
+                    .noCollision()
+                    .noOcclusion()
+                    .noModel()
+                    .noLoot()
+                    .lang("Clutter Trash", "杂物垃圾");
+    public static final DeferredBlock<ClutterBlock> CLUTTER = CLUTTER_REG.register();
 
     // --- 辅助方法 ---
 

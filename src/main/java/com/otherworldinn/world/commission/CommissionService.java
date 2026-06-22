@@ -368,7 +368,7 @@ public final class CommissionService {
         RandomSource random = RandomSource.create(seed);
         List<String> usedTemplateIds = new ArrayList<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
-            CommissionEntry entry = generateEntry(random, day, i, usedTemplateIds);
+            CommissionEntry entry = generateEntry(level, random, day, i, usedTemplateIds);
             if (entry != null) {
                 data.getBoardEntries().add(entry);
             }
@@ -377,29 +377,47 @@ public final class CommissionService {
     }
 
     private static CommissionEntry generateEntry(
-            RandomSource random, long day, int slot, List<String> usedTemplateIds) {
-        CommissionTemplate template = CommissionRegistry.pickRandomTemplate(random, usedTemplateIds);
-        if (template == null) {
-            return null;
-        }
-        usedTemplateIds.add(template.id());
+            ServerLevel level, RandomSource random, long day, int slot, List<String> usedTemplateIds) {
+        List<String> excludedTemplateIds = new ArrayList<>(usedTemplateIds);
+        int maxAttempts = Math.max(1, CommissionRegistry.allTemplates().size());
+        for (int attempt = 0; attempt < maxAttempts; attempt++) {
+            CommissionTemplate template =
+                    CommissionRegistry.pickRandomTemplate(random, excludedTemplateIds);
+            if (template == null) {
+                return null;
+            }
 
-        int stars =
-                template.minStars() == template.maxStars()
-                        ? template.minStars()
-                        : template.minStars() + random.nextInt(template.maxStars() - template.minStars() + 1);
-        long durationDays = durationByStars(stars);
-        String id = "commission_" + template.id() + "_" + day + "_" + slot;
-        return new CommissionEntry(
-                id,
-                template.descriptionKey(),
-                stars,
-                durationDays,
-                template.submitRequirements(),
-                template.killRequirements(),
-                template.itemRewards(),
-                template.coinReward(),
-                template.npcFavorRewards());
+            CommissionEntry entry;
+            if (FishingCommissionGenerator.TEMPLATE_ID.equals(template.id())) {
+                entry = FishingCommissionGenerator.generate(level, random, day, slot);
+            } else {
+                int stars =
+                        template.minStars() == template.maxStars()
+                                ? template.minStars()
+                                : template.minStars()
+                                        + random.nextInt(template.maxStars() - template.minStars() + 1);
+                long durationDays = durationByStars(stars);
+                String id = "commission_" + template.id() + "_" + day + "_" + slot;
+                entry =
+                        new CommissionEntry(
+                                id,
+                                template.descriptionKey(),
+                                stars,
+                                durationDays,
+                                template.submitRequirements(),
+                                template.killRequirements(),
+                                template.itemRewards(),
+                                template.coinReward(),
+                                template.npcFavorRewards());
+            }
+
+            if (entry != null) {
+                usedTemplateIds.add(template.id());
+                return entry;
+            }
+            excludedTemplateIds.add(template.id());
+        }
+        return null;
     }
 
     private static long durationByStars(int stars) {

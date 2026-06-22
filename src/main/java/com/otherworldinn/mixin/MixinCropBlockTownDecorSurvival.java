@@ -7,6 +7,7 @@ import com.otherworldinn.world.team.service.TeamManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +26,10 @@ public class MixinCropBlockTownDecorSurvival {
     @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
     private void otherworldinn$allowDecorCropOutsideInnAndGreenhouse(
             BlockState state, LevelReader level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (!isNormalTownDecorArea(level, pos)) {
+        if (!isNormalTownDecorArea(level, pos) 
+            || level.getBlockState(pos).is(Blocks.WATER)  
+            || level.getBlockState(pos).is(Blocks.SEAGRASS)
+        ) {
             return;
         }
         cir.setReturnValue(true);

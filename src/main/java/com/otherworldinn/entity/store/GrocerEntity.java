@@ -2,8 +2,6 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
-import com.otherworldinn.world.expedition.ExpeditionNbtHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,14 +29,6 @@ public class GrocerEntity extends StoreEntity {
         this.addStoreItem("otherworldinn:land_deed", 32, 1);
         this.addStoreItem("otherworldinn:inn_upgrade_voucher", 128, 1);
         this.addStoreItem("otherworldinn:facility_upgrade_template", 32, 4);
-        this.addLimitedStoreItem("otherworldinn:pioneer_chart", 12, 2,
-                stack -> {
-                    CompoundTag tag = ExpeditionNbtHelper.readTag(stack);
-                    tag.putInt("star_level", 5);
-                    tag.putInt("max_slots", 6);
-                    ExpeditionNbtHelper.writeTag(stack, tag);
-                });
-        this.addLimitedStoreItem("otherworldinn:chart_component", 8, 1);
         this.addStoreItem("minecraft:book", 6, 16);
         this.addStoreItem("minecraft:paper", 2, 64);
         this.addStoreItem("minecraft:name_tag", 12, 8);

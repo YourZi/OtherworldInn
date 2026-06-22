@@ -13,8 +13,6 @@ import com.otherworldinn.world.event.TownStructurePlacer;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
-import com.otherworldinn.world.expedition.ExpeditionService;
-import com.otherworldinn.world.expedition.ExpeditionSession;
 import com.otherworldinn.world.inn.service.WanderingTraderManager;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
@@ -85,11 +83,6 @@ public class AdminCommands {
                                                                                 AdminCommands
                                                                                         ::refreshCommissionBoard))))
                         .then(
-                                Commands.literal("expedition")
-                                        .then(
-                                                Commands.literal("abort")
-                                                        .executes(AdminCommands::abortExpedition)))
-                        .then(
                                 Commands.literal("store")
                                         .then(
                                                 Commands.literal("reset_all_npcs")
@@ -108,19 +101,6 @@ public class AdminCommands {
                                                 Commands.literal("leave")
                                                         .executes(AdminCommands::forceTraderLeave)))
         );
-    }
-
-    private static int abortExpedition(CommandContext<CommandSourceStack> context) {
-        ExpeditionSession session = ExpeditionService.getActiveSession();
-        if (session == null) {
-            context.getSource().sendFailure(
-                    Component.translatable("command.otherworldinn.admin.expedition.no_active"));
-            return 0;
-        }
-        ExpeditionService.forceAbort(context.getSource().getServer());
-        context.getSource().sendSuccess(
-                () -> Component.translatable("message.otherworldinn.expedition.aborted"), true);
-        return 1;
     }
 
     private static int setFacilityLevel(CommandContext<CommandSourceStack> context) {

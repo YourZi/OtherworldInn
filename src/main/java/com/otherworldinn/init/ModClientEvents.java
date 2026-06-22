@@ -20,13 +20,9 @@ import com.otherworldinn.client.renderer.MagicianModel;
 import com.otherworldinn.client.renderer.MagicianRenderer;
 import com.otherworldinn.client.renderer.WanderingTraderModel;
 import com.otherworldinn.client.renderer.WanderingTraderRenderer;
-  import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.RoomKeyItem;
-import com.otherworldinn.item.ChartComponentItem;
-import com.otherworldinn.world.expedition.ChartComponentType;
 import com.github.ysbbbbbb.kaleidoscopecookery.item.RecipeItem;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -134,18 +130,6 @@ public class ModClientEvents {
                     }
                     SlotIconRenderer.renderCentered(guiGraphics,
                             new ItemStack(Items.BARRIER), x, y, 0, 1.0f);
-                    return false;
-                });
-
-        event.register(
-                ModItems.CHART_COMPONENT.get(),
-                (guiGraphics, font, stack, x, y) -> {
-                    String compType = ChartComponentItem.getComponentType(stack);
-                    if ("blank".equals(compType)) return false;
-                    ChartComponentType type = ChartComponentType.byId(compType);
-                    if (type == null) return false;
-                    SlotIconRenderer.renderCentered(guiGraphics,
-                            new ItemStack(type.iconItem()), x, y, 0, 0.7f);
                     return false;
                 });
     }
