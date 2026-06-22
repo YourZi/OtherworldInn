@@ -25,6 +25,7 @@ public class StoreMenu extends AbstractContainerMenu {
     private final List<StoreEntity.StoreItem> storeItems;
     private final int favorLevel;
     private final int totalSpentCoins;
+    private final int coinsPerFavorLevel;
 
     public StoreMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         // 客户端构造：从网络缓冲还原商店快照
@@ -35,6 +36,7 @@ public class StoreMenu extends AbstractContainerMenu {
                 readStoreEntityType(extraData),
                 readFavorLevel(extraData),
                 readTotalSpentCoins(extraData),
+                readCoinsPerFavorLevel(extraData),
                 readStoreItems(playerInventory, extraData));
     }
 
@@ -67,6 +69,10 @@ public class StoreMenu extends AbstractContainerMenu {
         return extraData.readInt();
     }
 
+    private static int readCoinsPerFavorLevel(FriendlyByteBuf extraData) {
+        return extraData.readInt();
+    }
+
     public StoreMenu(int containerId, Inventory playerInventory, StoreEntity storeEntity) {
         this(
                 containerId,
@@ -75,6 +81,9 @@ public class StoreMenu extends AbstractContainerMenu {
                 storeEntity != null ? storeEntity.getType() : null,
                 storeEntity != null ? storeEntity.getFavorLevel() : 1,
                 storeEntity != null ? storeEntity.getTotalSpentCoins() : 0,
+                storeEntity != null
+                        ? storeEntity.getFavorCoinsPerLevelValue()
+                        : StoreEntity.getCoinsPerFavorLevelValue(),
                 storeEntity != null ? storeEntity.getStoreItems() : new ArrayList<>());
     }
 
@@ -85,6 +94,7 @@ public class StoreMenu extends AbstractContainerMenu {
             EntityType<?> storeEntityType,
             int favorLevel,
             int totalSpentCoins,
+            int coinsPerFavorLevel,
             List<StoreEntity.StoreItem> storeItems) {
         super(ModMenuTypes.STORE_MENU.get(), containerId);
         this.player = playerInventory.player;
@@ -96,6 +106,7 @@ public class StoreMenu extends AbstractContainerMenu {
         this.storeEntity = entity instanceof StoreEntity store ? store : null;
         this.favorLevel = favorLevel;
         this.totalSpentCoins = totalSpentCoins;
+        this.coinsPerFavorLevel = coinsPerFavorLevel;
         this.storeItems = new ArrayList<>(storeItems);
     }
 
@@ -142,5 +153,9 @@ public class StoreMenu extends AbstractContainerMenu {
 
     public int getTotalSpentCoins() {
         return this.totalSpentCoins;
+    }
+
+    public int getCoinsPerFavorLevel() {
+        return this.coinsPerFavorLevel;
     }
 }

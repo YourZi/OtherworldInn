@@ -1,0 +1,20 @@
+{
+  "king_cry": {
+    "subtitle": "sounds.starcatcher.king_cry",
+    "sounds": [
+      "starcatcher:king_cry"
+    ]
+  },
+  "king_heheha": {
+    "subtitle": "sounds.starcatcher.king_heheha",
+    "sounds": [
+      "starcatcher:king_heheha"
+    ]
+  },
+  "king_grr": {
+    "subtitle": "sounds.starcatcher.king_grr",
+    "sounds": [
+      "starcatcher:king_grr"
+    ]
+  }
+}

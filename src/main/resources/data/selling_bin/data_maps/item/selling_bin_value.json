@@ -1,0 +1,58 @@
+{
+  "values": {
+    "#starcatcher:common_fishes": {
+      "base_value": 1,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 5.0,
+          "percentile_increase": 1.5
+        }
+      ]
+    },
+    "#starcatcher:uncommon_fishes": {
+      "base_value": 2,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 5.0,
+          "percentile_increase": 1.5
+        }
+      ]
+    },
+    "#starcatcher:rare_fishes": {
+      "base_value": 4,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 5.0,
+          "percentile_increase": 1.5
+        }
+      ]
+    },
+    "#starcatcher:epic_fishes": {
+      "base_value": 8,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 5.0,
+          "percentile_increase": 1.5
+        }
+      ]
+    },
+    "#starcatcher:legendary_fishes": {
+      "base_value": 10,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 5.0,
+          "percentile_increase": 1.5
+        }
+      ]
+    },
+    "starcatcher:pearl": {
+      "base_value": 8,
+      "processors": []
+    }
+  }
+}

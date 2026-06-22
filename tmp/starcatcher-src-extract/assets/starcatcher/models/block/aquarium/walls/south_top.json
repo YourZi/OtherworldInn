@@ -1,0 +1,38 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"render_type": "cutout_mipped",
+	"textures": {
+		"1": "block/spruce_planks",
+		"glass": "block/glass",
+		"particle": "starcatcher:block/aquarium/center"
+	},
+	"elements": [
+		{
+			"from": [0, 16, 16],
+			"to": [16, 18, 18],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 17, 16]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 2], "texture": "#1"},
+				"east": {"uv": [0, 8, 2, 10], "texture": "#1"},
+				"south": {"uv": [0, 2, 16, 4], "texture": "#1"},
+				"west": {"uv": [2, 8, 4, 10], "texture": "#1"},
+				"up": {"uv": [16, 6, 0, 4], "texture": "#1"},
+				"down": {"uv": [16, 6, 0, 8], "texture": "#1"}
+			}
+		},
+		{
+			"from": [0, 15, 18],
+			"to": [16, 16, 18],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 16, 18]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#glass"},
+				"east": {"uv": [0, 8, 0, 9], "texture": "#glass"},
+				"south": {"uv": [0, 15, 16, 16], "texture": "#glass"},
+				"west": {"uv": [2, 8, 2, 9], "texture": "#glass"},
+				"up": {"uv": [16, 4, 0, 4], "texture": "#glass"},
+				"down": {"uv": [16, 6, 0, 6], "texture": "#glass"}
+			}
+		}
+	]
+}

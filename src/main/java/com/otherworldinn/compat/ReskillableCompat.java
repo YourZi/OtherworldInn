@@ -3,6 +3,7 @@ package com.otherworldinn.compat;
 import com.otherworldinn.OtherworldInn;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModList;
 
 public final class ReskillableCompat {
@@ -21,6 +22,10 @@ public final class ReskillableCompat {
     }
 
     public static int getSkillLevel(ServerPlayer player, String skillId) {
+        return getSkillLevel((Player) player, skillId);
+    }
+
+    public static int getSkillLevel(Player player, String skillId) {
         if (!isLoaded()) {
             return 0;
         }
@@ -55,12 +60,11 @@ public final class ReskillableCompat {
     private static final class Api {
         private Api() {}
 
-        private static net.bandit.reskillable.common.capabilities.SkillModel getModel(
-                ServerPlayer player) {
+        private static net.bandit.reskillable.common.capabilities.SkillModel getModel(Player player) {
             return net.bandit.reskillable.common.capabilities.SkillModel.get(player);
         }
 
-        private static int getSkillLevel(ServerPlayer player, String skillId) {
+        private static int getSkillLevel(Player player, String skillId) {
             return getModel(player).getSkillLevel(skillId);
         }
 

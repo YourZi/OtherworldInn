@@ -357,7 +357,7 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
 
     private float getFavorFillRatio() {
         int maxLevel = StoreEntity.getMaxFavorLevelValue();
-        int coinsPerLevel = StoreEntity.getCoinsPerFavorLevelValue();
+        int coinsPerLevel = this.menu.getCoinsPerFavorLevel();
         int maxSpent = (maxLevel - 1) * coinsPerLevel;
         if (maxSpent <= 0) {
             return 1.0F;
@@ -849,7 +849,7 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 && mouseY >= modelMinY
                 && mouseY < modelMaxY) {
             int favorLevel = this.menu.getFavorLevel();
-            int coinsPerLevel = StoreEntity.getCoinsPerFavorLevelValue();
+            int coinsPerLevel = this.menu.getCoinsPerFavorLevel();
             int maxLevel = StoreEntity.getMaxFavorLevelValue();
             int spentInCurrentLevel =
                     this.menu.getTotalSpentCoins() - Math.max(0, (favorLevel - 1) * coinsPerLevel);

@@ -860,6 +860,7 @@ public final class DialogueRegistry {
         String root = "root";
         String askGoods = "ask_goods";
         String chatNode = "small_talk_" + npcId;
+        String chatOptionId = "small_talk_" + npcId;
         Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
         nodes.put(
                 root,
@@ -880,7 +881,7 @@ public final class DialogueRegistry {
                                         askGoods,
                                         null),
                                 new DialogueOptionDef(
-                                        "small_talk",
+                                        chatOptionId,
                                         chatLabel,
                                         DialogueOptionType.BRANCH,
                                         chatNode,
@@ -904,7 +905,7 @@ public final class DialogueRegistry {
                                         null,
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
-                                        "small_talk",
+                                        chatOptionId,
                                         chatLabel,
                                         DialogueOptionType.BRANCH,
                                         chatNode,

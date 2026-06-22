@@ -1,0 +1,16 @@
+{
+  "type": "starcatcher:bottled_letter",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "starcatcher:letter"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "starcatcher:bottled_letter"
+  }
+}

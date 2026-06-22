@@ -16,7 +16,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -28,9 +27,6 @@ public final class ReskillableSkillXpHandler {
     private static final int MINING_XP_NUMERATOR = 1;
     private static final int MINING_XP_DENOMINATOR = 50;
     private static final int FARMING_XP_PER_CROP_ACTION = 2;
-    private static final int FISHING_XP_PER_CATCH = 3;
-    private static final double FISHING_TRIPLE_DROP_MAX_CHANCE = 0.5D;
-    private static final double FISHING_DOUBLE_DROP_MAX_CHANCE = 0.9D;
     private static final double AGILITY_DISTANCE_PER_XP = 6.0D;
     private static final int ORE_BONUS_XP_TIER_1 = 1;
     private static final int ORE_BONUS_XP_TIER_2 = 2;
@@ -79,19 +75,6 @@ public final class ReskillableSkillXpHandler {
             ReskillableCompat.addSkillExperience(player, "mining", oreBonus);
         }
         awardScaledExperience(player, "mining", MINING_XP_NUMERATOR, MINING_XP_DENOMINATOR);
-    }
-
-    @SubscribeEvent
-    public static void onItemFished(ItemFishedEvent event) {
-        if (!ReskillableCompat.isLoaded() || event.isCanceled() || event.getDrops().isEmpty()) {
-            return;
-        }
-        Player rawPlayer = event.getEntity();
-        if (!(rawPlayer instanceof ServerPlayer player)) {
-            return;
-        }
-        tryApplyFishingDropMultiplier(player, event);
-        ReskillableCompat.addSkillExperience(player, "magic", FISHING_XP_PER_CATCH);
     }
 
     @SubscribeEvent
@@ -225,23 +208,4 @@ public final class ReskillableSkillXpHandler {
         }
     }
 
-    private static void tryApplyFishingDropMultiplier(ServerPlayer player, ItemFishedEvent event) {
-        int maxLevel = Math.max(1, ReskillableCompat.getMaxLevel());
-        int skillLevel = Math.max(0, ReskillableCompat.getSkillLevel(player, "magic"));
-        double tripleChance =
-                Math.min(
-                        FISHING_TRIPLE_DROP_MAX_CHANCE,
-                        (skillLevel / (double) maxLevel) * FISHING_TRIPLE_DROP_MAX_CHANCE);
-        if (tripleChance > 0.0D && player.getRandom().nextDouble() < tripleChance) {
-            event.getDrops().forEach(drop -> drop.setCount(drop.getCount() * 3));
-            return;
-        }
-        double doubleChance =
-                Math.min(
-                        FISHING_DOUBLE_DROP_MAX_CHANCE,
-                        (skillLevel / (double) maxLevel) * FISHING_DOUBLE_DROP_MAX_CHANCE);
-        if (doubleChance > 0.0D && player.getRandom().nextDouble() < doubleChance) {
-            event.getDrops().forEach(drop -> drop.setCount(drop.getCount() * 2));
-        }
-    }
 }

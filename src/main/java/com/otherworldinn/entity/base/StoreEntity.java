@@ -53,6 +53,14 @@ public abstract class StoreEntity extends PathfinderMob {
         return COINS_PER_FAVOR_LEVEL;
     }
 
+    protected int getCoinsPerFavorLevel() {
+        return COINS_PER_FAVOR_LEVEL;
+    }
+
+    public int getFavorCoinsPerLevelValue() {
+        return this.getCoinsPerFavorLevel();
+    }
+
     public static int getDiscountedPriceForFavorLevel(int basePrice, int favorLevel) {
         if (favorLevel >= MAX_FAVOR_LEVEL) {
             return Math.max(1, (int) Math.floor(basePrice * MAX_LEVEL_DISCOUNT_RATE));
@@ -177,6 +185,7 @@ public abstract class StoreEntity extends PathfinderMob {
                                 BuiltInRegistries.ENTITY_TYPE.getKey(this.getType()));
                         buf.writeInt(this.favorLevel);
                         buf.writeInt(this.totalSpentCoins);
+                        buf.writeInt(this.getCoinsPerFavorLevel());
 
                         // 序列化商品列表
                         buf.writeInt(this.storeItems.size());
@@ -635,7 +644,8 @@ public abstract class StoreEntity extends PathfinderMob {
     }
 
     private int calculateFavorLevel(int spentCoins) {
-        int level = 1 + (spentCoins / COINS_PER_FAVOR_LEVEL);
+        int coinsPerFavorLevel = Math.max(1, this.getCoinsPerFavorLevel());
+        int level = 1 + (spentCoins / coinsPerFavorLevel);
         if (level < 1) {
             return 1;
         }

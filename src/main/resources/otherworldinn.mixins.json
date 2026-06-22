@@ -32,6 +32,12 @@
     "MixinMinecraftServerSave",
     "MixinStructurePlacement",
     "MixinNeutralMobAnger",
+    "MixinStarcatcherCatchModifiers",
+    "MixinSellingBinEvents",
+    "MixinSellingBinMenu",
+    "MixinStarcatcherFishingCompletion",
+    "MixinStarcatcherEvents",
+    "MixinStarcatcherMinigameModifiers",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"
   ],
