@@ -1,6 +1,0 @@
-{
-  "parent": "item/fishing_rod",
-  "textures": {
-    "layer0": "starcatcher:item/sharktooth_rod_cast"
-  }
-}
