@@ -25,7 +25,20 @@
   },
   "has_guide_entry": true,
   "rarity": "epic",
-  "restrictions": [],
+  "restrictions": [
+    {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:overworld"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
+      "type": "starcatcher:elevation_restriction",
+      "max_y": -20,
+      "min_y": -40
+    }
+  ],
   "size_and_weight": {
     "average_size_cm": 300.0,
     "average_weight_grams": 16000.0,

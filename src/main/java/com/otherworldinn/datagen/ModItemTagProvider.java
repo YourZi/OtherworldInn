@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -28,7 +29,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        tag(OtherworldInn.BANNED_IN_TOWN);
+        tag(OtherworldInn.BANNED_IN_TOWN)
+                .addOptional(ResourceLocation.fromNamespaceAndPath("naturescompass", "naturescompass"));
 
         tag(OtherworldInn.ONLY_IN_TOWN)
                 .add(ModItems.ROOM_REGISTER.get())

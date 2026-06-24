@@ -35,7 +35,21 @@
   },
   "has_guide_entry": true,
   "rarity": "common",
-  "restrictions": [],
+  "restrictions": [
+    {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:overworld"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
+      "type": "starcatcher:elevation_restriction",
+      "max_y": 50,
+      "min_y": 0,
+      "translation_override": "gui.guide.elevation.stone_caves"
+    }
+  ],
   "size_and_weight": {
     "average_size_cm": 100.0,
     "average_weight_grams": 3000.0,

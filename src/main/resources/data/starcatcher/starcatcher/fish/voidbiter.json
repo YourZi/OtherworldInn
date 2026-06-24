@@ -51,6 +51,24 @@
   "rarity": "epic",
   "restrictions": [
     {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:the_end"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
+      "type": "starcatcher:biome",
+      "biomes": [],
+      "biomes_blacklist": [
+        "minecraft:the_end"
+      ],
+      "biomes_blacklist_tags": [],
+      "biomes_tags": [
+        "minecraft:is_end"
+      ]
+    },
+    {
       "type": "starcatcher:bait",
       "baits": {
         "starcatcher:legendary_bait": 50

@@ -54,6 +54,13 @@
   "rarity": "legendary",
   "restrictions": [
     {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:the_nether"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
       "type": "starcatcher:fluid",
       "fluids": [
         "minecraft:lava"

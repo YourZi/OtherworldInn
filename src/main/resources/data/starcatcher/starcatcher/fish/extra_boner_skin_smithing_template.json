@@ -41,6 +41,22 @@
   "rarity": "common",
   "restrictions": [
     {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:the_nether"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
+      "type": "starcatcher:biome",
+      "biomes": [],
+      "biomes_blacklist": [],
+      "biomes_blacklist_tags": [],
+      "biomes_tags": [
+        "starcatcher:is_soul_sand_valley"
+      ]
+    },
+    {
       "type": "starcatcher:fluid",
       "fluids": [
         "minecraft:lava"

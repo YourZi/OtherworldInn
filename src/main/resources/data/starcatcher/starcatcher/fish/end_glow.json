@@ -39,7 +39,15 @@
   },
   "has_guide_entry": true,
   "rarity": "uncommon",
-  "restrictions": [],
+  "restrictions": [
+    {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:the_end"
+      ],
+      "dimensions_blacklist": []
+    }
+  ],
   "size_and_weight": {
     "average_size_cm": 235.0,
     "average_weight_grams": 7000.0,

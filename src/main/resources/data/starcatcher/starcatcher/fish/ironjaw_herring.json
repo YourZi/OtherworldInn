@@ -95,7 +95,30 @@
   },
   "has_guide_entry": true,
   "rarity": "uncommon",
-  "restrictions": [],
+  "restrictions": [
+    {
+      "type": "starcatcher:dimension",
+      "dimensions": [
+        "minecraft:overworld"
+      ],
+      "dimensions_blacklist": []
+    },
+    {
+      "type": "starcatcher:biome",
+      "biomes": [],
+      "biomes_blacklist": [],
+      "biomes_blacklist_tags": [],
+      "biomes_tags": [
+        "starcatcher:is_ocean"
+      ]
+    },
+    {
+      "type": "starcatcher:elevation_restriction",
+      "max_y": 100,
+      "min_y": 50,
+      "translation_override": "gui.guide.elevation.surface"
+    }
+  ],
   "size_and_weight": {
     "average_size_cm": 30.0,
     "average_weight_grams": 300.0,

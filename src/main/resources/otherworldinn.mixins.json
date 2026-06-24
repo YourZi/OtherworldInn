@@ -35,6 +35,7 @@
     "MixinStarcatcherEvents",
     "MixinStarcatcherMinigameModifiers",
     "MixinNaturesCompassItemDurability",
+    "MixinItemNaturesCompassSupport",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"
   ],
