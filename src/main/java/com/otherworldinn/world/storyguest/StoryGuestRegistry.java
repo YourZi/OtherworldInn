@@ -30,6 +30,7 @@ public final class StoryGuestRegistry {
             ResourceLocation.fromNamespaceAndPath("minecraft", "compass");
     private static final String CARTOGRAPHER_HELPED_FLAG = "cartographer_helped";
     private static final String CARTOGRAPHER_REFUSED_FLAG = "cartographer_refused";
+    private static final String CARTOGRAPHER_CHATTER_DIALOGUE_ID = "story_cartographer_visit_chatter";
 
     private static final Map<String, StoryGuestDefinition> DEFINITIONS_BY_ID;
     private static final List<DialogueDefinition> ALL_DIALOGUES;
@@ -78,7 +79,8 @@ public final class StoryGuestRegistry {
                 List.of(
                         buildCartographerStage0Dialogue(),
                         buildCartographerStage1Dialogue(),
-                        buildCartographerStage2Dialogue());
+                        buildCartographerStage2Dialogue(),
+                        buildCartographerVisitChatterDialogue());
         return new StoryGuestDefinition(
                 id,
                 LocalizedText.of("流浪绘图师 伊莱", "Eli the Wandering Cartographer"),
@@ -94,6 +96,7 @@ public final class StoryGuestRegistry {
                         0, "story_cartographer_stage0",
                         1, "story_cartographer_stage1",
                         2, "story_cartographer_stage2"),
+                CARTOGRAPHER_CHATTER_DIALOGUE_ID,
                 dialogues);
     }
 
@@ -113,8 +116,8 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_offer_supplies",
                                                 LocalizedText.of(
-                                                        "给他三张纸和一根羽毛",
-                                                        "Give him three paper and a feather"),
+                                                        "给你，这些拿去用吧",
+                                                        "Here, take these and use them"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -129,8 +132,8 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_decline_supplies",
                                                 LocalizedText.of(
-                                                        "这次恐怕帮不上忙",
-                                                        "I can't help this time"),
+                                                        "我这里没有，你自己想想办法吧",
+                                                        "I don't have any. You'll have to figure something out yourself"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
@@ -139,7 +142,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_intro",
-                                        LocalizedText.of("先聊到这里", "Maybe another time"),
+                                        LocalizedText.of("我给你找找，稍后再来", "Let me look for them and come back later"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -272,5 +275,25 @@ public final class StoryGuestRegistry {
                                         null,
                                         null))));
         return new DialogueDefinition("story_cartographer_stage2", root, nodes);
+    }
+
+    private static DialogueDefinition buildCartographerVisitChatterDialogue() {
+        String root = "root";
+        Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
+        nodes.put(
+                root,
+                new DialogueNodeDef(
+                        root,
+                        LocalizedText.of(
+                                "我得趁记忆还热，把刚记下来的风向和潮痕誊到图纸上。等我下次再来，应该能讲给你听一段更像样的见闻。",
+                                "I should copy these fresh notes about wind and tide onto the chart while they're still vivid. By the time I return, I'll probably have a better story to tell."),
+                        List.of(
+                                new DialogueOptionDef(
+                                        "story_cartographer_leave_chatter",
+                                        LocalizedText.of("那就等你下次再说", "Then tell me next time"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        return new DialogueDefinition(CARTOGRAPHER_CHATTER_DIALOGUE_ID, root, nodes);
     }
 }

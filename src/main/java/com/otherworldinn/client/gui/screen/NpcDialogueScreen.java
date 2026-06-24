@@ -21,13 +21,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 public class NpcDialogueScreen extends Screen {
     private static final String BRANCH_ICON = "\uE007";
     private static final String FUNCTION_ICON = "\uE008";
-    private static final int OPTION_WIDTH = 180;
     private static final int OPTION_HEIGHT = 20;
     private static final int OPTION_GAP = 3;
     private static final int DIALOG_BOX_HEIGHT = 110;
     private static final int DIALOG_BOX_WIDTH = 720;
     private static final int DIALOG_MARGIN = 18;
     private static final int OPTION_TO_DIALOG_GAP = 10;
+    private static final int OPTION_TEXT_LEFT_PADDING = 8;
+    private static final int OPTION_TEXT_RIGHT_PADDING = 8;
+    private static final int OPTION_ATLAS_WIDTH = 180;
+    private static final int OPTION_ATLAS_STATE_COUNT = 3;
+    private static final int OPTION_ATLAS_SLICE_WIDTH = OPTION_ATLAS_WIDTH / 3;
+    private static final int OPTION_MIN_WIDTH = OPTION_ATLAS_SLICE_WIDTH * 2;
     private static final ResourceLocation DIALOGUE_BOX_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
                     OtherworldInn.MODID, "textures/gui/dialogue/dialogue_box.png");
@@ -58,21 +63,21 @@ public class NpcDialogueScreen extends Screen {
         this.clearWidgets();
         this.optionButtons.clear();
 
-        int rightPanelX = this.width - OPTION_WIDTH - DIALOG_MARGIN;
         int boxY = this.height - DIALOG_BOX_HEIGHT - DIALOG_MARGIN;
         int optionBaseY = boxY - OPTION_TO_DIALOG_GAP - OPTION_HEIGHT;
         List<DialogueOptionView> options = this.view.options();
+        int optionWidth = calculateOptionWidth(options);
+        int rightPanelX = this.width - optionWidth - DIALOG_MARGIN;
         int index = 0;
         for (int i = options.size() - 1; i >= 0; i--) {
             DialogueOptionView option = options.get(i);
             int y = optionBaseY - index * (OPTION_HEIGHT + OPTION_GAP);
-            String icon = option.type() == DialogueOptionType.FUNCTION ? FUNCTION_ICON : BRANCH_ICON;
-            Component label = Component.literal(icon + " ").append(Component.translatable(option.labelKey()));
+            Component label = buildOptionLabel(option);
             Button button =
                     new LeftAlignedOptionButton(
                             rightPanelX,
                             y,
-                            OPTION_WIDTH,
+                            optionWidth,
                             OPTION_HEIGHT,
                             label,
                             btn ->
@@ -87,7 +92,7 @@ public class NpcDialogueScreen extends Screen {
                     new LeftAlignedOptionButton(
                             rightPanelX,
                             optionBaseY,
-                            OPTION_WIDTH,
+                            optionWidth,
                             OPTION_HEIGHT,
                             Component.translatable("dialogue.otherworldinn.option.close"),
                             btn -> {
@@ -97,6 +102,24 @@ public class NpcDialogueScreen extends Screen {
             this.addRenderableWidget(closeButton);
             this.optionButtons.add(closeButton);
         }
+    }
+
+    private int calculateOptionWidth(List<DialogueOptionView> options) {
+        int widestLabel = 0;
+        if (options.isEmpty()) {
+            widestLabel = this.font.width(Component.translatable("dialogue.otherworldinn.option.close"));
+        } else {
+            for (DialogueOptionView option : options) {
+                widestLabel = Math.max(widestLabel, this.font.width(buildOptionLabel(option)));
+            }
+        }
+        int targetWidth = Math.max(OPTION_MIN_WIDTH, widestLabel + OPTION_TEXT_LEFT_PADDING + OPTION_TEXT_RIGHT_PADDING);
+        return Math.min(targetWidth, this.width - DIALOG_MARGIN * 2);
+    }
+
+    private static Component buildOptionLabel(DialogueOptionView option) {
+        String icon = option.type() == DialogueOptionType.FUNCTION ? FUNCTION_ICON : BRANCH_ICON;
+        return Component.literal(icon + " ").append(Component.translatable(option.labelKey()));
     }
 
     @Override
@@ -178,7 +201,6 @@ public class NpcDialogueScreen extends Screen {
 
     private static class LeftAlignedOptionButton extends Button {
         private final Component label;
-        private static final int ATLAS_STATE_COUNT = 3;
 
         protected LeftAlignedOptionButton(
                 int x, int y, int width, int height, Component label, OnPress onPress) {
@@ -194,26 +216,59 @@ public class NpcDialogueScreen extends Screen {
                 if (this.isHoveredOrFocused()) {
                     vOffset = this.isActive() && mc.mouseHandler.isLeftPressed() ? this.height * 2 : this.height;
                 }
+                int middleWidth = Math.max(0, this.width - OPTION_ATLAS_SLICE_WIDTH * 2);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-                guiGraphics.blit(
-                        OPTION_BUTTON_ATLAS_TEXTURE,
+                drawOptionSlice(
+                        guiGraphics,
                         this.getX(),
                         this.getY(),
+                        OPTION_ATLAS_SLICE_WIDTH,
                         0,
                         vOffset,
-                        this.width,
-                        this.height,
-                        this.width,
-                        this.height * ATLAS_STATE_COUNT);
+                        OPTION_ATLAS_SLICE_WIDTH);
+                if (middleWidth > 0) {
+                    drawOptionSlice(
+                            guiGraphics,
+                            this.getX() + OPTION_ATLAS_SLICE_WIDTH,
+                            this.getY(),
+                            middleWidth,
+                            OPTION_ATLAS_SLICE_WIDTH,
+                            vOffset,
+                            OPTION_ATLAS_SLICE_WIDTH);
+                }
+                drawOptionSlice(
+                        guiGraphics,
+                        this.getX() + OPTION_ATLAS_SLICE_WIDTH + middleWidth,
+                        this.getY(),
+                        OPTION_ATLAS_SLICE_WIDTH,
+                        OPTION_ATLAS_SLICE_WIDTH * 2,
+                        vOffset,
+                        OPTION_ATLAS_SLICE_WIDTH);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.disableBlend();
             }
             int textColor = this.active ? 0xFFFFFF : 0xA0A0A0;
-            int textX = this.getX() + 8;
-            int textY = this.getY() + (this.height - 8) / 2;
+            int textX = this.getX() + OPTION_TEXT_LEFT_PADDING;
+            int textY = this.getY() + (this.height - mc.font.lineHeight) / 2;
             guiGraphics.drawString(mc.font, this.label, textX, textY, textColor, false);
+        }
+
+        private void drawOptionSlice(
+                GuiGraphics guiGraphics, int x, int y, int width, int uOffset, int vOffset, int sourceWidth) {
+            guiGraphics.blit(
+                    OPTION_BUTTON_ATLAS_TEXTURE,
+                    x,
+                    y,
+                    width,
+                    this.height,
+                    uOffset,
+                    vOffset,
+                    sourceWidth,
+                    this.height,
+                    OPTION_ATLAS_WIDTH,
+                    this.height * OPTION_ATLAS_STATE_COUNT);
         }
     }
 }

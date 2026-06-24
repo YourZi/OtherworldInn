@@ -15,11 +15,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestService {
-    private static final int SPAWN_Y = 71;
-
     private StoryGuestService() {}
 
     @Nullable
@@ -117,7 +116,7 @@ public final class StoryGuestService {
     }
 
     @Nullable
-    public static StoryGuestEntity spawnDebugGuest(ServerLevel level, String storyGuestId) {
+    public static StoryGuestEntity spawnDebugGuest(ServerLevel level, String storyGuestId, Vec3 position) {
         StoryGuestDefinition definition = StoryGuestRegistry.get(storyGuestId);
         if (definition == null) {
             return null;
@@ -129,13 +128,14 @@ public final class StoryGuestService {
         if (guest == null) {
             return null;
         }
-        double x = 5 + level.random.nextDouble() * 15.0D;
-        double z = -2 + level.random.nextDouble() * 4.0D;
+        double x = position.x;
+        double y = position.y;
+        double z = position.z;
         guest.setStoryGuestId(definition.id());
-        guest.moveTo(x, SPAWN_Y, z, level.random.nextFloat() * 360F, 0.0F);
+        guest.moveTo(x, y, z, level.random.nextFloat() * 360F, 0.0F);
         guest.finalizeSpawn(
                 level,
-                level.getCurrentDifficultyAt(BlockPos.containing(x, SPAWN_Y, z)),
+                level.getCurrentDifficultyAt(BlockPos.containing(position)),
                 net.minecraft.world.entity.MobSpawnType.COMMAND,
                 null);
         guest.setNoAi(false);
@@ -158,12 +158,14 @@ public final class StoryGuestService {
         if (activeEntityUuid == null) {
             return null;
         }
-        Entity entity = findEntity(level, activeEntityUuid);
-        if (entity instanceof StoryGuestEntity storyGuest
-                && entity.isAlive()
-                && !storyGuest.isRemoved()
-                && definition.id().equals(storyGuest.getStoryGuestId())) {
-            return storyGuest;
+        for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
+            Entity entity = findEntity(serverLevel, activeEntityUuid);
+            if (entity instanceof StoryGuestEntity storyGuest
+                    && entity.isAlive()
+                    && !storyGuest.isRemoved()
+                    && definition.id().equals(storyGuest.getStoryGuestId())) {
+                return storyGuest;
+            }
         }
         progress.setActiveEntityUuid(null);
         StoryGuestSavedData.get(level).setDirty();

@@ -19,6 +19,7 @@ public record StoryGuestDefinition(
         int minInnRating,
         int spawnWeight,
         Map<Integer, String> dialogueIdsByStage,
+        String revisitChatterDialogueId,
         List<DialogueDefinition> dialogues) {
     public String nameKey() {
         return "story_guest.otherworldinn." + this.id;
@@ -37,5 +38,12 @@ public record StoryGuestDefinition(
             }
         }
         return fallback;
+    }
+
+    public String resolveVisitDialogueId(int storyStage, boolean visitStageConsumed) {
+        if (visitStageConsumed && this.revisitChatterDialogueId != null && !this.revisitChatterDialogueId.isBlank()) {
+            return this.revisitChatterDialogueId;
+        }
+        return resolveDialogueId(storyStage);
     }
 }

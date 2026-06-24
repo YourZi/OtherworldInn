@@ -6,6 +6,7 @@ import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestSavedData;
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -20,32 +21,39 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 public class StoryGuestEntity extends GuestEntity {
     private static final String TAG_STORY_GUEST_ID = "StoryGuestId";
+    private static final String TAG_VISIT_STAGE_SNAPSHOT = "VisitStageSnapshot";
+    private static final String TAG_VISIT_STAGE_CONSUMED = "VisitStageConsumed";
     private static final ResourceLocation FALLBACK_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
                     OtherworldInn.MODID, "textures/entity/guest/ordinary_guest/1.png");
 
-    private String storyGuestId = "";
+    @Nullable private String storyGuestId;
     @Nullable private StoryGuestDefinition definition;
+    private int visitStageSnapshot = -1;
+    private boolean visitStageConsumed = false;
 
     public StoryGuestEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
     }
 
     public void setStoryGuestId(String storyGuestId) {
-        this.storyGuestId = storyGuestId == null ? "" : storyGuestId;
-        this.definition = this.storyGuestId.isBlank() ? null : StoryGuestRegistry.get(this.storyGuestId);
+        this.storyGuestId = normalizeStoryGuestId(storyGuestId);
+        this.definition = this.storyGuestId == null ? null : StoryGuestRegistry.get(this.storyGuestId);
+        this.visitStageSnapshot = -1;
+        this.visitStageConsumed = false;
         applyDefinitionState();
     }
 
     @Nullable
     public String getStoryGuestId() {
-        return this.storyGuestId.isBlank() ? null : this.storyGuestId;
+        return normalizeStoryGuestId(this.storyGuestId);
     }
 
     @Nullable
     public StoryGuestDefinition getStoryGuestDefinition() {
-        if (this.definition == null && !this.storyGuestId.isBlank()) {
-            this.definition = StoryGuestRegistry.get(this.storyGuestId);
+        String normalizedId = normalizeStoryGuestId(this.storyGuestId);
+        if (this.definition == null && normalizedId != null) {
+            this.definition = StoryGuestRegistry.get(normalizedId);
         }
         return this.definition;
     }
@@ -55,11 +63,19 @@ public class StoryGuestEntity extends GuestEntity {
         if (storyDefinition == null) {
             return;
         }
-        int storyStage =
-                StoryGuestSavedData.get(level)
-                        .getOrCreateProgress(storyDefinition.id())
-                        .getStoryStage();
-        this.setAssignedDialogueId(storyDefinition.resolveDialogueId(storyStage));
+        ensureVisitStageInitialized(level, storyDefinition);
+        this.setAssignedDialogueId(
+                storyDefinition.resolveVisitDialogueId(this.visitStageSnapshot, this.visitStageConsumed));
+    }
+
+    public void markVisitStageConsumed(ServerLevel level) {
+        StoryGuestDefinition storyDefinition = getStoryGuestDefinition();
+        if (storyDefinition == null) {
+            return;
+        }
+        ensureVisitStageInitialized(level, storyDefinition);
+        this.visitStageConsumed = true;
+        refreshAssignedDialogue(level);
     }
 
     @Override
@@ -76,6 +92,11 @@ public class StoryGuestEntity extends GuestEntity {
     protected GuestProfile getGuestProfile() {
         StoryGuestDefinition storyDefinition = getStoryGuestDefinition();
         return storyDefinition != null ? storyDefinition.guestProfile() : super.getGuestProfile();
+    }
+
+    @Override
+    protected long getStayDuration() {
+        return (2L + this.getRandom().nextInt(2)) * 24000L;
     }
 
     @Override
@@ -110,18 +131,27 @@ public class StoryGuestEntity extends GuestEntity {
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        if (!this.storyGuestId.isBlank()) {
-            compound.putString(TAG_STORY_GUEST_ID, this.storyGuestId);
+        String normalizedId = normalizeStoryGuestId(this.storyGuestId);
+        if (normalizedId != null) {
+            compound.putString(TAG_STORY_GUEST_ID, normalizedId);
         }
+        if (this.visitStageSnapshot >= 0) {
+            compound.putInt(TAG_VISIT_STAGE_SNAPSHOT, this.visitStageSnapshot);
+        }
+        compound.putBoolean(TAG_VISIT_STAGE_CONSUMED, this.visitStageConsumed);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains(TAG_STORY_GUEST_ID)) {
-            this.storyGuestId = compound.getString(TAG_STORY_GUEST_ID);
+            this.storyGuestId = normalizeStoryGuestId(compound.getString(TAG_STORY_GUEST_ID));
         }
-        this.definition = this.storyGuestId.isBlank() ? null : StoryGuestRegistry.get(this.storyGuestId);
+        if (compound.contains(TAG_VISIT_STAGE_SNAPSHOT)) {
+            this.visitStageSnapshot = compound.getInt(TAG_VISIT_STAGE_SNAPSHOT);
+        }
+        this.visitStageConsumed = compound.getBoolean(TAG_VISIT_STAGE_CONSUMED);
+        this.definition = this.storyGuestId == null ? null : StoryGuestRegistry.get(this.storyGuestId);
         applyDefinitionState();
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             refreshAssignedDialogue(serverLevel);
@@ -133,7 +163,8 @@ public class StoryGuestEntity extends GuestEntity {
         if (storyDefinition == null) {
             return;
         }
-        this.setCustomName(Component.translatable(storyDefinition.nameKey()));
+        this.setCustomName(
+                Component.translatable(storyDefinition.nameKey()).withStyle(ChatFormatting.LIGHT_PURPLE));
         this.setSkinVariant(storyDefinition.fixedSkinVariant());
         this.setBudget(randomInRange(storyDefinition.guestProfile().budgetRange()));
     }
@@ -143,5 +174,24 @@ public class StoryGuestEntity extends GuestEntity {
             return range.min();
         }
         return range.min() + this.getRandom().nextInt(range.max() - range.min() + 1);
+    }
+
+    private void ensureVisitStageInitialized(ServerLevel level, StoryGuestDefinition storyDefinition) {
+        if (this.visitStageSnapshot >= 0) {
+            return;
+        }
+        this.visitStageSnapshot =
+                StoryGuestSavedData.get(level)
+                        .getOrCreateProgress(storyDefinition.id())
+                        .getStoryStage();
+        this.visitStageConsumed = false;
+    }
+
+    @Nullable
+    private static String normalizeStoryGuestId(@Nullable String storyGuestId) {
+        if (storyGuestId == null || storyGuestId.isBlank()) {
+            return null;
+        }
+        return storyGuestId;
     }
 }

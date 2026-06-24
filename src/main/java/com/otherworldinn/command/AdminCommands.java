@@ -22,10 +22,12 @@ import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * 管理员命令
@@ -110,7 +112,14 @@ public class AdminCommands {
                                                                                     }
                                                                                     return builder.buildFuture();
                                                                                 })
-                                                                        .executes(AdminCommands::spawnStoryGuest)))
+                                                                        .executes(AdminCommands::spawnStoryGuestHere)
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "pos",
+                                                                                                Vec3Argument.vec3())
+                                                                                        .executes(
+                                                                                                AdminCommands
+                                                                                                        ::spawnStoryGuestAtPos))))
                                         .then(
                                                 Commands.literal("leave")
                                                         .then(
@@ -367,19 +376,23 @@ public class AdminCommands {
         return 1;
     }
 
-    private static int spawnStoryGuest(CommandContext<CommandSourceStack> context) {
+    private static int spawnStoryGuestHere(CommandContext<CommandSourceStack> context) {
+        return spawnStoryGuest(context, context.getSource().getPosition());
+    }
+
+    private static int spawnStoryGuestAtPos(CommandContext<CommandSourceStack> context) {
+        return spawnStoryGuest(context, Vec3Argument.getVec3(context, "pos"));
+    }
+
+    private static int spawnStoryGuest(CommandContext<CommandSourceStack> context, Vec3 position) {
         String storyGuestId = StringArgumentType.getString(context, "id");
         StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
         if (definition == null) {
             context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
             return 0;
         }
-        ServerLevel townLevel = context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
-        if (townLevel == null) {
-            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
-            return 0;
-        }
-        StoryGuestEntity guest = StoryGuestService.spawnDebugGuest(townLevel, storyGuestId);
+        ServerLevel level = context.getSource().getLevel();
+        StoryGuestEntity guest = StoryGuestService.spawnDebugGuest(level, storyGuestId, position);
         if (guest == null) {
             context.getSource().sendFailure(Component.literal("生成失败，可能该故事旅客当前已经处于活跃状态"));
             return 0;
@@ -390,7 +403,8 @@ public class AdminCommands {
                                 Component.literal(
                                         "已生成故事旅客 "
                                                 + definition.displayName().zh()
-                                                + " (" + definition.id() + ")"),
+                                                + " (" + definition.id() + ") 于 "
+                                                + String.format("%.2f %.2f %.2f", position.x, position.y, position.z)),
                         true);
         return 1;
     }

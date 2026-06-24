@@ -87,6 +87,9 @@ public final class DialogueService {
         if (!applyEffects(player, entity, selected)) {
             return;
         }
+        if (entity instanceof StoryGuestEntity storyGuest && advancesStoryStage(selected)) {
+            storyGuest.markVisitStageConsumed(player.serverLevel());
+        }
 
         if (selected.type() == DialogueOptionType.FUNCTION) {
             if (DialogueRegistry.FUNCTION_OPEN_STORE.equals(selected.functionId())
@@ -257,6 +260,15 @@ public final class DialogueService {
             StoryGuestEntity storyGuest, ServerLevel level, int minDays, int maxDays) {
         StoryGuestService.setPendingReturnRange(storyGuest, level, minDays, maxDays);
         return true;
+    }
+
+    private static boolean advancesStoryStage(DialogueOptionDef selected) {
+        for (DialogueEffectDef effect : selected.effects()) {
+            if (effect.type() == DialogueEffectType.ADVANCE_STORY_STAGE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean hasRequiredItem(
