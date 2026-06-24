@@ -13,9 +13,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -27,6 +29,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public record C2SMapModeSyncPacket(int action, double x, double y, double z, float yaw, float pitch)
         implements CustomPacketPayload {
     private static final String MAP_MODE_HIDDEN_TAG = "otherworldinn.map_mode_hidden";
+    private static final double MAP_MODE_MAX_HEIGHT_DRIFT = 0.05D;
+    private static final double MAP_MODE_MAX_HORIZONTAL_DRIFT_SQR = 0.25D;
 
     public static final int ACTION_ENTER = 0;
     public static final int ACTION_MOVE = 1;
@@ -77,16 +81,22 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
     }
 
     private static void enterMapMode(ServerPlayer player, C2SMapModeSyncPacket packet) {
-        ACTIVE_STATES.computeIfAbsent(player.getUUID(), id -> captureState(player));
+        PlayerMapModeState state = ACTIVE_STATES.computeIfAbsent(player.getUUID(), id -> captureState(player));
+        state.updateTarget(packet);
         applyHiddenAppearance(player);
+        applyMapHoverState(player);
         teleportTo(player, packet);
     }
 
     private static void moveInMapMode(ServerPlayer player, C2SMapModeSyncPacket packet) {
-        if (!ACTIVE_STATES.containsKey(player.getUUID())) {
-            ACTIVE_STATES.put(player.getUUID(), captureState(player));
+        PlayerMapModeState state = ACTIVE_STATES.get(player.getUUID());
+        if (state == null) {
+            state = captureState(player);
+            ACTIVE_STATES.put(player.getUUID(), state);
             applyHiddenAppearance(player);
         }
+        state.updateTarget(packet);
+        applyMapHoverState(player);
         teleportTo(player, packet);
     }
 
@@ -97,6 +107,7 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
         }
 
         restoreAppearance(player, state);
+        restoreMapHoverState(player, state);
         if (restorePosition) {
             restorePosition(player, state);
         }
@@ -108,6 +119,7 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
             PlayerMapModeState state = ACTIVE_STATES.remove(player.getUUID());
             if (state != null) {
                 restoreAppearance(player, state);
+                restoreMapHoverState(player, state);
                 restorePosition(player, state);
             }
         }
@@ -119,6 +131,7 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
             PlayerMapModeState state = ACTIVE_STATES.remove(player.getUUID());
             if (state != null) {
                 restoreAppearance(player, state);
+                restoreMapHoverState(player, state);
             }
         }
     }
@@ -131,6 +144,19 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
         }
     }
 
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        PlayerMapModeState state = ACTIVE_STATES.get(player.getUUID());
+        if (state == null) {
+            return;
+        }
+
+        maintainMapHover(player, state);
+    }
+
     private static PlayerMapModeState captureState(ServerPlayer player) {
         return new PlayerMapModeState(
                 player.serverLevel().dimension(),
@@ -141,7 +167,8 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
                 player.getXRot(),
                 player.isInvisible(),
                 player.isInvulnerable(),
-                player.getTags().contains(MAP_MODE_HIDDEN_TAG));
+                player.getTags().contains(MAP_MODE_HIDDEN_TAG),
+                player.isNoGravity());
     }
 
     private static void applyHiddenAppearance(ServerPlayer player) {
@@ -160,6 +187,40 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
         player.setInvulnerable(state.wasInvulnerable);
     }
 
+    private static void applyMapHoverState(ServerPlayer player) {
+        player.setNoGravity(true);
+        player.setDeltaMovement(Vec3.ZERO);
+        player.fallDistance = 0.0F;
+    }
+
+    private static void restoreMapHoverState(ServerPlayer player, PlayerMapModeState state) {
+        player.setNoGravity(state.wasNoGravity);
+        player.setDeltaMovement(Vec3.ZERO);
+        player.fallDistance = 0.0F;
+    }
+
+    private static void maintainMapHover(ServerPlayer player, PlayerMapModeState state) {
+        applyMapHoverState(player);
+
+        double horizontalDriftSqr =
+                (player.getX() - state.targetX) * (player.getX() - state.targetX)
+                        + (player.getZ() - state.targetZ) * (player.getZ() - state.targetZ);
+        double heightDrift = Math.abs(player.getY() - state.targetY);
+        if (heightDrift <= MAP_MODE_MAX_HEIGHT_DRIFT
+                && horizontalDriftSqr <= MAP_MODE_MAX_HORIZONTAL_DRIFT_SQR) {
+            return;
+        }
+
+        player.teleportTo(
+                player.serverLevel(),
+                state.targetX,
+                state.targetY,
+                state.targetZ,
+                state.targetYaw,
+                state.targetPitch);
+        applyMapHoverState(player);
+    }
+
     private static void restorePosition(ServerPlayer player, PlayerMapModeState state) {
         ServerLevel level = player.server.getLevel(state.dimension);
         if (level == null) {
@@ -173,14 +234,57 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
         player.teleportTo(player.serverLevel(), packet.x(), packet.y(), packet.z(), packet.yaw(), packet.pitch());
     }
 
-    private record PlayerMapModeState(
-            ResourceKey<Level> dimension,
-            double x,
-            double y,
-            double z,
-            float yaw,
-            float pitch,
-            boolean wasInvisible,
-            boolean wasInvulnerable,
-            boolean wasMapModeHidden) {}
+    private static final class PlayerMapModeState {
+        private final ResourceKey<Level> dimension;
+        private final double x;
+        private final double y;
+        private final double z;
+        private final float yaw;
+        private final float pitch;
+        private final boolean wasInvisible;
+        private final boolean wasInvulnerable;
+        private final boolean wasMapModeHidden;
+        private final boolean wasNoGravity;
+        private double targetX;
+        private double targetY;
+        private double targetZ;
+        private float targetYaw;
+        private float targetPitch;
+
+        private PlayerMapModeState(
+                ResourceKey<Level> dimension,
+                double x,
+                double y,
+                double z,
+                float yaw,
+                float pitch,
+                boolean wasInvisible,
+                boolean wasInvulnerable,
+                boolean wasMapModeHidden,
+                boolean wasNoGravity) {
+            this.dimension = dimension;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.yaw = yaw;
+            this.pitch = pitch;
+            this.wasInvisible = wasInvisible;
+            this.wasInvulnerable = wasInvulnerable;
+            this.wasMapModeHidden = wasMapModeHidden;
+            this.wasNoGravity = wasNoGravity;
+            this.targetX = x;
+            this.targetY = y;
+            this.targetZ = z;
+            this.targetYaw = yaw;
+            this.targetPitch = pitch;
+        }
+
+        private void updateTarget(C2SMapModeSyncPacket packet) {
+            this.targetX = packet.x();
+            this.targetY = packet.y();
+            this.targetZ = packet.z();
+            this.targetYaw = packet.yaw();
+            this.targetPitch = packet.pitch();
+        }
+    }
 }

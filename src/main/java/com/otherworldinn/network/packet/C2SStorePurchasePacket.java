@@ -2,6 +2,7 @@ package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.entity.store.BuilderBlueprintManager;
 import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.inventory.StoreMenu;
 import com.otherworldinn.world.team.TeamData;
@@ -136,7 +137,10 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                                 Math.max(1, stockItem.getItemStack().getMaxStackSize());
                                         while (remaining > 0) {
                                             int splitCount = Math.min(remaining, maxStackSize);
-                                            ItemStack stack = stockItem.getItemStack().copy();
+                                            ItemStack stack =
+                                                    BuilderBlueprintManager.createPurchasedStackFromPreview(
+                                                            player.level(),
+                                                            stockItem.getItemStack());
                                             stack.setCount(splitCount);
                                             toGive.add(stack);
                                             remaining -= splitCount;

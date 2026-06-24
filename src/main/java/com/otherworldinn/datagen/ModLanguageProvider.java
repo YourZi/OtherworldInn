@@ -10,6 +10,7 @@ import com.otherworldinn.world.commission.CommissionRegistry;
 import com.otherworldinn.world.dialogue.DialogueDefinition;
 import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
+import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import java.util.HashSet;
@@ -344,6 +345,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.protection.only_in_town")
                 .zh("此物品仅限在城镇维度使用")
                 .en("This item is usable only in the Town dimension.");
+        entry("message.otherworldinn.protection.schematic_deny")
+                .zh("蓝图有一部分落在受保护区域，无法在这里打印")
+                .en("Part of this schematic overlaps a protected area and cannot be printed here.");
         entry("message.otherworldinn.coin.no_team")
                 .zh("你还没有队伍，无法存入金币")
                 .en("You are not in a team, cannot deposit coin.");
@@ -649,6 +653,21 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.reward_line.favor")
                 .zh("- %s好感 +%s")
                 .en("- %s Favor +%s");
+        entry("message.otherworldinn.decoration.activated")
+                .zh("【%s】修建完成！")
+                .en("[%s] construction completed!");
+        entry("message.otherworldinn.decoration.already_active")
+                .zh("这个装饰已经起作用了...")
+                .en("This decoration is already working...");
+        entry("message.otherworldinn.decoration.limit_reached")
+                .zh("不能有更多的%s了...")
+                .en("You cannot have any more %s...");
+        entry("message.otherworldinn.decoration.not_found")
+                .zh("这个装饰的结构似乎不太对...")
+                .en("Something seems off about this decoration's structure...");
+        entry("message.otherworldinn.decoration.invalidated")
+                .zh("【%s】似乎被破坏了...")
+                .en("[%s] seems to have been damaged...");
         entry("message.otherworldinn.commission.submit_not_needed")
                 .zh("该委托无需提交物品")
                 .en("This commission does not require item submission");
@@ -742,6 +761,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.inn_upgrade_voucher.success")
                 .zh("旅社已升星！")
                 .en("Inn Rating Increased!");
+        entry("item.otherworldinn.end_space_sphere.hud.hint")
+                .zh("传送到末地黑曜石平台")
+                .en("Teleport to the End obsidian platform");
         entry("message.otherworldinn.space_sphere.no_team")
                 .zh("你当前不在任何队伍中")
                 .en("You are not in any team");
@@ -999,6 +1021,12 @@ public class ModLanguageProvider extends LanguageProvider {
 
         for (FacilityRegistry.FacilityDefinition facility : FacilityRegistry.getAll()) {
             add(facility.translationKey(), isZh ? facility.zhName() : facility.enName());
+        }
+
+        for (var decoration : InnDecorationRegistry.getAll()) {
+            add(
+                    decoration.translationKey(),
+                    isZh ? decoration.zhName() : decoration.enName());
         }
     }
 

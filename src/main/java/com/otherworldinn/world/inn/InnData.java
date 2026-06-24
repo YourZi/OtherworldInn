@@ -6,6 +6,10 @@ import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.util.EntityUtils;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuff;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
+import com.otherworldinn.world.inn.decoration.InnDecorationDefinition;
+import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.service.ClipboardManager;
 import com.otherworldinn.world.inn.service.FurnitureManager;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
@@ -102,6 +106,7 @@ public class InnData {
     private final Set<UUID> guestIds = new HashSet<>();
     private final Map<Integer, RoomData> rooms = new HashMap<>();
     private final Map<String, Integer> facilityLevels = new HashMap<>();
+    private final Map<String, List<DecorationPlacement>> activeDecorations = new HashMap<>();
 
     // 待办事项缓存列表
     private final List<String> todoList = new ArrayList<>();
@@ -162,6 +167,9 @@ public class InnData {
      * @param amount 增加的数值
      */
     public void addReputation(int amount) {
+        if (amount > 0) {
+            amount = applyPositiveBuff(amount, InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER);
+        }
         this.reputation += amount;
         if (this.reputation < 0) {
             this.reputation = 0;
@@ -201,6 +209,7 @@ public class InnData {
         if (amount <= 0) {
             return;
         }
+        amount = applyPositiveBuff(amount, InnDecorationBuffType.LODGING_INCOME_MULTIPLIER);
         syncIncomeStatDay(level);
         totalLodgingIncome += amount;
         todayLodgingIncome += amount;
@@ -210,6 +219,7 @@ public class InnData {
         if (amount <= 0) {
             return;
         }
+        amount = applyPositiveBuff(amount, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
         syncIncomeStatDay(level);
         totalDiningIncome += amount;
         todayDiningIncome += amount;
@@ -317,7 +327,7 @@ public class InnData {
 
             // 设置状态为等待
             GuestData data = guest.getGuestData();
-            data.setWaiting(true, level.getGameTime());
+            data.setWaiting(true, level.getDayTime());
 
             // 添加待办事项
             String guestName =
@@ -557,6 +567,82 @@ public class InnData {
             return;
         }
         facilityLevels.put(facilityId, Math.max(0, level));
+    }
+
+    public record DecorationPlacement(BlockPos origin, net.minecraft.world.level.block.Rotation rotation) {
+        public DecorationPlacement {
+            origin = origin == null ? BlockPos.ZERO : origin.immutable();
+            rotation =
+                    rotation == null
+                            ? net.minecraft.world.level.block.Rotation.NONE
+                            : rotation;
+        }
+    }
+
+    public Map<String, List<DecorationPlacement>> copyActiveDecorations() {
+        Map<String, List<DecorationPlacement>> copy = new HashMap<>();
+        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
+            copy.put(entry.getKey(), List.copyOf(entry.getValue()));
+        }
+        return copy;
+    }
+
+    public void replaceActiveDecorations(Map<String, List<DecorationPlacement>> decorations) {
+        activeDecorations.clear();
+        if (decorations == null || decorations.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, List<DecorationPlacement>> entry : decorations.entrySet()) {
+            String key = entry.getKey();
+            List<DecorationPlacement> placements = entry.getValue();
+            if (key == null || key.isBlank() || placements == null || placements.isEmpty()) {
+                continue;
+            }
+            activeDecorations.put(key, List.copyOf(placements));
+        }
+    }
+
+    public int getActiveDecorationCount(String decorationId) {
+        if (decorationId == null || decorationId.isBlank()) {
+            return 0;
+        }
+        return activeDecorations.getOrDefault(decorationId, List.of()).size();
+    }
+
+    public double getDecorationBuffValue(InnDecorationBuffType type) {
+        if (type == null || activeDecorations.isEmpty()) {
+            return 0.0D;
+        }
+        double total = 0.0D;
+        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
+            InnDecorationDefinition definition = InnDecorationRegistry.get(entry.getKey());
+            if (definition == null) {
+                continue;
+            }
+            int instanceCount = entry.getValue() == null ? 0 : entry.getValue().size();
+            if (instanceCount <= 0) {
+                continue;
+            }
+            for (InnDecorationBuff buff : definition.buffs()) {
+                if (buff.type() == type) {
+                    total += buff.value() * instanceCount;
+                }
+            }
+        }
+        return total;
+    }
+
+    public double getDecorationBuffMultiplier(InnDecorationBuffType type) {
+        return Math.max(0.0D, 1.0D + getDecorationBuffValue(type));
+    }
+
+    private int applyPositiveBuff(int amount, InnDecorationBuffType type) {
+        if (amount <= 0) {
+            return amount;
+        }
+        double multiplier = getDecorationBuffMultiplier(type);
+        int scaled = (int) Math.round(amount * multiplier);
+        return Math.max(amount, scaled);
     }
 
     /**
@@ -1038,7 +1124,7 @@ public class InnData {
      * @param level 服务器等级
      */
     private void trySpawnGuest(ServerLevel level) {
-        long currentTime = level.getGameTime();
+        long currentTime = level.getDayTime();
 
         // 1. 检查是否到达生成时间
         if (currentTime < nextGuestSpawnTime) {
@@ -1135,6 +1221,8 @@ public class InnData {
                 MAX_AVERAGE_SPAWN_DELAY_TICKS
                         - (MAX_AVERAGE_SPAWN_DELAY_TICKS - MIN_AVERAGE_SPAWN_DELAY_TICKS)
                                 * progress;
+        averageDelay /= Math.max(0.1D, getDecorationBuffMultiplier(
+                InnDecorationBuffType.GUEST_ARRIVAL_SPEED_MULTIPLIER));
         double jitter = averageDelay * SPAWN_DELAY_JITTER_RATIO;
         int delay = (int) Math.round(averageDelay + random.nextGaussian() * jitter);
         return Math.max(MIN_SPAWN_DELAY_TICKS, Math.min(MAX_SPAWN_DELAY_TICKS, delay));
@@ -1269,7 +1357,7 @@ public class InnData {
      * @param team 队伍数据
      */
     public void tick(ServerLevel level, TeamData team) {
-        long currentTime = level.getGameTime();
+        long currentTime = level.getDayTime();
 
         // 尝试生成旅客 (每 20 tick 检查一次，减少开销)
         if (currentTime % 20 == 0) {
@@ -1652,6 +1740,18 @@ public class InnData {
         }
         tag.put("FacilityLevels", facilityLevelsTag);
 
+        ListTag activeDecorationsTag = new ListTag();
+        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
+            for (DecorationPlacement placement : entry.getValue()) {
+                CompoundTag placementTag = new CompoundTag();
+                placementTag.putString("Id", entry.getKey());
+                placementTag.putLong("Origin", placement.origin().asLong());
+                placementTag.putString("Rotation", placement.rotation().name());
+                activeDecorationsTag.add(placementTag);
+            }
+        }
+        tag.put("ActiveDecorations", activeDecorationsTag);
+
         return tag;
     }
 
@@ -1778,6 +1878,38 @@ public class InnData {
             CompoundTag facilityLevelsTag = tag.getCompound("FacilityLevels");
             for (String key : facilityLevelsTag.getAllKeys()) {
                 facilityLevels.put(key, Math.max(0, facilityLevelsTag.getInt(key)));
+            }
+        }
+
+        activeDecorations.clear();
+        if (tag.contains("ActiveDecorations", Tag.TAG_LIST)) {
+            ListTag activeDecorationsTag = tag.getList("ActiveDecorations", Tag.TAG_COMPOUND);
+            for (Tag entryTag : activeDecorationsTag) {
+                if (!(entryTag instanceof CompoundTag placementTag)) {
+                    continue;
+                }
+                String decorationId = placementTag.getString("Id");
+                if (decorationId == null || decorationId.isBlank()) {
+                    continue;
+                }
+                BlockPos origin = BlockPos.of(placementTag.getLong("Origin"));
+                net.minecraft.world.level.block.Rotation rotation =
+                        net.minecraft.world.level.block.Rotation.NONE;
+                if (placementTag.contains("Rotation", Tag.TAG_STRING)) {
+                    try {
+                        rotation =
+                                net.minecraft.world.level.block.Rotation.valueOf(
+                                        placementTag.getString("Rotation"));
+                    } catch (IllegalArgumentException ignored) {
+                        rotation = net.minecraft.world.level.block.Rotation.NONE;
+                    }
+                }
+                activeDecorations
+                        .computeIfAbsent(decorationId, ignored -> new ArrayList<>())
+                        .add(new DecorationPlacement(origin, rotation));
+            }
+            for (Map.Entry<String, List<DecorationPlacement>> entry : new ArrayList<>(activeDecorations.entrySet())) {
+                activeDecorations.put(entry.getKey(), List.copyOf(entry.getValue()));
             }
         }
     }

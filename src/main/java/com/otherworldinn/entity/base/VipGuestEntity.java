@@ -266,7 +266,7 @@ public abstract class VipGuestEntity extends GuestEntity {
         this.vipPendingTodoText = "";
         this.vipPendingTodoTeamId = null;
         if (this.vipCheckoutDeferred && this.vipDeferredCheckoutTime <= 0L) {
-            this.vipDeferredCheckoutTime = level.getGameTime() + VIP_CHECKOUT_GRACE_TICKS;
+            this.vipDeferredCheckoutTime = level.getDayTime() + VIP_CHECKOUT_GRACE_TICKS;
         }
         this.entityData.set(ORDERED_MEAL_ITEM, ItemStack.EMPTY);
         applyBlueGlowTeam(level, false);

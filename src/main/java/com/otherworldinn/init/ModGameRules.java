@@ -9,12 +9,6 @@ public final class ModGameRules {
                     GameRules.Category.SPAWNING,
                     GameRules.BooleanValue.create(false));
 
-    public static final GameRules.Key<GameRules.BooleanValue> RULE_ENABLE_RECIPE_UNLOCK =
-            GameRules.register(
-                    "enableRecipeUnlock",
-                    GameRules.Category.MISC,
-                    GameRules.BooleanValue.create(false));
-
     private ModGameRules() {}
 
     public static void init() {}

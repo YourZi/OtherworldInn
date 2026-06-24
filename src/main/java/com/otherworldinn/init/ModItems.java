@@ -5,6 +5,7 @@ import com.otherworldinn.foundation.ItemDataGenInfo;
 import com.otherworldinn.foundation.ItemReg;
 import com.otherworldinn.item.BedSheetItem;
 import com.otherworldinn.item.CoinItem;
+import com.otherworldinn.item.EndSpaceSphereItem;
 import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
 import com.otherworldinn.item.LandDeedItem;
@@ -139,7 +140,10 @@ public class ModItems {
                             "用于维修或升级设施，升级后的设施会重置内部的所有方块")
                     .tooltip(
                             "so please ensure that no important blocks are placed inside the facilities.",
-                            "，请确保没有重要方块放置在设施内");
+                            "，请确保没有重要方块放置在设施内")
+                    .tooltip(
+                            "Temporary: right click a decoration structure block to validate and activate it.",
+                            "临时功能：右键装饰结构中的任意方块，以检测并激活该装饰。");
     public static final DeferredItem<Item> FACILITY_UPGRADE_TEMPLATE =
             FACILITY_UPGRADE_TEMPLATE_REG.register();
 
@@ -170,12 +174,18 @@ public class ModItems {
     public static final DeferredItem<Item> NETHER_SPACE_SPHERE =
             NETHER_SPACE_SPHERE_REG.register();
 
-    public static final ItemReg<Item> END_SPACE_SPHERE_REG =
-            register("end_space_sphere")
+    public static final ItemReg<EndSpaceSphereItem> END_SPACE_SPHERE_REG =
+            new ItemReg<>("end_space_sphere", EndSpaceSphereItem::new)
                     .rarity(Rarity.EPIC)
                     .stacksTo(16)
-                    .lang("End Space Sphere", "末地空间球");
-    public static final DeferredItem<Item> END_SPACE_SPHERE =
+                    .lang("End Space Sphere", "末地空间球")
+                    .tooltip(
+                            "Right click to teleport to the End obsidian platform",
+                            "右键传送到末地黑曜石平台")
+                    .tooltip(
+                            "Consumes one on use",
+                            "使用时消耗一个");
+    public static final DeferredItem<EndSpaceSphereItem> END_SPACE_SPHERE =
             END_SPACE_SPHERE_REG.register();
     // --- 辅助方法 ---
 

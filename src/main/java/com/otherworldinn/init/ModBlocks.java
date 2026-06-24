@@ -47,9 +47,11 @@ public class ModBlocks {
             register("crystal_ball", CrystalBallBlock::new)
                     .properties(props -> props.strength(2.0F).noOcclusion())
                     .cutout()
+                    .noModel()
                     .lang("Crystal Ball", "水晶球")
-                    .tooltip("Right-click to enter the Magic Space", "右键进入魔法空间")
-                    .tooltip("Only one Crystal Ball can exist in the world at a time", "同一存档只能放置一个水晶球");
+                    .tooltip(" ", "开发中，弃用");
+                    //.tooltip("Right-click to enter the Magic Space", "右键进入魔法空间")
+                    //.tooltip("Only one Crystal Ball can exist in the world at a time", "同一存档只能放置一个水晶球");
     public static final DeferredBlock<CrystalBallBlock> CRYSTAL_BALL =
             CRYSTAL_BALL_REG.register();
 

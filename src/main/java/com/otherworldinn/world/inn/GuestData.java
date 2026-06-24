@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 @Data
 public class GuestData {
     private final UUID uuid;
-    private long checkoutTime; // 预计退房时间 (GameTime)
+    private long checkoutTime; // 预计退房时间 (DayTime)
 
     // 旅客状态
     public enum GuestState {
@@ -42,7 +42,7 @@ public class GuestData {
     }
 
     private GuestState state = GuestState.IDLE;
-    private long waitingSince = 0; // 开始等待的时间 (GameTime)
+    private long waitingSince = 0; // 开始等待的时间 (DayTime)
 
     // 房间属性偏好 (区间)
     private IntRange comfortPreference = new IntRange(0, 100);
@@ -107,7 +107,7 @@ public class GuestData {
      * 构造一个新的旅客数据
      *
      * @param uuid 旅客UUID
-     * @param checkoutTime 预计退房时间 (GameTime)
+     * @param checkoutTime 预计退房时间 (DayTime)
      */
     public GuestData(UUID uuid, long checkoutTime) {
         this.uuid = uuid;

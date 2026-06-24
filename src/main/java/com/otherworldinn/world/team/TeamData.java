@@ -94,7 +94,6 @@ public class TeamData {
 
     private final InnData innData = new InnData(); // 旅社数据管理系统
     private final TeamCommissionData commissionData = new TeamCommissionData(); // 队伍委托数据
-    private final Set<String> unlockedCookRecipes = new HashSet<>();
 
     public TeamData(UUID teamId) {
         this.teamId = teamId;
@@ -426,12 +425,6 @@ public class TeamData {
 
         tag.putBoolean("TeleportUnlocked", teleportUnlocked);
         tag.putInt("Coins", coins);
-
-        ListTag recipesTag = new ListTag();
-        for (String recipeId : unlockedCookRecipes) {
-            recipesTag.add(StringTag.valueOf(recipeId));
-        }
-        tag.put("UnlockedCookRecipes", recipesTag);
 
         // 旅社数据 (包含 EditMode)
         tag.put("InnData", innData.save(new CompoundTag()));

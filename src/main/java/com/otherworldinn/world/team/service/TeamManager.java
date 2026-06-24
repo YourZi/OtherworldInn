@@ -328,8 +328,7 @@ public class TeamManager {
                 team.isTeleportUnlocked(),
                 team.getCoins(),
                 team.getInnData().save(new CompoundTag()),
-                regionTags,
-                new ArrayList<>(team.getUnlockedCookRecipes()));
+                regionTags);
     }
 
     /**
@@ -479,8 +478,7 @@ public class TeamManager {
             boolean teleportUnlocked,
             int coins,
             CompoundTag innDataTag,
-            List<CompoundTag> innRegions,
-            Set<String> unlockedCookRecipes) {
+            List<CompoundTag> innRegions) {
         if (clientTeamCache == null || !clientTeamCache.getTeamId().equals(teamId)) {
             clientTeamCache = new TeamData(teamId);
         }

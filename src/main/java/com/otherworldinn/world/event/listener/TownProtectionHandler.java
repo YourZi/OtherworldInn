@@ -179,7 +179,13 @@ public class TownProtectionHandler {
     }
 
     public static boolean isInnRestrictionLiftedAt(ServerLevel level, BlockPos pos) {
-        return isFreeZone(level, pos);
+        return isInnRestrictionLiftedAt((Level) level, pos);
+    }
+
+    public static boolean isInnRestrictionLiftedAt(Level level, BlockPos pos) {
+        if (level == null || pos == null) return false;
+        if (!isTownDimension(level)) return true;
+        return isFreeZoneAny(level, pos);
     }
 
     /** 女仆操作权限：免保区或创造模式放行，否则拒绝。 */

@@ -44,7 +44,8 @@ public class FurnitureManager {
             new KeywordRule("couch", new FurnitureStats(3, 0, 0)),
             new KeywordRule("chaise", new FurnitureStats(3, 0, 0)),
             new KeywordRule("toilet", new FurnitureStats(5, 0, 10)),
-            new KeywordRule("clutter", new FurnitureStats(-20, 0, 0))
+            new KeywordRule("clutter", new FurnitureStats(-20, 0, 0)),
+            new KeywordRule("photograph_frame", new FurnitureStats(6, 0, 0))
         );
 
     static {

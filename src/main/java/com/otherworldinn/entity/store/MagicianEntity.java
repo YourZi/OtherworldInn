@@ -76,7 +76,7 @@ public class MagicianEntity extends StoreEntity {
         }
 
         // 每日随机下界/稀有材料
-        long day = this.level().getGameTime() / 24000L;
+        long day = this.level().getDayTime() / 24000L;
         RandomSource dailyRandom = RandomSource.create(this.level().random.nextLong() ^ day);
         List<ItemStack> dailyPool = new ArrayList<>();
         dailyPool.add(new ItemStack(Items.ECHO_SHARD));

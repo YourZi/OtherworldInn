@@ -41,7 +41,10 @@
     "MixinPlayerRendererMapModeHidden",
     "MixinEntityRenderDispatcherMapMode",
     "MixinToolTypeSurvivalPrint",
-    "MixinSchematicItemTooltipSurvivalPrint"
+    "MixinSchematicItemTooltipSurvivalPrint",
+    "MixinSchematicToolBaseAccessor",
+    "MixinDeployToolPreviewColor",
+    "MixinSchematicToolBasePreviewColor"
   ],
   "injectors": {
     "defaultRequire": 1

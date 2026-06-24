@@ -85,7 +85,7 @@ public abstract class StoreEntity extends PathfinderMob {
      */
     protected int fixedItemsCount = 0;
 
-    /** 上次进货的日期 (GameTime / 24000) */
+    /** 上次进货的日期 (DayTime / 24000) */
     private long lastRestockDay = 0;
 
     private int totalSpentCoins = 0;
@@ -134,8 +134,8 @@ public abstract class StoreEntity extends PathfinderMob {
         } else {
             this.enforceLockedPosition();
             if (!this.suppressAutoRestock) {
-                long currentDay = this.level().getGameTime() / 24000L;
-                if (currentDay > this.lastRestockDay) {
+                long currentDay = this.level().getDayTime() / 24000L;
+                if (currentDay != this.lastRestockDay) {
                     this.restockAll();
                     this.lastRestockDay = currentDay;
                 }
@@ -734,7 +734,7 @@ public abstract class StoreEntity extends PathfinderMob {
         }
         this.totalSpentCoins = 0;
         this.favorLevel = 1;
-        this.lastRestockDay = this.level().getGameTime() / 24000L;
+        this.lastRestockDay = this.level().getDayTime() / 24000L;
         this.storeItems.clear();
         this.favorStoreItems.clear();
         this.fixedItemsCount = 0;

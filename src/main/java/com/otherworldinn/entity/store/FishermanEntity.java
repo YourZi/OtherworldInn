@@ -79,7 +79,7 @@ public class FishermanEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        long day = this.level().getGameTime() / 24000L;
+        long day = this.level().getDayTime() / 24000L;
         long seed = this.level().random.nextLong() ^ day;
         List<RandomProduct> pool =
                 DAILY_FISH_POOL.stream()

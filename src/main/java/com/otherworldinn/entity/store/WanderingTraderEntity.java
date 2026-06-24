@@ -67,7 +67,7 @@ public class WanderingTraderEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        long day = this.level().getGameTime() / 24000L;
+        long day = this.level().getDayTime() / 24000L;
         java.util.Random rng = new java.util.Random(this.level().random.nextLong() ^ day);
 
         List<Item> allItems = new ArrayList<>(BuiltInRegistries.ITEM.stream()

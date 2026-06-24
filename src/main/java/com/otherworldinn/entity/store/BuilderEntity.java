@@ -57,11 +57,11 @@ public class BuilderEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        long day = this.level().getGameTime() / 24000L;
+        long day = this.level().getDayTime() / 24000L;
         long seed = this.level().random.nextLong() ^ day;
         var picks = BuilderBlueprintManager.pickDailyRandom(4, seed);
         for (var entry : picks) {
-            ItemStack stack = BuilderBlueprintManager.createSchematicStack(entry);
+            ItemStack stack = BuilderBlueprintManager.createStorePreviewStack(entry);
             int price = entry.minPrice()
                     + new java.util.Random(seed ^ entry.id().hashCode())
                             .nextInt(Math.max(1, entry.maxPrice() - entry.minPrice() + 1));

@@ -1,5 +1,6 @@
 package com.otherworldinn.compat;
 
+import com.otherworldinn.entity.store.BuilderBlueprintManager;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class CreateCompat {
 
     public static void init() {
+        BuilderBlueprintManager.exportBlueprintFiles();
         registerMovementCheck();
     }
 

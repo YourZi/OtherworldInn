@@ -126,7 +126,7 @@ public abstract class GuestEntity extends PathfinderMob {
 
     protected GuestEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
-        long currentTime = level.getGameTime();
+        long currentTime = level.getDayTime();
         this.guestData = new GuestData(this.getUUID(), currentTime + getStayDuration());
         this.initRewardItems();
         this.budget = this.generateInitialBudget();
@@ -1263,7 +1263,7 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private void ensureDailyDiningPlan(ServerLevel level) {
-        long currentDay = level.getGameTime() / 24000L;
+        long currentDay = level.getDayTime() / 24000L;
         if (this.diningPlanDay == currentDay) {
             return;
         }

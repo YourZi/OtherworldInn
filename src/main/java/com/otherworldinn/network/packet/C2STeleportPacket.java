@@ -29,6 +29,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacketPayload {
     private static final ResourceLocation TOWN_GATE_POINT_ID =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_gate");
+    private static final BlockPos TOWN_SPAWN_POS = new BlockPos(51, 71, 0);
     private static final int OVERWORLD_EXIT_RADIUS = 2048;
     private static final int OVERWORLD_EXIT_ATTEMPTS = 24;
 
@@ -116,6 +117,16 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
     }
 
     private static void teleportToOverworldSpawn(ServerPlayer player) {
+        // 先传送到旅社出生点
+        player.teleportTo(
+                player.serverLevel(),
+                TOWN_SPAWN_POS.getX() + 0.5,
+                TOWN_SPAWN_POS.getY(),
+                TOWN_SPAWN_POS.getZ() + 0.5,
+                player.getYRot(),
+                player.getXRot());
+
+        // 再传送到主世界
         ServerLevel overworld = player.server.getLevel(Level.OVERWORLD);
         if (overworld == null) {
             return;
