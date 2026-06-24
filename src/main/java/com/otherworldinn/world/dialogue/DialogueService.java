@@ -2,22 +2,30 @@ package com.otherworldinn.world.dialogue;
 
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
+import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
+import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public final class DialogueService {
@@ -70,6 +78,13 @@ public final class DialogueService {
             }
         }
         if (selected == null) {
+            return;
+        }
+
+        if (!requirementsMet(player, entity, selected)) {
+            return;
+        }
+        if (!applyEffects(player, entity, selected)) {
             return;
         }
 
@@ -160,6 +175,176 @@ public final class DialogueService {
                                 },
                         Component.translatable("container.repair"));
         player.openMenu(menuProvider);
+    }
+
+    private static boolean requirementsMet(
+            ServerPlayer player, Entity entity, DialogueOptionDef selected) {
+        for (DialogueRequirementDef requirement : selected.requirements()) {
+            if (meetsRequirement(player, entity, requirement)) {
+                continue;
+            }
+            if (requirement.type() == DialogueRequirementType.HAS_ITEM) {
+                player.displayClientMessage(
+                        Component.translatable("message.otherworldinn.dialogue.requirement_items_missing"),
+                        false);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("message.otherworldinn.dialogue.option_unavailable"),
+                        false);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean meetsRequirement(
+            ServerPlayer player, Entity entity, DialogueRequirementDef requirement) {
+        return switch (requirement.type()) {
+            case HAS_ITEM -> hasRequiredItem(player, requirement.itemId(), requirement.count());
+            case STORY_FLAG_PRESENT -> hasStoryFlag(entity, player.serverLevel(), requirement.storyFlag(), true);
+            case STORY_FLAG_ABSENT -> hasStoryFlag(entity, player.serverLevel(), requirement.storyFlag(), false);
+            case STORY_STAGE_EQUALS -> hasStoryStage(entity, player.serverLevel(), requirement.stageValue());
+        };
+    }
+
+    private static boolean applyEffects(ServerPlayer player, Entity entity, DialogueOptionDef selected) {
+        for (DialogueEffectDef effect : selected.effects()) {
+            if (applyEffect(player, entity, effect)) {
+                continue;
+            }
+            player.displayClientMessage(
+                    Component.translatable("message.otherworldinn.dialogue.option_unavailable"),
+                    false);
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean applyEffect(ServerPlayer player, Entity entity, DialogueEffectDef effect) {
+        ServerLevel level = player.serverLevel();
+        return switch (effect.type()) {
+            case TAKE_ITEM -> consumeItem(player, effect.itemId(), effect.count());
+            case GIVE_ITEM -> giveItem(player, effect.itemId(), effect.count());
+            case SET_STORY_FLAG ->
+                    entity instanceof StoryGuestEntity storyGuest
+                            && applyStoryFlag(storyGuest, level, effect.storyFlag());
+            case ADVANCE_STORY_STAGE ->
+                    entity instanceof StoryGuestEntity storyGuest
+                            && applyStoryStage(storyGuest, level, effect.stageValue());
+            case SET_NEXT_VISIT_RANGE ->
+                    entity instanceof StoryGuestEntity storyGuest
+                            && applyNextVisitRange(
+                                    storyGuest, level, effect.minDays(), effect.maxDays());
+        };
+    }
+
+    private static boolean applyStoryFlag(
+            StoryGuestEntity storyGuest, ServerLevel level, @Nullable String storyFlag) {
+        if (storyFlag == null || storyFlag.isBlank()) {
+            return false;
+        }
+        StoryGuestService.addStoryFlag(storyGuest, level, storyFlag);
+        return true;
+    }
+
+    private static boolean applyStoryStage(
+            StoryGuestEntity storyGuest, ServerLevel level, int stageValue) {
+        StoryGuestService.setStoryStage(storyGuest, level, stageValue);
+        return true;
+    }
+
+    private static boolean applyNextVisitRange(
+            StoryGuestEntity storyGuest, ServerLevel level, int minDays, int maxDays) {
+        StoryGuestService.setPendingReturnRange(storyGuest, level, minDays, maxDays);
+        return true;
+    }
+
+    private static boolean hasRequiredItem(
+            ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId, int count) {
+        Item item = resolveItem(itemId);
+        if (item == null || count <= 0) {
+            return false;
+        }
+        int remaining = count;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.is(item)) {
+                remaining -= stack.getCount();
+                if (remaining <= 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean consumeItem(
+            ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId, int count) {
+        Item item = resolveItem(itemId);
+        if (item == null || count <= 0) {
+            return false;
+        }
+        int remaining = count;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            if (remaining <= 0) {
+                break;
+            }
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.is(item)) {
+                continue;
+            }
+            int taken = Math.min(remaining, stack.getCount());
+            stack.shrink(taken);
+            remaining -= taken;
+        }
+        player.getInventory().setChanged();
+        return remaining <= 0;
+    }
+
+    private static boolean giveItem(
+            ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId, int count) {
+        Item item = resolveItem(itemId);
+        if (item == null || count <= 0) {
+            return false;
+        }
+        ItemStack reward = new ItemStack(item, count);
+        if (player.getInventory().add(reward)) {
+            player.getInventory().setChanged();
+            return true;
+        }
+        ItemEntity itemEntity =
+                new ItemEntity(
+                        player.level(),
+                        player.getX(),
+                        player.getY() + 0.5D,
+                        player.getZ(),
+                        reward.copy());
+        itemEntity.setPickUpDelay(0);
+        player.level().addFreshEntity(itemEntity);
+        return true;
+    }
+
+    @Nullable
+    private static Item resolveItem(@Nullable net.minecraft.resources.ResourceLocation itemId) {
+        if (itemId == null) {
+            return null;
+        }
+        return BuiltInRegistries.ITEM.getOptional(itemId).orElse(null);
+    }
+
+    private static boolean hasStoryFlag(
+            Entity entity, ServerLevel level, @Nullable String storyFlag, boolean expected) {
+        if (!(entity instanceof StoryGuestEntity storyGuest) || storyFlag == null || storyFlag.isBlank()) {
+            return false;
+        }
+        return StoryGuestService.hasStoryFlag(storyGuest, level, storyFlag) == expected;
+    }
+
+    private static boolean hasStoryStage(Entity entity, ServerLevel level, int stageValue) {
+        if (!(entity instanceof StoryGuestEntity storyGuest)) {
+            return false;
+        }
+        return StoryGuestService.getStoryStage(storyGuest, level) == stageValue;
     }
 
     private record DialogueSession(

@@ -2,6 +2,7 @@ package com.otherworldinn.world.inn;
 
 import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.base.VipGuestEntity;
+import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
@@ -13,6 +14,7 @@ import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.service.ClipboardManager;
 import com.otherworldinn.world.inn.service.FurnitureManager;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
+import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.team.TeamSavedData;
@@ -1199,7 +1201,10 @@ public class InnData {
             return;
         }
 
-        GuestEntity guest = GuestSpawnRules.createGuestForRating(this.rating, level.random, level);
+        GuestEntity guest = StoryGuestService.createSpawnCandidate(level, this.rating, level.random);
+        if (guest == null) {
+            guest = GuestSpawnRules.createGuestForRating(this.rating, level.random, level);
+        }
         if (guest != null) {
             guest.moveTo(x, y, z, level.random.nextFloat() * 360F, 0.0F);
             guest.finalizeSpawn(
@@ -1209,7 +1214,9 @@ public class InnData {
                     null);
             guest.setNoAi(false);
             guest.setPersistenceRequired();
-            level.addFreshEntity(guest);
+            if (level.addFreshEntity(guest) && guest instanceof StoryGuestEntity storyGuest) {
+                StoryGuestService.markGuestSpawned(storyGuest, level);
+            }
         }
     }
 
@@ -1466,6 +1473,7 @@ public class InnData {
         // 通用离开逻辑：移除占用并触发离场
 
         if (guestEntity != null) {
+            StoryGuestService.handleGuestVisitEnded(guestEntity, level);
             guestEntity.setNavigationTarget(new BlockPos(10, 71, 0));
             EntityUtils.scheduleDisappear(guestEntity);
 
@@ -1563,6 +1571,9 @@ public class InnData {
             guest.setRoomId(-1);
             guest.setCheckedOut(true);
         }
+        if (guestEntity != null) {
+            StoryGuestService.handleGuestVisitEnded(guestEntity, level);
+        }
         removeGuest(guestId);
         if (team != null) {
             TeamManager.getInstance().syncTeam(team, level.getServer());
@@ -1600,10 +1611,11 @@ public class InnData {
      * @return 是否成功添加到剪贴板（如果只添加到缓存也算处理成功，但返回 false 表示没有物理剪贴板更新）
      */
     public boolean addTodo(Level level, TeamData team, String todoText) {
-        // 1. 添加到缓存
-        if (!todoList.contains(todoText)) {
-            todoList.add(todoText);
+        // 1. 仅在首次新增时继续同步，避免房间清扫过程中的重复提示
+        if (todoList.contains(todoText)) {
+            return false;
         }
+        todoList.add(todoText);
 
         // 2. 尝试同步到剪贴板
         boolean addedToClipboard = false;

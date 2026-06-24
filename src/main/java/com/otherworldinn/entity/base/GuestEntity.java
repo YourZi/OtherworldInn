@@ -141,10 +141,12 @@ public abstract class GuestEntity extends PathfinderMob {
         spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData);
 
         // 如果没有自定义名称，则设置一个随机名称
-        if (!this.hasCustomName()) {
+        if (shouldUseRandomName() && !this.hasCustomName()) {
             this.setCustomName(GuestNameManager.getRandomName(this.getRandom()));
         }
-        assignRandomDialogueIfAbsent();
+        if (shouldUseRandomDialogue()) {
+            assignRandomDialogueIfAbsent();
+        }
 
         this.initGuestPreferences();
 
@@ -1177,7 +1179,9 @@ public abstract class GuestEntity extends PathfinderMob {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.assignedDialogueId = compound.getString(TAG_ASSIGNED_DIALOGUE_ID);
-        if (this.assignedDialogueId.isBlank() && !this.level().isClientSide) {
+        if (this.assignedDialogueId.isBlank()
+                && !this.level().isClientSide
+                && shouldUseRandomDialogue()) {
             assignRandomDialogueIfAbsent();
         }
         if (compound.contains("SkinVariant")) {
@@ -1218,7 +1222,19 @@ public abstract class GuestEntity extends PathfinderMob {
         return this.assignedDialogueId.isBlank() ? null : this.assignedDialogueId;
     }
 
-    private void assignRandomDialogueIfAbsent() {
+    protected void setAssignedDialogueId(@Nullable String dialogueId) {
+        this.assignedDialogueId = dialogueId == null ? "" : dialogueId;
+    }
+
+    protected boolean shouldUseRandomDialogue() {
+        return true;
+    }
+
+    protected boolean shouldUseRandomName() {
+        return true;
+    }
+
+    protected void assignRandomDialogueIfAbsent() {
         if (!this.assignedDialogueId.isBlank()) {
             return;
         }

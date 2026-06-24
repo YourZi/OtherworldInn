@@ -10,6 +10,8 @@ import com.otherworldinn.world.commission.CommissionRegistry;
 import com.otherworldinn.world.dialogue.DialogueDefinition;
 import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
+import com.otherworldinn.world.storyguest.StoryGuestDefinition;
+import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
@@ -677,9 +679,16 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.submit_items_missing")
                 .zh("背包内缺少所需提交物品")
                 .en("Missing required submission items in inventory");
+        entry("message.otherworldinn.dialogue.requirement_items_missing")
+                .zh("背包里缺少所需物品")
+                .en("You are missing the required items");
+        entry("message.otherworldinn.dialogue.option_unavailable")
+                .zh("现在还不能这么做")
+                .en("You can't do that right now");
         entry("screen.otherworldinn.dialogue.title").zh("对话").en("Dialogue");
         entry("dialogue.otherworldinn.npc.unknown").zh("陌生人").en("Unknown");
         addDialogueTranslations();
+        addStoryGuestTranslations();
         addCommissionTranslations();
         entry("message.otherworldinn.broom.overlay.expel").zh("驱逐旅客（降低声望）").en("Expel Guest");
         entry("message.otherworldinn.inventory.overlay.coins")
@@ -912,6 +921,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry(ModEntities.ORDINARY_VIP_GUEST.get()).zh("普通贵宾").en("Ordinary VIP Guest");
         entry(ModEntities.ADVANCED_VIP_GUEST.get()).zh("进阶VIP旅客").en("Advanced VIP Guest");
         entry(ModEntities.SPONSOR_GUEST.get()).zh("赞助者旅客").en("Sponsor Guest");
+        entry(ModEntities.STORY_GUEST.get()).zh("故事旅客").en("Story Guest");
         entry(ModEntities.BLACKSMITH.get()).zh("铁匠").en("Blacksmith");
         entry(ModEntities.MAGICIAN.get()).zh("魔法使").en("Magician");
         entry(ModEntities.FARMER.get()).zh("农夫").en("Farmer");
@@ -972,6 +982,14 @@ public class ModLanguageProvider extends LanguageProvider {
                     }
                 }
             }
+        }
+    }
+
+    private void addStoryGuestTranslations() {
+        for (StoryGuestDefinition definition : StoryGuestRegistry.allDefinitions()) {
+            entry(definition.nameKey())
+                    .zh(definition.displayName().zh())
+                    .en(definition.displayName().en());
         }
     }
 

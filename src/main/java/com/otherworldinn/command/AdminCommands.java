@@ -7,10 +7,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.base.GuestEntity;
+import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.commission.CommissionService;
 import com.otherworldinn.world.event.TownStructurePlacer;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
+import com.otherworldinn.world.storyguest.StoryGuestDefinition;
+import com.otherworldinn.world.storyguest.StoryGuestProgress;
+import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.inn.service.WanderingTraderManager;
@@ -92,6 +96,80 @@ public class AdminCommands {
                                         .then(
                                                 Commands.literal("clear_all")
                                                         .executes(AdminCommands::clearAllGuests)))
+                        .then(
+                                Commands.literal("story_guest")
+                                        .then(
+                                                Commands.literal("spawn")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (String id : StoryGuestService
+                                                                                            .getAllStoryGuestIds()) {
+                                                                                        builder.suggest(id);
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .executes(AdminCommands::spawnStoryGuest)))
+                                        .then(
+                                                Commands.literal("leave")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (String id : StoryGuestService
+                                                                                            .getAllStoryGuestIds()) {
+                                                                                        builder.suggest(id);
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .executes(AdminCommands::leaveStoryGuest)))
+                                        .then(Commands.literal("reset_all").executes(AdminCommands::resetAllStoryGuests))
+                                        .then(
+                                                Commands.literal("info")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (String id : StoryGuestService
+                                                                                            .getAllStoryGuestIds()) {
+                                                                                        builder.suggest(id);
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .executes(AdminCommands::infoStoryGuest)))
+                                        .then(
+                                                Commands.literal("set_stage")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (String id : StoryGuestService
+                                                                                            .getAllStoryGuestIds()) {
+                                                                                        builder.suggest(id);
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "stage",
+                                                                                                IntegerArgumentType
+                                                                                                        .integer(0))
+                                                                                        .executes(AdminCommands::setStoryGuestStage))))
+                                        .then(
+                                                Commands.literal("clear_active")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (String id : StoryGuestService
+                                                                                            .getAllStoryGuestIds()) {
+                                                                                        builder.suggest(id);
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .executes(AdminCommands::clearStoryGuestActive)))
+                        )
                         .then(
                                 Commands.literal("wandering_trader")
                                         .then(
@@ -285,6 +363,158 @@ public class AdminCommands {
                 .sendSuccess(
                         () -> Component.literal(
                                 "已清除 " + killed + " 个旅客实体，重置 " + teams + " 支队伍的入住数据"),
+                        true);
+        return 1;
+    }
+
+    private static int spawnStoryGuest(CommandContext<CommandSourceStack> context) {
+        String storyGuestId = StringArgumentType.getString(context, "id");
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
+        if (definition == null) {
+            context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
+            return 0;
+        }
+        ServerLevel townLevel = context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+        StoryGuestEntity guest = StoryGuestService.spawnDebugGuest(townLevel, storyGuestId);
+        if (guest == null) {
+            context.getSource().sendFailure(Component.literal("生成失败，可能该故事旅客当前已经处于活跃状态"));
+            return 0;
+        }
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已生成故事旅客 "
+                                                + definition.displayName().zh()
+                                                + " (" + definition.id() + ")"),
+                        true);
+        return 1;
+    }
+
+    private static int leaveStoryGuest(CommandContext<CommandSourceStack> context) {
+        String storyGuestId = StringArgumentType.getString(context, "id");
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
+        if (definition == null) {
+            context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
+            return 0;
+        }
+        ServerLevel baseLevel = context.getSource().getLevel();
+        if (!StoryGuestService.forceLeaveActiveStoryGuest(baseLevel, storyGuestId)) {
+            context.getSource().sendFailure(Component.literal("该故事旅客当前没有活跃实体可离开"));
+            return 0;
+        }
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已强制让故事旅客 "
+                                                + definition.displayName().zh()
+                                                + " 离开，并写回回访进度"),
+                        true);
+        return 1;
+    }
+
+    private static int resetAllStoryGuests(CommandContext<CommandSourceStack> context) {
+        int removedEntities = StoryGuestService.resetAllStoryGuestProgress(context.getSource().getServer());
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已重置全部故事旅客进度，并清除 "
+                                                + removedEntities
+                                                + " 个故事旅客实体"),
+                        true);
+        return 1;
+    }
+
+    private static int infoStoryGuest(CommandContext<CommandSourceStack> context) {
+        String storyGuestId = StringArgumentType.getString(context, "id");
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
+        if (definition == null) {
+            context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
+            return 0;
+        }
+        ServerLevel baseLevel = context.getSource().getLevel();
+        StoryGuestProgress progress = StoryGuestService.getOrCreateProgress(baseLevel, storyGuestId);
+        StoryGuestEntity activeGuest = StoryGuestService.getActiveStoryGuest(baseLevel, storyGuestId);
+        context.getSource().sendSuccess(
+                () -> Component.literal("故事旅客: " + definition.displayName().zh() + " (" + definition.id() + ")"),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("storyStage: " + progress.getStoryStage()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("visitCount: " + progress.getVisitCount()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("lastCheckoutDay: " + progress.getLastCheckoutDay()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("nextEligibleVisitDay: " + progress.getNextEligibleVisitDay()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("activeEntityUuid: " + progress.getActiveEntityUuid()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("storyFlags: " + progress.getStoryFlags()),
+                false);
+        context.getSource().sendSuccess(
+                () ->
+                        Component.literal(
+                                "activeEntity: "
+                                        + (activeGuest == null
+                                                ? "null"
+                                                : activeGuest.getUUID() + " @ " + activeGuest.blockPosition())),
+                false);
+        return 1;
+    }
+
+    private static int setStoryGuestStage(CommandContext<CommandSourceStack> context) {
+        String storyGuestId = StringArgumentType.getString(context, "id");
+        int stage = IntegerArgumentType.getInteger(context, "stage");
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
+        if (definition == null) {
+            context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
+            return 0;
+        }
+        if (!StoryGuestService.setStoryStage(context.getSource().getLevel(), storyGuestId, stage)) {
+            context.getSource().sendFailure(Component.literal("设置阶段失败"));
+            return 0;
+        }
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已将 "
+                                                + definition.displayName().zh()
+                                                + " 的 storyStage 设置为 "
+                                                + stage),
+                        true);
+        return 1;
+    }
+
+    private static int clearStoryGuestActive(CommandContext<CommandSourceStack> context) {
+        String storyGuestId = StringArgumentType.getString(context, "id");
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(storyGuestId);
+        if (definition == null) {
+            context.getSource().sendFailure(Component.literal("未知的故事旅客ID: " + storyGuestId));
+            return 0;
+        }
+        if (!StoryGuestService.clearActiveStoryGuest(context.getSource().getLevel(), storyGuestId)) {
+            context.getSource().sendFailure(Component.literal("该故事旅客当前没有可清理的活跃占用"));
+            return 0;
+        }
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已清除 "
+                                                + definition.displayName().zh()
+                                                + " 的活跃实体占用"),
                         true);
         return 1;
     }

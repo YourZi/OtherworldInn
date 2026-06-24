@@ -9,6 +9,7 @@ import com.otherworldinn.entity.store.FishermanEntity;
 import com.otherworldinn.entity.store.GrocerEntity;
 import com.otherworldinn.entity.store.MagicianEntity;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
+import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -444,6 +445,7 @@ public final class DialogueRegistry {
                         List.of(BLACKSMITH_DIALOGUE, FARMER_DIALOGUE, MAGICIAN_DIALOGUE, GROCER_DIALOGUE,
                                 BUTCHER_DIALOGUE, BUILDER_DIALOGUE, FISHERMAN_DIALOGUE, WANDERING_TRADER_DIALOGUE));
         all.addAll(GUEST_DIALOGUES);
+        all.addAll(StoryGuestRegistry.allDialogues());
         ALL_DIALOGUES = Collections.unmodifiableList(all);
         Map<String, DialogueDefinition> byId = new LinkedHashMap<>();
         for (DialogueDefinition dialogue : ALL_DIALOGUES) {
