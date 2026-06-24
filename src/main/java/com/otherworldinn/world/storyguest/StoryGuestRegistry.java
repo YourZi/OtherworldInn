@@ -26,8 +26,8 @@ public final class StoryGuestRegistry {
             ResourceLocation.fromNamespaceAndPath("minecraft", "paper");
     private static final ResourceLocation FEATHER =
             ResourceLocation.fromNamespaceAndPath("minecraft", "feather");
-    private static final ResourceLocation COMPASS =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "compass");
+    private static final ResourceLocation NATURES_COMPASS =
+            ResourceLocation.fromNamespaceAndPath("naturescompass", "naturescompass");
     private static final String CARTOGRAPHER_HELPED_FLAG = "cartographer_helped";
     private static final String CARTOGRAPHER_REFUSED_FLAG = "cartographer_refused";
     private static final String CARTOGRAPHER_CHATTER_DIALOGUE_ID = "story_cartographer_visit_chatter";
@@ -204,7 +204,7 @@ public final class StoryGuestRegistry {
                                                 DialogueRequirementDef.hasStoryFlag(
                                                         CARTOGRAPHER_HELPED_FLAG))
                                         .withEffects(
-                                                DialogueEffectDef.giveItem(COMPASS, 1),
+                                                DialogueEffectDef.giveItem(NATURES_COMPASS, 1),
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_cartographer_hear_story",

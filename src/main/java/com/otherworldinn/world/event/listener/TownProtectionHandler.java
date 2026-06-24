@@ -33,6 +33,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -344,6 +345,16 @@ public class TownProtectionHandler {
         sendDenyMessage(player, message);
     }
 
+    private static BlockPos resolveBucketRestrictionPos(Level level, BlockPos clickedPos, BlockPos placePos) {
+        if (!isFreeZoneAny(level, clickedPos)) {
+            return clickedPos;
+        }
+        if (!isFreeZoneAny(level, placePos)) {
+            return placePos;
+        }
+        return null;
+    }
+
     // ══════════════════════════════════════════════════════
     //  事件处理
     // ══════════════════════════════════════════════════════
@@ -490,6 +501,11 @@ public class TownProtectionHandler {
                     denyRightClickBlock(event, player,
                             getDenyMessage(level, placePos));
                 }
+            } else if (stack.getItem() instanceof BucketItem) {
+                BlockPos restrictedPos = resolveBucketRestrictionPos(level, event.getPos(), placePos);
+                if (restrictedPos == null) return;
+                denyRightClickBlock(event, player,
+                        getDenyMessage(level, restrictedPos));
             } else if (stack.getItem() instanceof HoeItem) {
                 if (isFreeZoneAny(level, event.getPos())) return;
                 denyRightClickBlock(event, player,
@@ -711,6 +727,17 @@ public class TownProtectionHandler {
         public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
             if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
             if (event.getItemStack().is(OtherworldInn.BANNED_IN_TOWN)) {
+                event.setCanceled(true);
+                event.setUseItem(TriState.FALSE);
+                event.setUseBlock(TriState.FALSE);
+                event.setCancellationResult(InteractionResult.FAIL);
+                return;
+            }
+            if (!(event.getItemStack().getItem() instanceof BucketItem)) return;
+
+            BlockPos placePos = event.getPos().relative(event.getFace());
+            BlockPos restrictedPos = resolveBucketRestrictionPos(event.getLevel(), event.getPos(), placePos);
+            if (restrictedPos != null) {
                 event.setCanceled(true);
                 event.setUseItem(TriState.FALSE);
                 event.setUseBlock(TriState.FALSE);
