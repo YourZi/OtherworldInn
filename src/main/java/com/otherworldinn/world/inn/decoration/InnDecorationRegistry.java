@@ -8,6 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * 旅社装饰注册表。
@@ -78,6 +79,9 @@ public final class InnDecorationRegistry {
 
     /** 初始化默认全局装饰配置 */
     private static void initDefaultDecorations() {
+        registerBlock(
+                Blocks.DRAGON_EGG,
+                new InnDecorationStats("dragon_egg", 0.1D, 0.1D, 0.0D, 0.0D, 1));
         for (KeywordRule rule : KEYWORD_RULES) {
             ID_STATS.put(rule.stats().id(), rule.stats());
         }

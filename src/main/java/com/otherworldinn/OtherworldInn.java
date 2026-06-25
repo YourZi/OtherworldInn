@@ -2,6 +2,7 @@ package com.otherworldinn;
 
 import com.mojang.logging.LogUtils;
 import com.otherworldinn.compat.CreateCompat;
+import com.otherworldinn.compat.ExposureCompat;
 import com.otherworldinn.compat.KaleidoscopeCompat;
 import com.otherworldinn.compat.ReskillableCompat;
 import com.otherworldinn.compat.WaystonesCompat;
@@ -77,6 +78,9 @@ public class OtherworldInn {
         // Create 兼容性初始化
         if (ModList.get().isLoaded("create")) {
             event.enqueueWork(CreateCompat::init);
+        }
+        if (ExposureCompat.isLoaded()) {
+            event.enqueueWork(ExposureCompat::init);
         }
         event.enqueueWork(KaleidoscopeCompat::init);
         event.enqueueWork(ReskillableCompat::init);

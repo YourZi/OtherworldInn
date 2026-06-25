@@ -16,6 +16,7 @@ public class CommissionEntry {
     private final long durationDays;
     private final List<ItemRequirement> submitRequirements;
     private final List<KillRequirement> killRequirements;
+    private final List<PhotoRequirement> photoRequirements;
     private final List<ItemReward> itemRewards;
     private final int coinReward;
     private final List<NpcFavorReward> npcFavorRewards;
@@ -27,6 +28,7 @@ public class CommissionEntry {
             long durationDays,
             List<ItemRequirement> submitRequirements,
             List<KillRequirement> killRequirements,
+            List<PhotoRequirement> photoRequirements,
             List<ItemReward> itemRewards,
             int coinReward,
             List<NpcFavorReward> npcFavorRewards) {
@@ -36,6 +38,7 @@ public class CommissionEntry {
         this.durationDays = Math.max(1L, durationDays);
         this.submitRequirements = List.copyOf(submitRequirements);
         this.killRequirements = List.copyOf(killRequirements);
+        this.photoRequirements = List.copyOf(photoRequirements);
         this.itemRewards = List.copyOf(itemRewards);
         this.coinReward = Math.max(0, coinReward);
         this.npcFavorRewards = List.copyOf(npcFavorRewards);
@@ -47,6 +50,10 @@ public class CommissionEntry {
 
     public boolean hasKillRequirement() {
         return !killRequirements.isEmpty();
+    }
+
+    public boolean hasPhotoRequirement() {
+        return !photoRequirements.isEmpty();
     }
 
     public CompoundTag save() {
@@ -68,6 +75,12 @@ public class CommissionEntry {
             killTag.add(req.save());
         }
         tag.put("KillRequirements", killTag);
+
+        ListTag photoTag = new ListTag();
+        for (PhotoRequirement req : photoRequirements) {
+            photoTag.add(req.save());
+        }
+        tag.put("PhotoRequirements", photoTag);
 
         ListTag itemRewardTag = new ListTag();
         for (ItemReward reward : itemRewards) {
@@ -110,6 +123,16 @@ public class CommissionEntry {
             }
         }
 
+        List<PhotoRequirement> photoRequirements = new ArrayList<>();
+        if (tag.contains("PhotoRequirements", Tag.TAG_LIST)) {
+            ListTag photoTag = tag.getList("PhotoRequirements", Tag.TAG_COMPOUND);
+            for (Tag t : photoTag) {
+                if (t instanceof CompoundTag reqTag) {
+                    photoRequirements.add(PhotoRequirement.load(reqTag));
+                }
+            }
+        }
+
         List<ItemReward> itemRewards = new ArrayList<>();
         if (tag.contains("ItemRewards", Tag.TAG_LIST)) {
             ListTag rewardTag = tag.getList("ItemRewards", Tag.TAG_COMPOUND);
@@ -137,6 +160,7 @@ public class CommissionEntry {
                 durationDays,
                 submitRequirements,
                 killRequirements,
+                photoRequirements,
                 itemRewards,
                 coinReward,
                 npcFavorRewards);
@@ -184,6 +208,18 @@ public class CommissionEntry {
         private static KillRequirement load(CompoundTag tag) {
             return new KillRequirement(
                     tag.getString("EntityTypeId"), Math.max(1, tag.getInt("Count")));
+        }
+    }
+
+    public record PhotoRequirement(String objectiveId) {
+        private CompoundTag save() {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("ObjectiveId", objectiveId);
+            return tag;
+        }
+
+        private static PhotoRequirement load(CompoundTag tag) {
+            return new PhotoRequirement(tag.getString("ObjectiveId"));
         }
     }
 

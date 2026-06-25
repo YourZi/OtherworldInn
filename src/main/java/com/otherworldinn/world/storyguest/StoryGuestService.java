@@ -93,6 +93,7 @@ public final class StoryGuestService {
         StoryGuestProgress progress = getProgress(guest, level);
         progress.addFlag(storyFlag);
         StoryGuestSavedData.get(level).setDirty();
+        guest.refreshAssignedDialogue(level);
     }
 
     public static void setPendingReturnRange(
@@ -109,6 +110,26 @@ public final class StoryGuestService {
 
     public static List<String> getAllStoryGuestIds() {
         return StoryGuestRegistry.allDefinitions().stream().map(StoryGuestDefinition::id).toList();
+    }
+
+    public static boolean canVisitAgain(ServerLevel level, String storyGuestId) {
+        StoryGuestDefinition definition = StoryGuestRegistry.get(storyGuestId);
+        if (definition == null) {
+            return false;
+        }
+        StoryGuestProgress progress = StoryGuestSavedData.get(level).getOrCreateProgress(definition.id());
+        if (progress.getStoryStage() < definition.finalStoryStage()) {
+            return true;
+        }
+        for (StoryGuestVisitOutcomeRule rule : definition.visitOutcomeRules()) {
+            if (!rule.isValid()) {
+                continue;
+            }
+            if (progress.hasFlag(rule.requiredFlag())) {
+                return rule.continueVisiting();
+            }
+        }
+        return true;
     }
 
     public static StoryGuestProgress getOrCreateProgress(ServerLevel level, String storyGuestId) {
@@ -201,6 +222,46 @@ public final class StoryGuestService {
         return true;
     }
 
+    public static int getStoryStage(ServerLevel level, String storyGuestId) {
+        StoryGuestDefinition definition = StoryGuestRegistry.get(storyGuestId);
+        if (definition == null) {
+            return -1;
+        }
+        return StoryGuestSavedData.get(level).getOrCreateProgress(definition.id()).getStoryStage();
+    }
+
+    public static boolean hasStoryFlag(ServerLevel level, String storyGuestId, @Nullable String storyFlag) {
+        if (storyFlag == null || storyFlag.isBlank()) {
+            return false;
+        }
+        StoryGuestDefinition definition = StoryGuestRegistry.get(storyGuestId);
+        if (definition == null) {
+            return false;
+        }
+        return StoryGuestSavedData.get(level).getOrCreateProgress(definition.id()).hasFlag(storyFlag);
+    }
+
+    public static boolean addStoryFlag(ServerLevel level, String storyGuestId, @Nullable String storyFlag) {
+        if (storyFlag == null || storyFlag.isBlank()) {
+            return false;
+        }
+        StoryGuestDefinition definition = StoryGuestRegistry.get(storyGuestId);
+        if (definition == null) {
+            return false;
+        }
+        StoryGuestProgress progress = StoryGuestSavedData.get(level).getOrCreateProgress(definition.id());
+        if (progress.hasFlag(storyFlag)) {
+            return false;
+        }
+        progress.addFlag(storyFlag);
+        StoryGuestSavedData.get(level).setDirty();
+        StoryGuestEntity activeGuest = getActiveStoryGuest(level, storyGuestId);
+        if (activeGuest != null) {
+            activeGuest.refreshAssignedDialogue((ServerLevel) activeGuest.level());
+        }
+        return true;
+    }
+
     public static boolean forceLeaveActiveStoryGuest(ServerLevel level, String storyGuestId) {
         StoryGuestEntity activeGuest = getActiveStoryGuest(level, storyGuestId);
         if (activeGuest == null) {
@@ -250,6 +311,9 @@ public final class StoryGuestService {
         int totalWeight = 0;
         for (StoryGuestDefinition definition : StoryGuestRegistry.allDefinitions()) {
             if (definition.minInnRating() > innRating) {
+                continue;
+            }
+            if (!canVisitAgain(level, definition.id())) {
                 continue;
             }
             StoryGuestProgress progress = data.getOrCreateProgress(definition.id());

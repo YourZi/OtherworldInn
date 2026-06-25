@@ -18,9 +18,18 @@ public record StoryGuestDefinition(
         int maxReturnIntervalDays,
         int minInnRating,
         int spawnWeight,
+        int finalStoryStage,
+        List<StoryGuestVisitOutcomeRule> visitOutcomeRules,
         Map<Integer, String> dialogueIdsByStage,
         String revisitChatterDialogueId,
         List<DialogueDefinition> dialogues) {
+    public StoryGuestDefinition {
+        finalStoryStage = Math.max(0, finalStoryStage);
+        visitOutcomeRules = List.copyOf(visitOutcomeRules == null ? List.of() : visitOutcomeRules);
+        dialogueIdsByStage = Map.copyOf(dialogueIdsByStage);
+        dialogues = List.copyOf(dialogues == null ? List.of() : dialogues);
+    }
+
     public String nameKey() {
         return "story_guest.otherworldinn." + this.id;
     }

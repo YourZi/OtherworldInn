@@ -236,6 +236,7 @@ public final class DialogueService {
         return switch (effect.type()) {
             case TAKE_ITEM -> consumeItem(player, effect.itemId(), effect.count());
             case GIVE_ITEM -> giveItem(player, effect.itemId(), effect.count());
+            case GIVE_COINS -> giveCoins(player, effect.count());
             case SET_STORY_FLAG ->
                     entity instanceof StoryGuestEntity storyGuest
                             && applyStoryFlag(storyGuest, level, effect.storyFlag());
@@ -247,6 +248,18 @@ public final class DialogueService {
                             && applyNextVisitRange(
                                     storyGuest, level, effect.minDays(), effect.maxDays());
         };
+    }
+
+    private static boolean giveCoins(ServerPlayer player, int amount) {
+        if (amount <= 0) {
+            return false;
+        }
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return false;
+        }
+        TeamManager.getInstance().addCoins(team, amount, player.getServer());
+        return true;
     }
 
     private static boolean applyStoryFlag(

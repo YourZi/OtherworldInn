@@ -10,6 +10,7 @@ import com.otherworldinn.world.dialogue.DialogueOptionType;
 import com.otherworldinn.world.dialogue.DialogueRequirementDef;
 import com.otherworldinn.world.dialogue.LocalizedText;
 import com.otherworldinn.world.inn.GuestData;
+import com.otherworldinn.world.photo.StoryGuestPhotoTaskRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -20,8 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestRegistry {
     private static final ResourceLocation TEXTURE_WANDERING_CARTOGRAPHER =
-            ResourceLocation.fromNamespaceAndPath(
-                    OtherworldInn.MODID, "textures/entity/guest/ordinary_guest/1.png");
+            storyGuestTexture("wandering_cartographer");
     private static final ResourceLocation PAPER =
             ResourceLocation.fromNamespaceAndPath("minecraft", "paper");
     private static final ResourceLocation FEATHER =
@@ -29,7 +29,6 @@ public final class StoryGuestRegistry {
     private static final ResourceLocation NATURES_COMPASS =
             ResourceLocation.fromNamespaceAndPath("naturescompass", "naturescompass");
     private static final String CARTOGRAPHER_HELPED_FLAG = "cartographer_helped";
-    private static final String CARTOGRAPHER_REFUSED_FLAG = "cartographer_refused";
     private static final String CARTOGRAPHER_CHATTER_DIALOGUE_ID = "story_cartographer_visit_chatter";
 
     private static final Map<String, StoryGuestDefinition> DEFINITIONS_BY_ID;
@@ -63,6 +62,11 @@ public final class StoryGuestRegistry {
         return ALL_DIALOGUES;
     }
 
+    private static ResourceLocation storyGuestTexture(String storyGuestId) {
+        return ResourceLocation.fromNamespaceAndPath(
+                OtherworldInn.MODID, "textures/entity/guest/story_guest/" + storyGuestId + ".png");
+    }
+
     private static StoryGuestDefinition buildWanderingCartographer() {
         String id = "wandering_cartographer";
         GuestEntity.GuestProfile profile =
@@ -80,22 +84,26 @@ public final class StoryGuestRegistry {
                         buildCartographerStage0Dialogue(),
                         buildCartographerStage1Dialogue(),
                         buildCartographerStage2Dialogue(),
+                        buildCartographerStage3Dialogue(),
                         buildCartographerVisitChatterDialogue());
         return new StoryGuestDefinition(
                 id,
                 LocalizedText.of("流浪绘图师 伊莱", "Eli the Wandering Cartographer"),
                 TEXTURE_WANDERING_CARTOGRAPHER,
-                "slim",
+                "default",
                 0,
                 profile,
                 2,
                 5,
                 1,
                 1,
+                3,
+                List.of(),
                 Map.of(
                         0, "story_cartographer_stage0",
                         1, "story_cartographer_stage1",
-                        2, "story_cartographer_stage2"),
+                        2, "story_cartographer_stage2",
+                        3, "story_cartographer_stage3"),
                 CARTOGRAPHER_CHATTER_DIALOGUE_ID,
                 dialogues);
     }
@@ -137,9 +145,7 @@ public final class StoryGuestRegistry {
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
-                                        .withEffects(
-                                                DialogueEffectDef.setStoryFlag(CARTOGRAPHER_REFUSED_FLAG),
-                                                DialogueEffectDef.advanceStoryStage(1)),
+                                        .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_intro",
                                         LocalizedText.of("我给你找找，稍后再来", "Let me look for them and come back later"),
@@ -181,83 +187,198 @@ public final class StoryGuestRegistry {
 
     private static DialogueDefinition buildCartographerStage1Dialogue() {
         String root = "root";
-        String repaid = "repaid";
-        String noHelp = "no_help";
+        String accepted = "accepted";
+        String declined = "declined";
         Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
         nodes.put(
                 root,
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我认得这家旅社的灯。上次的海图已经补好了，刚好能来兑现一句承诺。",
-                                "I recognized the lights of this inn. I finished that coastal chart, so I came back to make good on a promise."),
+                                "上回那点补给让我把海图补得顺利多了。现在我还缺一张海洋群系的取景照片，想拿它和潮线笔记一起比对。你若愿意，下次出门时替我拍一张海边或海上的景色吧。",
+                                "Those supplies made it much easier to finish my coastal chart. What I'm missing now is a photograph from any ocean biome so I can compare it against my tide notes. If you're willing, take one for me the next time you travel by the sea." ),
                         List.of(
                                 new DialogueOptionDef(
-                                                "story_cartographer_collect_thanks",
+                                                "story_cartographer_accept_ocean_photo_task",
                                                 LocalizedText.of(
-                                                        "上次的旅途后来怎样了？",
-                                                        "How did that trip turn out?"),
+                                                        "可以，我会替你留意海上的景色",
+                                                        "Sure. I'll keep an eye out for a seascape for you"),
                                                 DialogueOptionType.BRANCH,
-                                                repaid,
+                                                accepted,
                                                 null)
-                                        .withRequirements(
-                                                DialogueRequirementDef.hasStoryFlag(
-                                                        CARTOGRAPHER_HELPED_FLAG))
                                         .withEffects(
-                                                DialogueEffectDef.giveItem(NATURES_COMPASS, 1),
+                                                DialogueEffectDef.setStoryFlag(
+                                                        StoryGuestPhotoTaskRegistry
+                                                                .CARTOGRAPHER_OCEAN_PHOTO_REQUESTED_FLAG),
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
-                                                "story_cartographer_hear_story",
+                                                "story_cartographer_decline_ocean_photo_task",
                                                 LocalizedText.of(
-                                                        "后来你还是把地图画完了？",
-                                                        "So you still finished the map?"),
+                                                        "这次我恐怕帮不上忙",
+                                                        "I don't think I can help with that this time"),
                                                 DialogueOptionType.BRANCH,
-                                                noHelp,
+                                                declined,
                                                 null)
-                                        .withRequirements(
-                                                DialogueRequirementDef.hasStoryFlag(
-                                                        CARTOGRAPHER_REFUSED_FLAG))
-                                        .withEffects(DialogueEffectDef.advanceStoryStage(2)),
-                                new DialogueOptionDef(
-                                        "story_cartographer_leave_return",
-                                        LocalizedText.of("改天再细聊", "Let's talk another time"),
-                                        DialogueOptionType.BRANCH,
-                                        null,
-                                        null))));
+                                        .withEffects(DialogueEffectDef.advanceStoryStage(2)))));
         nodes.put(
-                repaid,
+                accepted,
                 new DialogueNodeDef(
-                        repaid,
+                        accepted,
                         LocalizedText.of(
-                                "多亏你那几样补给，我没在海雾里把方向丢掉。这只指南针被我调过，送给你，愿它以后总能把人带回这间旅社。",
-                                "Thanks to those supplies, I never lost my bearings in the sea fog. I tuned this compass myself. Keep it, and may it always lead people back to this inn."),
+                                "不用挑得太苛刻，只要是在海洋群系拍下的景色就够了。浪头、海雾、海平线，哪一样都能帮我校对地图。",
+                                "It doesn't need to be anything fancy. Any scene taken in an ocean biome will do. Waves, sea fog, the horizon. Any of it can help me correct the map."),
                         List.of(
                                 new DialogueOptionDef(
-                                                "story_cartographer_finish_helped_arc",
-                                                LocalizedText.of("我会收好的", "I'll treasure it"),
+                                                "story_cartographer_leave_after_accept_ocean_photo_task",
+                                                LocalizedText.of("我记下了", "I'll remember that"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
-                                        .withEffects(DialogueEffectDef.setNextVisitRange(4, 7)))));
+                                        .withEffects(DialogueEffectDef.setNextVisitRange(2, 4)))));
         nodes.put(
-                noHelp,
+                declined,
                 new DialogueNodeDef(
-                        noHelp,
+                        declined,
                         LocalizedText.of(
-                                "最后我把地图也画完了，只是慢了些。说来也怪，路上总觉得要是当时在这儿多坐一会儿，也许会更安心。",
-                                "I finished the map in the end, just a little slower. Funny thing is, on the road I kept thinking that if I'd lingered here a little longer, I might've felt steadier."),
+                                "没关系，我会先把其余空白补上。等我下回回来，再看看这些零散线索究竟能拼成什么样。",
+                                "That's alright. I'll fill in the other blanks first. By the time I return, we'll see what shape these scattered clues can make."),
                         List.of(
                                 new DialogueOptionDef(
-                                                "story_cartographer_finish_refused_arc",
-                                                LocalizedText.of("欢迎你以后常来", "You're always welcome here"),
+                                                "story_cartographer_leave_after_decline_ocean_photo_task",
+                                                LocalizedText.of("祝你顺利", "Good luck with it"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
-                                        .withEffects(DialogueEffectDef.setNextVisitRange(4, 7)))));
+                                        .withEffects(DialogueEffectDef.setNextVisitRange(2, 4)))));
         return new DialogueDefinition("story_cartographer_stage1", root, nodes);
     }
 
     private static DialogueDefinition buildCartographerStage2Dialogue() {
+        String root = "root";
+        String bothCompleted = "both_completed";
+        String oneCompleted = "one_completed";
+        String noneCompleted = "none_completed";
+        Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
+        nodes.put(
+                root,
+                new DialogueNodeDef(
+                        root,
+                        LocalizedText.of(
+                                "这些日子我一直在整理旅途中欠下的人情和线索。你之前帮过我的事，我都记着。让我看看，今天能给你带点什么回礼。",
+                                "These past days I've been sorting through the favors and clues I owe from my travels. I still remember what you've done for me. Let's see what I can give you in return today."),
+                        List.of(
+                                new DialogueOptionDef(
+                                                "story_cartographer_reward_both_tasks",
+                                                LocalizedText.of(
+                                                        "看来我帮上的忙比你预想的还多",
+                                                        "Looks like I helped more than you expected"),
+                                                DialogueOptionType.BRANCH,
+                                                bothCompleted,
+                                                null)
+                                        .withRequirements(
+                                                DialogueRequirementDef.hasStoryFlag(CARTOGRAPHER_HELPED_FLAG),
+                                                DialogueRequirementDef.hasStoryFlag(
+                                                        StoryGuestPhotoTaskRegistry
+                                                                .CARTOGRAPHER_OCEAN_PHOTO_COMPLETED_FLAG))
+                                        .withEffects(
+                                                DialogueEffectDef.giveItem(NATURES_COMPASS, 1),
+                                                DialogueEffectDef.giveCoins(16),
+                                                DialogueEffectDef.advanceStoryStage(3),
+                                                DialogueEffectDef.setNextVisitRange(4, 7)),
+                                new DialogueOptionDef(
+                                                "story_cartographer_reward_one_task_supplies",
+                                                LocalizedText.of(
+                                                        "能帮到你就好",
+                                                        "I'm glad I could help"),
+                                                DialogueOptionType.BRANCH,
+                                                oneCompleted,
+                                                null)
+                                        .withRequirements(
+                                                DialogueRequirementDef.missingStoryFlag(
+                                                        StoryGuestPhotoTaskRegistry
+                                                                .CARTOGRAPHER_OCEAN_PHOTO_COMPLETED_FLAG),
+                                                DialogueRequirementDef.hasStoryFlag(CARTOGRAPHER_HELPED_FLAG))
+                                        .withEffects(
+                                                DialogueEffectDef.giveItem(NATURES_COMPASS, 1),
+                                                DialogueEffectDef.advanceStoryStage(3),
+                                                DialogueEffectDef.setNextVisitRange(4, 7)),
+                                new DialogueOptionDef(
+                                                "story_cartographer_reward_one_task_photo",
+                                                LocalizedText.of(
+                                                        "至少我替你带回了一份线索",
+                                                        "At least I brought back one solid lead for you"),
+                                                DialogueOptionType.BRANCH,
+                                                oneCompleted,
+                                                null)
+                                        .withRequirements(
+                                                DialogueRequirementDef.missingStoryFlag(CARTOGRAPHER_HELPED_FLAG),
+                                                DialogueRequirementDef.hasStoryFlag(
+                                                        StoryGuestPhotoTaskRegistry
+                                                                .CARTOGRAPHER_OCEAN_PHOTO_COMPLETED_FLAG))
+                                        .withEffects(
+                                                DialogueEffectDef.giveItem(NATURES_COMPASS, 1),
+                                                DialogueEffectDef.advanceStoryStage(3),
+                                                DialogueEffectDef.setNextVisitRange(4, 7)),
+                                new DialogueOptionDef(
+                                        "story_cartographer_reward_no_tasks",
+                                        LocalizedText.of("这次看来我没帮上你什么", "Looks like I didn't help you much this time"),
+                                        DialogueOptionType.BRANCH,
+                                        noneCompleted,
+                                        null)
+                                        .withRequirements(
+                                                DialogueRequirementDef.missingStoryFlag(CARTOGRAPHER_HELPED_FLAG),
+                                                DialogueRequirementDef.missingStoryFlag(
+                                                        StoryGuestPhotoTaskRegistry
+                                                                .CARTOGRAPHER_OCEAN_PHOTO_COMPLETED_FLAG))
+                                        .withEffects(
+                                                DialogueEffectDef.advanceStoryStage(3),
+                                                DialogueEffectDef.setNextVisitRange(4, 7)))));
+        nodes.put(
+                bothCompleted,
+                new DialogueNodeDef(
+                        bothCompleted,
+                        LocalizedText.of(
+                                "我原本只想把这枚罗盘交给真正帮过我的人。现在看来，一枚罗盘还不够表达谢意。这十六枚金币也收下吧，算我替海风和潮声一起谢你。",
+                                "I meant to give this compass only to someone who had truly helped me. Now it seems a compass alone isn't enough. Take these sixteen coins as well, with my thanks and the sea's."),
+                        List.of(
+                                new DialogueOptionDef(
+                                                "story_cartographer_leave_after_both_rewards",
+                                                LocalizedText.of("那我就不客气了", "Then I'll gladly take them"),
+                                                DialogueOptionType.BRANCH,
+                                                null,
+                                                null))));
+        nodes.put(
+                oneCompleted,
+                new DialogueNodeDef(
+                        oneCompleted,
+                        LocalizedText.of(
+                                "不管是那几张纸和羽毛，还是你替我带回来的海上景色，都足够让我记住这份情。我把这枚自然罗盘留给你，愿它今后也能替你指路。",
+                                "Whether it was the paper and feather or the seascape you brought back, it was enough for me to remember the favor. Keep this Nature's Compass, and may it guide you in return."),
+                        List.of(
+                                new DialogueOptionDef(
+                                        "story_cartographer_leave_after_one_reward",
+                                        LocalizedText.of("这份礼物我会收好", "I'll keep this gift safe"),
+                                        DialogueOptionType.BRANCH,
+                                        null,
+                                        null))));
+        nodes.put(
+                noneCompleted,
+                new DialogueNodeDef(
+                        noneCompleted,
+                        LocalizedText.of(
+                                "旅途上总会有些事来不及完成。我不怪你，只是把这些未画完的边角继续记在心里。等下回见面，我们就聊些轻松的吧。",
+                                "There are always things a traveler doesn't manage to finish. I don't blame you. I'll just keep these unfinished edges in mind and save lighter talk for the next time we meet."),
+                        List.of(
+                                new DialogueOptionDef(
+                                                "story_cartographer_leave_after_no_reward",
+                                                LocalizedText.of("下次再聊", "We'll talk again next time"),
+                                                DialogueOptionType.BRANCH,
+                                                null,
+                                                null))));
+        return new DialogueDefinition("story_cartographer_stage2", root, nodes);
+    }
+
+    private static DialogueDefinition buildCartographerStage3Dialogue() {
         String root = "root";
         Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
         nodes.put(
@@ -274,7 +395,7 @@ public final class StoryGuestRegistry {
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
-        return new DialogueDefinition("story_cartographer_stage2", root, nodes);
+        return new DialogueDefinition("story_cartographer_stage3", root, nodes);
     }
 
     private static DialogueDefinition buildCartographerVisitChatterDialogue() {

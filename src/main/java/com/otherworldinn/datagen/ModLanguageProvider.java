@@ -661,6 +661,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.line.kill_progress")
                 .zh("- 击杀: %s %s/%s")
                 .en("- Kill: %s %s/%s");
+        entry("message.otherworldinn.commission.line.photo")
+                .zh("- 拍摄: %s")
+                .en("- Photograph: %s");
+        entry("message.otherworldinn.commission.line.photo_progress")
+                .zh("- 拍摄: %s %s/%s")
+                .en("- Photograph: %s %s/%s");
         entry("message.otherworldinn.commission.line.coin").zh("§0-§r \uE001§0%s").en("§0-§r \uE001§0%s");
         entry("message.otherworldinn.commission.line.favor").zh("- 好感: %s +%s").en("- Favor: %s +%s");
         entry("message.otherworldinn.commission.overlay.submit")
@@ -717,9 +723,15 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.submit_kill_unfinished")
                 .zh("击杀目标尚未完成")
                 .en("Kill objectives are not complete yet");
+        entry("message.otherworldinn.commission.submit_photo_unfinished")
+                .zh("拍照目标尚未完成")
+                .en("Photo objectives are not complete yet");
         entry("message.otherworldinn.commission.submit_items_missing")
                 .zh("背包内缺少所需提交物品")
                 .en("Missing required submission items in inventory");
+        entry("message.otherworldinn.commission.photo_recorded")
+                .zh("已记录委托照片：%s")
+                .en("Commission photograph recorded: %s");
         entry("message.otherworldinn.dialogue.requirement_items_missing")
                 .zh("背包里缺少所需物品")
                 .en("You are missing the required items");
@@ -732,6 +744,30 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.story_cartographer_compass")
                 .zh("凝聚了这位制图师的心血")
                 .en("A compass imbued with this cartographer's life's work");
+        entry("message.otherworldinn.story.photo_recorded")
+                .zh("你已经替%s记录下目标照片：%s")
+                .en("You have recorded the requested photograph for %s: %s");
+        entry("photo_objective.otherworldinn.plains_scene")
+                .zh("平原群系的景色")
+                .en("a plains biome scene");
+        entry("photo_objective.otherworldinn.cow_snapshot")
+                .zh("主世界的一头牛")
+                .en("an Overworld cow");
+        entry("photo_objective.otherworldinn.bee_snapshot")
+                .zh("主世界的一只蜜蜂")
+                .en("an Overworld bee");
+        entry("photo_objective.otherworldinn.zombie_snapshot")
+                .zh("主世界的僵尸")
+                .en("an Overworld zombie");
+        entry("photo_objective.otherworldinn.snowy_plains_scene")
+                .zh("雪原群系的景色")
+                .en("a snowy plains biome scene");
+        entry("photo_objective.otherworldinn.ghast_snapshot")
+                .zh("下界的一只恶魂")
+                .en("a Nether ghast");
+        entry("photo_objective.otherworldinn.ocean_biome_snapshot")
+                .zh("任意海洋类群系景色")
+                .en("any ocean biome scene");
         entry("screen.otherworldinn.dialogue.title").zh("对话").en("Dialogue");
         entry("dialogue.otherworldinn.npc.unknown").zh("陌生人").en("Unknown");
         addDialogueTranslations();

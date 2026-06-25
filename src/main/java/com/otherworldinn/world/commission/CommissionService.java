@@ -7,10 +7,12 @@ import com.otherworldinn.network.packet.S2CCommissionBoardPacket;
 import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +76,7 @@ public final class CommissionService {
         data.setExpireDay(day + entry.getDurationDays());
         data.setRewardClaimed(false);
         data.getKillProgress().clear();
+        data.getPhotoProgress().clear();
         addTownCommissionTodo(player.serverLevel(), team);
         notifyTeamCommissionAccepted(player.serverLevel(), team, player, entry.getDurationDays());
         TeamManager.getInstance().syncTeam(team, player.getServer());
@@ -101,6 +104,12 @@ public final class CommissionService {
         if (!isKillRequirementComplete(active, data.getKillProgress())) {
             player.displayClientMessage(
                     Component.translatable("message.otherworldinn.commission.submit_kill_unfinished"),
+                    true);
+            return true;
+        }
+        if (!isPhotoRequirementComplete(active, data.getPhotoProgress())) {
+            player.displayClientMessage(
+                    Component.translatable("message.otherworldinn.commission.submit_photo_unfinished"),
                     true);
             return true;
         }
@@ -146,12 +155,79 @@ public final class CommissionService {
         if (!changed) {
             return;
         }
-        if (isKillRequirementComplete(active, data.getKillProgress()) && !active.hasSubmitRequirement()) {
+        if (areAllRequirementsComplete(active, data) && !active.hasSubmitRequirement()) {
             completeActiveCommission(killer, team);
             return;
         }
         TeamManager.getInstance().syncTeam(team, killer.getServer());
         broadcastBoard(team, killer.serverLevel(), null);
+    }
+
+    public static void onTeamMemberPhotoObjectiveMatched(ServerPlayer player, ResourceLocation objectiveId) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return;
+        }
+        TeamCommissionData data = team.getCommissionData();
+        if (!data.hasAccepted() || data.isRewardClaimed()) {
+            return;
+        }
+        CommissionEntry active = data.getAcceptedEntry();
+        if (active == null || !active.hasPhotoRequirement()) {
+            return;
+        }
+
+        boolean changed = false;
+        for (CommissionEntry.PhotoRequirement requirement : active.getPhotoRequirements()) {
+            if (data.getPhotoProgress().contains(requirement.objectiveId())) {
+                continue;
+            }
+            if (requirement.objectiveId().equals(objectiveId.toString())) {
+                data.getPhotoProgress().add(requirement.objectiveId());
+                changed = true;
+                player.displayClientMessage(
+                        Component.translatable(
+                                "message.otherworldinn.commission.photo_recorded",
+                                PhotoObjectiveRegistry.getDisplayName(objectiveId)),
+                        true);
+            }
+        }
+        if (!changed) {
+            return;
+        }
+        if (areAllRequirementsComplete(active, data) && !active.hasSubmitRequirement()) {
+            completeActiveCommission(player, team);
+            return;
+        }
+        TeamManager.getInstance().syncTeam(team, player.getServer());
+        broadcastBoard(team, player.serverLevel(), null);
+    }
+
+    public static List<ResourceLocation> getActivePhotoObjectives(ServerPlayer player) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return List.of();
+        }
+        TeamCommissionData data = team.getCommissionData();
+        if (!data.hasAccepted() || data.isRewardClaimed()) {
+            return List.of();
+        }
+        CommissionEntry active = data.getAcceptedEntry();
+        if (active == null || !active.hasPhotoRequirement()) {
+            return List.of();
+        }
+
+        LinkedHashSet<ResourceLocation> objectiveIds = new LinkedHashSet<>();
+        for (CommissionEntry.PhotoRequirement requirement : active.getPhotoRequirements()) {
+            if (data.getPhotoProgress().contains(requirement.objectiveId())) {
+                continue;
+            }
+            ResourceLocation id = ResourceLocation.tryParse(requirement.objectiveId());
+            if (id != null) {
+                objectiveIds.add(id);
+            }
+        }
+        return List.copyOf(objectiveIds);
     }
 
     public static boolean tick(ServerLevel level, TeamData team) {
@@ -406,6 +482,7 @@ public final class CommissionService {
                                 durationDays,
                                 template.submitRequirements(),
                                 template.killRequirements(),
+                                template.photoRequirements(),
                                 template.itemRewards(),
                                 template.coinReward(),
                                 template.npcFavorRewards());
@@ -445,6 +522,24 @@ public final class CommissionService {
             }
         }
         return true;
+    }
+
+    private static boolean isPhotoRequirementComplete(
+            CommissionEntry entry, java.util.Set<String> photoProgress) {
+        if (!entry.hasPhotoRequirement()) {
+            return true;
+        }
+        for (CommissionEntry.PhotoRequirement req : entry.getPhotoRequirements()) {
+            if (!photoProgress.contains(req.objectiveId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean areAllRequirementsComplete(CommissionEntry entry, TeamCommissionData data) {
+        return isKillRequirementComplete(entry, data.getKillProgress())
+                && isPhotoRequirementComplete(entry, data.getPhotoProgress());
     }
 
     private static boolean hasRequiredItems(

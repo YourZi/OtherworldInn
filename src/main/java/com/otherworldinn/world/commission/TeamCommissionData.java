@@ -2,8 +2,10 @@ package com.otherworldinn.world.commission;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -14,6 +16,7 @@ import net.minecraft.nbt.Tag;
 public class TeamCommissionData {
     private final List<CommissionEntry> boardEntries = new ArrayList<>();
     private final Map<String, Integer> killProgress = new HashMap<>();
+    private final Set<String> photoProgress = new HashSet<>();
     private int acceptedIndex = -1;
     private long acceptedDay = -1L;
     private long expireDay = -1L;
@@ -39,6 +42,7 @@ public class TeamCommissionData {
         this.expireDay = -1L;
         this.rewardClaimed = false;
         this.killProgress.clear();
+        this.photoProgress.clear();
     }
 
     public CompoundTag save() {
@@ -58,6 +62,12 @@ public class TeamCommissionData {
             killProgressTag.add(progressTag);
         }
         tag.put("KillProgress", killProgressTag);
+
+        ListTag photoProgressTag = new ListTag();
+        for (String objectiveId : photoProgress) {
+            photoProgressTag.add(StringTag.valueOf(objectiveId));
+        }
+        tag.put("PhotoProgress", photoProgressTag);
 
         tag.putInt("AcceptedIndex", acceptedIndex);
         tag.putLong("AcceptedDay", acceptedDay);
@@ -90,6 +100,17 @@ public class TeamCommissionData {
                     if (!entityId.isBlank() && count > 0) {
                         killProgress.put(entityId, count);
                     }
+                }
+            }
+        }
+
+        photoProgress.clear();
+        if (tag.contains("PhotoProgress", Tag.TAG_LIST)) {
+            ListTag photoProgressTag = tag.getList("PhotoProgress", Tag.TAG_STRING);
+            for (Tag t : photoProgressTag) {
+                String objectiveId = t.getAsString();
+                if (!objectiveId.isBlank()) {
+                    photoProgress.add(objectiveId);
                 }
             }
         }

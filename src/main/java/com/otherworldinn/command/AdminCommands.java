@@ -477,6 +477,9 @@ public class AdminCommands {
                 () -> Component.literal("storyFlags: " + progress.getStoryFlags()),
                 false);
         context.getSource().sendSuccess(
+                () -> Component.literal("canVisitAgain: " + StoryGuestService.canVisitAgain(baseLevel, storyGuestId)),
+                false);
+        context.getSource().sendSuccess(
                 () ->
                         Component.literal(
                                 "activeEntity: "

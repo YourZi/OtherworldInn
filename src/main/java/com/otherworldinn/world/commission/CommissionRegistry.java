@@ -1,6 +1,7 @@
 package com.otherworldinn.world.commission;
 
 import com.otherworldinn.world.dialogue.LocalizedText;
+import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -489,6 +490,77 @@ public final class CommissionRegistry {
                 .rewardFavor("otherworldinn:builder", 80)
                 .build();
 
+        register("farmer_cow_snapshot")
+                .stars(1, 1)
+                .weight(6)
+                .description(
+                        LocalizedText.of(
+                                "巡逻队需要一些僵尸出没的画面素材来补充记录。请在主世界拍到至少一只僵尸。",
+                                "The patrol needs footage of zombie sightings for its records. Photograph at least one zombie in the Overworld."))
+                .photo(PhotoObjectiveRegistry.ZOMBIE_SNAPSHOT_ID.toString())
+                .rewardCoins(12)
+                .rewardItem("minecraft:diamond_sword", 1)
+                .build();
+
+        register("plains_scene_snapshot")
+                .stars(1, 1)
+                .weight(9)
+                .description(
+                        LocalizedText.of(
+                                "农务记录员想补一张平原环境照，方便整理本季的耕作笔记。请拍一张平原群系的景色。",
+                                "The farm recorder needs a plains landscape for this season's cultivation notes. Take a photograph in a plains biome."))
+                .photo(PhotoObjectiveRegistry.PLAINS_SCENE_ID.toString())
+                .rewardCoins(18)
+                .build();
+
+        register("pasture_cow_snapshot")
+                .stars(1, 2)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "牧场要补一份牲畜档案，拍到至少一头牛就行，不必特意清场。",
+                                "The ranch needs a livestock archive entry. Photograph at least one cow; no need to clear the scene."))
+                .photo(PhotoObjectiveRegistry.COW_SNAPSHOT_ID.toString())
+                .rewardCoins(22)
+                .rewardItem("minecraft:milk_bucket", 1)
+                .build();
+
+        register("apiary_bee_snapshot")
+                .stars(1, 2)
+                .weight(7)
+                .description(
+                        LocalizedText.of(
+                                "园艺师想收集一张蜜蜂活动的照片，替她在主世界拍到至少一只蜜蜂。",
+                                "The gardener wants a photograph of bee activity. Capture at least one bee in the Overworld."))
+                .photo(PhotoObjectiveRegistry.BEE_SNAPSHOT_ID.toString())
+                .rewardCoins(24)
+                .rewardItem("minecraft:honey_bottle", 2)
+                .build();
+
+        register("snowfield_survey_snapshot")
+                .stars(2, 3)
+                .weight(5)
+                .description(
+                        LocalizedText.of(
+                                "补给队想先看看雪原的路况，带回一张雪原群系的景色照片。",
+                                "The supply caravan wants an early look at the route conditions. Bring back a photograph from a snowy plains biome."))
+                .photo(PhotoObjectiveRegistry.SNOWY_PLAINS_SCENE_ID.toString())
+                .rewardCoins(42)
+                .rewardItem("minecraft:leather_boots", 1)
+                .build();
+
+        register("nether_ghast_snapshot")
+                .stars(3, 4)
+                .weight(3)
+                .description(
+                        LocalizedText.of(
+                                "冒险协会需要恶魂目击素材来补充下界航路档案。请在下界拍到至少一只恶魂。",
+                                "The Adventurers Guild needs ghast sighting footage for its Nether route archive. Photograph at least one ghast in the Nether."))
+                .photo(PhotoObjectiveRegistry.GHAST_SNAPSHOT_ID.toString())
+                .rewardCoins(68)
+                .rewardItem("minecraft:ghast_tear", 2)
+                .build();
+
         register(FishingCommissionGenerator.TEMPLATE_ID)
                 .stars(1, 5)
                 .weight(7)
@@ -546,6 +618,7 @@ public final class CommissionRegistry {
             LocalizedText description,
             List<CommissionEntry.ItemRequirement> submitRequirements,
             List<CommissionEntry.KillRequirement> killRequirements,
+            List<CommissionEntry.PhotoRequirement> photoRequirements,
             List<CommissionEntry.ItemReward> itemRewards,
             int coinReward,
             List<CommissionEntry.NpcFavorReward> npcFavorRewards) {
@@ -562,6 +635,7 @@ public final class CommissionRegistry {
         private LocalizedText description = LocalizedText.of("暂无描述", "No description");
         private final List<CommissionEntry.ItemRequirement> submitRequirements = new ArrayList<>();
         private final List<CommissionEntry.KillRequirement> killRequirements = new ArrayList<>();
+        private final List<CommissionEntry.PhotoRequirement> photoRequirements = new ArrayList<>();
         private final List<CommissionEntry.ItemReward> itemRewards = new ArrayList<>();
         private int coinReward = 0;
         private final List<CommissionEntry.NpcFavorReward> npcFavorRewards = new ArrayList<>();
@@ -603,6 +677,11 @@ public final class CommissionRegistry {
             return this;
         }
 
+        public Builder photo(String objectiveId) {
+            this.photoRequirements.add(new CommissionEntry.PhotoRequirement(objectiveId));
+            return this;
+        }
+
         public Builder rewardItem(String itemId, int count) {
             this.itemRewards.add(new CommissionEntry.ItemReward(itemId, count));
             return this;
@@ -629,6 +708,7 @@ public final class CommissionRegistry {
                             description,
                             List.copyOf(submitRequirements),
                             List.copyOf(killRequirements),
+                            List.copyOf(photoRequirements),
                             List.copyOf(itemRewards),
                             coinReward,
                             List.copyOf(npcFavorRewards));

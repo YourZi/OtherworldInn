@@ -33,6 +33,17 @@ public record DialogueEffectDef(
                 0);
     }
 
+    public static DialogueEffectDef giveCoins(int count) {
+        return new DialogueEffectDef(
+                DialogueEffectType.GIVE_COINS,
+                null,
+                Math.max(1, count),
+                null,
+                0,
+                0,
+                0);
+    }
+
     public static DialogueEffectDef setStoryFlag(String storyFlag) {
         return new DialogueEffectDef(
                 DialogueEffectType.SET_STORY_FLAG, null, 0, storyFlag, 0, 0, 0);

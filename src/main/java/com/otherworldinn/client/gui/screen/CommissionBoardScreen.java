@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SAcceptCommissionPacket;
+import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.Minecraft;
@@ -385,6 +386,35 @@ public class CommissionBoardScreen extends AbstractContainerScreen<CommissionBoa
                 }
             }
         }
+        if (entry.contains("PhotoRequirements", Tag.TAG_LIST)) {
+            ListTag photos = entry.getList("PhotoRequirements", Tag.TAG_COMPOUND);
+            for (Tag t : photos) {
+                if (t instanceof CompoundTag req) {
+                    ResourceLocation objectiveId =
+                            ResourceLocation.tryParse(req.getString("ObjectiveId"));
+                    Component objectiveName =
+                            objectiveId == null
+                                    ? Component.literal(req.getString("ObjectiveId"))
+                                    : PhotoObjectiveRegistry.getDisplayName(objectiveId);
+                    Component line;
+                    if (showKillProgress) {
+                        int current = objectiveId != null && hasPhotoProgress(objectiveId.toString()) ? 1 : 0;
+                        line =
+                                Component.translatable(
+                                        "message.otherworldinn.commission.line.photo_progress",
+                                        objectiveName,
+                                        current,
+                                        1);
+                    } else {
+                        line =
+                                Component.translatable(
+                                        "message.otherworldinn.commission.line.photo",
+                                        objectiveName);
+                    }
+                    lineY = drawSingleLineClamped(guiGraphics, line, x, lineY, maxWidth, bottomY, COLOR_BODY);
+                }
+            }
+        }
         return lineY;
     }
 
@@ -401,6 +431,20 @@ public class CommissionBoardScreen extends AbstractContainerScreen<CommissionBoa
             }
         }
         return 0;
+    }
+
+    private boolean hasPhotoProgress(String objectiveId) {
+        CompoundTag commissionData = boardData.getCompound("CommissionData");
+        if (!commissionData.contains("PhotoProgress", Tag.TAG_LIST)) {
+            return false;
+        }
+        ListTag photoProgress = commissionData.getList("PhotoProgress", Tag.TAG_STRING);
+        for (Tag tag : photoProgress) {
+            if (objectiveId.equals(tag.getAsString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int drawDescription(
