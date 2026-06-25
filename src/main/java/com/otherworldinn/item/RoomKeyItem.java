@@ -6,6 +6,7 @@ import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -310,7 +311,12 @@ public class RoomKeyItem extends Item {
 
                                     // 价格
                                     int rating = team.getInnData().getRating();
-                                    int price = room.getBedPrice(rating);
+                                    int price =
+                                            team.getInnData()
+                                                    .applyPositiveDecorationBuff(
+                                                            room.getBedPrice(rating),
+                                                            InnDecorationBuffType
+                                                                    .LODGING_INCOME_MULTIPLIER);
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.room_key.price",

@@ -46,9 +46,16 @@ public class ModTooltips {
         ItemStack itemStack = event.getItemStack();
         Item item = itemStack.getItem();
         Level level = Minecraft.getInstance().level;
+        TeamData clientTeam = TeamManager.getInstance().getClientPlayerTeam();
 
         // 显示出售价格
         int sellPrice = ItemSellPriceManager.getPrice(itemStack);
+        if (sellPrice > 0 && clientTeam != null) {
+            sellPrice =
+                    clientTeam.getInnData()
+                            .applyPositiveDecorationBuff(
+                                    sellPrice, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
+        }
         if (sellPrice > 0) {
             event.getToolTip()
                     .add(
@@ -88,9 +95,8 @@ public class ModTooltips {
 
             // 为旅社钥匙添加状态提示
             if (itemStack.is(ModItems.INN_KEY.get())) {
-                TeamData team = TeamManager.getInstance().getClientPlayerTeam();
-                if (team != null) {
-                    InnData.InnState state = team.getInnData().getState();
+                if (clientTeam != null) {
+                    InnData.InnState state = clientTeam.getInnData().getState();
                     Component stateText;
                     int color;
 

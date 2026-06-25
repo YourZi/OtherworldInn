@@ -648,6 +648,10 @@ public class InnData {
         return Math.max(0.0D, 1.0D + getDecorationBuffValue(type));
     }
 
+    public int applyPositiveDecorationBuff(int amount, InnDecorationBuffType type) {
+        return applyPositiveBuff(amount, type);
+    }
+
     private int applyPositiveBuff(int amount, InnDecorationBuffType type) {
         if (amount <= 0) {
             return amount;
