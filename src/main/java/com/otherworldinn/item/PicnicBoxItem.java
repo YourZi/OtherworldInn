@@ -47,7 +47,7 @@ public class PicnicBoxItem extends Item {
     private static final String CLEAR_TOOLTIP_KEY = "item.otherworldinn.picnic_box.tooltip.clear";
     private static final String EMPTY_TOOLTIP_KEY = "item.otherworldinn.picnic_box.tooltip.empty";
     private static final String CONTENTS_TOOLTIP_KEY = "item.otherworldinn.picnic_box.tooltip.contents";
-    private static final String SLOT_TOOLTIP_KEY = "item.otherworldinn.picnic_box.tooltip.slot";
+    private static final String ENTRY_TOOLTIP_KEY = "item.otherworldinn.picnic_box.tooltip.entry";
     private static final String EMPTY_KEY = "message.otherworldinn.picnic_box.empty";
     private static final String CANNOT_EAT_KEY = "message.otherworldinn.picnic_box.cannot_eat";
 
@@ -222,7 +222,7 @@ public class PicnicBoxItem extends Item {
             }
             tooltipComponents.add(
                     Component.translatable(
-                                    SLOT_TOOLTIP_KEY, i + 1, slotStack.getHoverName(), slotStack.getCount())
+                                    ENTRY_TOOLTIP_KEY, slotStack.getHoverName(), slotStack.getCount())
                             .withStyle(ChatFormatting.GRAY));
         }
     }

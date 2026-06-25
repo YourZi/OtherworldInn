@@ -7,10 +7,9 @@ import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.util.EntityUtils;
-import com.otherworldinn.world.inn.decoration.InnDecorationBuff;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
-import com.otherworldinn.world.inn.decoration.InnDecorationDefinition;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
+import com.otherworldinn.world.inn.decoration.InnDecorationStats;
 import com.otherworldinn.world.inn.service.ClipboardManager;
 import com.otherworldinn.world.inn.service.FurnitureManager;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
@@ -632,19 +631,15 @@ public class InnData {
         }
         double total = 0.0D;
         for (Map.Entry<String, Integer> entry : activeDecorationCounts.entrySet()) {
-            InnDecorationDefinition definition = InnDecorationRegistry.get(entry.getKey());
-            if (definition == null) {
+            InnDecorationStats stats = InnDecorationRegistry.getById(entry.getKey());
+            if (stats == null) {
                 continue;
             }
-            int instanceCount = definition.getEffectiveInstanceCount(entry.getValue());
+            int instanceCount = stats.getEffectiveInstanceCount(entry.getValue());
             if (instanceCount <= 0) {
                 continue;
             }
-            for (InnDecorationBuff buff : definition.buffs()) {
-                if (buff.type() == type) {
-                    total += buff.value() * instanceCount;
-                }
-            }
+            total += stats.getValue(type) * instanceCount;
         }
         return total;
     }

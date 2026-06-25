@@ -1,8 +1,6 @@
 package com.otherworldinn.world.inn.decoration;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,51 +12,53 @@ import net.minecraft.world.level.block.Block;
 /**
  * 旅社装饰注册表。
  *
- * <p>新版改为单方块全局装饰，按方块、标签或关键词匹配效果定义。
+ * <p>形式与家具系统保持一致，按方块、标签或关键词匹配全局装饰属性。
  */
 public final class InnDecorationRegistry {
-    private static final Map<String, InnDecorationDefinition> DEFINITIONS = new LinkedHashMap<>();
-    private static final Map<Block, InnDecorationDefinition> BLOCK_DEFINITIONS = new LinkedHashMap<>();
-    private static final Map<TagKey<Block>, InnDecorationDefinition> TAG_DEFINITIONS =
-            new LinkedHashMap<>();
-    private static final List<KeywordRule> KEYWORD_RULES = new ArrayList<>();
+    private static final Map<String, InnDecorationStats> ID_STATS = new HashMap<>();
+    private static final Map<Block, InnDecorationStats> BLOCK_STATS = new HashMap<>();
+    private static final Map<TagKey<Block>, InnDecorationStats> TAG_STATS = new HashMap<>();
+    private static final List<KeywordRule> KEYWORD_RULES =
+            List.of(
+                    new KeywordRule(
+                            "photograph_frame",
+                            new InnDecorationStats("photograph_frame", 0.02D, 0.0D, 0.0D, 0.0D, 5)));
 
     static {
-        registerDefaults();
+        initDefaultDecorations();
     }
 
     private InnDecorationRegistry() {}
 
-    public static InnDecorationDefinition register(
-            String id,
-            String enName,
-            String zhName,
-            String translationKey,
-            List<InnDecorationBuff> buffs,
-            int maxInstances) {
-        InnDecorationDefinition definition =
-                new InnDecorationDefinition(id, enName, zhName, translationKey, buffs, maxInstances);
-        DEFINITIONS.put(definition.id(), definition);
-        return definition;
+    public static void registerBlock(Block block, InnDecorationStats stats) {
+        BLOCK_STATS.put(block, stats);
+        ID_STATS.put(stats.id(), stats);
     }
 
-    public static InnDecorationDefinition get(String id) {
-        return DEFINITIONS.get(id);
+    public static void registerTag(TagKey<Block> tag, InnDecorationStats stats) {
+        TAG_STATS.put(tag, stats);
+        ID_STATS.put(stats.id(), stats);
     }
 
-    public static Collection<InnDecorationDefinition> getAll() {
-        return DEFINITIONS.values();
+    public static Optional<InnDecorationStats> getStats(Block block) {
+        return getBaseStats(block);
     }
 
-    public static Optional<InnDecorationDefinition> resolve(Block block) {
-        InnDecorationDefinition definition = BLOCK_DEFINITIONS.get(block);
-        if (definition != null) {
-            return Optional.of(definition);
+    public static InnDecorationStats getById(String id) {
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        return ID_STATS.get(id);
+    }
+
+    private static Optional<InnDecorationStats> getBaseStats(Block block) {
+        if (BLOCK_STATS.containsKey(block)) {
+            return Optional.of(BLOCK_STATS.get(block));
         }
 
-        var defaultState = block.defaultBlockState();
-        for (Map.Entry<TagKey<Block>, InnDecorationDefinition> entry : TAG_DEFINITIONS.entrySet()) {
-            if (defaultState.is(entry.getKey())) {
+        var state = block.defaultBlockState();
+        for (var entry : TAG_STATS.entrySet()) {
+            if (state.is(entry.getKey())) {
                 return Optional.of(entry.getValue());
             }
         }
@@ -68,7 +68,8 @@ public final class InnDecorationRegistry {
             String key = blockId.toString().toLowerCase(java.util.Locale.ROOT);
             for (KeywordRule rule : KEYWORD_RULES) {
                 if (key.contains(rule.keyword())) {
-                    return Optional.of(rule.definition());
+                    ID_STATS.putIfAbsent(rule.stats().id(), rule.stats());
+                    return Optional.of(rule.stats());
                 }
             }
         }
@@ -76,59 +77,14 @@ public final class InnDecorationRegistry {
         return Optional.empty();
     }
 
-    public static void registerBlock(Block block, InnDecorationDefinition definition) {
-        BLOCK_DEFINITIONS.put(block, definition);
-    }
-
-    public static void registerTag(TagKey<Block> tag, InnDecorationDefinition definition) {
-        TAG_DEFINITIONS.put(tag, definition);
-    }
-
-    public static void registerKeyword(String keyword, InnDecorationDefinition definition) {
-        if (keyword == null || keyword.isBlank()) {
-            throw new IllegalArgumentException("Decoration keyword cannot be blank.");
+    /** 初始化默认全局装饰配置 */
+    private static void initDefaultDecorations() {
+        for (KeywordRule rule : KEYWORD_RULES) {
+            ID_STATS.put(rule.stats().id(), rule.stats());
         }
-        KEYWORD_RULES.add(new KeywordRule(keyword, definition));
     }
 
-    private static void registerDefaults() {
-        InnDecorationDefinition coralRockery =
-                register(
-                "coral_rockery",
-                "Coral Rockery",
-                "珊瑚假山",
-                "inn_decoration.otherworldinn.coral_rockery",
-                List.of(new InnDecorationBuff(InnDecorationBuffType.LODGING_INCOME_MULTIPLIER, 0.02D)),
-                5);
-        registerKeyword("coral", coralRockery);
-
-        InnDecorationDefinition fishTankDisplay =
-                register(
-                        "fish_tank_display",
-                        "Fish Tank Display",
-                        "观赏鱼缸",
-                        "inn_decoration.otherworldinn.fish_tank_display",
-                        List.of(
-                                new InnDecorationBuff(
-                                        InnDecorationBuffType.GUEST_ARRIVAL_SPEED_MULTIPLIER,
-                                        0.03D)),
-                        3);
-        registerKeyword("fish_tank", fishTankDisplay);
-
-        InnDecorationDefinition photographFrame =
-                register(
-                        "photograph_frame",
-                        "Photograph Frame",
-                        "摄影相框",
-                        "inn_decoration.otherworldinn.photograph_frame",
-                        List.of(
-                                new InnDecorationBuff(
-                                        InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER, 0.02D)),
-                        5);
-        registerKeyword("photograph_frame", photographFrame);
-    }
-
-    private record KeywordRule(String keyword, InnDecorationDefinition definition) {
+    private record KeywordRule(String keyword, InnDecorationStats stats) {
         private KeywordRule {
             keyword = keyword.toLowerCase(java.util.Locale.ROOT);
         }

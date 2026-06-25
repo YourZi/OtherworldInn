@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class PicnicBoxData implements INBTSerializable<CompoundTag> {
-    public static final int SLOT_COUNT = 3;
+    public static final int SLOT_COUNT = 2;
     public static final int MAX_ITEMS_PER_SLOT = 4;
 
     private final NonNullList<ItemStack> slots = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
@@ -227,12 +227,16 @@ public class PicnicBoxData implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < itemsTag.size(); i++) {
             CompoundTag entry = itemsTag.getCompound(i);
             int slot = entry.getInt("Slot");
-            if (slot < 0 || slot >= SLOT_COUNT || !entry.contains("Item", Tag.TAG_COMPOUND)) {
+            if (!entry.contains("Item", Tag.TAG_COMPOUND)) {
                 continue;
             }
             ItemStack stack =
                     ItemStack.parse(provider, entry.getCompound("Item")).orElse(ItemStack.EMPTY);
-            setItem(slot, stack);
+            if (slot >= 0 && slot < SLOT_COUNT) {
+                setItem(slot, stack);
+                continue;
+            }
+            insert(stack, stack.getCount());
         }
     }
 }

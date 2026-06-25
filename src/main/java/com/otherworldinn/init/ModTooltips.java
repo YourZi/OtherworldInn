@@ -7,11 +7,12 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import com.otherworldinn.world.inn.InnData;
-import com.otherworldinn.world.inn.decoration.InnDecorationBuff;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
+import com.otherworldinn.world.inn.decoration.InnDecorationStats;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -138,13 +139,8 @@ public class ModTooltips {
         if (item instanceof BlockItem blockItem) {
             Block block = blockItem.getBlock();
 
-            InnDecorationRegistry.resolve(block)
-                    .ifPresent(
-                            definition -> {
-                                for (InnDecorationBuff buff : definition.buffs()) {
-                                    event.getToolTip().add(getDecorationTooltip(buff));
-                                }
-                            });
+            InnDecorationRegistry.getStats(block)
+                    .ifPresent(stats -> addDecorationTooltips(event.getToolTip(), stats));
 
             for (Map.Entry<DeferredBlock<?>, BlockDataGenInfo> entry :
                     ModBlocks.BLOCK_INFOS.entrySet()) {
@@ -163,9 +159,31 @@ public class ModTooltips {
         }
     }
 
-    private static Component getDecorationTooltip(InnDecorationBuff buff) {
-        String amount = formatDecorationPercentage(buff.value());
-        return switch (buff.type()) {
+    private static void addDecorationTooltips(List<Component> tooltip, InnDecorationStats stats) {
+        addDecorationTooltip(
+                tooltip,
+                InnDecorationBuffType.LODGING_INCOME_MULTIPLIER,
+                stats.lodgingIncomeMultiplier());
+        addDecorationTooltip(
+                tooltip, InnDecorationBuffType.DINING_INCOME_MULTIPLIER, stats.diningIncomeMultiplier());
+        addDecorationTooltip(
+                tooltip,
+                InnDecorationBuffType.GUEST_ARRIVAL_SPEED_MULTIPLIER,
+                stats.guestArrivalSpeedMultiplier());
+        addDecorationTooltip(
+                tooltip,
+                InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER,
+                stats.reputationGainMultiplier());
+    }
+
+    private static void addDecorationTooltip(
+            List<Component> tooltip, InnDecorationBuffType type, double value) {
+        if (value == 0.0D) {
+            return;
+        }
+        String amount = formatDecorationPercentage(value);
+        tooltip.add(
+                switch (type) {
             case LODGING_INCOME_MULTIPLIER ->
                     Component.translatable("tooltip.otherworldinn.decoration.lodging_income", amount)
                             .withStyle(style -> style.withColor(ModColors.YELLOW));
@@ -180,7 +198,7 @@ public class ModTooltips {
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.reputation_gain", amount)
                             .withStyle(style -> style.withColor(ModColors.SUCCESS));
-        };
+                });
     }
 
     private static String formatDecorationPercentage(double value) {

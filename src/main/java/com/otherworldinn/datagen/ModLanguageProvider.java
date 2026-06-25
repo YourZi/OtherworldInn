@@ -12,7 +12,6 @@ import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestRegistry;
-import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import java.util.HashSet;
@@ -407,9 +406,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("item.otherworldinn.picnic_box.tooltip.contents")
                 .zh("内容预览: %s / %s")
                 .en("Contents: %s / %s");
-        entry("item.otherworldinn.picnic_box.tooltip.slot")
-                .zh("槽位 %s: %s x%s")
-                .en("Slot %s: %s x%s");
+        entry("item.otherworldinn.picnic_box.tooltip.entry")
+                .zh("- %s x%s")
+                .en("- %s x%s");
         entry("message.otherworldinn.reskillable.auto_level_up")
                 .zh("技能 %s 已升级至等级 %s")
                 .en("Skill %s has been upgraded to level %s");
@@ -1089,11 +1088,6 @@ public class ModLanguageProvider extends LanguageProvider {
             add(facility.translationKey(), isZh ? facility.zhName() : facility.enName());
         }
 
-        for (var decoration : InnDecorationRegistry.getAll()) {
-            add(
-                    decoration.translationKey(),
-                    isZh ? decoration.zhName() : decoration.enName());
-        }
     }
 
     private TranslationBuilder entry(String key) {

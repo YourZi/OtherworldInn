@@ -37,8 +37,8 @@ public final class InnDecorationService {
             }
 
             String previousDecorationId = innData.getActiveDecorationIdAt(pos);
-            Optional<InnDecorationDefinition> currentDefinition = resolveCurrentDecoration(level, team, pos);
-            String currentDecorationId = currentDefinition.map(InnDecorationDefinition::id).orElse(null);
+            Optional<InnDecorationStats> currentStats = resolveCurrentDecoration(level, team, pos);
+            String currentDecorationId = currentStats.map(InnDecorationStats::id).orElse(null);
 
             if (Objects.equals(previousDecorationId, currentDecorationId)) {
                 continue;
@@ -62,11 +62,11 @@ public final class InnDecorationService {
                 true, Set.copyOf(activatedDecorationIds), Set.copyOf(removedDecorationIds));
     }
 
-    private static Optional<InnDecorationDefinition> resolveCurrentDecoration(
+    private static Optional<InnDecorationStats> resolveCurrentDecoration(
             ServerLevel level, TeamData team, BlockPos pos) {
         if (!team.isInInnZone(pos)) {
             return Optional.empty();
         }
-        return InnDecorationRegistry.resolve(level.getBlockState(pos).getBlock());
+        return InnDecorationRegistry.getStats(level.getBlockState(pos).getBlock());
     }
 }
