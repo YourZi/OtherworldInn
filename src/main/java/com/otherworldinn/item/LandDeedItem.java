@@ -272,7 +272,7 @@ public class LandDeedItem extends Item {
 
                 int price = calculatePrice(team, pos1, pos2);
 
-                if (team.removeCoins(price, serverPlayer.getServer())) {
+                if (TeamManager.getInstance().removeCoins(team, price, serverPlayer.getServer())) {
                     TeamData.InnRegion newRegion = new TeamData.InnRegion(minX, minZ, maxX, maxZ);
 
                     // 添加区域

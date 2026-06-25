@@ -87,7 +87,7 @@ public class FarmerEntity extends StoreEntity {
     private void initDefaultStoreItems() {
         this.addFavorStoreItem(2, new ItemStack(Items.BONE_MEAL), 4, 64);
         this.addFavorStoreItem(4, new ItemStack(AllItems.TREE_FERTILIZER.get()), 6, 64);
-        this.addFavorStoreItem(6, new ItemStack(Items.BONE_MEAL), 1, 32);
+        this.addFavorStoreItem(6, new ItemStack(ModItems.SCARECROW.get()), 24, 8);
         this.addFavorStoreItem(8, new ItemStack(Items.NETHERITE_HOE), 64, 1);
         this.refreshRandomItems();
     }

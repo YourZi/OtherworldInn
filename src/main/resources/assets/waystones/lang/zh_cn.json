@@ -1,0 +1,7 @@
+{
+  "gui.waystones.waystone_selection.level_requirement": "金币消耗：%d",
+  "gui.waystones.waystone_selection.xp_requirement": "金币消耗：%d",
+  "gui.waystones.waystone_selection.no_xp_requirement": "金币消耗：免费",
+  "chat.waystones.not_enough_xp": "队伍金币不足，无法传送。",
+  "tooltip.waystones.not_enough_xp": "队伍金币不足！(需要 %d 金币)"
+}

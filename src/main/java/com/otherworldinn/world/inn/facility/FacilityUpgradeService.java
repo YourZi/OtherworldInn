@@ -120,7 +120,7 @@ public final class FacilityUpgradeService {
         if (!player.getAbilities().instabuild) {
             player.getItemInHand(hand).shrink(1);
             removeRequiredItems(player.getInventory(), next.requiredItems());
-            team.removeCoins(next.requiredCoins(), player.getServer());
+            TeamManager.getInstance().removeCoins(team, next.requiredCoins(), player.getServer());
         }
 
         boolean isRepair = context.currentLevel() == 0;

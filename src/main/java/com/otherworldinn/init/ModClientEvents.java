@@ -1,6 +1,7 @@
 package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.compat.waystones.WaystonesClientCompat;
 import com.otherworldinn.client.gui.screen.StoreScreen;
 import com.otherworldinn.client.gui.screen.WanderingTraderRecycleScreen;
 import com.otherworldinn.client.renderer.BlacksmithModel;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -65,6 +67,9 @@ public class ModClientEvents {
                                 if (entity == null) return 0.0F;
                                 return entity.getOffhandItem() == stack ? 1.0F : 0.0F;
                             });
+                    if (ModList.get().isLoaded("waystones")) {
+                        WaystonesClientCompat.init();
+                    }
                 });
     }
 

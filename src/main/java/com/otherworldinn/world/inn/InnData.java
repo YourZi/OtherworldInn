@@ -1542,7 +1542,7 @@ public class InnData {
             }
             if (isNormalCheckout && team != null) {
                 int price = targetRoom.getBedPrice(this.rating);
-                team.addCoins(price, level.getServer());
+                TeamManager.getInstance().addCoins(team, price, level.getServer());
                 this.recordLodgingIncome(price, level);
             }
             if (isNormalCheckout && guest != null) {

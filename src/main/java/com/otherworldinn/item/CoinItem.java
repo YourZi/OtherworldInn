@@ -176,7 +176,7 @@ public class CoinItem extends Item {
         if (!player.getAbilities().instabuild) {
             stack.shrink(depositAmount);
         }
-        team.addCoins(depositAmount, player.getServer());
+        TeamManager.getInstance().addCoins(team, depositAmount, player.getServer());
         if (!fromSameTeamWithdrawal
                 && !player.getAbilities().instabuild
                 && player.level() instanceof ServerLevel serverLevel) {

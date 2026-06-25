@@ -303,7 +303,7 @@ public class RoomData {
     /**
      * 判定区域是否能作为房间
      *
-     * <p>检查逻辑： 1. 房间的两个角坐标必须在旅社区域内。 2. 底面（最低点再低一格）所有方块必须有完整的、可站立的上表面。 3.
+     * <p>检查逻辑： 1. 房间的整个水平投影必须在旅社区域内。 2. 底面（最低点再低一格）所有方块必须有完整的、可站立的上表面。 3.
      * 顶面（最高点再高一格）所有方块不能为无碰撞体积的方块。 4. 侧面（四个侧面）外层方块中，至少 3/4 的方块必须有碰撞体积。 5. 所有侧面的最外层方块中，至少包含一扇门。 6.
      * 房间内部必须至少包含一张床。 7. 房间不能与已有房间重叠。 8. 房间内必须至少包含一个 2x2x2 的无碰撞箱空间。
      *
@@ -317,8 +317,8 @@ public class RoomData {
             BlockPos minPos, BlockPos maxPos, Level level, TeamData team, Integer ignoreRoomId) {
         // 0. 检查是否在旅社区域内
         if (team != null) {
-            // 检查 minPos 和 maxPos 是否都在旅社区域内
-            if (!team.isInInnZone(minPos) || !team.isInInnZone(maxPos)) {
+            // 检查房间整个水平投影是否都在旅社区域内
+            if (!team.isAreaInInnZone(minPos, maxPos)) {
                 return ValidationResult.OUT_OF_BOUNDS;
             }
 

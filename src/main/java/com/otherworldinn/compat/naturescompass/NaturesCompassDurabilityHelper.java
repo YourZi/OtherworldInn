@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
@@ -82,11 +83,19 @@ public final class NaturesCompassDurabilityHelper {
     }
 
     private static boolean shouldConsumeDurability(ItemStack stack, Player player) {
+        if (isUnbreakable(stack)) {
+            return false;
+        }
         int unbreakingLevel = getUnbreakingLevel(stack, player);
         if (unbreakingLevel <= 0) {
             return true;
         }
         return player.getRandom().nextInt(unbreakingLevel + 1) == 0;
+    }
+
+    private static boolean isUnbreakable(ItemStack stack) {
+        Unbreakable unbreakable = stack.get(DataComponents.UNBREAKABLE);
+        return unbreakable != null;
     }
 
     private static int getUnbreakingLevel(ItemStack stack, Player player) {

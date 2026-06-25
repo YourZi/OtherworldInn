@@ -164,13 +164,12 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                             }
                             if (team.getCoins() >= totalPrice) {
                                 // 提交交易：扣费、扣库存、发货
-                                team.removeCoins(totalPrice, player.getServer());
+                                manager.removeCoins(team, totalPrice, player.getServer());
                                 storeEntity.addSpentCoins(totalPrice);
                                 if (storeEntity.level() instanceof ServerLevel serverLevel) {
                                     AdvancementUtils.awardStoreFavorProgress(
                                             player, storeEntity, serverLevel);
                                 }
-                                manager.syncTeam(team, player.getServer());
 
                                 // 扣除库存
                                 for (int i = 0; i < toDeductStock.size(); i++) {

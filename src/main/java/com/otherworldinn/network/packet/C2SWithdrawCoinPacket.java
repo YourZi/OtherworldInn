@@ -37,7 +37,7 @@ public record C2SWithdrawCoinPacket() implements CustomPacketPayload {
                     if (team == null) {
                         return;
                     }
-                    if (!team.removeCoins(1, player.getServer())) {
+                    if (!manager.removeCoins(team, 1, player.getServer())) {
                         return;
                     }
                     ItemStack coin = new ItemStack(ModItems.COIN.get());
@@ -45,7 +45,6 @@ public record C2SWithdrawCoinPacket() implements CustomPacketPayload {
                     if (!player.getInventory().add(coin)) {
                         player.drop(coin, false);
                     }
-                    manager.syncTeam(team, player.getServer());
                 });
     }
 }

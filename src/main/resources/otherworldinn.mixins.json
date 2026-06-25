@@ -5,6 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MixinContraption",
+    "MixinCreateAbstractBlockBreakQueue",
+    "MixinCreateBlockBreakingMovementBehaviour",
+    "MixinCreateHarvesterMovementBehaviour",
+    "MixinCreateRollerMovementBehaviour",
     "MixinBedBlock",
     "MixinDeskBellRenderer",
     "MixinDeskBellBlockEntity",
@@ -36,6 +40,7 @@
     "MixinStarcatcherMinigameModifiers",
     "MixinNaturesCompassItemDurability",
     "MixinItemNaturesCompassSupport",
+    "MixinWaystonesInternalMethodsCoinCost",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"
   ],

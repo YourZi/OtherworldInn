@@ -189,6 +189,11 @@ public class TownProtectionHandler {
         return isFreeZoneAny(level, pos);
     }
 
+    /** Create 自动机关修改方块时复用的统一判定。 */
+    public static boolean canCreateModifyBlockAt(Level level, BlockPos pos) {
+        return isInnRestrictionLiftedAt(level, pos);
+    }
+
     /** 女仆操作权限：免保区或创造模式放行，否则拒绝。 */
     public static boolean canMaidOperateAt(Entity maidEntity, BlockPos pos, Level level) {
         if (maidEntity == null || pos == null || level == null) return false;

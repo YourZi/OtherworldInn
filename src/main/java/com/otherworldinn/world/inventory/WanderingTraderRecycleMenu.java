@@ -145,7 +145,7 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             }
             TeamData team = TeamManager.getInstance().getPlayerTeam(serverPlayer);
             if (team != null) {
-                team.addCoins(total, serverPlayer.server);
+                TeamManager.getInstance().addCoins(team, total, serverPlayer.server);
             }
         }
     }

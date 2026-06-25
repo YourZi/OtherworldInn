@@ -5,6 +5,7 @@ import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.world.inventory.WanderingTraderRecycleMenu;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -31,6 +32,35 @@ import org.jetbrains.annotations.Nullable;
 public class WanderingTraderEntity extends StoreEntity {
 
     private static final int RANDOM_ITEMS_COUNT = 16;
+    private static final Map<ResourceLocation, SpecialVanillaOffer> SPECIAL_VANILLA_OFFERS =
+            Map.ofEntries(
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("elytra"),
+                            new SpecialVanillaOffer(128, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("dragon_egg"),
+                            new SpecialVanillaOffer(160, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("dragon_head"),
+                            new SpecialVanillaOffer(128, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("nether_star"),
+                            new SpecialVanillaOffer(112, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("totem_of_undying"),
+                            new SpecialVanillaOffer(104, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("shulker_shell"),
+                            new SpecialVanillaOffer(104, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("heart_of_the_sea"),
+                            new SpecialVanillaOffer(120, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("trident"),
+                            new SpecialVanillaOffer(116, 1)),
+                    Map.entry(
+                            ResourceLocation.withDefaultNamespace("wither_skeleton_skull"),
+                            new SpecialVanillaOffer(120, 1)));
     private static final TagKey<Item> BLACKLIST =
             TagKey.create(
                     Registries.ITEM,
@@ -84,12 +114,28 @@ public class WanderingTraderEntity extends StoreEntity {
             if (stack.isEmpty()) continue;
 
             Rarity rarity = stack.getRarity();
-            int price = rarityPrice(rarity, rng);
-            // 可堆叠 → 1-8, 不可堆叠 → 1
-            int stock = stack.isStackable() ? 1 + rng.nextInt(8) : 1;
+            int price = resolvePrice(item, rarity, rng);
+            int stock = resolveStock(item, stack, rng);
             this.addRandomStoreItem(stack, price, price, stock, stock);
             picked++;
         }
+    }
+
+    private static int resolvePrice(Item item, Rarity rarity, java.util.Random rng) {
+        SpecialVanillaOffer specialOffer = SPECIAL_VANILLA_OFFERS.get(BuiltInRegistries.ITEM.getKey(item));
+        if (specialOffer != null) {
+            return specialOffer.price();
+        }
+        return rarityPrice(rarity, rng);
+    }
+
+    private static int resolveStock(Item item, ItemStack stack, java.util.Random rng) {
+        SpecialVanillaOffer specialOffer = SPECIAL_VANILLA_OFFERS.get(BuiltInRegistries.ITEM.getKey(item));
+        if (specialOffer != null) {
+            return specialOffer.stock();
+        }
+        // 可堆叠 → 1-8, 不可堆叠 → 1
+        return stack.isStackable() ? 1 + rng.nextInt(8) : 1;
     }
 
     private static int rarityPrice(Rarity rarity, java.util.Random rng) {
@@ -100,6 +146,8 @@ public class WanderingTraderEntity extends StoreEntity {
             case EPIC -> 65 + rng.nextInt(64);     // 65-128
         };
     }
+
+    private record SpecialVanillaOffer(int price, int stock) {}
 
     /** 硬编码黑名单：刷怪蛋等不应出现在商店的物品 */
     private static boolean isHardcodedBlacklisted(Item item) {

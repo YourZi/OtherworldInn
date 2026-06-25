@@ -253,8 +253,7 @@ public class TeamCommands {
                 return 0;
             }
 
-            team.setCoins(amount, context.getSource().getServer());
-            manager.syncTeam(team, context.getSource().getServer());
+            manager.setCoins(team, amount, context.getSource().getServer());
 
             context.getSource()
                     .sendSuccess(
@@ -287,8 +286,7 @@ public class TeamCommands {
                 return 0;
             }
 
-            team.addCoins(amount, context.getSource().getServer());
-            manager.syncTeam(team, context.getSource().getServer());
+            manager.addCoins(team, amount, context.getSource().getServer());
 
             context.getSource()
                     .sendSuccess(
@@ -323,8 +321,7 @@ public class TeamCommands {
                 return 0;
             }
 
-            if (team.removeCoins(amount, context.getSource().getServer())) {
-                manager.syncTeam(team, context.getSource().getServer());
+            if (manager.removeCoins(team, amount, context.getSource().getServer())) {
                 context.getSource()
                         .sendSuccess(
                                 () ->

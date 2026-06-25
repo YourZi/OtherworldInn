@@ -327,7 +327,7 @@ public final class CommissionService {
             }
         }
         if (active.getCoinReward() > 0) {
-            team.addCoins(active.getCoinReward(), triggerPlayer.getServer());
+            TeamManager.getInstance().addCoins(team, active.getCoinReward(), triggerPlayer.getServer());
         }
         ServerLevel townLevel = triggerPlayer.getServer().getLevel(TownDimensions.TOWN_LEVEL);
         if (townLevel != null) {

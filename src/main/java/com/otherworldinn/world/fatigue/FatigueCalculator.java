@@ -6,26 +6,26 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
 public final class FatigueCalculator {
-    private static final double BASE_GAIN_PER_SECOND = 0.015D;
-    private static final double JOURNEY_PRESSURE_PER_MINUTE = 0.003D;
-    private static final double MAX_JOURNEY_PRESSURE = 0.180D;
+    private static final double BASE_GAIN_PER_SECOND = 0.010D;
+    private static final double JOURNEY_PRESSURE_PER_MINUTE = 0.0016D;
+    private static final double MAX_JOURNEY_PRESSURE = 0.120D;
 
-    private static final double WALK_GAIN_PER_METER = 0.0025D;
-    private static final double SPRINT_GAIN_PER_METER = 0.0075D;
-    private static final double SWIM_GAIN_PER_METER = 0.0055D;
-    private static final double CLIMB_GAIN_PER_METER = 0.0045D;
-    private static final double JUMP_GAIN = 0.030D;
-    private static final double BLOCK_BREAK_GAIN = 0.050D;
-    private static final double BLOCK_PLACE_GAIN = 0.025D;
-    private static final double DAMAGE_GAIN_PER_HEALTH = 0.060D;
-    private static final double FOOD_LOSS_GAIN = 0.180D;
-    private static final double SATURATION_LOSS_GAIN = 0.060D;
+    private static final double WALK_GAIN_PER_METER = 0.0015D;
+    private static final double SPRINT_GAIN_PER_METER = 0.0050D;
+    private static final double SWIM_GAIN_PER_METER = 0.0038D;
+    private static final double CLIMB_GAIN_PER_METER = 0.0030D;
+    private static final double JUMP_GAIN = 0.020D;
+    private static final double BLOCK_BREAK_GAIN = 0.035D;
+    private static final double BLOCK_PLACE_GAIN = 0.018D;
+    private static final double DAMAGE_GAIN_PER_HEALTH = 0.045D;
+    private static final double FOOD_LOSS_GAIN = 0.120D;
+    private static final double SATURATION_LOSS_GAIN = 0.040D;
     private static final double MIN_TOWN_RECOVERY_PER_SECOND = 4.0D;
     private static final double MAX_TOWN_RECOVERY_PER_SECOND = 12.0D;
-    private static final double EXPLORED_CHUNK_MULTIPLIER = 0.5D;
+    private static final double EXPLORED_CHUNK_MULTIPLIER = 0.3D;
 
     /** 技能零级时主世界静止未探索的基准探索时间（秒） */
-    private static final double SKILL_BASE_EXPLORE_SECONDS = 1620.0D;
+    private static final double SKILL_BASE_EXPLORE_SECONDS = 2400.0D;
     /** 四项技能满级后主世界静止未探索的目标探索时间（秒） */
     private static final double SKILL_MAX_EXPLORE_SECONDS = 5400.0D;
 
@@ -116,8 +116,8 @@ public final class FatigueCalculator {
         // 线性时间目标: T(p) = BASE + (MAX-BASE) × p
         double targetSeconds = SKILL_BASE_EXPLORE_SECONDS
                 + avgProgress * (SKILL_MAX_EXPLORE_SECONDS - SKILL_BASE_EXPLORE_SECONDS);
-        // 静止时的积分: fatigue = multiplier × (0.015×T + 0.000025×T²)
-        double denominator = 0.015D * targetSeconds + 0.000025D * targetSeconds * targetSeconds;
+        // 静止时的积分: fatigue = multiplier × (base × T + pressurePerMinute × T² / 120)
+        double denominator = computeStaticFatigueIntegral(targetSeconds);
         double multiplier = FatigueData.MAX_FATIGUE / denominator;
         return Math.min(1.0D, Math.max(0.05D, multiplier));
     }
@@ -141,6 +141,11 @@ public final class FatigueCalculator {
     private static double computeTimePressureGain(long currentJourneyTicks) {
         double journeyMinutes = currentJourneyTicks / 1200.0D;
         return Math.min(MAX_JOURNEY_PRESSURE, journeyMinutes * JOURNEY_PRESSURE_PER_MINUTE);
+    }
+
+    private static double computeStaticFatigueIntegral(double seconds) {
+        return BASE_GAIN_PER_SECOND * seconds
+                + (JOURNEY_PRESSURE_PER_MINUTE * seconds * seconds / 120.0D);
     }
 
     private static double getDimensionMultiplier(Level level) {

@@ -381,6 +381,43 @@ public class TeamData {
         return false;
     }
 
+    /** 检查一个水平矩形区域是否被当前已购买地皮完整覆盖。 */
+    public boolean isAreaInInnZone(BlockPos minPos, BlockPos maxPos) {
+        if (minPos == null || maxPos == null) {
+            return false;
+        }
+        return isAreaInInnZone(minPos.getX(), minPos.getZ(), maxPos.getX(), maxPos.getZ());
+    }
+
+    /** 检查一个水平矩形区域是否被当前已购买地皮完整覆盖。 */
+    public boolean isAreaInInnZone(int minX, int minZ, int maxX, int maxZ) {
+        if (innRegions.isEmpty()) {
+            return false;
+        }
+
+        InnRegion target =
+                new InnRegion(
+                        Math.min(minX, maxX),
+                        Math.min(minZ, maxZ),
+                        Math.max(minX, maxX),
+                        Math.max(minZ, maxZ));
+        List<InnRegion> uncovered = new ArrayList<>();
+        uncovered.add(target);
+
+        for (InnRegion region : innRegions) {
+            List<InnRegion> nextPass = new ArrayList<>();
+            for (InnRegion candidate : uncovered) {
+                nextPass.addAll(subtract(candidate, region));
+            }
+            if (nextPass.isEmpty()) {
+                return true;
+            }
+            uncovered = nextPass;
+        }
+
+        return uncovered.isEmpty();
+    }
+
     /**
      * 检查坐标是否在全局最大旅社范围内（整个大地块边界）
      *

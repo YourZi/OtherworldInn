@@ -321,8 +321,7 @@ public class PlayerEventHandler {
         int penalty = Math.max(1, (int) Math.ceil(team.getCoins() * (percent / 100.0D)));
         penalty = Math.min(penalty, Math.min(DEATH_PENALTY_MAX_AMOUNT, team.getCoins()));
 
-        if (penalty > 0 && team.removeCoins(penalty, server)) {
-            TeamManager.getInstance().syncTeam(team, server);
+        if (penalty > 0 && TeamManager.getInstance().removeCoins(team, penalty, server)) {
             return penalty;
         }
         return 0;

@@ -296,6 +296,39 @@ public class TeamManager {
         enqueueTeamSync(team, server);
     }
 
+    public boolean setCoins(TeamData team, int coins, MinecraftServer server) {
+        if (team == null || server == null) {
+            return false;
+        }
+        int sanitizedCoins = Math.max(0, coins);
+        if (team.getCoins() == sanitizedCoins) {
+            return false;
+        }
+        team.setCoins(sanitizedCoins, server);
+        syncTeam(team, server);
+        return true;
+    }
+
+    public boolean addCoins(TeamData team, int amount, MinecraftServer server) {
+        if (team == null || server == null || amount <= 0) {
+            return false;
+        }
+        team.addCoins(amount, server);
+        syncTeam(team, server);
+        return true;
+    }
+
+    public boolean removeCoins(TeamData team, int amount, MinecraftServer server) {
+        if (team == null || server == null) {
+            return false;
+        }
+        if (!team.removeCoins(amount, server)) {
+            return false;
+        }
+        syncTeam(team, server);
+        return true;
+    }
+
     /**
      * 同步队伍传送状态给特定玩家
      *

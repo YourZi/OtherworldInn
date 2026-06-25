@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.otherworldinn.compat.CreateCompat;
 import com.otherworldinn.compat.KaleidoscopeCompat;
 import com.otherworldinn.compat.ReskillableCompat;
+import com.otherworldinn.compat.WaystonesCompat;
 import com.otherworldinn.foundation.ClientConfig;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModAttachments;
@@ -79,5 +80,8 @@ public class OtherworldInn {
         }
         event.enqueueWork(KaleidoscopeCompat::init);
         event.enqueueWork(ReskillableCompat::init);
+        if (ModList.get().isLoaded("waystones")) {
+            event.enqueueWork(WaystonesCompat::init);
+        }
     }
 }

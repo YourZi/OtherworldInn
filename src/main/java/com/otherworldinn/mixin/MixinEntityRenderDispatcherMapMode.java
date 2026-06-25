@@ -1,5 +1,6 @@
 package com.otherworldinn.mixin;
 
+import com.otherworldinn.foundation.MapModeConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -11,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderDispatcher.class)
 public class MixinEntityRenderDispatcherMapMode {
-    private static final String MAP_MODE_HIDDEN_TAG = "otherworldinn.map_mode_hidden";
-
     @Inject(
             method = "render(Lnet/minecraft/world/entity/Entity;DDDFFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("HEAD"),
@@ -28,7 +27,7 @@ public class MixinEntityRenderDispatcherMapMode {
             MultiBufferSource buffer,
             int packedLight,
             CallbackInfo ci) {
-        if (entity.getTags().contains(MAP_MODE_HIDDEN_TAG)) {
+        if (entity.getTags().contains(MapModeConstants.HIDDEN_TAG)) {
             ci.cancel();
         }
     }

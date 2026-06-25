@@ -1,6 +1,7 @@
 package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.foundation.MapModeConstants;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +29,6 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public record C2SMapModeSyncPacket(int action, double x, double y, double z, float yaw, float pitch)
         implements CustomPacketPayload {
-    private static final String MAP_MODE_HIDDEN_TAG = "otherworldinn.map_mode_hidden";
     private static final double MAP_MODE_MAX_HEIGHT_DRIFT = 0.05D;
     private static final double MAP_MODE_MAX_HORIZONTAL_DRIFT_SQR = 0.25D;
 
@@ -167,21 +167,21 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
                 player.getXRot(),
                 player.isInvisible(),
                 player.isInvulnerable(),
-                player.getTags().contains(MAP_MODE_HIDDEN_TAG),
+                player.getTags().contains(MapModeConstants.HIDDEN_TAG),
                 player.isNoGravity());
     }
 
     private static void applyHiddenAppearance(ServerPlayer player) {
-        player.addTag(MAP_MODE_HIDDEN_TAG);
+        player.addTag(MapModeConstants.HIDDEN_TAG);
         player.setInvisible(true);
         player.setInvulnerable(true);
     }
 
     private static void restoreAppearance(ServerPlayer player, PlayerMapModeState state) {
         if (state.wasMapModeHidden) {
-            player.addTag(MAP_MODE_HIDDEN_TAG);
+            player.addTag(MapModeConstants.HIDDEN_TAG);
         } else {
-            player.removeTag(MAP_MODE_HIDDEN_TAG);
+            player.removeTag(MapModeConstants.HIDDEN_TAG);
         }
         player.setInvisible(state.wasInvisible);
         player.setInvulnerable(state.wasInvulnerable);

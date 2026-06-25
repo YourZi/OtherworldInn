@@ -749,7 +749,7 @@ public abstract class GuestEntity extends PathfinderMob {
         }
 
         int totalCost = paidUnitPrice * purchased.getCount();
-        team.addCoins(totalCost, level.getServer());
+        TeamManager.getInstance().addCoins(team, totalCost, level.getServer());
         team.getInnData().recordDiningIncome(totalCost, level);
         TeamManager.getInstance().syncTeam(team, level.getServer());
         this.dailySpentCoins += totalCost;

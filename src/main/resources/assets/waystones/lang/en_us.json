@@ -1,0 +1,7 @@
+{
+  "gui.waystones.waystone_selection.level_requirement": "Coin Cost: %d",
+  "gui.waystones.waystone_selection.xp_requirement": "Coin Cost: %d",
+  "gui.waystones.waystone_selection.no_xp_requirement": "Coin Cost: Free",
+  "chat.waystones.not_enough_xp": "Your team does not have enough coins to teleport.",
+  "tooltip.waystones.not_enough_xp": "Not enough team coins! (%d coins needed)"
+}

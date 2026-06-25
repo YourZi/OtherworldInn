@@ -126,6 +126,12 @@ public abstract class StoreEntity extends PathfinderMob {
     }
 
     @Override
+    public boolean shouldBeSaved() {
+        // 显式声明商店实体应写入区块，避免因普通实体保存判定导致区块卸载后丢失。
+        return true;
+    }
+
+    @Override
     public void tick() {
         // 客户端动画逻辑
         if (this.level().isClientSide) {

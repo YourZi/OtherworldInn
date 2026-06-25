@@ -400,6 +400,7 @@
   "item.otherworldinn.room_register.tooltip.0": "Hold in off-hand to edit room",
   "item.otherworldinn.space_sphere": "Space Sphere",
   "item.otherworldinn.space_sphere.tooltip.0": "Use to activate map teleport for your team",
+  "item.otherworldinn.story_cartographer_compass": "Eli's Custom Compass",
   "itemGroup.otherworldinn": "Otherworld Inn",
   "jei.otherworldinn.npc_store.advancement": "Advancement Required: %s",
   "jei.otherworldinn.npc_store.favor": "Favor Required: Lv.%s",
@@ -612,5 +613,6 @@
   "tooltip.otherworldinn.room_key.room_id": "Room ID: %d",
   "tooltip.otherworldinn.room_key.theme": "Room Theme: %s",
   "tooltip.otherworldinn.schematic.survival_print": "Print tool usable in survival mode",
-  "tooltip.otherworldinn.sell_price": "Sell Price: §f§r%s"
+  "tooltip.otherworldinn.sell_price": "Sell Price: §f§r%s",
+  "tooltip.otherworldinn.story_cartographer_compass": "A compass imbued with this cartographer's life's work"
 }

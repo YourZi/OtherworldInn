@@ -6,6 +6,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.gui.MapViewScreen;
 import com.otherworldinn.client.map.service.MapPageManager;
 import com.otherworldinn.foundation.ClientConfig;
+import com.otherworldinn.foundation.MapModeConstants;
 import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SMapModeSyncPacket;
@@ -119,6 +120,7 @@ public class CameraHandler {
         startPitch = targetPitch;
 
         updateDummyEntity(startPos, startYaw, startPitch);
+        applyLocalMapModeHiddenTag(mc, true);
 
         mc.setCameraEntity(dummyCameraEntity);
         mc.options.setCameraType(CameraType.FIRST_PERSON);
@@ -393,6 +395,7 @@ public class CameraHandler {
             mc.setScreen(null);
         }
 
+        applyLocalMapModeHiddenTag(mc, false);
         mc.setCameraEntity(mc.player);
 
         if (dummyCameraEntity != null) {
@@ -432,6 +435,7 @@ public class CameraHandler {
                         : C2SMapModeSyncPacket.ACTION_EXIT_KEEP_POSITION;
         sendMapModeSync(exitAction, Vec3.ZERO, 0.0f, 0.0f);
         restorePlayerPositionOnExit = true;
+        applyLocalMapModeHiddenTag(mc, false);
 
         if (originalCameraEntity != null) {
             mc.setCameraEntity(originalCameraEntity);
@@ -461,5 +465,16 @@ public class CameraHandler {
                 || dummyCameraEntity != null
                 || mc.screen instanceof MapViewScreen
                 || mc.getCameraEntity() == dummyCameraEntity;
+    }
+
+    private static void applyLocalMapModeHiddenTag(Minecraft mc, boolean hidden) {
+        if (mc == null || mc.player == null) {
+            return;
+        }
+        if (hidden) {
+            mc.player.addTag(MapModeConstants.HIDDEN_TAG);
+        } else {
+            mc.player.removeTag(MapModeConstants.HIDDEN_TAG);
+        }
     }
 }

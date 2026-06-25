@@ -685,6 +685,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.dialogue.option_unavailable")
                 .zh("现在还不能这么做")
                 .en("You can't do that right now");
+        entry("item.otherworldinn.story_cartographer_compass")
+                .zh("莱伊的特制罗盘")
+                .en("Eli's Custom Compass");
+        entry("tooltip.otherworldinn.story_cartographer_compass")
+                .zh("凝聚了这位制图师的心血")
+                .en("A compass imbued with this cartographer's life's work");
         entry("screen.otherworldinn.dialogue.title").zh("对话").en("Dialogue");
         entry("dialogue.otherworldinn.npc.unknown").zh("陌生人").en("Unknown");
         addDialogueTranslations();

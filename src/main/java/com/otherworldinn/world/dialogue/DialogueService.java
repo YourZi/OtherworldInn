@@ -3,6 +3,7 @@ package com.otherworldinn.world.dialogue;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
 import com.otherworldinn.entity.guest.StoryGuestEntity;
+import com.otherworldinn.compat.naturescompass.NaturesCompassDurabilityHelper;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
@@ -10,8 +11,11 @@ import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +30,8 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.Unbreakable;
 import org.jetbrains.annotations.Nullable;
 
 public final class DialogueService {
@@ -319,7 +325,7 @@ public final class DialogueService {
         if (item == null || count <= 0) {
             return false;
         }
-        ItemStack reward = new ItemStack(item, count);
+        ItemStack reward = createRewardStack(player, itemId, item, count);
         if (player.getInventory().add(reward)) {
             player.getInventory().setChanged();
             return true;
@@ -334,6 +340,45 @@ public final class DialogueService {
         itemEntity.setPickUpDelay(0);
         player.level().addFreshEntity(itemEntity);
         return true;
+    }
+
+    private static ItemStack createRewardStack(
+            ServerPlayer player,
+            @Nullable net.minecraft.resources.ResourceLocation itemId,
+            Item item,
+            int count) {
+        ItemStack reward = new ItemStack(item, count);
+        if (!isStoryCartographerCompassReward(player, itemId)) {
+            return reward;
+        }
+
+        reward.set(
+                DataComponents.CUSTOM_NAME,
+                Component.translatable("item.otherworldinn.story_cartographer_compass")
+                        .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+        reward.set(
+                DataComponents.LORE,
+                new ItemLore(
+                        List.of(
+                                Component.translatable("tooltip.otherworldinn.story_cartographer_compass")
+                                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+        reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        NaturesCompassDurabilityHelper.ensureNatureCompassState(reward);
+        return reward;
+    }
+
+    private static boolean isStoryCartographerCompassReward(
+            ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId) {
+        if (!NaturesCompassDurabilityHelper.NATURES_COMPASS_ID.equals(itemId)) {
+            return false;
+        }
+        DialogueSession session = SESSIONS.get(player.getUUID());
+        if (session == null) {
+            return false;
+        }
+        Entity entity = player.level().getEntity(session.entityId());
+        return entity instanceof StoryGuestEntity storyGuest
+                && "wandering_cartographer".equals(storyGuest.getStoryGuestId());
     }
 
     @Nullable
