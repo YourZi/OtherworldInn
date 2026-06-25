@@ -532,17 +532,17 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("§f\uE004§r湿度: %s")
                 .en("§f\uE004§rHumidity: %s");
         entry("tooltip.otherworldinn.decoration.lodging_income")
-                .zh("旅社房费: %s")
-                .en("Lodging Income: %s");
+                .zh("§f\uE00C§r旅社房费: %s")
+                .en("§f\uE00C§rLodging Income: %s");
         entry("tooltip.otherworldinn.decoration.dining_income")
-                .zh("菜品售价: %s")
-                .en("Dining Income: %s");
+                .zh("§f\uE00D§r菜品售价: %s")
+                .en("§f\uE00D§rDining Income: %s");
         entry("tooltip.otherworldinn.decoration.guest_arrival_speed")
-                .zh("旅客来访速度: %s")
-                .en("Guest Arrival Speed: %s");
+                .zh("§f\uE00E§r旅客来访速度: %s")
+                .en("§f\uE00E§rGuest Arrival Speed: %s");
         entry("tooltip.otherworldinn.decoration.reputation_gain")
-                .zh("声望获取: %s")
-                .en("Reputation Gain: %s");
+                .zh("§f\uE00F§r声望获取: %s")
+                .en("§f\uE00F§rReputation Gain: %s");
 
         // 地契
         entry("message.otherworldinn.land_deed.pos1_set").zh("位置1已设置：%s").en("Position 1 set: %s");

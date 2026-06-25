@@ -3,7 +3,6 @@ package com.otherworldinn.world.dialogue;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
 import com.otherworldinn.entity.guest.StoryGuestEntity;
-import com.otherworldinn.compat.naturescompass.NaturesCompassDurabilityHelper;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
@@ -18,6 +17,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
@@ -36,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
 
 public final class DialogueService {
     private static final double MAX_DIALOGUE_DISTANCE_SQR = 100.0D;
+    private static final ResourceLocation NATURES_COMPASS_ID =
+            ResourceLocation.fromNamespaceAndPath("naturescompass", "naturescompass");
     private static final Map<UUID, DialogueSession> SESSIONS = new HashMap<>();
 
     private DialogueService() {}
@@ -363,13 +365,12 @@ public final class DialogueService {
                                 Component.translatable("tooltip.otherworldinn.story_cartographer_compass")
                                         .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
         reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
-        NaturesCompassDurabilityHelper.ensureNatureCompassState(reward);
         return reward;
     }
 
     private static boolean isStoryCartographerCompassReward(
             ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId) {
-        if (!NaturesCompassDurabilityHelper.NATURES_COMPASS_ID.equals(itemId)) {
+        if (!NATURES_COMPASS_ID.equals(itemId)) {
             return false;
         }
         DialogueSession session = SESSIONS.get(player.getUUID());

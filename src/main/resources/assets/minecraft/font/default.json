@@ -71,6 +71,42 @@
       "chars": [
         "\uE008"
       ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_lodging.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00C"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_dining.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00D"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_arrival.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00E"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_reputation.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00F"
+      ]
     }
   ]
 }

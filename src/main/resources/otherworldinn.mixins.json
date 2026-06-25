@@ -38,8 +38,7 @@
     "MixinStarcatcherFishingCompletion",
     "MixinStarcatcherEvents",
     "MixinStarcatcherMinigameModifiers",
-    "MixinNaturesCompassItemDurability",
-    "MixinItemNaturesCompassSupport",
+    "MixinNaturesCompassUnbreakable",
     "MixinWaystonesInternalMethodsCoinCost",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"

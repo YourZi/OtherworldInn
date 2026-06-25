@@ -53,6 +53,34 @@
     "starcatcher:pearl": {
       "base_value": 8,
       "processors": []
+    },
+    "minecraft:cod": {
+      "replace": true,
+      "value": {
+        "base_value": 2,
+        "processors": []
+      }
+    },
+    "minecraft:salmon": {
+      "replace": true,
+      "value": {
+        "base_value": 3,
+        "processors": []
+      }
+    },
+    "minecraft:tropical_fish": {
+      "replace": true,
+      "value": {
+        "base_value": 4,
+        "processors": []
+      }
+    },
+    "minecraft:pufferfish": {
+      "replace": true,
+      "value": {
+        "base_value": 5,
+        "processors": []
+      }
     }
   }
 }
