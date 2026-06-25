@@ -12,6 +12,7 @@ import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -23,6 +24,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -32,12 +35,32 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.world.item.alchemy.PotionContents;
 import org.jetbrains.annotations.Nullable;
 
 public final class DialogueService {
     private static final double MAX_DIALOGUE_DISTANCE_SQR = 100.0D;
     private static final ResourceLocation NATURES_COMPASS_ID =
             ResourceLocation.fromNamespaceAndPath("naturescompass", "naturescompass");
+    private static final ResourceLocation MINSTREL_DISC_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music_disc_mellohi");
+    private static final ResourceLocation CHEF_LUNCH_BAG_ID =
+            ResourceLocation.fromNamespaceAndPath(
+                    "kaleidoscope_cookery", "transmutation_lunch_bag");
+    private static final ResourceLocation NOBLE_CLOCK_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "clock");
+    private static final ResourceLocation ALCHEMIST_POTION_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "potion");
+    private static final ResourceLocation ARCHAEOLOGIST_BRUSH_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "brush");
+    private static final ResourceLocation GEM_MERCHANT_STAR_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "nether_star");
+    private static final ResourceLocation OLD_KNIGHT_SHIELD_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "shield");
+    private static final ResourceLocation CURSED_ADVENTURER_APPLE_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "golden_apple");
+    private static final ResourceLocation OLD_ANGLER_ROD_ID =
+            ResourceLocation.fromNamespaceAndPath("minecraft", "fishing_rod");
     private static final Map<UUID, DialogueSession> SESSIONS = new HashMap<>();
 
     private DialogueService() {}
@@ -363,36 +386,169 @@ public final class DialogueService {
             Item item,
             int count) {
         ItemStack reward = new ItemStack(item, count);
-        if (!isStoryCartographerCompassReward(player, itemId)) {
+        String storyGuestId = resolveDialogueStoryGuestId(player);
+        if (storyGuestId == null || itemId == null) {
             return reward;
         }
-
-        reward.set(
-                DataComponents.CUSTOM_NAME,
-                Component.translatable("item.otherworldinn.story_cartographer_compass")
-                        .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
-        reward.set(
-                DataComponents.LORE,
-                new ItemLore(
-                        List.of(
-                                Component.translatable("tooltip.otherworldinn.story_cartographer_compass")
-                                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
-        reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        if ("wandering_cartographer".equals(storyGuestId) && NATURES_COMPASS_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_cartographer_compass")
+                            .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_cartographer_compass")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return reward;
+        }
+        if ("wandering_minstrel".equals(storyGuestId) && MINSTREL_DISC_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_minstrel_disc")
+                            .withStyle(style -> style.withColor(ChatFormatting.LIGHT_PURPLE).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_minstrel_disc")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            return reward;
+        }
+        if ("wandering_chef".equals(storyGuestId) && CHEF_LUNCH_BAG_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_chef_lunch_bag")
+                            .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_chef_lunch_bag")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            return reward;
+        }
+        if ("fallen_noble".equals(storyGuestId) && NOBLE_CLOCK_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_noble_clock")
+                            .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_noble_clock")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            return reward;
+        }
+        if ("wandering_alchemist".equals(storyGuestId) && ALCHEMIST_POTION_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_alchemist_potion")
+                            .withStyle(style -> style.withColor(ChatFormatting.LIGHT_PURPLE).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_alchemist_potion")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            reward.set(
+                    DataComponents.POTION_CONTENTS,
+                    new PotionContents(
+                            Optional.empty(),
+                            Optional.of(0xA95CFF),
+                            List.of(
+                                    new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 20 * 60 * 8, 0),
+                                    new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20 * 60 * 3, 0),
+                                    new MobEffectInstance(MobEffects.NIGHT_VISION, 20 * 60 * 8, 0),
+                                    new MobEffectInstance(MobEffects.REGENERATION, 20 * 45, 1))));
+            return reward;
+        }
+        if ("archaeologist".equals(storyGuestId) && ARCHAEOLOGIST_BRUSH_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_archaeologist_brush")
+                            .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_archaeologist_brush")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return reward;
+        }
+        if ("gem_merchant".equals(storyGuestId) && GEM_MERCHANT_STAR_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_gem_merchant_star")
+                            .withStyle(style -> style.withColor(ChatFormatting.AQUA).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_gem_merchant_star")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            return reward;
+        }
+        if ("old_knight".equals(storyGuestId) && OLD_KNIGHT_SHIELD_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_old_knight_shield")
+                            .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_old_knight_shield")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return reward;
+        }
+        if ("cursed_adventurer".equals(storyGuestId)
+                && CURSED_ADVENTURER_APPLE_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_cursed_adventurer_apple")
+                            .withStyle(style -> style.withColor(ChatFormatting.LIGHT_PURPLE).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable(
+                                                    "tooltip.otherworldinn.story_cursed_adventurer_apple")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            return reward;
+        }
+        if ("old_angler".equals(storyGuestId) && OLD_ANGLER_ROD_ID.equals(itemId)) {
+            reward.set(
+                    DataComponents.CUSTOM_NAME,
+                    Component.translatable("item.otherworldinn.story_old_angler_rod")
+                            .withStyle(style -> style.withColor(ChatFormatting.AQUA).withItalic(false)));
+            reward.set(
+                    DataComponents.LORE,
+                    new ItemLore(
+                            List.of(
+                                    Component.translatable("tooltip.otherworldinn.story_old_angler_rod")
+                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
+            reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        }
         return reward;
     }
 
-    private static boolean isStoryCartographerCompassReward(
-            ServerPlayer player, @Nullable net.minecraft.resources.ResourceLocation itemId) {
-        if (!NATURES_COMPASS_ID.equals(itemId)) {
-            return false;
-        }
+    @Nullable
+    private static String resolveDialogueStoryGuestId(ServerPlayer player) {
         DialogueSession session = SESSIONS.get(player.getUUID());
         if (session == null) {
-            return false;
+            return null;
         }
         Entity entity = player.level().getEntity(session.entityId());
-        return entity instanceof StoryGuestEntity storyGuest
-                && "wandering_cartographer".equals(storyGuest.getStoryGuestId());
+        if (!(entity instanceof StoryGuestEntity storyGuest)) {
+            return null;
+        }
+        return storyGuest.getStoryGuestId();
     }
 
     @Nullable

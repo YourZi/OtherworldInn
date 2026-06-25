@@ -19,6 +19,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestService {
+    private static final int GLOBAL_MIN_RETURN_DAYS = 2;
+    private static final int GLOBAL_MAX_RETURN_DAYS = 5;
+
     private StoryGuestService() {}
 
     @Nullable
@@ -58,12 +61,13 @@ public final class StoryGuestService {
         StoryGuestSavedData data = StoryGuestSavedData.get(level);
         StoryGuestProgress progress = data.getOrCreateProgress(definition.id());
         long currentDay = level.getDayTime() / 24000L;
+        long nextEligibleVisitDay = currentDay + rollSharedReturnInterval(level.random);
         progress.setActiveEntityUuid(null);
         progress.setLastCheckoutDay(currentDay);
-        progress.setNextEligibleVisitDay(
-                currentDay + rollReturnInterval(level.random, progress, definition));
+        progress.setNextEligibleVisitDay(nextEligibleVisitDay);
         progress.incrementVisitCount();
         progress.clearPendingReturnRange();
+        data.setGlobalNextEligibleVisitDay(nextEligibleVisitDay);
         data.setDirty();
     }
 
@@ -142,7 +146,7 @@ public final class StoryGuestService {
         if (definition == null) {
             return null;
         }
-        if (getActiveStoryGuest(level, storyGuestId) != null) {
+        if (hasAnyActiveStoryGuest(level)) {
             return null;
         }
         StoryGuestEntity guest = ModEntities.STORY_GUEST.get().create(level);
@@ -307,6 +311,13 @@ public final class StoryGuestService {
             ServerLevel level, int innRating, RandomSource random) {
         StoryGuestSavedData data = StoryGuestSavedData.get(level);
         long currentDay = level.getDayTime() / 24000L;
+        if (hasAnyActiveStoryGuest(level)) {
+            return null;
+        }
+        long globalNextEligibleVisitDay = data.getGlobalNextEligibleVisitDay();
+        if (globalNextEligibleVisitDay != Long.MIN_VALUE && currentDay < globalNextEligibleVisitDay) {
+            return null;
+        }
         List<WeightedDefinition> candidates = new ArrayList<>();
         int totalWeight = 0;
         for (StoryGuestDefinition definition : StoryGuestRegistry.allDefinitions()) {
@@ -318,10 +329,6 @@ public final class StoryGuestService {
             }
             StoryGuestProgress progress = data.getOrCreateProgress(definition.id());
             if (hasActiveEntity(level, progress)) {
-                continue;
-            }
-            long nextEligibleVisitDay = progress.getNextEligibleVisitDay();
-            if (nextEligibleVisitDay != Long.MIN_VALUE && currentDay < nextEligibleVisitDay) {
                 continue;
             }
             int weight = Math.max(1, definition.spawnWeight());
@@ -340,6 +347,20 @@ public final class StoryGuestService {
             }
         }
         return candidates.get(candidates.size() - 1).definition();
+    }
+
+    private static boolean hasAnyActiveStoryGuest(ServerLevel level) {
+        for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
+            for (Entity entity : serverLevel.getAllEntities()) {
+                if (entity instanceof StoryGuestEntity storyGuest
+                        && entity.isAlive()
+                        && !storyGuest.isRemoved()
+                        && storyGuest.getStoryGuestId() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean hasActiveEntity(ServerLevel level, StoryGuestProgress progress) {
@@ -375,19 +396,12 @@ public final class StoryGuestService {
         return StoryGuestSavedData.get(level).getOrCreateProgress(definition.id());
     }
 
-    private static int rollReturnInterval(
-            RandomSource random, StoryGuestProgress progress, StoryGuestDefinition definition) {
-        int minDays = progress.getPendingMinReturnDays();
-        int maxDays = progress.getPendingMaxReturnDays();
-        if (minDays < 0 || maxDays < 0) {
-            minDays = definition.minReturnIntervalDays();
-            maxDays = definition.maxReturnIntervalDays();
+    private static int rollSharedReturnInterval(RandomSource random) {
+        if (GLOBAL_MIN_RETURN_DAYS >= GLOBAL_MAX_RETURN_DAYS) {
+            return GLOBAL_MIN_RETURN_DAYS;
         }
-        maxDays = Math.max(minDays, maxDays);
-        if (minDays >= maxDays) {
-            return minDays;
-        }
-        return minDays + random.nextInt(maxDays - minDays + 1);
+        return GLOBAL_MIN_RETURN_DAYS
+                + random.nextInt(GLOBAL_MAX_RETURN_DAYS - GLOBAL_MIN_RETURN_DAYS + 1);
     }
 
     private record WeightedDefinition(StoryGuestDefinition definition, int weight) {}

@@ -14,6 +14,7 @@ import com.otherworldinn.world.event.TownStructurePlacer;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestProgress;
+import com.otherworldinn.world.storyguest.StoryGuestSavedData;
 import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -455,6 +456,7 @@ public class AdminCommands {
         ServerLevel baseLevel = context.getSource().getLevel();
         StoryGuestProgress progress = StoryGuestService.getOrCreateProgress(baseLevel, storyGuestId);
         StoryGuestEntity activeGuest = StoryGuestService.getActiveStoryGuest(baseLevel, storyGuestId);
+        StoryGuestSavedData savedData = StoryGuestSavedData.get(baseLevel);
         context.getSource().sendSuccess(
                 () -> Component.literal("故事旅客: " + definition.displayName().zh() + " (" + definition.id() + ")"),
                 false);
@@ -469,6 +471,9 @@ public class AdminCommands {
                 false);
         context.getSource().sendSuccess(
                 () -> Component.literal("nextEligibleVisitDay: " + progress.getNextEligibleVisitDay()),
+                false);
+        context.getSource().sendSuccess(
+                () -> Component.literal("globalNextEligibleVisitDay: " + savedData.getGlobalNextEligibleVisitDay()),
                 false);
         context.getSource().sendSuccess(
                 () -> Component.literal("activeEntityUuid: " + progress.getActiveEntityUuid()),

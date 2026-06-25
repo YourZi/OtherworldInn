@@ -17,6 +17,16 @@ public final class PhotoObjectiveRegistry {
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "bee_snapshot");
     public static final ResourceLocation ZOMBIE_SNAPSHOT_ID =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "zombie_snapshot");
+    public static final ResourceLocation FARM_ANIMAL_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "farm_animal_snapshot");
+    public static final ResourceLocation WOODLAND_MANSION_SCENE_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "woodland_mansion_scene");
+    public static final ResourceLocation NETHER_FORTRESS_SCENE_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "nether_fortress_scene");
+    public static final ResourceLocation ANCIENT_TEMPLE_SCENE_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "ancient_temple_scene");
+    public static final ResourceLocation UNDERGROUND_ORE_SCENE_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "underground_ore_scene");
     public static final ResourceLocation SNOWY_PLAINS_SCENE_ID =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "snowy_plains_scene");
     public static final ResourceLocation GHAST_SNAPSHOT_ID =
@@ -69,6 +79,70 @@ public final class PhotoObjectiveRegistry {
                         List.of(),
                         ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
                         List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        FARM_ANIMAL_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.farm_animal_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "cow"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "pig"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "sheep"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chicken")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        WOODLAND_MANSION_SCENE_ID,
+                        "photo_objective.otherworldinn.woodland_mansion_scene",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(),
+                        List.of(ResourceLocation.fromNamespaceAndPath("minecraft", "mansion")),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        NETHER_FORTRESS_SCENE_ID,
+                        "photo_objective.otherworldinn.nether_fortress_scene",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(),
+                        List.of(ResourceLocation.fromNamespaceAndPath("minecraft", "fortress")),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "the_nether"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        ANCIENT_TEMPLE_SCENE_ID,
+                        "photo_objective.otherworldinn.ancient_temple_scene",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(),
+                        List.of(
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "desert_pyramid"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "jungle_temple")),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        UNDERGROUND_ORE_SCENE_ID,
+                        "photo_objective.otherworldinn.underground_ore_scene",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "dripstone_caves"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "lush_caves"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "deep_dark")),
                         1,
                         true));
         register(

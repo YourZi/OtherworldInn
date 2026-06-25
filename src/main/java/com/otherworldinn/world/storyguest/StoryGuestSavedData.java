@@ -13,6 +13,7 @@ public class StoryGuestSavedData extends SavedData {
     private static final String DATA_NAME = "otherworldinn_story_guests";
 
     private final Map<String, StoryGuestProgress> progressById = new HashMap<>();
+    private long globalNextEligibleVisitDay = Long.MIN_VALUE;
 
     public static StoryGuestSavedData get(ServerLevel level) {
         return level.getServer()
@@ -25,6 +26,9 @@ public class StoryGuestSavedData extends SavedData {
 
     public static StoryGuestSavedData load(CompoundTag tag, HolderLookup.Provider provider) {
         StoryGuestSavedData data = new StoryGuestSavedData();
+        if (tag.contains("GlobalNextEligibleVisitDay")) {
+            data.globalNextEligibleVisitDay = tag.getLong("GlobalNextEligibleVisitDay");
+        }
         if (tag.contains("StoryGuests", Tag.TAG_LIST)) {
             ListTag guests = tag.getList("StoryGuests", Tag.TAG_COMPOUND);
             for (Tag guestTag : guests) {
@@ -43,6 +47,9 @@ public class StoryGuestSavedData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider) {
+        if (this.globalNextEligibleVisitDay != Long.MIN_VALUE) {
+            tag.putLong("GlobalNextEligibleVisitDay", this.globalNextEligibleVisitDay);
+        }
         ListTag guests = new ListTag();
         for (Map.Entry<String, StoryGuestProgress> entry : this.progressById.entrySet()) {
             CompoundTag guestTag = new CompoundTag();
@@ -65,11 +72,21 @@ public class StoryGuestSavedData extends SavedData {
         return this.progressById;
     }
 
+    public long getGlobalNextEligibleVisitDay() {
+        return this.globalNextEligibleVisitDay;
+    }
+
+    public void setGlobalNextEligibleVisitDay(long globalNextEligibleVisitDay) {
+        this.globalNextEligibleVisitDay = globalNextEligibleVisitDay;
+        this.setDirty();
+    }
+
     public void clearAllProgress() {
-        if (this.progressById.isEmpty()) {
+        if (this.progressById.isEmpty() && this.globalNextEligibleVisitDay == Long.MIN_VALUE) {
             return;
         }
         this.progressById.clear();
+        this.globalNextEligibleVisitDay = Long.MIN_VALUE;
         this.setDirty();
     }
 }

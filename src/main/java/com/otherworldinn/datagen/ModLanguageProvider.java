@@ -744,6 +744,60 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.story_cartographer_compass")
                 .zh("凝聚了这位制图师的心血")
                 .en("A compass imbued with this cartographer's life's work");
+        entry("item.otherworldinn.story_minstrel_disc")
+                .zh("赛琳未唱完的曲盘")
+                .en("Selene's Unfinished Record");
+        entry("tooltip.otherworldinn.story_minstrel_disc")
+                .zh("她把还没唱完的那一段，留给了愿意听的人。")
+                .en("She left the unfinished refrain to someone willing to listen.");
+        entry("item.otherworldinn.story_chef_lunch_bag")
+                .zh("古斯塔沃的嬗变饭袋")
+                .en("Gustavo's Transmutation Lunch Bag");
+        entry("tooltip.otherworldinn.story_chef_lunch_bag")
+                .zh("他把最拿手的便携手艺，留给了认同的人。")
+                .en("He left his finest portable craft to someone he trusted.");
+        entry("item.otherworldinn.story_noble_clock")
+                .zh("艾什福德家的旧怀表")
+                .en("Ashford Family Old Watch");
+        entry("tooltip.otherworldinn.story_noble_clock")
+                .zh("它早已不再象征权势，却还勉强替主人保住了体面。")
+                .en("It no longer stands for power, but it still preserves a shred of dignity.");
+        entry("item.otherworldinn.story_alchemist_potion")
+                .zh("米蕾雅的恒火药剂")
+                .en("Mireya's Everflame Draught");
+        entry("tooltip.otherworldinn.story_alchemist_potion")
+                .zh("她把一整段危险旅途里最稳定的火候，封进了这一瓶里。")
+                .en("She sealed the steadiest flame of a perilous journey into this single bottle.");
+        entry("item.otherworldinn.story_archaeologist_brush")
+                .zh("索恩教授的旧刷")
+                .en("Professor Thorne's Old Brush");
+        entry("tooltip.otherworldinn.story_archaeologist_brush")
+                .zh("有些痕迹需要耐心，有些历史需要你自己去刷开。")
+                .en("Some traces require patience, and some histories must be brushed free by your own hand.");
+        entry("item.otherworldinn.story_gem_merchant_star")
+                .zh("杰玛的藏品星核")
+                .en("Gemma's Vaulted Star Core");
+        entry("tooltip.otherworldinn.story_gem_merchant_star")
+                .zh("她从不把真正压箱底的货摆上柜台。")
+                .en("She never places the finest thing in her vault out on the counter.");
+        entry("item.otherworldinn.story_old_knight_shield")
+                .zh("奥德里克的旧徽盾")
+                .en("Aldric's Old Crested Shield");
+        entry("tooltip.otherworldinn.story_old_knight_shield")
+                .zh("有些旧誓言不会说话，却仍愿意替人挡下一记风浪。")
+                .en("Some old vows do not speak, but they still rise to take the blow.");
+        entry("item.otherworldinn.story_cursed_adventurer_apple")
+                .zh("凯尔压住诅咒的金苹果")
+                .en("Kael's Curse-Hushed Apple");
+        entry("tooltip.otherworldinn.story_cursed_adventurer_apple")
+                .zh("它没能治好一切，却让他第一次有余力停下来喘气。")
+                .en("It cured nothing completely, but it gave him his first real breath of rest.");
+        entry("item.otherworldinn.story_old_angler_rod")
+                .zh("老许留下的旧钓竿")
+                .en("Old Xu's Weathered Rod");
+        entry("tooltip.otherworldinn.story_old_angler_rod")
+                .zh("懂得等鱼上钩的人，通常也懂得等一个地方慢慢变成熟悉。")
+                .en("Anyone who knows how to wait for a fish usually knows how to wait for a place to become home.");
         entry("message.otherworldinn.story.photo_recorded")
                 .zh("你已经替%s记录下目标照片：%s")
                 .en("You have recorded the requested photograph for %s: %s");
@@ -759,6 +813,21 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("photo_objective.otherworldinn.zombie_snapshot")
                 .zh("主世界的僵尸")
                 .en("an Overworld zombie");
+        entry("photo_objective.otherworldinn.farm_animal_snapshot")
+                .zh("主世界农场里的动物")
+                .en("an Overworld farm animal");
+        entry("photo_objective.otherworldinn.woodland_mansion_scene")
+                .zh("林地府邸的景色")
+                .en("a woodland mansion scene");
+        entry("photo_objective.otherworldinn.nether_fortress_scene")
+                .zh("下界堡垒的景色")
+                .en("a Nether fortress scene");
+        entry("photo_objective.otherworldinn.ancient_temple_scene")
+                .zh("古遗迹神殿的景色")
+                .en("an ancient temple scene");
+        entry("photo_objective.otherworldinn.underground_ore_scene")
+                .zh("地下矿脉洞窟的景色")
+                .en("an underground ore cave scene");
         entry("photo_objective.otherworldinn.snowy_plains_scene")
                 .zh("雪原群系的景色")
                 .en("a snowy plains biome scene");
