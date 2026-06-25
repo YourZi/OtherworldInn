@@ -45,6 +45,7 @@ crash-reports/
 debug/
 config/
 gradle/
+docs/
 
 # Logs
 *.log
