@@ -1,5 +1,6 @@
 package com.otherworldinn.entity.base;
 
+import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.dialogue.DialogueService;
 import com.otherworldinn.world.inventory.StoreMenu;
 import java.util.ArrayList;
@@ -849,9 +850,60 @@ public abstract class StoreEntity extends PathfinderMob {
 
         ItemStack stack = item.copy();
         if (modifier != null) {
-            modifier.accept(stack);
+            try {
+                modifier.accept(stack);
+            } catch (Exception exception) {
+                OtherworldInn.LOGGER.warn(
+                        "Skipping random store item {} for {} because modifier failed",
+                        describeItem(item),
+                        describeStoreEntity(),
+                        exception);
+                return;
+            }
+        }
+        if (!validateRandomStoreItem(stack, price, stock)) {
+            return;
         }
         this.storeItems.add(new StoreItem(stack, price, stock));
+    }
+
+    private boolean validateRandomStoreItem(ItemStack stack, int price, int stock) {
+        if (stack.isEmpty()) {
+            OtherworldInn.LOGGER.warn(
+                    "Skipping random store item for {} because the generated stack is empty",
+                    describeStoreEntity());
+            return false;
+        }
+
+        try {
+            CompoundTag serialized = new StoreItem(stack.copy(), price, stock).save(this.registryAccess());
+            StoreItem loaded = StoreItem.load(this.registryAccess(), serialized);
+            if (loaded.getItemStack().isEmpty()) {
+                OtherworldInn.LOGGER.warn(
+                        "Skipping random store item {} for {} because the serialized stack could not be loaded back",
+                        describeItem(stack),
+                        describeStoreEntity());
+                return false;
+            }
+            return true;
+        } catch (Exception exception) {
+            OtherworldInn.LOGGER.warn(
+                    "Skipping random store item {} for {} because serialization failed",
+                    describeItem(stack),
+                    describeStoreEntity(),
+                    exception);
+            return false;
+        }
+    }
+
+    private String describeStoreEntity() {
+        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(this.getType());
+        return entityId != null ? entityId.toString() : this.getClass().getSimpleName();
+    }
+
+    private static String describeItem(ItemStack stack) {
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return itemId != null ? itemId.toString() : stack.getDescriptionId();
     }
 
     @Override
@@ -863,8 +915,18 @@ public abstract class StoreEntity extends PathfinderMob {
         compound.putInt("FavorLevel", this.favorLevel);
         ListTag itemsTag = new ListTag();
         HolderLookup.Provider registryAccess = this.registryAccess();
-        for (StoreItem storeItem : this.storeItems) {
-            itemsTag.add(storeItem.save(registryAccess));
+        for (int i = 0; i < this.storeItems.size(); i++) {
+            StoreItem storeItem = this.storeItems.get(i);
+            try {
+                itemsTag.add(storeItem.save(registryAccess));
+            } catch (Exception exception) {
+                OtherworldInn.LOGGER.warn(
+                        "Skipping invalid store item {} while saving {} at index {}",
+                        describeItem(storeItem.getItemStack()),
+                        describeStoreEntity(),
+                        i,
+                        exception);
+            }
         }
         compound.put("StoreItems", itemsTag);
     }
@@ -891,10 +953,28 @@ public abstract class StoreEntity extends PathfinderMob {
             ListTag itemsTag = compound.getList("StoreItems", Tag.TAG_COMPOUND);
             HolderLookup.Provider registryAccess = this.registryAccess();
             this.storeItems.clear();
+            int index = 0;
             for (Tag tag : itemsTag) {
                 if (tag instanceof CompoundTag itemTag) {
-                    this.storeItems.add(StoreItem.load(registryAccess, itemTag));
+                    try {
+                        StoreItem loaded = StoreItem.load(registryAccess, itemTag);
+                        if (loaded.getItemStack().isEmpty()) {
+                            OtherworldInn.LOGGER.warn(
+                                    "Skipping invalid store item while loading {} at index {} because the stack is empty",
+                                    describeStoreEntity(),
+                                    index);
+                        } else {
+                            this.storeItems.add(loaded);
+                        }
+                    } catch (Exception exception) {
+                        OtherworldInn.LOGGER.warn(
+                                "Skipping invalid store item while loading {} at index {}",
+                                describeStoreEntity(),
+                                index,
+                                exception);
+                    }
                 }
+                index++;
             }
         }
         this.fixedItemsCount = Math.min(this.fixedItemsCount, this.storeItems.size());

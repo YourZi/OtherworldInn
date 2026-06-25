@@ -383,6 +383,33 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.fatigue.stage_4")
                 .zh("你真的撑不住了，想好好休息...")
                 .en("You can barely keep going. You desperately need a real rest...");
+        entry("message.otherworldinn.picnic_box.empty")
+                .zh("野餐盒里现在没有能吃的东西...")
+                .en("There is nothing edible in the picnic box right now...");
+        entry("message.otherworldinn.picnic_box.cannot_eat")
+                .zh("现在还吃不下这一份食物...")
+                .en("You cannot eat that food right now...");
+        entry("item.otherworldinn.picnic_box.hud.hint")
+                .zh("食用野餐盒里的第一份食物")
+                .en("Eat the first food inside the picnic box");
+        entry("item.otherworldinn.picnic_box.tooltip.use")
+                .zh("右键按顺序食用盒内的第一份食物")
+                .en("Right-click to eat the first food inside");
+        entry("item.otherworldinn.picnic_box.tooltip.insert")
+                .zh("在背包里对食物或野餐盒右键可放入或取出")
+                .en("Right-click food or the picnic box in inventory to insert or remove");
+        entry("item.otherworldinn.picnic_box.tooltip.clear")
+                .zh("潜行挥动可一次性倒出全部内容")
+                .en("Sneak-swing to empty everything at once");
+        entry("item.otherworldinn.picnic_box.tooltip.empty")
+                .zh("现在还是空的")
+                .en("Currently empty");
+        entry("item.otherworldinn.picnic_box.tooltip.contents")
+                .zh("内容预览: %s / %s")
+                .en("Contents: %s / %s");
+        entry("item.otherworldinn.picnic_box.tooltip.slot")
+                .zh("槽位 %s: %s x%s")
+                .en("Slot %s: %s x%s");
         entry("message.otherworldinn.reskillable.auto_level_up")
                 .zh("技能 %s 已升级至等级 %s")
                 .en("Skill %s has been upgraded to level %s");
@@ -453,6 +480,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.room_register.remove_success_with_reason")
                 .zh("%s已被移除。原因：%s")
                 .en("%s has been removed. Reason: %s");
+        entry("message.otherworldinn.room_register.remove_fail_occupied")
+                .zh("此房间已有旅客入住，不能直接移除")
+                .en("This room is occupied and cannot be removed directly.");
         entry("message.otherworldinn.room_register.manual_removal").zh("手动移除").en("Manual removal");
         entry("message.otherworldinn.room_register.validation.too_crowded")
                 .zh("房间过于拥挤")
@@ -502,6 +532,18 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.furniture.humidity")
                 .zh("§f\uE004§r湿度: %s")
                 .en("§f\uE004§rHumidity: %s");
+        entry("tooltip.otherworldinn.decoration.lodging_income")
+                .zh("旅社房费: %s")
+                .en("Lodging Income: %s");
+        entry("tooltip.otherworldinn.decoration.dining_income")
+                .zh("菜品售价: %s")
+                .en("Dining Income: %s");
+        entry("tooltip.otherworldinn.decoration.guest_arrival_speed")
+                .zh("旅客来访速度: %s")
+                .en("Guest Arrival Speed: %s");
+        entry("tooltip.otherworldinn.decoration.reputation_gain")
+                .zh("声望获取: %s")
+                .en("Reputation Gain: %s");
 
         // 地契
         entry("message.otherworldinn.land_deed.pos1_set").zh("位置1已设置：%s").en("Position 1 set: %s");

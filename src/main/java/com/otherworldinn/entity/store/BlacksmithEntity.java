@@ -7,8 +7,10 @@ import com.simibubi.create.AllItems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
@@ -28,7 +31,13 @@ import net.minecraft.world.level.Level;
 public class BlacksmithEntity extends StoreEntity {
 
     // 随机工具池
-    private static final List<RandomItemData> TOOL_POOL = new ArrayList<>();
+    private final List<RandomItemData> toolPool = new ArrayList<>();
+    private static final List<ResourceKey<Enchantment>> ARMOR_PRIMARY_ENCHANTMENTS =
+            List.of(
+                    Enchantments.PROTECTION,
+                    Enchantments.FIRE_PROTECTION,
+                    Enchantments.BLAST_PROTECTION,
+                    Enchantments.PROJECTILE_PROTECTION);
 
     public BlacksmithEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -41,7 +50,7 @@ public class BlacksmithEntity extends StoreEntity {
             this.initDefaultStoreItems();
 
             // 初始化工具池 (如果为空)
-            if (TOOL_POOL.isEmpty()) {
+            if (this.toolPool.isEmpty()) {
                 initToolPool();
             }
         }
@@ -59,18 +68,15 @@ public class BlacksmithEntity extends StoreEntity {
 
                     // 随机附魔 (低级)
                     if (random.nextBoolean()) {
-                        this.registryAccess()
-                                .lookup(Registries.ENCHANTMENT)
-                                .flatMap(reg -> reg.get(Enchantments.EFFICIENCY))
-                                .ifPresent(
-                                        enchantment ->
-                                                stack.enchant(enchantment, 1 + random.nextInt(2)));
+                        this.tryApplyEnchantment(
+                                stack,
+                                Enchantments.EFFICIENCY,
+                                1 + random.nextInt(2),
+                                "random tool efficiency");
                     }
                     if (random.nextFloat() < 0.3f) {
-                        this.registryAccess()
-                                .lookup(Registries.ENCHANTMENT)
-                                .flatMap(reg -> reg.get(Enchantments.UNBREAKING))
-                                .ifPresent(enchantment -> stack.enchant(enchantment, 1));
+                        this.tryApplyEnchantment(
+                                stack, Enchantments.UNBREAKING, 1, "random tool unbreaking");
                     }
                 };
 
@@ -81,58 +87,45 @@ public class BlacksmithEntity extends StoreEntity {
                     int damage = (int) (maxDamage * (0.05f + random.nextFloat() * 0.4f));
                     stack.setDamageValue(damage);
 
-                    this.registryAccess()
-                            .lookup(Registries.ENCHANTMENT)
-                            .ifPresent(
-                                    registry -> {
-                                        if (random.nextFloat() < 0.7f) {
-                                            var primary =
-                                                    switch (random.nextInt(3)) {
-                                                        case 0 -> Enchantments.PROTECTION;
-                                                        case 1 ->
-                                                                Enchantments.PROJECTILE_PROTECTION;
-                                                        default -> Enchantments.BLAST_PROTECTION;
-                                                    };
-                                            registry.get(primary)
-                                                    .ifPresent(
-                                                            enchantment ->
-                                                                    stack.enchant(
-                                                                            enchantment,
-                                                                            1 + random.nextInt(2)));
-                                        }
-                                        if (random.nextFloat() < 0.25f) {
-                                            registry.get(Enchantments.UNBREAKING)
-                                                    .ifPresent(
-                                                            enchantment ->
-                                                                    stack.enchant(enchantment, 1));
-                                        }
-                                    });
+                    if (random.nextFloat() < 0.7f) {
+                        this.tryApplyRandomArmorProtection(stack, random);
+                    }
+                    if (random.nextFloat() < 0.25f) {
+                        this.tryApplyEnchantment(
+                                stack, Enchantments.UNBREAKING, 1, "random armor unbreaking");
+                    }
                 };
 
-        TOOL_POOL.add(new RandomItemData(Items.IRON_PICKAXE, 25, 35, 1, 1, 10, randomToolModifier));
-        TOOL_POOL.add(new RandomItemData(Items.IRON_AXE, 20, 30, 1, 1, 10, randomToolModifier));
-        TOOL_POOL.add(new RandomItemData(Items.IRON_SHOVEL, 10, 20, 1, 1, 10, randomToolModifier));
-        TOOL_POOL.add(new RandomItemData(Items.IRON_SWORD, 15, 25, 1, 1, 10, randomToolModifier));
-        TOOL_POOL.add(new RandomItemData(Items.IRON_HOE, 10, 20, 1, 1, 5, randomToolModifier));
+        this.toolPool.add(
+                new RandomItemData(Items.IRON_PICKAXE, 25, 35, 1, 1, 10, randomToolModifier));
+        this.toolPool.add(new RandomItemData(Items.IRON_AXE, 20, 30, 1, 1, 10, randomToolModifier));
+        this.toolPool.add(
+                new RandomItemData(Items.IRON_SHOVEL, 10, 20, 1, 1, 10, randomToolModifier));
+        this.toolPool.add(
+                new RandomItemData(Items.IRON_SWORD, 15, 25, 1, 1, 10, randomToolModifier));
+        this.toolPool.add(new RandomItemData(Items.IRON_HOE, 10, 20, 1, 1, 5, randomToolModifier));
 
-        TOOL_POOL.add(
+        this.toolPool.add(
                 new RandomItemData(Items.GOLDEN_PICKAXE, 20, 30, 1, 1, 5, randomToolModifier));
-        TOOL_POOL.add(new RandomItemData(Items.GOLDEN_SWORD, 20, 30, 1, 1, 5, randomToolModifier));
+        this.toolPool.add(
+                new RandomItemData(Items.GOLDEN_SWORD, 20, 30, 1, 1, 5, randomToolModifier));
 
-        TOOL_POOL.add(new RandomItemData(Items.IRON_HELMET, 28, 40, 1, 1, 8, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
+                new RandomItemData(Items.IRON_HELMET, 28, 40, 1, 1, 8, randomArmorModifier));
+        this.toolPool.add(
                 new RandomItemData(Items.IRON_CHESTPLATE, 40, 58, 1, 1, 6, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
                 new RandomItemData(Items.IRON_LEGGINGS, 36, 52, 1, 1, 6, randomArmorModifier));
-        TOOL_POOL.add(new RandomItemData(Items.IRON_BOOTS, 24, 36, 1, 1, 8, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
+                new RandomItemData(Items.IRON_BOOTS, 24, 36, 1, 1, 8, randomArmorModifier));
+        this.toolPool.add(
                 new RandomItemData(Items.CHAINMAIL_HELMET, 18, 28, 1, 1, 8, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
                 new RandomItemData(
                         Items.CHAINMAIL_CHESTPLATE, 30, 44, 1, 1, 6, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
                 new RandomItemData(Items.CHAINMAIL_LEGGINGS, 26, 38, 1, 1, 6, randomArmorModifier));
-        TOOL_POOL.add(
+        this.toolPool.add(
                 new RandomItemData(Items.CHAINMAIL_BOOTS, 16, 24, 1, 1, 8, randomArmorModifier));
     }
 
@@ -142,7 +135,7 @@ public class BlacksmithEntity extends StoreEntity {
         // 初始生成随机商品
         if (!this.level().isClientSide
                 && this.storeItems.size() == this.fixedItemsCount
-                && !TOOL_POOL.isEmpty()) {
+                && !this.toolPool.isEmpty()) {
             this.refreshRandomItems();
         }
     }
@@ -150,11 +143,11 @@ public class BlacksmithEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        if (TOOL_POOL.isEmpty()) {
+        if (this.toolPool.isEmpty()) {
             initToolPool();
         }
         // 随机抽取商品
-        this.generateRandomItems(TOOL_POOL, 2, 4);
+        this.generateRandomItems(this.toolPool, 2, 4);
     }
 
     private void initDefaultStoreItems() {
@@ -195,10 +188,60 @@ public class BlacksmithEntity extends StoreEntity {
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.COPPER_INGOT));
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
-        if (TOOL_POOL.isEmpty()) {
+        if (this.toolPool.isEmpty()) {
             initToolPool();
         }
         this.initDefaultStoreItems();
+    }
+
+    private boolean tryApplyRandomArmorProtection(ItemStack stack, RandomSource random) {
+        int startIndex = random.nextInt(ARMOR_PRIMARY_ENCHANTMENTS.size());
+        for (int i = 0; i < ARMOR_PRIMARY_ENCHANTMENTS.size(); i++) {
+            ResourceKey<Enchantment> enchantmentKey =
+                    ARMOR_PRIMARY_ENCHANTMENTS.get((startIndex + i) % ARMOR_PRIMARY_ENCHANTMENTS.size());
+            if (this.tryApplyEnchantment(
+                    stack,
+                    enchantmentKey,
+                    1 + random.nextInt(2),
+                    "random armor primary protection")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean tryApplyEnchantment(
+            ItemStack stack,
+            ResourceKey<Enchantment> enchantmentKey,
+            int level,
+            String reason) {
+        try {
+            HolderLookup.RegistryLookup<Enchantment> registry =
+                    this.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            return registry.get(enchantmentKey)
+                    .map(
+                            enchantment -> {
+                                stack.enchant(enchantment, level);
+                                return true;
+                            })
+                    .orElseGet(
+                            () -> {
+                                OtherworldInn.LOGGER.warn(
+                                        "Skipping {} enchantment {} on {} because it is missing from the registry",
+                                        reason,
+                                        enchantmentKey.location(),
+                                        stack.getItem());
+                                return false;
+                            });
+        } catch (Exception exception) {
+            OtherworldInn.LOGGER.warn(
+                    "Skipping {} enchantment {} on {} because applying it failed",
+                    reason,
+                    enchantmentKey.location(),
+                    stack.getItem(),
+                    exception);
+            return false;
+        }
     }
 
     @Override

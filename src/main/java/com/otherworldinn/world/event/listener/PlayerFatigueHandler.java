@@ -206,4 +206,19 @@ public final class PlayerFatigueHandler {
                         journeyMinutes),
                 player);
     }
+
+    public static void syncCurrentState(ServerPlayer player) {
+        FatigueData data = player.getData(ModAttachments.PLAYER_FATIGUE);
+        FatigueCalculator.FatigueStage stage = FatigueCalculator.getStage(data.getFatigue());
+        double journeyMinutes = data.getCurrentJourneyTicks() / 1200.0D;
+
+        ModMessages.sendToPlayer(
+                new S2CFatigueSyncPacket(
+                        data.getFatigue(),
+                        stage.level(),
+                        data.getLastSecondGain(),
+                        data.getLastDimensionMultiplier(),
+                        journeyMinutes),
+                player);
+    }
 }

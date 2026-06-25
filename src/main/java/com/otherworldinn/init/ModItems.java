@@ -10,6 +10,7 @@ import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
+import com.otherworldinn.item.PicnicBoxItem;
 import com.otherworldinn.item.RecallScrollItem;
 import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.RoomRegisterItem;
@@ -140,10 +141,7 @@ public class ModItems {
                             "用于维修或升级设施，升级后的设施会重置内部的所有方块")
                     .tooltip(
                             "so please ensure that no important blocks are placed inside the facilities.",
-                            "，请确保没有重要方块放置在设施内")
-                    .tooltip(
-                            "Temporary: right click a decoration structure block to validate and activate it.",
-                            "临时功能：右键装饰结构中的任意方块，以检测并激活该装饰。");
+                            "，请确保没有重要方块放置在设施内");
     public static final DeferredItem<Item> FACILITY_UPGRADE_TEMPLATE =
             FACILITY_UPGRADE_TEMPLATE_REG.register();
 
@@ -187,6 +185,16 @@ public class ModItems {
                             "使用时消耗一个");
     public static final DeferredItem<EndSpaceSphereItem> END_SPACE_SPHERE =
             END_SPACE_SPHERE_REG.register();
+
+    public static final ItemReg<PicnicBoxItem> PICNIC_BOX_REG =
+            new ItemReg<>("picnic_box", PicnicBoxItem::new)
+                    .rarity(Rarity.UNCOMMON)
+                    .stacksTo(1)
+                    .lang("Picnic Box", "野餐盒")
+                    .tooltip(
+                            "Only food eaten from the picnic box restores fatigue",
+                            "只有通过野餐盒食用的食物才能恢复疲劳");
+    public static final DeferredItem<PicnicBoxItem> PICNIC_BOX = PICNIC_BOX_REG.register();
     // --- 辅助方法 ---
 
     /**

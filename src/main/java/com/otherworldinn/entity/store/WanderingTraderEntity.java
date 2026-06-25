@@ -144,6 +144,10 @@ public class WanderingTraderEntity extends StoreEntity {
             case UNCOMMON -> 15 + rng.nextInt(34); // 15-48
             case RARE -> 49 + rng.nextInt(16);     // 49-64
             case EPIC -> 65 + rng.nextInt(64);     // 65-128
+            default -> {
+                OtherworldInn.LOGGER.warn("Unknown wandering trader item rarity {}, falling back to COMMON pricing", rarity);
+                yield 8 + rng.nextInt(17);
+            }
         };
     }
 

@@ -7,6 +7,9 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import com.otherworldinn.world.inn.InnData;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuff;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
+import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.Map;
@@ -134,6 +137,15 @@ public class ModTooltips {
         // 检查方块物品注册表
         if (item instanceof BlockItem blockItem) {
             Block block = blockItem.getBlock();
+
+            InnDecorationRegistry.resolve(block)
+                    .ifPresent(
+                            definition -> {
+                                for (InnDecorationBuff buff : definition.buffs()) {
+                                    event.getToolTip().add(getDecorationTooltip(buff));
+                                }
+                            });
+
             for (Map.Entry<DeferredBlock<?>, BlockDataGenInfo> entry :
                     ModBlocks.BLOCK_INFOS.entrySet()) {
                 if (entry.getKey().get() == block) {
@@ -149,5 +161,33 @@ public class ModTooltips {
                 }
             }
         }
+    }
+
+    private static Component getDecorationTooltip(InnDecorationBuff buff) {
+        String amount = formatDecorationPercentage(buff.value());
+        return switch (buff.type()) {
+            case LODGING_INCOME_MULTIPLIER ->
+                    Component.translatable("tooltip.otherworldinn.decoration.lodging_income", amount)
+                            .withStyle(style -> style.withColor(ModColors.YELLOW));
+            case DINING_INCOME_MULTIPLIER ->
+                    Component.translatable("tooltip.otherworldinn.decoration.dining_income", amount)
+                            .withStyle(style -> style.withColor(ModColors.YELLOW));
+            case GUEST_ARRIVAL_SPEED_MULTIPLIER ->
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.guest_arrival_speed", amount)
+                            .withStyle(style -> style.withColor(ModColors.INFO));
+            case REPUTATION_GAIN_MULTIPLIER ->
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.reputation_gain", amount)
+                            .withStyle(style -> style.withColor(ModColors.SUCCESS));
+        };
+    }
+
+    private static String formatDecorationPercentage(double value) {
+        double percent = value * 100.0D;
+        if (Math.abs(percent - Math.rint(percent)) < 0.0001D) {
+            return String.format("%+.0f%%", percent);
+        }
+        return String.format("%+.1f%%", percent);
     }
 }

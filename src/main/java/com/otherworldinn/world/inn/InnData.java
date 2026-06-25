@@ -108,7 +108,8 @@ public class InnData {
     private final Set<UUID> guestIds = new HashSet<>();
     private final Map<Integer, RoomData> rooms = new HashMap<>();
     private final Map<String, Integer> facilityLevels = new HashMap<>();
-    private final Map<String, List<DecorationPlacement>> activeDecorations = new HashMap<>();
+    private final Map<Long, String> activeDecorationPositions = new HashMap<>();
+    private final Map<String, Integer> activeDecorationCounts = new HashMap<>();
 
     // 待办事项缓存列表
     private final List<String> todoList = new ArrayList<>();
@@ -390,6 +391,14 @@ public class InnData {
     public void removeRoom(int roomId, Level level, TeamData team, Component reason) {
         RoomData removed = this.rooms.remove(roomId);
 
+        if (removed != null && level instanceof ServerLevel serverLevel) {
+            List<UUID> displacedGuests = List.copyOf(removed.getCurrentGuests());
+            for (UUID guestId : displacedGuests) {
+                removed.removeGuest(guestId);
+                handleGuestDeparture(guestId, false, serverLevel, team);
+            }
+        }
+
         // 通知队伍所有成员
         if (level != null && team != null && removed != null) {
             String roomDisplay = RoomData.getDisplayName(removed);
@@ -571,57 +580,63 @@ public class InnData {
         facilityLevels.put(facilityId, Math.max(0, level));
     }
 
-    public record DecorationPlacement(BlockPos origin, net.minecraft.world.level.block.Rotation rotation) {
-        public DecorationPlacement {
-            origin = origin == null ? BlockPos.ZERO : origin.immutable();
-            rotation =
-                    rotation == null
-                            ? net.minecraft.world.level.block.Rotation.NONE
-                            : rotation;
+    public String getActiveDecorationIdAt(BlockPos pos) {
+        if (pos == null) {
+            return null;
         }
+        return activeDecorationPositions.get(pos.asLong());
     }
 
-    public Map<String, List<DecorationPlacement>> copyActiveDecorations() {
-        Map<String, List<DecorationPlacement>> copy = new HashMap<>();
-        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
-            copy.put(entry.getKey(), List.copyOf(entry.getValue()));
+    public boolean setActiveDecorationAt(BlockPos pos, String decorationId) {
+        if (pos == null || decorationId == null || decorationId.isBlank()) {
+            return false;
         }
-        return copy;
+
+        long packedPos = pos.asLong();
+        String previous = activeDecorationPositions.put(packedPos, decorationId);
+        if (Objects.equals(previous, decorationId)) {
+            return false;
+        }
+
+        if (previous != null) {
+            decrementActiveDecorationCount(previous);
+        }
+        incrementActiveDecorationCount(decorationId);
+        return true;
     }
 
-    public void replaceActiveDecorations(Map<String, List<DecorationPlacement>> decorations) {
-        activeDecorations.clear();
-        if (decorations == null || decorations.isEmpty()) {
-            return;
+    public boolean removeActiveDecorationAt(BlockPos pos) {
+        if (pos == null) {
+            return false;
         }
-        for (Map.Entry<String, List<DecorationPlacement>> entry : decorations.entrySet()) {
-            String key = entry.getKey();
-            List<DecorationPlacement> placements = entry.getValue();
-            if (key == null || key.isBlank() || placements == null || placements.isEmpty()) {
-                continue;
-            }
-            activeDecorations.put(key, List.copyOf(placements));
+
+        String removed = activeDecorationPositions.remove(pos.asLong());
+        if (removed == null) {
+            return false;
         }
+
+        decrementActiveDecorationCount(removed);
+        return true;
     }
 
     public int getActiveDecorationCount(String decorationId) {
         if (decorationId == null || decorationId.isBlank()) {
             return 0;
         }
-        return activeDecorations.getOrDefault(decorationId, List.of()).size();
+        return activeDecorationCounts.getOrDefault(decorationId, 0);
     }
 
     public double getDecorationBuffValue(InnDecorationBuffType type) {
-        if (type == null || activeDecorations.isEmpty()) {
+        if (type == null || activeDecorationCounts.isEmpty()) {
             return 0.0D;
         }
         double total = 0.0D;
-        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
+        for (Map.Entry<String, Integer> entry : activeDecorationCounts.entrySet()) {
             InnDecorationDefinition definition = InnDecorationRegistry.get(entry.getKey());
             if (definition == null) {
                 continue;
             }
-            int instanceCount = entry.getValue() == null ? 0 : entry.getValue().size();
+            int instanceCount = definition.getEffectiveInstanceCount(entry.getValue());
             if (instanceCount <= 0) {
                 continue;
             }
@@ -645,6 +660,19 @@ public class InnData {
         double multiplier = getDecorationBuffMultiplier(type);
         int scaled = (int) Math.round(amount * multiplier);
         return Math.max(amount, scaled);
+    }
+
+    private void incrementActiveDecorationCount(String decorationId) {
+        activeDecorationCounts.merge(decorationId, 1, Integer::sum);
+    }
+
+    private void decrementActiveDecorationCount(String decorationId) {
+        activeDecorationCounts.computeIfPresent(
+                decorationId,
+                (ignored, count) -> {
+                    int next = count - 1;
+                    return next > 0 ? next : null;
+                });
     }
 
     /**
@@ -1752,17 +1780,17 @@ public class InnData {
         }
         tag.put("FacilityLevels", facilityLevelsTag);
 
-        ListTag activeDecorationsTag = new ListTag();
-        for (Map.Entry<String, List<DecorationPlacement>> entry : activeDecorations.entrySet()) {
-            for (DecorationPlacement placement : entry.getValue()) {
-                CompoundTag placementTag = new CompoundTag();
-                placementTag.putString("Id", entry.getKey());
-                placementTag.putLong("Origin", placement.origin().asLong());
-                placementTag.putString("Rotation", placement.rotation().name());
-                activeDecorationsTag.add(placementTag);
+        ListTag activeDecorationPositionsTag = new ListTag();
+        for (Map.Entry<Long, String> entry : activeDecorationPositions.entrySet()) {
+            if (entry.getValue() == null || entry.getValue().isBlank()) {
+                continue;
             }
+            CompoundTag positionTag = new CompoundTag();
+            positionTag.putLong("Pos", entry.getKey());
+            positionTag.putString("Id", entry.getValue());
+            activeDecorationPositionsTag.add(positionTag);
         }
-        tag.put("ActiveDecorations", activeDecorationsTag);
+        tag.put("ActiveDecorationPositions", activeDecorationPositionsTag);
 
         return tag;
     }
@@ -1893,35 +1921,22 @@ public class InnData {
             }
         }
 
-        activeDecorations.clear();
-        if (tag.contains("ActiveDecorations", Tag.TAG_LIST)) {
-            ListTag activeDecorationsTag = tag.getList("ActiveDecorations", Tag.TAG_COMPOUND);
-            for (Tag entryTag : activeDecorationsTag) {
-                if (!(entryTag instanceof CompoundTag placementTag)) {
+        activeDecorationPositions.clear();
+        activeDecorationCounts.clear();
+        if (tag.contains("ActiveDecorationPositions", Tag.TAG_LIST)) {
+            ListTag activeDecorationPositionsTag =
+                    tag.getList("ActiveDecorationPositions", Tag.TAG_COMPOUND);
+            for (Tag entryTag : activeDecorationPositionsTag) {
+                if (!(entryTag instanceof CompoundTag positionTag)) {
                     continue;
                 }
-                String decorationId = placementTag.getString("Id");
+                String decorationId = positionTag.getString("Id");
                 if (decorationId == null || decorationId.isBlank()) {
                     continue;
                 }
-                BlockPos origin = BlockPos.of(placementTag.getLong("Origin"));
-                net.minecraft.world.level.block.Rotation rotation =
-                        net.minecraft.world.level.block.Rotation.NONE;
-                if (placementTag.contains("Rotation", Tag.TAG_STRING)) {
-                    try {
-                        rotation =
-                                net.minecraft.world.level.block.Rotation.valueOf(
-                                        placementTag.getString("Rotation"));
-                    } catch (IllegalArgumentException ignored) {
-                        rotation = net.minecraft.world.level.block.Rotation.NONE;
-                    }
-                }
-                activeDecorations
-                        .computeIfAbsent(decorationId, ignored -> new ArrayList<>())
-                        .add(new DecorationPlacement(origin, rotation));
-            }
-            for (Map.Entry<String, List<DecorationPlacement>> entry : new ArrayList<>(activeDecorations.entrySet())) {
-                activeDecorations.put(entry.getKey(), List.copyOf(entry.getValue()));
+                long packedPos = positionTag.getLong("Pos");
+                activeDecorationPositions.put(packedPos, decorationId);
+                incrementActiveDecorationCount(decorationId);
             }
         }
     }

@@ -2,6 +2,7 @@ package com.otherworldinn.mixin;
 
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.event.listener.TownProtectionHandler;
+import com.otherworldinn.world.inn.listener.InnEventHandler;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.content.contraptions.Contraption;
@@ -105,6 +106,10 @@ public class MixinContraption {
         }
 
         // 合法区域，执行默认逻辑
-        return this.customBlockPlacement(worldAccessor, pos, state);
+        boolean placed = this.customBlockPlacement(worldAccessor, pos, state);
+        if (placed && worldAccessor instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            InnEventHandler.markInnBlockChanged(serverLevel, pos);
+        }
+        return placed;
     }
 }

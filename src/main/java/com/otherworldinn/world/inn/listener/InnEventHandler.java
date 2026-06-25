@@ -8,16 +8,10 @@ import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
-import com.otherworldinn.world.inn.RoomData;
-import com.otherworldinn.world.inn.decoration.InnDecorationDefinition;
-import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.decoration.InnDecorationService;
-import com.otherworldinn.world.inn.decoration.InnDecorationService.ActivationResult;
-import com.otherworldinn.world.inn.decoration.InnDecorationService.ActivationStatus;
-import com.otherworldinn.world.inn.decoration.InnDecorationService.InvalidationResult;
 import com.otherworldinn.world.team.TeamData;
-import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.team.TeamSavedData;
+import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.AllBlocks;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +32,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -56,7 +49,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -76,6 +68,21 @@ public class InnEventHandler {
     private static final Map<UUID, Set<BlockPos>> pendingChecks = new HashMap<>();
     private static final String MESSY_BED_ITEM_KEY = "MessyBed";
 
+    public static void markInnBlockChanged(ServerLevel level, BlockPos pos) {
+        if (level == null || pos == null || level.dimension() != TownDimensions.TOWN_LEVEL) {
+            return;
+        }
+
+        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
+        if (team == null) {
+            return;
+        }
+
+        synchronized (pendingChecks) {
+            pendingChecks.computeIfAbsent(team.getTeamId(), ignored -> new HashSet<>()).add(pos.immutable());
+        }
+    }
+
     /**
      * 监听方块更新事件 (NeighborNotifyEvent)
      *
@@ -85,15 +92,7 @@ public class InnEventHandler {
     public static void onBlockUpdate(BlockEvent.NeighborNotifyEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (level.dimension() != TownDimensions.TOWN_LEVEL) return;
-
-        BlockPos pos = event.getPos();
-        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
-
-        if (team != null) {
-            synchronized (pendingChecks) {
-                pendingChecks.computeIfAbsent(team.getTeamId(), k -> new HashSet<>()).add(pos);
-            }
-        }
+        markInnBlockChanged(level, event.getPos());
     }
 
     /**
@@ -111,9 +110,7 @@ public class InnEventHandler {
         TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
 
         if (team != null) {
-            synchronized (pendingChecks) {
-                pendingChecks.computeIfAbsent(team.getTeamId(), k -> new HashSet<>()).add(pos);
-            }
+            markInnBlockChanged(level, pos);
 
             // 检查是否放置了剪贴板
             BlockState state = event.getState();
@@ -139,9 +136,7 @@ public class InnEventHandler {
         TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
 
         if (team != null) {
-            synchronized (pendingChecks) {
-                pendingChecks.computeIfAbsent(team.getTeamId(), k -> new HashSet<>()).add(pos);
-            }
+            markInnBlockChanged(level, pos);
         }
     }
 
@@ -295,12 +290,9 @@ public class InnEventHandler {
                     changed = true;
                 }
 
-                InvalidationResult invalidationResult =
-                        InnDecorationService.invalidateAffectedDecorations(level, team, positions);
-                if (!invalidationResult.invalidatedDecorationIds().isEmpty()) {
-                    broadcastDecorationInvalidated(level, team, invalidationResult.invalidatedDecorationIds());
-                }
-                if (invalidationResult.changed()) {
+                InnDecorationService.ReconcileResult reconcileResult =
+                        InnDecorationService.reconcileChangedPositions(level, team, positions);
+                if (reconcileResult.changed()) {
                     changed = true;
                 }
 
@@ -414,51 +406,6 @@ public class InnEventHandler {
         Player player = event.getEntity();
         ItemStack held = player.getItemInHand(event.getHand());
 
-        if (held.is(ModItems.FACILITY_UPGRADE_TEMPLATE.get())) {
-            if (!(level instanceof ServerLevel serverLevel)
-                    || level.dimension() != TownDimensions.TOWN_LEVEL) {
-                return;
-            }
-            TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
-            if (team == null || !team.hasMember(player.getUUID())) {
-                return;
-            }
-
-            ActivationResult result =
-                    InnDecorationService.tryActivateDecorationAt(serverLevel, team, pos);
-            switch (result.status()) {
-                case ACTIVATED -> {
-                    broadcastDecorationActivated(serverLevel, team, pos, result.decorationId());
-                    TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
-                    player.swing(event.getHand(), true);
-                }
-                case ALREADY_ACTIVE ->
-                        showDecorationActivationFailure(
-                                player, pos, level, "message.otherworldinn.decoration.already_active");
-                case LIMIT_REACHED -> {
-                    InnDecorationDefinition definition = InnDecorationRegistry.get(result.decorationId());
-                    Component decorationName =
-                            definition == null
-                                    ? Component.literal(
-                                            result.decorationId() == null ? "unknown" : result.decorationId())
-                                    : Component.translatable(definition.translationKey());
-                    showDecorationActivationFailure(
-                            player,
-                            pos,
-                            level,
-                            Component.translatable(
-                                            "message.otherworldinn.decoration.limit_reached",
-                                            decorationName)
-                                    .withStyle(style -> style.withColor(ModColors.ERROR)));
-                }
-                case NOT_FOUND ->
-                        showDecorationActivationFailure(
-                                player, pos, level, "message.otherworldinn.decoration.not_found");
-            }
-            event.setCanceled(true);
-            return;
-        }
-
         // 命名牌重命名房间
         if (held.is(Items.NAME_TAG) && held.has(DataComponents.CUSTOM_NAME)) {
             if (level instanceof ServerLevel serverLevel
@@ -518,74 +465,6 @@ public class InnEventHandler {
                 }
             }
         }
-    }
-
-    private static void broadcastDecorationActivated(
-            ServerLevel level, TeamData team, BlockPos pos, String decorationId) {
-        InnDecorationDefinition definition = InnDecorationRegistry.get(decorationId);
-        Component decorationName =
-                definition == null
-                        ? Component.literal(decorationId == null ? "unknown" : decorationId)
-                        : Component.translatable(definition.translationKey());
-        Component message =
-                Component.translatable("message.otherworldinn.decoration.activated", decorationName)
-                        .withStyle(style -> style.withColor(ModColors.SUCCESS));
-        for (UUID memberId : team.getMembers()) {
-            ServerPlayer member = level.getServer().getPlayerList().getPlayer(memberId);
-            if (member != null) {
-                member.sendSystemMessage(message);
-                member.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.9F, 1.0F);
-            }
-        }
-
-        Vec3 center = Vec3.atCenterOf(pos);
-        level.sendParticles(
-                ParticleTypes.HAPPY_VILLAGER,
-                center.x,
-                center.y + 0.5D,
-                center.z,
-                18,
-                0.7D,
-                0.45D,
-                0.7D,
-                0.02D);
-        level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.9F, 1.0F);
-    }
-
-    private static void broadcastDecorationInvalidated(
-            ServerLevel level, TeamData team, Set<String> decorationIds) {
-        for (String decorationId : decorationIds) {
-            InnDecorationDefinition definition = InnDecorationRegistry.get(decorationId);
-            Component decorationName =
-                    definition == null
-                            ? Component.literal(decorationId == null ? "unknown" : decorationId)
-                            : Component.translatable(definition.translationKey());
-            Component message =
-                    Component.translatable(
-                                    "message.otherworldinn.decoration.invalidated", decorationName)
-                            .withStyle(style -> style.withColor(ModColors.ERROR));
-            for (UUID memberId : team.getMembers()) {
-                ServerPlayer member = level.getServer().getPlayerList().getPlayer(memberId);
-                if (member != null) {
-                    member.sendSystemMessage(message);
-                }
-            }
-        }
-    }
-
-    private static void showDecorationActivationFailure(
-            Player player, BlockPos pos, Level level, String translationKey) {
-        showDecorationActivationFailure(
-                player,
-                pos,
-                level,
-                Component.translatable(translationKey).withStyle(style -> style.withColor(ModColors.ERROR)));
-    }
-
-    private static void showDecorationActivationFailure(
-            Player player, BlockPos pos, Level level, Component message) {
-        player.displayClientMessage(message, true);
-        level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 0.8F, 1.0F);
     }
 
     @Nullable
@@ -703,6 +582,15 @@ public class InnEventHandler {
             RoomData room = innData.getRoomAt(pos);
 
             if (room != null) {
+                if (!room.getCurrentGuests().isEmpty()) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable(
+                                            "message.otherworldinn.room_register.remove_fail_occupied")
+                                    .withStyle(style -> style.withColor(ModColors.ERROR)),
+                            true);
+                    return;
+                }
+
                 innData.removeRoom(
                         room.getId(),
                         level,
