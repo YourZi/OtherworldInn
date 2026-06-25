@@ -33,6 +33,7 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModItems.SPACE_SPHERE.get());
                                                 output.accept(ModItems.NETHER_SPACE_SPHERE.get());
                                                 output.accept(ModItems.END_SPACE_SPHERE.get());
+                                                output.accept(ModItems.PICNIC_BOX.get());
                                                 output.accept(ModItems.FACILITY_UPGRADE_TEMPLATE.get());
                                                 output.accept(ModItems.COIN.get());
                                                 output.accept(ModBlocks.COMMISSION_BOARD.get());

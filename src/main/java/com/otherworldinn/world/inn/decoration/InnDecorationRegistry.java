@@ -20,9 +20,8 @@ public final class InnDecorationRegistry {
     private static final Map<TagKey<Block>, InnDecorationStats> TAG_STATS = new HashMap<>();
     private static final List<KeywordRule> KEYWORD_RULES =
             List.of(
-                    new KeywordRule(
-                            "photograph_frame",
-                            new InnDecorationStats("photograph_frame", 0.02D, 0.0D, 0.0D, 0.0D, 5)));
+                    //new KeywordRule("photograph_frame", new InnDecorationStats("photograph_frame", 0.02D, 0.0D, 0.0D, 0.0D, 5))
+                );
 
     static {
         initDefaultDecorations();

@@ -15,8 +15,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-
 public class ModRecipeProvider extends RecipeProvider {
 
     public ModRecipeProvider(
@@ -46,6 +44,17 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("WWW")
                 .define('W', ItemTags.WOOL)
                 .unlockedBy("has_wool", has(ItemTags.WOOL))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.PICNIC_BOX.get(), 1)
+                .pattern("SLS")
+                .pattern("P P")
+                .pattern("PPP")
+                .define('S', Items.STRING)
+                .define('L', Items.LEATHER)
+                .define('P', ItemTags.PLANKS)
+                .unlockedBy("has_leather", has(Items.LEATHER))
+                .unlockedBy("has_planks", has(ItemTags.PLANKS))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.WRITABLE_BOOK, 1)

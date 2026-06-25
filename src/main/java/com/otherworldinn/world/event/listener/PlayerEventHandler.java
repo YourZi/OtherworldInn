@@ -65,6 +65,7 @@ public class PlayerEventHandler {
     private static final int DEATH_PENALTY_MAX_PERCENT = 10;
     private static final int DEATH_PENALTY_MAX_AMOUNT = 500;
     private static final Set<UUID> FORCED_TOWN_RESPAWNS = new HashSet<>();
+    private static final Set<UUID> PENDING_RECALL_SCROLLS = new HashSet<>();
 
 
     /**
@@ -110,10 +111,7 @@ public class PlayerEventHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             if (player.level().dimension() == TownDimensions.TOWN_LEVEL
                     && event.getDimension() != TownDimensions.TOWN_LEVEL) {
-                ItemStack scroll = new ItemStack(ModItems.RECALL_SCROLL.get());
-                if (!player.getInventory().contains(scroll) && !player.getInventory().add(scroll)) {
-                    player.drop(scroll, false);
-                }
+                PENDING_RECALL_SCROLLS.add(player.getUUID());
             }
 
             // 魔法空间进出追踪
@@ -123,6 +121,17 @@ public class PlayerEventHandler {
                 CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.remove(player.getUUID());
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (!PENDING_RECALL_SCROLLS.remove(player.getUUID())) {
+            return;
+        }
+        giveOrDropRecallScroll(player);
     }
 
     /**
@@ -306,6 +315,14 @@ public class PlayerEventHandler {
     private static void setTownRespawn(ServerPlayer player) {
         player.setRespawnPosition(TownDimensions.TOWN_LEVEL, TOWN_SPAWN_POS, 0, true, false);
     }
+
+    private static void giveOrDropRecallScroll(ServerPlayer player) {
+        ItemStack scroll = new ItemStack(ModItems.RECALL_SCROLL.get());
+        if (!player.getInventory().contains(scroll) && !player.getInventory().add(scroll)) {
+            player.drop(scroll, false);
+        }
+    }
+
 
     private static int applyMedicalFee(ServerPlayer player, MinecraftServer server) {
         TeamData team = TeamManager.getInstance().getPlayerTeam(player);
