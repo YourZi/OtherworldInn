@@ -40,6 +40,8 @@ import net.neoforged.neoforge.registries.DeferredItem;
 public class ModTooltips {
     private static final ResourceLocation CREATE_CLIPBOARD_ID =
             ResourceLocation.fromNamespaceAndPath("create", "clipboard");
+    private static final ResourceLocation KALEIDOSCOPE_SCARECROW_ID =
+            ResourceLocation.fromNamespaceAndPath("kaleidoscope_cookery", "scarecrow");
 
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent event) {
@@ -67,6 +69,13 @@ public class ModTooltips {
             event.getToolTip()
                     .add(
                             Component.translatable("tooltip.otherworldinn.create_clipboard_hint")
+                                    .withStyle(style -> style.withColor(ModColors.INFO)));
+        }
+
+        if (BuiltInRegistries.ITEM.getKey(item).equals(KALEIDOSCOPE_SCARECROW_ID)) {
+            event.getToolTip()
+                    .add(
+                            Component.translatable("tooltip.otherworldinn.kaleidoscope_cookery.scarecrow")
                                     .withStyle(style -> style.withColor(ModColors.INFO)));
         }
 

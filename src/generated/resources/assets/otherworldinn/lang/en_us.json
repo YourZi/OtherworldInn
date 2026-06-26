@@ -912,6 +912,7 @@
   "tooltip.otherworldinn.furniture.comfort": "§f§rComfort: %s",
   "tooltip.otherworldinn.furniture.humidity": "§f§rHumidity: %s",
   "tooltip.otherworldinn.furniture.light": "§f§rLight: %s",
+  "tooltip.otherworldinn.kaleidoscope_cookery.scarecrow": "Slightly speeds up nearby crop growth",
   "tooltip.otherworldinn.land_deed.area_status": "Expanded Area: %s / Remaining: %s",
   "tooltip.otherworldinn.land_deed.rating": "Current Rating: %s",
   "tooltip.otherworldinn.only_in_town": "§cOnly usable in Town dimension",

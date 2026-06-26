@@ -429,6 +429,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.create_clipboard_hint")
                 .zh("放置在旅社范围内时，会自动添加并提醒重要的待办事项")
                 .en("When placed inside inn bounds, it automatically adds and reminds important todos.");
+        entry("tooltip.otherworldinn.kaleidoscope_cookery.scarecrow")
+                .zh("可以轻微催熟附近作物")
+                .en("Slightly speeds up nearby crop growth");
         entry("tooltip.otherworldinn.book.roster")
                 .zh("潜行右键前台铃铛可生成旅客名册")
                 .en("Sneak + right-click Desk Bell to create a guest roster.");

@@ -912,6 +912,7 @@
   "tooltip.otherworldinn.furniture.comfort": "§f§r舒适度: %s",
   "tooltip.otherworldinn.furniture.humidity": "§f§r湿度: %s",
   "tooltip.otherworldinn.furniture.light": "§f§r光照度: %s",
+  "tooltip.otherworldinn.kaleidoscope_cookery.scarecrow": "可以轻微催熟附近作物",
   "tooltip.otherworldinn.land_deed.area_status": "已扩展范围: %s / 剩余可用: %s",
   "tooltip.otherworldinn.land_deed.rating": "当前星级: %s",
   "tooltip.otherworldinn.only_in_town": "§c仅限城镇维度使用",

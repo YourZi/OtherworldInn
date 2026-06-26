@@ -26,6 +26,7 @@
     "MixinCropBlockTownDecorSurvival",
     "MixinBushBlockTownDecorSurvival",
     "MixinServerLevel",
+    "MixinLevelStructuralWrite",
     "MixinLittleMaidFarmMoveTask",
     "MixinLittleMaidTaskNormalFarm",
     "MixinCoralBlock",
@@ -40,6 +41,7 @@
     "MixinStarcatcherEvents",
     "MixinStarcatcherMinigameModifiers",
     "MixinNaturesCompassUnbreakable",
+    "MixinScarecrowEntity",
     "MixinWaystonesInternalMethodsCoinCost",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint"
