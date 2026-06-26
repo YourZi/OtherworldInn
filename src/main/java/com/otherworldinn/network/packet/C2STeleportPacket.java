@@ -10,6 +10,7 @@ import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
 import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,7 +35,9 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
     private static final BlockPos TOWN_SPAWN_POS = new BlockPos(51, 71, 0);
     private static final int OVERWORLD_EXIT_RADIUS = 2048;
     private static final int OVERWORLD_EXIT_ATTEMPTS = 24;
-    private static final int DEATH_RETURN_RADIUS = 128;
+    private static final int OVERWORLD_DEATH_RETURN_RADIUS = 128;
+    private static final int NETHER_DEATH_RETURN_RADIUS = 48;
+    private static final int END_DEATH_RETURN_RADIUS = 16;
 
 
     public static final Type<C2STeleportPacket> TYPE =
@@ -68,7 +71,7 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                         }
 
                         if (TOWN_GATE_POINT_ID.equals(pointId)) {
-                            teleportToOverworldSpawn(player);
+                            teleportToExploreSpawn(player);
                             return;
                         }
 
@@ -119,7 +122,7 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                 });
     }
 
-    private static void teleportToOverworldSpawn(ServerPlayer player) {
+    private static void teleportToExploreSpawn(ServerPlayer player) {
         // 先传送到旅社出生点
         player.teleportTo(
                 player.serverLevel(),
@@ -129,33 +132,60 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                 player.getYRot(),
                 player.getXRot());
 
-        // 再传送到主世界
+        // 再传送到默认探索维度或跑尸保护记录的死亡维度
         ServerLevel overworld = player.server.getLevel(Level.OVERWORLD);
         if (overworld == null) {
             return;
         }
 
+        ServerLevel targetLevel = overworld;
         BlockPos centerPos = overworld.getSharedSpawnPos();
         int searchRadius = OVERWORLD_EXIT_RADIUS;
         var deathAnchorData = player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR);
-        if (deathAnchorData.hasPendingDeathPos()) {
+        boolean hadPendingDeathAnchor = deathAnchorData.hasPendingDeathPos();
+        if (hadPendingDeathAnchor) {
+            ResourceKey<Level> pendingDeathDimension = deathAnchorData.getPendingDeathDimension();
             BlockPos pendingDeathPos = deathAnchorData.getPendingDeathPos();
-            if (pendingDeathPos != null) {
-                centerPos = pendingDeathPos;
-                searchRadius = DEATH_RETURN_RADIUS;
+            if (pendingDeathDimension != null
+                    && pendingDeathPos != null
+                    && isSupportedDeathReturnDimension(pendingDeathDimension)) {
+                ServerLevel pendingDeathLevel = player.server.getLevel(pendingDeathDimension);
+                if (pendingDeathLevel != null) {
+                    targetLevel = pendingDeathLevel;
+                    centerPos = pendingDeathPos;
+                    searchRadius = getDeathReturnRadius(pendingDeathDimension);
+                }
             }
         }
 
         BlockPos spawnPos =
                 TeleportUtils.findRandomSafeSpawnPos(
-                        overworld,
+                        targetLevel,
                         centerPos,
                         searchRadius,
                         OVERWORLD_EXIT_ATTEMPTS);
-        TeleportUtils.changeDimensionTo(player, overworld, spawnPos);
-        deathAnchorData.clearPendingDeathPos();
-        DeathExploreAnchorSyncHelper.sync(player);
+        TeleportUtils.changeDimensionTo(player, targetLevel, spawnPos);
+        if (hadPendingDeathAnchor) {
+            deathAnchorData.clearPendingDeathPos();
+            DeathExploreAnchorSyncHelper.sync(player);
+        }
         playTeleportEffects(player);
+    }
+
+    private static boolean isSupportedDeathReturnDimension(ResourceKey<Level> dimension) {
+        return Level.OVERWORLD.equals(dimension)
+                || Level.NETHER.equals(dimension)
+                || Level.END.equals(dimension);
+    }
+
+    private static int getDeathReturnRadius(ResourceKey<Level> dimension) {
+        if (Level.NETHER.equals(dimension)) {
+            return NETHER_DEATH_RETURN_RADIUS;
+        }
+        if (Level.END.equals(dimension)) {
+            return END_DEATH_RETURN_RADIUS;
+        }
+        return OVERWORLD_DEATH_RETURN_RADIUS;
     }
 
     private static void playTeleportEffects(ServerPlayer player) {

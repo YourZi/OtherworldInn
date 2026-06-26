@@ -80,9 +80,9 @@ public class PlayerEventHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         ServerLevel level = player.serverLevel();
-        if (level.dimension() == Level.OVERWORLD) {
+        if (isPenaltyDimension(level)) {
             player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR)
-                    .setPendingDeathPos(player.blockPosition());
+                    .setPendingDeathAnchor(level.dimension(), player.blockPosition());
         } else {
             player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR).clearPendingDeathPos();
         }
