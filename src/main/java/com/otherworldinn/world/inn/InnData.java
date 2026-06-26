@@ -557,23 +557,27 @@ public class InnData {
      * @param guest 旅客实体
      * @param team 队伍数据
      * @param level 世界
+     * @return 是否新增了等待旅客
      */
-    public void addGuest(GuestEntity guest, TeamData team, ServerLevel level) {
-        if (!guestIds.contains(guest.getUUID())) {
-            addGuest(guest.getUUID());
-
-            // 设置状态为等待
-            GuestData data = guest.getGuestData();
-            data.setWaiting(true, level.getDayTime());
-
-            // 添加待办事项
-            String guestName =
-                    guest.getCustomName() != null ? guest.getCustomName().getString() : "Guest";
-            String todoText =
-                    Component.translatable("todo.otherworldinn.guest_waiting", guestName)
-                            .getString();
-            addTodo(level, team, todoText);
+    public boolean addGuest(GuestEntity guest, TeamData team, ServerLevel level) {
+        if (guestIds.contains(guest.getUUID())) {
+            return false;
         }
+
+        addGuest(guest.getUUID());
+
+        // 设置状态为等待
+        GuestData data = guest.getGuestData();
+        data.setWaiting(true, level.getDayTime());
+
+        // 添加待办事项
+        String guestName =
+                guest.getCustomName() != null ? guest.getCustomName().getString() : "Guest";
+        String todoText =
+                Component.translatable("todo.otherworldinn.guest_waiting", guestName)
+                        .getString();
+        addTodo(level, team, todoText);
+        return true;
     }
 
     public void removeGuest(UUID uuid) {
@@ -1386,30 +1390,31 @@ public class InnData {
      * 尝试生成新旅客
      *
      * @param level 服务器等级
+     * @return 是否更新了旅客生成状态
      */
-    private void trySpawnGuest(ServerLevel level) {
+    private boolean trySpawnGuest(ServerLevel level) {
         long currentTime = level.getDayTime();
 
         // 1. 检查是否到达生成时间
         if (currentTime < nextGuestSpawnTime) {
-            return;
+            return false;
         }
 
         // 2. 检查旅社是否开业
         if (this.state != InnState.OPEN) {
-            return;
+            return false;
         }
 
         // 3. 检查是否有可用床位
         if (!hasAvailableBed()) {
-            return;
+            return false;
         }
 
         // 4. 检查当前世界中等待入住的旅客数量
         if (getWaitingGuestCount(level) >= 3) {
             // 如果等待人数过多，推迟生成
             scheduleNextSpawn(level.getRandom(), currentTime);
-            return;
+            return true;
         }
 
         // 5. 生成旅客
@@ -1417,6 +1422,7 @@ public class InnData {
 
         // 6. 安排下一次生成
         scheduleNextSpawn(level.getRandom(), currentTime);
+        return true;
     }
 
     /** 检查是否有可用床位 */
@@ -1624,13 +1630,15 @@ public class InnData {
      *
      * @param level 世界
      * @param team 队伍数据
+     * @return 是否修改了需要同步保存的旅社数据
      */
-    public void tick(ServerLevel level, TeamData team) {
+    public boolean tick(ServerLevel level, TeamData team) {
         long currentTime = level.getDayTime();
+        boolean changed = false;
 
         // 尝试生成旅客 (每 20 tick 检查一次，减少开销)
-        if (currentTime % 20 == 0) {
-            trySpawnGuest(level);
+        if (currentTime % 20 == 0 && trySpawnGuest(level)) {
+            changed = true;
         }
 
         if (currentTime % DINING_DISPLAY_REFRESH_INTERVAL_TICKS == 0) {
@@ -1638,12 +1646,12 @@ public class InnData {
             processDirtyDiningDisplays(level, team);
             refreshTrackedDiningDisplays(level, team);
             if (updateDiningVarietyState(level, team)) {
-                TeamManager.getInstance().syncTeam(team, level.getServer());
+                changed = true;
             }
         }
 
         // 每 5 tick 检查一次
-        if (currentTime % 5 != 0) return;
+        if (currentTime % 5 != 0) return changed;
 
         // 遍历旅客检查状态
 
@@ -1675,6 +1683,7 @@ public class InnData {
             handleGuestDeparture(guestId, true, level, team);
             // handleGuestDeparture 内部不调用 removeGuest，所以这里手动移除
             removeGuest(guestId);
+            changed = true;
         }
 
         // 处理退房
@@ -1682,6 +1691,7 @@ public class InnData {
             checkOut(guestId, level, true);
             // checkOut 内部会调用 removeGuest
         }
+        return changed;
     }
 
     /**
