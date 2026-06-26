@@ -1,10 +1,8 @@
 package com.otherworldinn.world.event.listener;
 
-import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModAttachments;
-import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
@@ -33,7 +31,6 @@ import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerSetSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** 玩家事件处理器 */
@@ -121,13 +118,6 @@ public class PlayerEventHandler {
             if (player.level().dimension() == TownDimensions.TOWN_LEVEL
                     && event.getDimension() != TownDimensions.TOWN_LEVEL) {
                 PENDING_RECALL_SCROLLS.add(player.getUUID());
-            }
-
-            // 魔法空间进出追踪
-            boolean leavingMagic = player.level().dimension() == TownDimensions.MAGIC_SPACE_LEVEL;
-            boolean enteringMagic = event.getDimension() == TownDimensions.MAGIC_SPACE_LEVEL;
-            if (leavingMagic && !enteringMagic) {
-                CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.remove(player.getUUID());
             }
         }
     }
@@ -222,19 +212,9 @@ public class PlayerEventHandler {
         // 魔法空间虚空坠落保护
         if (player.level().dimension() == TownDimensions.MAGIC_SPACE_LEVEL) {
             if (player.getY() < -10) {
-                BlockPos returnPos = CrystalBallBlock.RETURN_POSITIONS.get(player.getUUID());
-                if (returnPos != null) {
-                    ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
-                    if (townLevel != null) {
-                        TeleportUtils.changeDimensionTo(player, townLevel,
-                                new BlockPos(returnPos.getX(), returnPos.getY() + 1, returnPos.getZ()));
-                    }
-                } else {
-                    ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
-                    if (townLevel != null) {
-                        TeleportUtils.changeDimensionTo(player, townLevel,
-                                new BlockPos(51, 71, 0));
-                    }
+                ServerLevel townLevel = player.getServer().getLevel(TownDimensions.TOWN_LEVEL);
+                if (townLevel != null) {
+                    TeleportUtils.changeDimensionTo(player, townLevel, TOWN_SPAWN_POS.above());
                 }
             }
             return;
@@ -271,30 +251,10 @@ public class PlayerEventHandler {
         player.displayClientMessage(TOWN_BOUNDARY_WARNING_TEXT, true);
     }
 
-
-    //水晶球保护
-    @SubscribeEvent
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel)) return;
-        if (!event.getState().is(ModBlocks.CRYSTAL_BALL.get())) return;
-
-        if (!CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.isEmpty()) {
-            event.setCanceled(true);
-            if (event.getPlayer() instanceof ServerPlayer sp) {
-                sp.displayClientMessage(
-                        Component.translatable("message.otherworldinn.crystal_ball.cannot_break_in_use")
-                                .withStyle(style -> style.withColor(ModColors.ERROR)),
-                        true);
-            }
-        }
-    }
-
     /** 玩家退出时清理魔法空间追踪 */
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            CrystalBallBlock.PLAYERS_IN_MAGIC_SPACE.remove(player.getUUID());
-            CrystalBallBlock.RETURN_POSITIONS.remove(player.getUUID());
             FORCED_TOWN_RESPAWNS.remove(player.getUUID());
         }
     }
@@ -400,7 +360,8 @@ public class PlayerEventHandler {
     private static void collectDropCandidates(
             List<InventorySlotRef> output, List<ItemStack> container) {
         for (int i = 0; i < container.size(); i++) {
-            if (!container.get(i).isEmpty()) {
+            ItemStack stack = container.get(i);
+            if (!stack.isEmpty() && !ForcedDropBlacklist.isBlocked(stack)) {
                 output.add(new InventorySlotRef(container, i));
             }
         }

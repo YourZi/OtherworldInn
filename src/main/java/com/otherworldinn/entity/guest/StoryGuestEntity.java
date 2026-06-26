@@ -52,6 +52,9 @@ public class StoryGuestEntity extends GuestEntity {
 
     @Nullable
     public String getStoryGuestId() {
+        if (this.entityData == null) {
+            return normalizeStoryGuestId(this.storyGuestId);
+        }
         String syncedId = normalizeStoryGuestId(this.entityData.get(STORY_GUEST_ID));
         return syncedId != null ? syncedId : normalizeStoryGuestId(this.storyGuestId);
     }

@@ -4,15 +4,13 @@ import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 public class ModRecipeProvider extends RecipeProvider {
@@ -80,18 +78,6 @@ public class ModRecipeProvider extends RecipeProvider {
                 .define('N', Items.NETHERRACK)
                 .define('S', ModItems.SPACE_SPHERE.get())
                 .unlockedBy("has_obsidian", has(Items.OBSIDIAN))
-                .save(recipeOutput);
-
-        TagKey<Item> glassBlocks = TagKey.create(Registries.ITEM,
-                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("c", "glass_blocks"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CRYSTAL_BALL.get(), 1)
-                .pattern("GQG")
-                .pattern("QSQ")
-                .pattern("GQG")
-                .define('G', glassBlocks)
-                .define('Q', Items.QUARTZ)
-                .define('S', ModItems.SPACE_SPHERE.get())
-                .unlockedBy("has_space_sphere", has(ModItems.SPACE_SPHERE.get()))
                 .save(recipeOutput);
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.SPACE_SPHERE.get(), 1)
