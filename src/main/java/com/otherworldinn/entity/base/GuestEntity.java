@@ -956,7 +956,9 @@ public abstract class GuestEntity extends PathfinderMob {
                                     .getTeamAt(this.blockPosition(), serverLevel.getServer());
                     if (team != null) {
                         // 旅客在旅社范围内，触发进入旅社逻辑
-                        team.getInnData().addGuest(this, team, serverLevel);
+                        if (team.getInnData().addGuest(this, team, serverLevel)) {
+                            TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
+                        }
                         BlockPos bellPos = this.findNearestDeskBellInInn(serverLevel, team);
                         if (bellPos != null) {
                             this.setNavigationTarget(bellPos);

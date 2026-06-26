@@ -101,12 +101,9 @@ public class RoomRegisterItem extends Item {
                     }
 
                     RoomData newRoom = new RoomData(newId, minPos, maxPos);
-                    // 统计床位并设置最大旅客数
-                    int bedCount = RoomData.countBeds(minPos, maxPos, level);
-                    newRoom.setMaxGuests(bedCount);
-
                     innData.addRoom(newRoom);
-                    innData.calculateRoomStats(newId, level);
+                    innData.checkAndUpdateRoom(newId, level, team);
+                    int bedCount = newRoom.getMaxGuests();
 
                     TeamManager.getInstance().syncTeam(team, serverPlayer.getServer());
                     if (isFirstRoom) {
