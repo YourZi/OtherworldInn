@@ -69,7 +69,7 @@ public class WanderingTraderEntity extends StoreEntity {
 
     /** 完整命名空间黑名单 */
     private static final Set<String> NAMESPACE_BLACKLIST =
-            Set.of("yuushya", "refinedstorage", "createutilities", "ftbquests");
+            Set.of("yuushya", "refinedstorage", "createutilities", "ftbquests", "starcatcher");
 
     public WanderingTraderEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);

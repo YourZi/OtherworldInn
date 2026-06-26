@@ -21,6 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -256,6 +257,9 @@ public final class TownZonePolicyService {
         if (isFreeEditZone(level, pos)) {
             return true;
         }
+        if (isProtectedWheatChange(oldState, newState)) {
+            return false;
+        }
         if (Objects.equals(oldState, newState)) {
             return true;
         }
@@ -292,6 +296,10 @@ public final class TownZonePolicyService {
             }
         }
         return false;
+    }
+
+    private static boolean isProtectedWheatChange(BlockState oldState, BlockState newState) {
+        return oldState.is(Blocks.WHEAT) || newState.is(Blocks.WHEAT);
     }
 
     public static ProtectionBypassScope beginProtectionBypass(
