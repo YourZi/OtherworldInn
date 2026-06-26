@@ -177,8 +177,8 @@ public final class FatigueCalculator {
         _0(-1, -1, -1, 0),
         _1(0, -1, 0, 0),
         _2(0, 0, 0, 0),
-        _3(1, 1, 1, 30),
-        _4(2, 2, 1, 60);
+        _3(1, 1, 1, 160),
+        _4(2, 2, 1, 160);
 
         private final int slownessAmplifier;
         private final int miningFatigueAmplifier;

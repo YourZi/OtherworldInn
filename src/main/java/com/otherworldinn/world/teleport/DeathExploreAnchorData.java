@@ -8,6 +8,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class DeathExploreAnchorData implements INBTSerializable<CompoundTag> {
     @Nullable private BlockPos pendingDeathPos;
+    private boolean clientHasPendingDeathPos;
 
     public boolean hasPendingDeathPos() {
         return pendingDeathPos != null;
@@ -24,6 +25,14 @@ public class DeathExploreAnchorData implements INBTSerializable<CompoundTag> {
 
     public void clearPendingDeathPos() {
         pendingDeathPos = null;
+    }
+
+    public boolean hasClientPendingDeathPos() {
+        return clientHasPendingDeathPos;
+    }
+
+    public void applyClientSyncSnapshot(boolean hasPendingDeathPos) {
+        this.clientHasPendingDeathPos = hasPendingDeathPos;
     }
 
     @Override

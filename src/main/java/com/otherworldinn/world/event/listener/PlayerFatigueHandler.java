@@ -90,13 +90,14 @@ public final class PlayerFatigueHandler {
         data.addFatigue(computation.totalGain());
         data.storeComputation(computation);
 
-        sendFatigueSync(player, data, computation);
-
         if (shouldRecoverInTown(player.level(), player)) {
             data.reduceFatigue(FatigueCalculator.getTownRecoveryPerSecond(data.getFatigue()));
             data.setLastNotifiedStage(FatigueCalculator.getStage(data.getFatigue()).level());
+            sendFatigueSync(player, data, computation);
             return;
         }
+
+        sendFatigueSync(player, data, computation);
 
         if (!tracksFatigue(player.level(), player)) {
             return;
@@ -125,6 +126,20 @@ public final class PlayerFatigueHandler {
                 event.getOriginal()
                         .getData(ModAttachments.PLAYER_FATIGUE)
                         .serializeNBT(event.getOriginal().registryAccess()));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            syncCurrentState(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            syncCurrentState(player);
+        }
     }
 
     private static boolean tracksFatigue(Level level, ServerPlayer player) {

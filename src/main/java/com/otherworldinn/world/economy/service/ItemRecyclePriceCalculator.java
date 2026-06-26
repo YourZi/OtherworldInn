@@ -14,6 +14,8 @@ public final class ItemRecyclePriceCalculator {
 
     /** 通用回收价上限 */
     private static final int MAX_RECYCLE_PRICE = 16;
+    private static final ResourceLocation RECALL_SCROLL_ITEM_ID =
+            ResourceLocation.fromNamespaceAndPath("otherworldinn", "recall_scroll");
 
     /**
      * 材料底价表 — 矿锭 / 宝石 / 稀有掉落物等原料的单个回收价值。
@@ -189,6 +191,9 @@ public final class ItemRecyclePriceCalculator {
         if (stack.isEmpty()) return 0;
 
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (RECALL_SCROLL_ITEM_ID.equals(id)) {
+            return 1;
+        }
 
         // 已配置明确价格的菜品 → 走 ItemSellPriceManager，不参与回收
         if (ItemSellPriceManager.BASE_PRICES.containsKey(id)) {

@@ -5,6 +5,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SPicnicBoxActionPacket;
+import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.event.listener.PlayerFatigueHandler;
 import com.otherworldinn.world.fatigue.FatigueCalculator;
 import com.otherworldinn.world.fatigue.FatigueData;
@@ -106,6 +107,8 @@ public class PicnicBoxItem extends Item {
         if (consumed.isEmpty()) {
             return stack;
         }
+        FoodProperties consumedFood = consumed.get(DataComponents.FOOD);
+        int fatigueRecovery = consumedFood == null ? 0 : computeFatigueRecovery(consumedFood);
 
         ItemStack result;
         try {
@@ -131,10 +134,9 @@ public class PicnicBoxItem extends Item {
         player.awardStat(Stats.ITEM_USED.get(consumed.getItem()));
         CriteriaTriggers.CONSUME_ITEM.trigger(player, consumed);
 
-        FoodProperties food = consumed.get(DataComponents.FOOD);
-        if (food != null) {
+        if (fatigueRecovery > 0) {
             FatigueData fatigue = player.getData(ModAttachments.PLAYER_FATIGUE);
-            fatigue.reduceFatigue(computeFatigueRecovery(food));
+            fatigue.reduceFatigue(fatigueRecovery);
             fatigue.setLastNotifiedStage(FatigueCalculator.getStage(fatigue.getFatigue()).level());
             PlayerFatigueHandler.syncCurrentState(player);
         }
@@ -389,6 +391,9 @@ public class PicnicBoxItem extends Item {
         if (!(player.containerMenu.getCarried().getItem() instanceof PicnicBoxItem)) {
             return false;
         }
+        if (!canInsertFood(player.level())) {
+            return false;
+        }
 
         Slot slot = getMenuSlot(player, slotIndex);
         if (slot == null) {
@@ -450,6 +455,9 @@ public class PicnicBoxItem extends Item {
         if (slot == null || !(slot.getItem().getItem() instanceof PicnicBoxItem)) {
             return false;
         }
+        if (!canInsertFood(player.level())) {
+            return false;
+        }
 
         ItemStack carried = player.containerMenu.getCarried();
         if (!PicnicBoxData.canStore(carried)) {
@@ -493,6 +501,11 @@ public class PicnicBoxItem extends Item {
             return null;
         }
         return player.containerMenu.getSlot(slotIndex);
+    }
+
+    private static boolean canInsertFood(Level level) {
+        return level.dimension() == TownDimensions.TOWN_LEVEL
+                || level.dimension() == TownDimensions.MAGIC_SPACE_LEVEL;
     }
 
     private static int resolveMenuSlotIndex(Player player, Slot slot) {

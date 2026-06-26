@@ -133,6 +133,10 @@ public class FatigueData implements INBTSerializable<CompoundTag> {
         fatigue = Mth.clamp(fatigue + delta, 0.0D, MAX_FATIGUE);
     }
 
+    public void setFatigue(double fatigue) {
+        this.fatigue = Mth.clamp(fatigue, 0.0D, MAX_FATIGUE);
+    }
+
     public void reduceFatigue(double delta) {
         if (delta <= 0.0D) {
             return;

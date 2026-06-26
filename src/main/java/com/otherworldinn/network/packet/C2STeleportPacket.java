@@ -6,6 +6,7 @@ import com.otherworldinn.world.map.MapPoint;
 import com.otherworldinn.world.map.TownDataProvider;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
 import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -153,6 +154,7 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                         OVERWORLD_EXIT_ATTEMPTS);
         TeleportUtils.changeDimensionTo(player, overworld, spawnPos);
         deathAnchorData.clearPendingDeathPos();
+        DeathExploreAnchorSyncHelper.sync(player);
         playTeleportEffects(player);
     }
 

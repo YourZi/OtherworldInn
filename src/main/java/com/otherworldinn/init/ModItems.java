@@ -193,7 +193,10 @@ public class ModItems {
                     .lang("Picnic Box", "野餐盒")
                     .tooltip(
                             "Only food eaten from the picnic box restores fatigue",
-                            "只有通过野餐盒食用的食物才能恢复疲劳");
+                            "只有通过野餐盒食用的食物才能恢复疲劳")
+                    .tooltip(
+                            "Food cannot be inserted during Exploration",
+                            "不能在探索期间放入食物");
     public static final DeferredItem<PicnicBoxItem> PICNIC_BOX = PICNIC_BOX_REG.register();
     // --- 辅助方法 ---
 

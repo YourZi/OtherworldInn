@@ -59,6 +59,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("map_point.otherworldinn.magician_workshop").zh("魔女工坊").en("Magician Workshop");
         entry("map_point.otherworldinn.market").zh("集市").en("Market");
         entry("map_point.otherworldinn.town_gate").zh("前往探险").en("Adventure Exit");
+        entry("map_point.otherworldinn.town_gate_death_anchor")
+                .zh("前往探险（上次死亡地点）")
+                .en("Adventure Exit (Last Death Location)");
         entry("map_point.otherworldinn.dock").zh("码头").en("Dock");
         entry("map_point.otherworldinn.locked").zh("未解锁").en("Locked");
         entry("map_point.otherworldinn.cant_teleport").zh("无法传送至").en("Cannot teleport to");

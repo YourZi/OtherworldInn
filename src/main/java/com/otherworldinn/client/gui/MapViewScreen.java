@@ -5,6 +5,7 @@ import com.otherworldinn.client.control.CameraHandler;
 import com.otherworldinn.client.map.service.MapPageManager;
 import com.otherworldinn.foundation.ClientConfig;
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2STeleportPacket;
@@ -736,6 +737,23 @@ public class MapViewScreen extends Screen {
             return TOWN_GATE_POINT_ID.equals(point.id().toString());
         }
 
+        private Component getDisplayName() {
+            if (!isTownGate()) {
+                return point.displayName();
+            }
+            var player = Minecraft.getInstance().player;
+            if (player == null) {
+                return point.displayName();
+            }
+            boolean hasPendingDeathAnchor =
+                    player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR)
+                            .hasClientPendingDeathPos();
+            if (!hasPendingDeathAnchor) {
+                return point.displayName();
+            }
+            return Component.translatable("map_point.otherworldinn.town_gate_death_anchor");
+        }
+
         @Override
         public void renderWidget(
                 GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -783,13 +801,16 @@ public class MapViewScreen extends Screen {
 
             // 悬停时显示名称
             if (isHovered) {
-                Component text = point.displayName();
+                Component text = getDisplayName();
+                this.setMessage(text);
                 int textWidth = Minecraft.getInstance().font.width(text);
                 int textX = getX() + (width - textWidth) / 2;
                 int textY = getY() - 10;
                 int color = isTownGate() ? ModColors.YELLOW : ModColors.WHITE;
                 guiGraphics.drawString(
                         Minecraft.getInstance().font, text, textX, textY, color, true);
+            } else {
+                this.setMessage(getDisplayName());
             }
 
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

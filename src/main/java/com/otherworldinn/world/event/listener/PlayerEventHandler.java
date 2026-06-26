@@ -9,6 +9,7 @@ import com.otherworldinn.init.ModItems;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -85,6 +86,7 @@ public class PlayerEventHandler {
         } else {
             player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR).clearPendingDeathPos();
         }
+        DeathExploreAnchorSyncHelper.sync(player);
         if (isTownDimension(level)) return;
 
         FORCED_TOWN_RESPAWNS.add(player.getUUID());
@@ -163,6 +165,8 @@ public class PlayerEventHandler {
                 setTownRespawn(player);
                 player.addTag("otherworldinn.joined");
             }
+
+            DeathExploreAnchorSyncHelper.sync(player);
         }
     }
 
@@ -177,6 +181,7 @@ public class PlayerEventHandler {
             if (FORCED_TOWN_RESPAWNS.remove(player.getUUID())) {
                 teleportToTownSpawn(player);
                 setTownRespawn(player);
+                DeathExploreAnchorSyncHelper.sync(player);
                 return;
             }
 
@@ -184,6 +189,7 @@ public class PlayerEventHandler {
                     || player.getRespawnPosition() == null) {
                 teleportToTownSpawn(player);
             }
+            DeathExploreAnchorSyncHelper.sync(player);
         }
     }
 
@@ -374,6 +380,9 @@ public class PlayerEventHandler {
                     (level.random.nextDouble() - 0.5D) * 0.3D,
                     0.2D + level.random.nextDouble() * 0.15D,
                     (level.random.nextDouble() - 0.5D) * 0.3D);
+            itemEntity.setGlowingTag(true);
+            itemEntity.setInvulnerable(true);
+            itemEntity.setUnlimitedLifetime();
             level.addFreshEntity(itemEntity);
         }
 

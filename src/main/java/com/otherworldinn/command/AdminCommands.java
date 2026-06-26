@@ -8,9 +8,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.guest.StoryGuestEntity;
+import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.commission.CommissionService;
 import com.otherworldinn.world.event.TownStructurePlacer;
+import com.otherworldinn.world.event.listener.PlayerFatigueHandler;
+import com.otherworldinn.world.fatigue.FatigueCalculator;
+import com.otherworldinn.world.fatigue.FatigueData;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestProgress;
@@ -188,6 +192,47 @@ public class AdminCommands {
                                         .then(
                                                 Commands.literal("leave")
                                                         .executes(AdminCommands::forceTraderLeave)))
+                        .then(
+                                Commands.literal("fatigue")
+                                        .then(
+                                                Commands.literal("get")
+                                                        .then(
+                                                                Commands.argument("target", EntityArgument.player())
+                                                                        .executes(AdminCommands::getFatigue)))
+                                        .then(
+                                                Commands.literal("set")
+                                                        .then(
+                                                                Commands.argument("target", EntityArgument.player())
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "value",
+                                                                                                IntegerArgumentType.integer(
+                                                                                                        0,
+                                                                                                        (int) FatigueData.MAX_FATIGUE))
+                                                                                        .executes(AdminCommands::setFatigue))))
+                                        .then(
+                                                Commands.literal("add")
+                                                        .then(
+                                                                Commands.argument("target", EntityArgument.player())
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "value",
+                                                                                                IntegerArgumentType.integer(
+                                                                                                        0,
+                                                                                                        (int) FatigueData.MAX_FATIGUE))
+                                                                                        .executes(AdminCommands::addFatigue))))
+                                        .then(
+                                                Commands.literal("reduce")
+                                                        .then(
+                                                                Commands.argument("target", EntityArgument.player())
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "value",
+                                                                                                IntegerArgumentType.integer(
+                                                                                                        0,
+                                                                                                        (int) FatigueData.MAX_FATIGUE))
+                                                                                        .executes(AdminCommands::reduceFatigue))))
+                        )
         );
     }
 
@@ -567,5 +612,89 @@ public class AdminCommands {
             context.getSource().sendFailure(Component.literal("游商当前不在城镇中"));
         }
         return removed ? 1 : 0;
+    }
+
+    private static int getFatigue(CommandContext<CommandSourceStack> context)
+            throws CommandSyntaxException {
+        ServerPlayer target = EntityArgument.getPlayer(context, "target");
+        FatigueData data = target.getData(ModAttachments.PLAYER_FATIGUE);
+        FatigueCalculator.FatigueStage stage = FatigueCalculator.getStage(data.getFatigue());
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "玩家 "
+                                                + target.getName().getString()
+                                                + " 当前疲劳值: "
+                                                + Math.round(data.getFatigue())
+                                                + " / "
+                                                + (int) FatigueData.MAX_FATIGUE
+                                                + " (阶段 "
+                                                + stage.level()
+                                                + ")"),
+                        false);
+        return 1;
+    }
+
+    private static int setFatigue(CommandContext<CommandSourceStack> context)
+            throws CommandSyntaxException {
+        return updateFatigue(context, IntegerArgumentType.getInteger(context, "value"), FatigueUpdateMode.SET);
+    }
+
+    private static int addFatigue(CommandContext<CommandSourceStack> context)
+            throws CommandSyntaxException {
+        return updateFatigue(context, IntegerArgumentType.getInteger(context, "value"), FatigueUpdateMode.ADD);
+    }
+
+    private static int reduceFatigue(CommandContext<CommandSourceStack> context)
+            throws CommandSyntaxException {
+        return updateFatigue(context, IntegerArgumentType.getInteger(context, "value"), FatigueUpdateMode.REDUCE);
+    }
+
+    private static int updateFatigue(
+            CommandContext<CommandSourceStack> context, int value, FatigueUpdateMode mode)
+            throws CommandSyntaxException {
+        ServerPlayer target = EntityArgument.getPlayer(context, "target");
+        FatigueData data = target.getData(ModAttachments.PLAYER_FATIGUE);
+        double before = data.getFatigue();
+
+        switch (mode) {
+            case SET -> data.setFatigue(value);
+            case ADD -> data.addFatigue(value);
+            case REDUCE -> data.reduceFatigue(value);
+        }
+
+        double after = data.getFatigue();
+        data.setLastNotifiedStage(FatigueCalculator.getStage(after).level());
+        PlayerFatigueHandler.syncCurrentState(target);
+
+        String actionText = switch (mode) {
+            case SET -> "设置为";
+            case ADD -> "增加了";
+            case REDUCE -> "减少了";
+        };
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已将玩家 "
+                                                + target.getName().getString()
+                                                + " 的疲劳值"
+                                                + actionText
+                                                + " "
+                                                + Math.round(after)
+                                                + " / "
+                                                + (int) FatigueData.MAX_FATIGUE
+                                                + " (原值 "
+                                                + Math.round(before)
+                                                + ")"),
+                        true);
+        return 1;
+    }
+
+    private enum FatigueUpdateMode {
+        SET,
+        ADD,
+        REDUCE
     }
 }

@@ -10,6 +10,7 @@ import com.otherworldinn.network.packet.C2SStorePurchasePacket;
 import com.otherworldinn.network.packet.C2STeleportPacket;
 import com.otherworldinn.network.packet.C2SWithdrawCoinPacket;
 import com.otherworldinn.network.packet.S2CCommissionBoardPacket;
+import com.otherworldinn.network.packet.S2CDeathExploreAnchorSyncPacket;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
 import com.otherworldinn.network.packet.S2CFatigueSyncPacket;
@@ -51,6 +52,10 @@ public class ModMessages {
                 S2CCommissionBoardPacket.TYPE,
                 S2CCommissionBoardPacket.STREAM_CODEC,
                 S2CCommissionBoardPacket::handle);
+        registrar.playToClient(
+                S2CDeathExploreAnchorSyncPacket.TYPE,
+                S2CDeathExploreAnchorSyncPacket.STREAM_CODEC,
+                S2CDeathExploreAnchorSyncPacket::handle);
         registrar.playToClient(
                 S2CPriceSyncPacket.TYPE,
                 S2CPriceSyncPacket.STREAM_CODEC,
