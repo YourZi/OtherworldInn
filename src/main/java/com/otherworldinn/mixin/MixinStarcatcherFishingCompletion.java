@@ -1,8 +1,9 @@
 package com.otherworldinn.mixin;
 
+import com.otherworldinn.compat.starcatcher.StarcatcherCollectionProgress;
+import com.otherworldinn.compat.starcatcher.StarcatcherFishingGuideCompletion;
 import com.otherworldinn.compat.starcatcher.StarcatcherFishingSkillXp;
 import com.wdiscute.starcatcher.bobberentity.FishingBobEntity;
-import com.wdiscute.starcatcher.io.FishCaughtCounter;
 import com.wdiscute.starcatcher.registry.FishProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -47,11 +48,9 @@ public abstract class MixinStarcatcherFishingCompletion {
                 fishingBob.rlToFish != null
                         ? fishingBob.rlToFish
                         : FishProperties.getKey(player.level(), fishProperties);
-        FishCaughtCounter counter =
-                fishId != null
-                        ? FishCaughtCounter.get(player, fishId)
-                        : FishCaughtCounter.get(player, fishProperties);
-        boolean firstCatch = counter != null && counter.count() <= 1;
+        StarcatcherCollectionProgress collectionProgress =
+                StarcatcherFishingGuideCompletion.evaluateAfterCatch(player, fishId);
+        boolean firstCatch = collectionProgress.newFishCatch();
         StarcatcherFishingSkillXp.awardFishingSkillExperience(
                 player, fishProperties, firstCatch, perfectCatch, completedTreasure, golden);
     }
