@@ -10,6 +10,7 @@ import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -96,6 +97,10 @@ public final class DialogueService {
             closeDialogue(player, true);
             return;
         }
+        if (!storySessionStillCurrent(entity, session)) {
+            closeDialogue(player, true);
+            return;
+        }
         DialogueNodeDef currentNode = session.definition().getNode(session.currentNodeId());
         if (currentNode == null) {
             closeDialogue(player, true);
@@ -120,6 +125,9 @@ public final class DialogueService {
         }
         if (entity instanceof StoryGuestEntity storyGuest && advancesStoryStage(selected)) {
             storyGuest.markVisitStageConsumed(player.serverLevel());
+        }
+        if (entity instanceof StoryGuestEntity && invalidatesStorySessions(selected)) {
+            closeOtherSessionsForEntity(player, entity);
         }
 
         if (selected.type() == DialogueOptionType.FUNCTION) {
@@ -161,6 +169,35 @@ public final class DialogueService {
         SESSIONS.remove(player.getUUID());
         if (notifyClient) {
             ModMessages.sendToPlayer(new S2CDialogueClosePacket(), player);
+        }
+    }
+
+    private static boolean storySessionStillCurrent(Entity entity, DialogueSession session) {
+        if (!(entity instanceof StoryGuestEntity)) {
+            return true;
+        }
+        DialogueDefinition currentDefinition = DialogueRegistry.resolve(entity);
+        return currentDefinition != null && currentDefinition.id().equals(session.definition().id());
+    }
+
+    private static void closeOtherSessionsForEntity(ServerPlayer currentPlayer, Entity entity) {
+        UUID entityUuid = entity.getUUID();
+        Iterator<Map.Entry<UUID, DialogueSession>> iterator = SESSIONS.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, DialogueSession> entry = iterator.next();
+            UUID playerUuid = entry.getKey();
+            if (playerUuid.equals(currentPlayer.getUUID())) {
+                continue;
+            }
+            DialogueSession session = entry.getValue();
+            if (!entityUuid.equals(session.entityUuid())) {
+                continue;
+            }
+            iterator.remove();
+            ServerPlayer player = currentPlayer.getServer().getPlayerList().getPlayer(playerUuid);
+            if (player != null) {
+                ModMessages.sendToPlayer(new S2CDialogueClosePacket(), player);
+            }
         }
     }
 
@@ -309,6 +346,17 @@ public final class DialogueService {
     private static boolean advancesStoryStage(DialogueOptionDef selected) {
         for (DialogueEffectDef effect : selected.effects()) {
             if (effect.type() == DialogueEffectType.ADVANCE_STORY_STAGE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean invalidatesStorySessions(DialogueOptionDef selected) {
+        for (DialogueEffectDef effect : selected.effects()) {
+            if (effect.type() == DialogueEffectType.SET_STORY_FLAG
+                    || effect.type() == DialogueEffectType.ADVANCE_STORY_STAGE
+                    || effect.type() == DialogueEffectType.SET_NEXT_VISIT_RANGE) {
                 return true;
             }
         }
