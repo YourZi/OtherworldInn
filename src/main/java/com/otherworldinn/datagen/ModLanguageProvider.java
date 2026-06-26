@@ -877,6 +877,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.inventory.overlay.income.title")
                 .zh("收入统计")
                 .en("Income Breakdown");
+        entry("message.otherworldinn.inventory.overlay.buffs.title")
+                .zh("旅社加成")
+                .en("Inn Bonuses");
         entry("message.otherworldinn.inventory.overlay.income.total")
                 .zh("总收入：§f\uE001§r%s")
                 .en("Total Income: §f\uE001§r%s");
@@ -892,6 +895,15 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.inventory.overlay.income.other")
                 .zh("其它：§f\uE001§r%s")
                 .en("Other: §f\uE001§r%s");
+        entry("message.otherworldinn.menu_variety.tier1")
+                .zh("旅社菜单不再单调，餐价已提升至 +5%。")
+                .en("The inn menu is no longer monotonous. Meal prices have increased to +5%.");
+        entry("message.otherworldinn.menu_variety.tier2")
+                .zh("旅社菜单更加丰富，餐价已提升至 +10%。")
+                .en("The inn menu is growing more varied. Meal prices have increased to +10%.");
+        entry("message.otherworldinn.menu_variety.tier3")
+                .zh("旅社菜单十分丰富，餐价已提升至 +15%。")
+                .en("The inn menu is truly diverse. Meal prices have increased to +15%.");
 
         // 旅社钥匙
         entry("message.otherworldinn.inn_key.no_permission")

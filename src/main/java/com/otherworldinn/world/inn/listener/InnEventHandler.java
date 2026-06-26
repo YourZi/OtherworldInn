@@ -9,6 +9,7 @@ import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
 import com.otherworldinn.world.inn.decoration.InnDecorationService;
+import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamSavedData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -111,6 +112,7 @@ public class InnEventHandler {
 
         if (team != null) {
             markInnBlockChanged(level, pos);
+            team.getInnData().markDiningDisplayDirty(pos);
 
             // 检查是否放置了剪贴板
             BlockState state = event.getState();
@@ -137,6 +139,21 @@ public class InnEventHandler {
 
         if (team != null) {
             markInnBlockChanged(level, pos);
+            team.getInnData().markDiningDisplayDirty(pos);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDisplayInteract(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (level.dimension() != TownDimensions.TOWN_LEVEL) return;
+        BlockPos pos = event.getPos();
+        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
+        if (team == null) {
+            return;
+        }
+        if (InnDiningDisplayHelper.isDiningDisplay(level.getBlockState(pos))) {
+            team.getInnData().markDiningDisplayDirty(pos);
         }
     }
 

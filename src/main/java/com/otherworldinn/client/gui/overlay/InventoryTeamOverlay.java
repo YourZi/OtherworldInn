@@ -6,6 +6,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SWithdrawCoinPacket;
 import com.otherworldinn.world.inn.InnData;
+import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.ArrayList;
@@ -95,10 +96,12 @@ public class InventoryTeamOverlay {
         int mouseY = (int) event.getMouseY();
         int ratingWidth = mc.font.width(Component.literal(String.valueOf('\uE005').repeat(5)));
         int lineHeight = mc.font.lineHeight;
-        if (mouseX >= contentLeft
+        boolean overRating =
+                mouseX >= contentLeft
                 && mouseX <= contentLeft + ratingWidth
                 && mouseY >= y
-                && mouseY <= y + lineHeight) {
+                && mouseY <= y + lineHeight;
+        if (overRating) {
             InnData innData = team.getInnData();
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(
@@ -205,19 +208,17 @@ public class InventoryTeamOverlay {
                                                         reputationStatusText)
                                                 .withStyle(ChatFormatting.GRAY)));
             }
-            List<FormattedCharSequence> tooltipLines = new ArrayList<>();
-            for (Component line : tooltip) {
-                tooltipLines.add(Language.getInstance().getVisualOrder(line));
-            }
-            guiGraphics.renderTooltip(mc.font, tooltipLines, mouseX, mouseY);
+            renderTooltip(guiGraphics, mc, tooltip, mouseX, mouseY);
             return;
         }
 
         int coinsWidth = mc.font.width(coinsText);
-        if (mouseX >= coinsX
+        boolean overCoins =
+                mouseX >= coinsX
                 && mouseX <= coinsX + coinsWidth
                 && mouseY >= y
-                && mouseY <= y + lineHeight) {
+                && mouseY <= y + lineHeight;
+        if (overCoins) {
             InnData innData = team.getInnData();
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(
@@ -277,11 +278,52 @@ public class InventoryTeamOverlay {
             tooltip.add(
                     Component.translatable("message.otherworldinn.inventory.overlay.coins.withdraw_one")
                             .withStyle(ChatFormatting.GRAY));
-            List<FormattedCharSequence> tooltipLines = new ArrayList<>();
-            for (Component line : tooltip) {
-                tooltipLines.add(Language.getInstance().getVisualOrder(line));
-            }
-            guiGraphics.renderTooltip(mc.font, tooltipLines, mouseX, mouseY);
+            renderTooltip(guiGraphics, mc, tooltip, mouseX, mouseY);
+            return;
+        }
+
+        boolean overHudBar =
+                mouseX >= barLeft
+                        && mouseX <= barLeft + BAR_WIDTH
+                        && mouseY >= barY
+                        && mouseY <= barY + BAR_HEIGHT;
+        if (overHudBar) {
+            InnData innData = team.getInnData();
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(
+                    Component.translatable("message.otherworldinn.inventory.overlay.buffs.title")
+                            .withStyle(ChatFormatting.GOLD));
+            tooltip.add(
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.lodging_income",
+                                    formatPercentage(
+                                            innData.getDecorationBuffValue(
+                                                    InnDecorationBuffType.LODGING_INCOME_MULTIPLIER)))
+                            .withStyle(style -> style.withColor(ModColors.INN_LODGING_BUFF)));
+            tooltip.add(
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.dining_income",
+                                    formatPercentage(
+                                            innData.getDecorationBuffValue(
+                                                            InnDecorationBuffType.DINING_INCOME_MULTIPLIER)
+                                                    + innData.getCurrentDiningVarietyBonusValue()))
+                            .withStyle(style -> style.withColor(ModColors.INN_DINING_BUFF)));
+            tooltip.add(
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.guest_arrival_speed",
+                                    formatPercentage(
+                                            innData.getDecorationBuffValue(
+                                                    InnDecorationBuffType
+                                                            .GUEST_ARRIVAL_SPEED_MULTIPLIER)))
+                            .withStyle(style -> style.withColor(ModColors.INN_GUEST_ARRIVAL_BUFF)));
+            tooltip.add(
+                    Component.translatable(
+                                    "tooltip.otherworldinn.decoration.reputation_gain",
+                                    formatPercentage(
+                                            innData.getDecorationBuffValue(
+                                                    InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER)))
+                            .withStyle(style -> style.withColor(ModColors.INN_REPUTATION_BUFF)));
+            renderTooltip(guiGraphics, mc, tooltip, mouseX, mouseY);
         }
     }
 
@@ -322,5 +364,22 @@ public class InventoryTeamOverlay {
             mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             event.setCanceled(true);
         }
+    }
+
+    private static void renderTooltip(
+            GuiGraphics guiGraphics, Minecraft mc, List<Component> tooltip, int mouseX, int mouseY) {
+        List<FormattedCharSequence> tooltipLines = new ArrayList<>();
+        for (Component line : tooltip) {
+            tooltipLines.add(Language.getInstance().getVisualOrder(line));
+        }
+        guiGraphics.renderTooltip(mc.font, tooltipLines, mouseX, mouseY);
+    }
+
+    private static String formatPercentage(double value) {
+        double percent = value * 100.0D;
+        if (Math.abs(percent - Math.rint(percent)) < 0.0001D) {
+            return String.format("%+.0f%%", percent);
+        }
+        return String.format("%+.1f%%", percent);
     }
 }

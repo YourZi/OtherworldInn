@@ -3,6 +3,7 @@ package com.otherworldinn.world.event.listener;
 import com.otherworldinn.block.CrystalBallBlock;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.world.dimension.TownDimensions;
@@ -78,6 +79,12 @@ public class PlayerEventHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
         ServerLevel level = player.serverLevel();
+        if (level.dimension() == Level.OVERWORLD) {
+            player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR)
+                    .setPendingDeathPos(player.blockPosition());
+        } else {
+            player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR).clearPendingDeathPos();
+        }
         if (isTownDimension(level)) return;
 
         FORCED_TOWN_RESPAWNS.add(player.getUUID());

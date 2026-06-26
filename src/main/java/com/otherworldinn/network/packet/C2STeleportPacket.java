@@ -1,6 +1,7 @@
 package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.world.map.MapPoint;
 import com.otherworldinn.world.map.TownDataProvider;
 import com.otherworldinn.world.team.TeamData;
@@ -32,6 +33,7 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
     private static final BlockPos TOWN_SPAWN_POS = new BlockPos(51, 71, 0);
     private static final int OVERWORLD_EXIT_RADIUS = 2048;
     private static final int OVERWORLD_EXIT_ATTEMPTS = 24;
+    private static final int DEATH_RETURN_RADIUS = 128;
 
 
     public static final Type<C2STeleportPacket> TYPE =
@@ -132,13 +134,25 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
             return;
         }
 
+        BlockPos centerPos = overworld.getSharedSpawnPos();
+        int searchRadius = OVERWORLD_EXIT_RADIUS;
+        var deathAnchorData = player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR);
+        if (deathAnchorData.hasPendingDeathPos()) {
+            BlockPos pendingDeathPos = deathAnchorData.getPendingDeathPos();
+            if (pendingDeathPos != null) {
+                centerPos = pendingDeathPos;
+                searchRadius = DEATH_RETURN_RADIUS;
+            }
+        }
+
         BlockPos spawnPos =
                 TeleportUtils.findRandomSafeSpawnPos(
                         overworld,
-                        overworld.getSharedSpawnPos(),
-                        OVERWORLD_EXIT_RADIUS,
+                        centerPos,
+                        searchRadius,
                         OVERWORLD_EXIT_ATTEMPTS);
         TeleportUtils.changeDimensionTo(player, overworld, spawnPos);
+        deathAnchorData.clearPendingDeathPos();
         playTeleportEffects(player);
     }
 

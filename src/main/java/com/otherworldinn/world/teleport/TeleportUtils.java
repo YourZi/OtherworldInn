@@ -1,5 +1,6 @@
 package com.otherworldinn.world.teleport;
 
+import net.minecraft.core.Direction;
 import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -67,6 +68,24 @@ public class TeleportUtils {
             return emergencySafePos;
         }
 
+        BlockPos sharedSpawn = level.getSharedSpawnPos();
+        ensureChunk(level, sharedSpawn.getX(), sharedSpawn.getZ(), ensuredChunks);
+        int sharedSpawnY =
+                level.getHeight(
+                        Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        sharedSpawn.getX(),
+                        sharedSpawn.getZ());
+        BlockPos sharedSpawnFallback =
+                findSafeYAround(
+                        level,
+                        sharedSpawn.getX(),
+                        Math.max(sharedSpawnY, level.getSeaLevel() + 1),
+                        sharedSpawn.getZ(),
+                        128);
+        if (sharedSpawnFallback != null) {
+            return sharedSpawnFallback;
+        }
+
         return level.getSharedSpawnPos().above();
     }
 
@@ -101,8 +120,15 @@ public class TeleportUtils {
     }
 
     private static boolean isSafeSpawn(ServerLevel level, BlockPos pos) {
-        BlockState below = level.getBlockState(pos.below());
+        BlockPos belowPos = pos.below();
+        BlockState below = level.getBlockState(belowPos);
         if (below.isAir() || !below.getFluidState().isEmpty()) {
+            return false;
+        }
+        if (below.getCollisionShape(level, belowPos).isEmpty()) {
+            return false;
+        }
+        if (!below.isFaceSturdy(level, belowPos, Direction.UP)) {
             return false;
         }
 

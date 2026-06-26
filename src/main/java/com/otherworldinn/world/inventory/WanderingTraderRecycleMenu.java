@@ -5,6 +5,8 @@ import com.otherworldinn.init.ModMenuTypes;
 import com.otherworldinn.world.economy.service.ItemRecyclePriceCalculator;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -22,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
  * <p>多人互斥：同一游商实体同时只允许一名玩家打开。
  */
 public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
+    private static final int MAX_PRICED_COUNT_PER_ITEM = 8;
 
     private static final int ROWS = 3;
     private static final int COLS = 9;
@@ -129,12 +133,9 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     }
 
     private void settle(ServerPlayer serverPlayer) {
-        int total = 0;
+        int total = calculateCappedTotal(this.container);
         for (int i = 0; i < SLOT_COUNT; i++) {
-            ItemStack stack = container.getItem(i);
-            if (!stack.isEmpty()) {
-                int price = ItemRecyclePriceCalculator.getRecyclePrice(stack);
-                total += price * stack.getCount();
+            if (!container.getItem(i).isEmpty()) {
                 container.setItem(i, ItemStack.EMPTY);
             }
         }
@@ -151,11 +152,25 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     }
 
     public int getTotalPrice() {
+        return calculateCappedTotal(this.container);
+    }
+
+    private static int calculateCappedTotal(Container container) {
         int total = 0;
+        Map<Item, Integer> pricedCounts = new HashMap<>();
         for (int i = 0; i < SLOT_COUNT; i++) {
-            ItemStack stack = this.slots.get(i).getItem();
+            ItemStack stack = container.getItem(i);
             if (!stack.isEmpty()) {
-                total += ItemRecyclePriceCalculator.getRecyclePrice(stack) * stack.getCount();
+                Item item = stack.getItem();
+                int alreadyCounted = pricedCounts.getOrDefault(item, 0);
+                if (alreadyCounted >= MAX_PRICED_COUNT_PER_ITEM) {
+                    continue;
+                }
+                int countToPrice =
+                        Math.min(stack.getCount(), MAX_PRICED_COUNT_PER_ITEM - alreadyCounted);
+                int unitPrice = ItemRecyclePriceCalculator.getRecyclePrice(stack);
+                total += unitPrice * countToPrice;
+                pricedCounts.put(item, alreadyCounted + countToPrice);
             }
         }
         return total;

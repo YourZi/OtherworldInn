@@ -170,9 +170,10 @@ public abstract class VipGuestEntity extends GuestEntity {
                 if (!player.getAbilities().instabuild) {
                     held.shrink(1);
                 }
-                int payout = basePrice * 2;
+                int basePayout = basePrice * 2;
                 int reputationGain = 10 + this.getRandom().nextInt(21);
                 InnData inn = team.getInnData();
+                int payout = inn.calculateDiningIncomeAmount(basePayout);
                 TeamManager.getInstance().addCoins(team, payout, level.getServer());
                 inn.recordDiningIncome(payout, level);
                 inn.addReputation(inn.scaleGuestReputationDelta(this, reputationGain));

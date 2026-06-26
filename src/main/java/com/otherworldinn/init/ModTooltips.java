@@ -192,18 +192,18 @@ public class ModTooltips {
                 switch (type) {
             case LODGING_INCOME_MULTIPLIER ->
                     Component.translatable("tooltip.otherworldinn.decoration.lodging_income", amount)
-                            .withStyle(style -> style.withColor(ModColors.YELLOW));
+                            .withStyle(style -> style.withColor(ModColors.INN_LODGING_BUFF));
             case DINING_INCOME_MULTIPLIER ->
                     Component.translatable("tooltip.otherworldinn.decoration.dining_income", amount)
-                            .withStyle(style -> style.withColor(ModColors.YELLOW));
+                            .withStyle(style -> style.withColor(ModColors.INN_DINING_BUFF));
             case GUEST_ARRIVAL_SPEED_MULTIPLIER ->
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.guest_arrival_speed", amount)
-                            .withStyle(style -> style.withColor(ModColors.INFO));
+                            .withStyle(style -> style.withColor(ModColors.INN_GUEST_ARRIVAL_BUFF));
             case REPUTATION_GAIN_MULTIPLIER ->
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.reputation_gain", amount)
-                            .withStyle(style -> style.withColor(ModColors.SUCCESS));
+                            .withStyle(style -> style.withColor(ModColors.INN_REPUTATION_BUFF));
                 });
     }
 

@@ -6,15 +6,19 @@ import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
+import com.otherworldinn.util.BlockEntitySearchUtils;
 import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.decoration.InnDecorationStats;
 import com.otherworldinn.world.inn.service.ClipboardManager;
 import com.otherworldinn.world.inn.service.FurnitureManager;
+import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
+import com.otherworldinn.world.inn.service.InnMenuDishRegistry;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
 import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
+import com.otherworldinn.world.team.TeamData.InnRegion;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.team.TeamSavedData;
 import java.util.*;
@@ -28,6 +32,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -36,8 +41,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.pathfinder.Path;
@@ -109,6 +116,10 @@ public class InnData {
     private final Map<String, Integer> facilityLevels = new HashMap<>();
     private final Map<Long, String> activeDecorationPositions = new HashMap<>();
     private final Map<String, Integer> activeDecorationCounts = new HashMap<>();
+    private final Map<BlockPos, ResourceLocation> activeMenuDishByDisplayPos = new HashMap<>();
+    private final Map<ResourceLocation, Integer> activeMenuDishCounts = new HashMap<>();
+    private final Set<BlockPos> knownDiningDisplayPositions = new HashSet<>();
+    private final Set<BlockPos> dirtyDiningDisplayPositions = new HashSet<>();
 
     // 待办事项缓存列表
     private final List<String> todoList = new ArrayList<>();
@@ -126,9 +137,13 @@ public class InnData {
     private static final float CLUTTER_SPAWN_CHANCE = 0.65F;
     private static final int MIN_CLUTTER_PER_CHECKOUT = 1;
     private static final int MAX_CLUTTER_PER_CHECKOUT = 3;
+    private static final int DINING_DISPLAY_REFRESH_INTERVAL_TICKS = 20;
     private static final int[] REPUTATION_REQUIREMENTS_BY_RATING = {200, 450, 850, 1300, 1800, 2500};
     private static final int[] ROOM_REQUIREMENTS_BY_RATING = {2, 4, 6, 8, 10, 12};
     private static final int[] TOTAL_INCOME_REQUIREMENTS_BY_RATING = {200, 500, 2000, 4500, 9000, 20000};
+    private boolean diningMenuCacheInitialized = false;
+    private int lastDiningVarietyTier = -1;
+    private double currentDiningVarietyBonusValue = 0.0D;
 
     public InnData() {}
 
@@ -207,11 +222,29 @@ public class InnData {
         return yesterdayLodgingIncome + yesterdayDiningIncome + yesterdayOtherIncome;
     }
 
+    public int calculateLodgingIncomeAmount(int baseAmount) {
+        return applyPositiveBuff(baseAmount, InnDecorationBuffType.LODGING_INCOME_MULTIPLIER);
+    }
+
+    public int calculateDiningIncomeAmount(int baseAmount) {
+        return applyPositiveBuff(baseAmount, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
+    }
+
+    public int calculateDiningDisplaySaleAmount(
+            int baseAmount, ItemStack soldStack, ServerLevel level, TeamData team) {
+        if (baseAmount <= 0) {
+            return baseAmount;
+        }
+        if (!InnMenuDishRegistry.isMenuDish(soldStack)) {
+            return calculateDiningIncomeAmount(baseAmount);
+        }
+        return applyDiningDisplayBuffs(baseAmount, level, team);
+    }
+
     public void recordLodgingIncome(int amount, ServerLevel level) {
         if (amount <= 0) {
             return;
         }
-        amount = applyPositiveBuff(amount, InnDecorationBuffType.LODGING_INCOME_MULTIPLIER);
         syncIncomeStatDay(level);
         totalLodgingIncome += amount;
         todayLodgingIncome += amount;
@@ -221,7 +254,6 @@ public class InnData {
         if (amount <= 0) {
             return;
         }
-        amount = applyPositiveBuff(amount, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
         syncIncomeStatDay(level);
         totalDiningIncome += amount;
         todayDiningIncome += amount;
@@ -258,6 +290,209 @@ public class InnData {
         todayDiningIncome = 0;
         todayOtherIncome = 0;
         incomeStatDay = currentDay;
+    }
+
+    public void markDiningDisplayDirty(BlockPos pos) {
+        if (pos != null) {
+            dirtyDiningDisplayPositions.add(pos.immutable());
+        }
+    }
+
+    public int getMenuVarietyCount(ServerLevel level, TeamData team) {
+        ensureDiningMenuCache(level, team);
+        return activeMenuDishCounts.size();
+    }
+
+    private int applyDiningDisplayBuffs(int amount, ServerLevel level, TeamData team) {
+        if (amount <= 0) {
+            return amount;
+        }
+        double multiplier = getDiningDisplaySaleMultiplier(level, team);
+        int scaled = (int) Math.round(amount * multiplier);
+        return Math.max(amount, scaled);
+    }
+
+    private double getDiningDisplaySaleMultiplier(ServerLevel level, TeamData team) {
+        double decorationBonus = getDecorationBuffValue(InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
+        double varietyBonus = getDiningVarietyMultiplier(level, team) - 1.0D;
+        return Math.max(1.0D, 1.0D + decorationBonus + varietyBonus);
+    }
+
+    private double getDiningVarietyMultiplier(ServerLevel level, TeamData team) {
+        return getDiningVarietyMultiplierForCount(getMenuVarietyCount(level, team));
+    }
+
+    private double getDiningVarietyMultiplierForCount(int varietyCount) {
+        if (varietyCount <= 1) {
+            return 1.0D;
+        }
+        if (varietyCount <= 4) {
+            return 1.05D;
+        }
+        if (varietyCount <= 6) {
+            return 1.10D;
+        }
+        return 1.15D;
+    }
+
+    private void ensureDiningMenuCache(ServerLevel level, TeamData team) {
+        if (!diningMenuCacheInitialized) {
+            rebuildDiningDisplayCache(level, team);
+        }
+    }
+
+    private void rebuildDiningDisplayCache(ServerLevel level, TeamData team) {
+        activeMenuDishByDisplayPos.clear();
+        activeMenuDishCounts.clear();
+        knownDiningDisplayPositions.clear();
+        dirtyDiningDisplayPositions.clear();
+        for (InnRegion region : team.getInnRegions()) {
+            BlockEntitySearchUtils.forEachInBlockRange(
+                    level,
+                    region.minX(),
+                    region.maxX(),
+                    level.getMinBuildHeight(),
+                    level.getMaxBuildHeight() - 1,
+                    region.minZ(),
+                    region.maxZ(),
+                    blockEntity -> {
+                        BlockPos pos = blockEntity.getBlockPos();
+                        if (!team.isInInnZone(pos)
+                                || !InnDiningDisplayHelper.isDiningDisplay(
+                                        blockEntity.getBlockState())) {
+                            return;
+                        }
+                        knownDiningDisplayPositions.add(pos.immutable());
+                    });
+        }
+        for (BlockPos pos : new ArrayList<>(knownDiningDisplayPositions)) {
+            refreshDiningDisplayAt(level, team, pos);
+        }
+        diningMenuCacheInitialized = true;
+    }
+
+    private void refreshDiningDisplayAt(ServerLevel level, TeamData team, BlockPos pos) {
+        BlockPos immutablePos = pos.immutable();
+        ResourceLocation previousDishId = activeMenuDishByDisplayPos.get(immutablePos);
+        BlockState state = level.getBlockState(immutablePos);
+        boolean isTrackedDisplay =
+                team.isInInnZone(immutablePos) && InnDiningDisplayHelper.isDiningDisplay(state);
+        if (isTrackedDisplay) {
+            knownDiningDisplayPositions.add(immutablePos);
+        } else {
+            knownDiningDisplayPositions.remove(immutablePos);
+        }
+
+        ResourceLocation currentDishId =
+                isTrackedDisplay
+                        ? InnDiningDisplayHelper.resolveDisplayedMenuDishId(level, immutablePos, state)
+                        : null;
+        if (!Objects.equals(previousDishId, currentDishId)) {
+            decrementMenuDishCount(previousDishId);
+            incrementMenuDishCount(currentDishId);
+        }
+        if (currentDishId == null) {
+            activeMenuDishByDisplayPos.remove(immutablePos);
+        } else {
+            activeMenuDishByDisplayPos.put(immutablePos, currentDishId);
+        }
+        dirtyDiningDisplayPositions.remove(immutablePos);
+    }
+
+    private void incrementMenuDishCount(ResourceLocation dishId) {
+        if (dishId != null) {
+            activeMenuDishCounts.merge(dishId, 1, Integer::sum);
+        }
+    }
+
+    private void decrementMenuDishCount(ResourceLocation dishId) {
+        if (dishId == null) {
+            return;
+        }
+        Integer count = activeMenuDishCounts.get(dishId);
+        if (count == null) {
+            return;
+        }
+        if (count <= 1) {
+            activeMenuDishCounts.remove(dishId);
+        } else {
+            activeMenuDishCounts.put(dishId, count - 1);
+        }
+    }
+
+    private void refreshTrackedDiningDisplays(ServerLevel level, TeamData team) {
+        if (knownDiningDisplayPositions.isEmpty()) {
+            return;
+        }
+        for (BlockPos pos : new ArrayList<>(knownDiningDisplayPositions)) {
+            refreshDiningDisplayAt(level, team, pos);
+        }
+    }
+
+    private void processDirtyDiningDisplays(ServerLevel level, TeamData team) {
+        if (dirtyDiningDisplayPositions.isEmpty()) {
+            return;
+        }
+        for (BlockPos pos : new ArrayList<>(dirtyDiningDisplayPositions)) {
+            refreshDiningDisplayAt(level, team, pos);
+        }
+    }
+
+    private int getDiningVarietyTier(int varietyCount) {
+        if (varietyCount <= 1) {
+            return 0;
+        }
+        if (varietyCount <= 4) {
+            return 1;
+        }
+        if (varietyCount <= 6) {
+            return 2;
+        }
+        return 3;
+    }
+
+    private boolean updateDiningVarietyState(ServerLevel level, TeamData team) {
+        int varietyCount = activeMenuDishCounts.size();
+        int currentTier = getDiningVarietyTier(varietyCount);
+        double currentBonusValue = getDiningVarietyMultiplierForCount(varietyCount) - 1.0D;
+        boolean bonusChanged =
+                Math.abs(currentDiningVarietyBonusValue - currentBonusValue) > 0.0001D;
+        if (lastDiningVarietyTier < 0) {
+            lastDiningVarietyTier = currentTier;
+            currentDiningVarietyBonusValue = currentBonusValue;
+            return bonusChanged;
+        }
+        if (currentTier > lastDiningVarietyTier) {
+            broadcastDiningVarietyTierUpgrade(level, team, currentTier);
+        }
+        currentDiningVarietyBonusValue = currentBonusValue;
+        boolean tierChanged = currentTier != lastDiningVarietyTier;
+        lastDiningVarietyTier = currentTier;
+        return tierChanged || bonusChanged;
+    }
+
+    private void broadcastDiningVarietyTierUpgrade(ServerLevel level, TeamData team, int tier) {
+        String translationKey =
+                switch (tier) {
+                    case 1 -> "message.otherworldinn.menu_variety.tier1";
+                    case 2 -> "message.otherworldinn.menu_variety.tier2";
+                    case 3 -> "message.otherworldinn.menu_variety.tier3";
+                    default -> null;
+                };
+        if (translationKey == null) {
+            return;
+        }
+        team.getMembers()
+                .forEach(
+                        uuid -> {
+                            ServerPlayer player = level.getServer().getPlayerList().getPlayer(uuid);
+                            if (player != null) {
+                                player.displayClientMessage(
+                                        Component.translatable(translationKey)
+                                                .withStyle(style -> style.withColor(ModColors.INFO)),
+                                        false);
+                            }
+                        });
     }
 
     public boolean checkLevelUp() {
@@ -1398,6 +1633,15 @@ public class InnData {
             trySpawnGuest(level);
         }
 
+        if (currentTime % DINING_DISPLAY_REFRESH_INTERVAL_TICKS == 0) {
+            ensureDiningMenuCache(level, team);
+            processDirtyDiningDisplays(level, team);
+            refreshTrackedDiningDisplays(level, team);
+            if (updateDiningVarietyState(level, team)) {
+                TeamManager.getInstance().syncTeam(team, level.getServer());
+            }
+        }
+
         // 每 5 tick 检查一次
         if (currentTime % 5 != 0) return;
 
@@ -1568,9 +1812,10 @@ public class InnData {
                 }
             }
             if (isNormalCheckout && team != null) {
-                int price = targetRoom.getBedPrice(this.rating);
-                TeamManager.getInstance().addCoins(team, price, level.getServer());
-                this.recordLodgingIncome(price, level);
+                int basePrice = targetRoom.getBedPrice(this.rating);
+                int finalPrice = calculateLodgingIncomeAmount(basePrice);
+                TeamManager.getInstance().addCoins(team, finalPrice, level.getServer());
+                this.recordLodgingIncome(finalPrice, level);
             }
             if (isNormalCheckout && guest != null) {
                 guest.updatePreferenceScore(targetRoom);
@@ -1790,6 +2035,8 @@ public class InnData {
             activeDecorationPositionsTag.add(positionTag);
         }
         tag.put("ActiveDecorationPositions", activeDecorationPositionsTag);
+        tag.putInt("LastDiningVarietyTier", lastDiningVarietyTier);
+        tag.putDouble("CurrentDiningVarietyBonusValue", currentDiningVarietyBonusValue);
 
         return tag;
     }
@@ -1938,5 +2185,10 @@ public class InnData {
                 incrementActiveDecorationCount(decorationId);
             }
         }
+        lastDiningVarietyTier = tag.contains("LastDiningVarietyTier") ? tag.getInt("LastDiningVarietyTier") : -1;
+        currentDiningVarietyBonusValue =
+                tag.contains("CurrentDiningVarietyBonusValue")
+                        ? tag.getDouble("CurrentDiningVarietyBonusValue")
+                        : 0.0D;
     }
 }

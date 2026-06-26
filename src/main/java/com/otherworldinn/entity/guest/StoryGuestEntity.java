@@ -9,6 +9,9 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
@@ -20,6 +23,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public class StoryGuestEntity extends GuestEntity {
+    private static final EntityDataAccessor<String> STORY_GUEST_ID =
+            SynchedEntityData.defineId(StoryGuestEntity.class, EntityDataSerializers.STRING);
     private static final String TAG_STORY_GUEST_ID = "StoryGuestId";
     private static final String TAG_VISIT_STAGE_SNAPSHOT = "VisitStageSnapshot";
     private static final String TAG_VISIT_STAGE_CONSUMED = "VisitStageConsumed";
@@ -38,6 +43,7 @@ public class StoryGuestEntity extends GuestEntity {
 
     public void setStoryGuestId(String storyGuestId) {
         this.storyGuestId = normalizeStoryGuestId(storyGuestId);
+        this.entityData.set(STORY_GUEST_ID, this.storyGuestId == null ? "" : this.storyGuestId);
         this.definition = this.storyGuestId == null ? null : StoryGuestRegistry.get(this.storyGuestId);
         this.visitStageSnapshot = -1;
         this.visitStageConsumed = false;
@@ -46,13 +52,20 @@ public class StoryGuestEntity extends GuestEntity {
 
     @Nullable
     public String getStoryGuestId() {
-        return normalizeStoryGuestId(this.storyGuestId);
+        String syncedId = normalizeStoryGuestId(this.entityData.get(STORY_GUEST_ID));
+        return syncedId != null ? syncedId : normalizeStoryGuestId(this.storyGuestId);
     }
 
     @Nullable
     public StoryGuestDefinition getStoryGuestDefinition() {
-        String normalizedId = normalizeStoryGuestId(this.storyGuestId);
-        if (this.definition == null && normalizedId != null) {
+        String normalizedId = getStoryGuestId();
+        if (normalizedId == null) {
+            this.storyGuestId = null;
+            this.definition = null;
+            return null;
+        }
+        if (this.definition == null || !normalizedId.equals(this.definition.id())) {
+            this.storyGuestId = normalizedId;
             this.definition = StoryGuestRegistry.get(normalizedId);
         }
         return this.definition;
@@ -129,6 +142,12 @@ public class StoryGuestEntity extends GuestEntity {
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(STORY_GUEST_ID, "");
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         String normalizedId = normalizeStoryGuestId(this.storyGuestId);
@@ -147,6 +166,7 @@ public class StoryGuestEntity extends GuestEntity {
         if (compound.contains(TAG_STORY_GUEST_ID)) {
             this.storyGuestId = normalizeStoryGuestId(compound.getString(TAG_STORY_GUEST_ID));
         }
+        this.entityData.set(STORY_GUEST_ID, this.storyGuestId == null ? "" : this.storyGuestId);
         if (compound.contains(TAG_VISIT_STAGE_SNAPSHOT)) {
             this.visitStageSnapshot = compound.getInt(TAG_VISIT_STAGE_SNAPSHOT);
         }

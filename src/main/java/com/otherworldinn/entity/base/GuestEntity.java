@@ -14,6 +14,7 @@ import com.otherworldinn.world.dialogue.DialogueService;
 import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
+import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.content.redstone.deskBell.DeskBellBlockEntity;
@@ -25,7 +26,6 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -59,12 +59,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.entity.schedule.Activity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 
 /**
  * 旅客实体
@@ -92,8 +89,6 @@ public abstract class GuestEntity extends PathfinderMob {
     private static final int MIN_DAILY_DINING_ATTEMPTS = 3;
     private static final int NAVIGATION_STUCK_TIMEOUT_TICKS = 200;
     private static final double NAVIGATION_PROGRESS_THRESHOLD_SQR = 0.0625D;
-    private static final ResourceLocation CREATE_DEPOT_ID =
-            ResourceLocation.fromNamespaceAndPath("create", "depot");
     private static final String TAG_ASSIGNED_DIALOGUE_ID = "AssignedDialogueId";
 
     /** 旅客数据 */
@@ -626,32 +621,11 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private boolean isDiningDisplay(BlockState state) {
-        ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
-        return CREATE_DEPOT_ID.equals(id);
-    }
-
-    @Nullable
-    private IItemHandler getDisplayItemHandler(ServerLevel level, BlockPos pos, BlockState state) {
-        // 统一通过方块物品能力读取 Create 置物台/弹射置物台上的展示物
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null) {
-            return null;
-        }
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, null);
+        return InnDiningDisplayHelper.isDiningDisplay(state);
     }
 
     private boolean hasSellableItem(ServerLevel level, BlockPos pos, BlockState state) {
-        IItemHandler itemHandler = getDisplayItemHandler(level, pos, state);
-        if (itemHandler == null) {
-            return false;
-        }
-        for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (!stack.isEmpty() && ItemSellPriceManager.getPrice(stack) > 0) {
-                return true;
-            }
-        }
-        return false;
+        return InnDiningDisplayHelper.hasSellableItem(level, pos, state);
     }
 
     @Nullable
@@ -695,7 +669,7 @@ public abstract class GuestEntity extends PathfinderMob {
             return false;
         }
         BlockState state = level.getBlockState(pos);
-        IItemHandler itemHandler = getDisplayItemHandler(level, pos, state);
+        var itemHandler = InnDiningDisplayHelper.getDisplayItemHandler(level, pos, state);
         if (itemHandler == null) {
             return false;
         }
@@ -707,7 +681,9 @@ public abstract class GuestEntity extends PathfinderMob {
                 continue;
             }
             int unitPrice = ItemSellPriceManager.getPrice(stack);
-            if (unitPrice > 0 && unitPrice <= this.budget) {
+            if (unitPrice > 0
+                    && unitPrice <= this.budget
+                    && com.otherworldinn.world.inn.service.InnMenuDishRegistry.isMenuDish(stack)) {
                 sellableSlots.add(slot);
             }
         }
@@ -748,11 +724,14 @@ public abstract class GuestEntity extends PathfinderMob {
             return false;
         }
 
-        int totalCost = paidUnitPrice * purchased.getCount();
-        TeamManager.getInstance().addCoins(team, totalCost, level.getServer());
-        team.getInnData().recordDiningIncome(totalCost, level);
+        InnData inn = team.getInnData();
+        int baseTotalCost = paidUnitPrice * purchased.getCount();
+        int finalTotalCost = inn.calculateDiningDisplaySaleAmount(baseTotalCost, purchased, level, team);
+        TeamManager.getInstance().addCoins(team, finalTotalCost, level.getServer());
+        inn.recordDiningIncome(finalTotalCost, level);
+        inn.markDiningDisplayDirty(pos);
         TeamManager.getInstance().syncTeam(team, level.getServer());
-        this.dailySpentCoins += totalCost;
+        this.dailySpentCoins += finalTotalCost;
         this.dailyPurchaseCount += 1;
         return true;
     }
