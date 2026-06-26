@@ -32,6 +32,7 @@
     "MixinCoralFanBlock",
     "MixinCoralWallFanBlock",
     "MixinMinecraftServerLevelsAccessor",
+    "MixinServerPlayerGameMode",
     "MixinStarcatcherCatchModifiers",
     "MixinSellingBinEvents",
     "MixinSellingBinMenu",

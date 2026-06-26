@@ -2,7 +2,9 @@ package com.otherworldinn.world.event;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -12,6 +14,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.core.Vec3i;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -41,7 +44,12 @@ public class TownStructurePlacer {
 
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin) {
-        return placeStructureTemplate(level, structureId, origin, 2);
+        return placeStructureTemplate(
+                level,
+                structureId,
+                origin,
+                2,
+                TownZonePolicyService.ProtectionBypassReason.FACILITY_UPGRADE);
     }
 
     /**
@@ -49,6 +57,20 @@ public class TownStructurePlacer {
      */
     public static boolean placeStructureTemplate(
             ServerLevel level, ResourceLocation structureId, BlockPos origin, int flags) {
+        return placeStructureTemplate(
+                level,
+                structureId,
+                origin,
+                flags,
+                TownZonePolicyService.ProtectionBypassReason.FACILITY_UPGRADE);
+    }
+
+    public static boolean placeStructureTemplate(
+            ServerLevel level,
+            ResourceLocation structureId,
+            BlockPos origin,
+            int flags,
+            TownZonePolicyService.ProtectionBypassReason bypassReason) {
         StructureTemplateManager manager = level.getStructureManager();
         Optional<StructureTemplate> templateOptional = manager.get(structureId);
         if (templateOptional.isEmpty()) {
@@ -62,7 +84,12 @@ public class TownStructurePlacer {
                         .setRotation(Rotation.NONE)
                         .setMirror(Mirror.NONE)
                         .setIgnoreEntities(false);
-        return template.placeInWorld(level, origin, BlockPos.ZERO, settings, level.getRandom(), flags);
+        try (TownZonePolicyService.ProtectionBypassScope ignored =
+                TownZonePolicyService.beginProtectionBypass(
+                        bypassReason,
+                        collectBoundingBoxPositions(origin, template.getSize()))) {
+            return template.placeInWorld(level, origin, BlockPos.ZERO, settings, level.getRandom(), flags);
+        }
     }
 
     /**
@@ -70,6 +97,22 @@ public class TownStructurePlacer {
      */
     public static boolean placeStructureTemplateNoDrops(
             ServerLevel level, ResourceLocation structureId, BlockPos origin) {
-        return placeStructureTemplate(level, structureId, origin, NO_DROPS_REPLACE_FLAGS);
+        return placeStructureTemplate(
+                level,
+                structureId,
+                origin,
+                NO_DROPS_REPLACE_FLAGS,
+                TownZonePolicyService.ProtectionBypassReason.TRADER_SHIP_REBUILD);
+    }
+
+    private static Set<BlockPos> collectBoundingBoxPositions(BlockPos origin, Vec3i size) {
+        java.util.Set<BlockPos> positions = new java.util.HashSet<>();
+        int maxX = origin.getX() + Math.max(0, size.getX() - 1);
+        int maxY = origin.getY() + Math.max(0, size.getY() - 1);
+        int maxZ = origin.getZ() + Math.max(0, size.getZ() - 1);
+        for (BlockPos pos : BlockPos.betweenClosed(origin, new BlockPos(maxX, maxY, maxZ))) {
+            positions.add(pos.immutable());
+        }
+        return positions;
     }
 }

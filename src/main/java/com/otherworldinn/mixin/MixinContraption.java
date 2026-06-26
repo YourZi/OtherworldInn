@@ -1,10 +1,8 @@
 package com.otherworldinn.mixin;
 
 import com.otherworldinn.world.dimension.TownDimensions;
-import com.otherworldinn.world.event.listener.TownProtectionHandler;
+import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import com.otherworldinn.world.inn.listener.InnEventHandler;
-import com.otherworldinn.world.team.TeamData;
-import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.content.contraptions.Contraption;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
@@ -66,20 +64,10 @@ public class MixinContraption {
             // 仅在城镇维度生效
             if (world.dimension() == TownDimensions.TOWN_LEVEL) {
                 if (world instanceof net.minecraft.server.level.ServerLevel serverLevel
-                        && TownProtectionHandler.isInnRestrictionLiftedAt(serverLevel, pos)) {
-                    return this.customBlockPlacement(worldAccessor, pos, state);
-                }
-                // 检查该位置是否属于某个队伍的旅社区域
-                TeamData team = TeamManager.getInstance().getTeamAt(pos, world.getServer());
-
-                // 如果在城镇维度，且 (不在任何旅社范围内 或 该旅社未开启装修模式)，则禁止放置
-                if (team == null) {
-                    // 非法区域！
-
-                    // 执行掉落
+                        && TownZonePolicyService.resolveContraptionPlacementPolicy(serverLevel, pos, state)
+                                == TownZonePolicyService.ContraptionPlacementPolicy.DENY_AND_DROP) {
                     Block.dropResources(state, world, pos, null);
 
-                    // 处理容器掉落
                     StructureBlockInfo info = currentBlockInfo.get();
                     if (info != null
                             && info.nbt() != null
@@ -88,19 +76,15 @@ public class MixinContraption {
                             BlockEntity be = entityBlock.newBlockEntity(pos, state);
                             if (be != null) {
                                 be.loadWithComponents(info.nbt(), world.registryAccess());
-
-                                // 尝试提取物品
-                                // 检查 Inventory 接口
                                 if (be instanceof net.minecraft.world.Container container) {
                                     Containers.dropContents(world, pos, container);
                                 }
                             }
                         } catch (Exception e) {
-                            // 忽略错误，防止崩服
                             e.printStackTrace();
                         }
-                        return true;
                     }
+                    return true;
                 }
             }
         }

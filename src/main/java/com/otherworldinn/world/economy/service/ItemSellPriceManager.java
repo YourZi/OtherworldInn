@@ -239,8 +239,11 @@ public class ItemSellPriceManager {
         if (COIN_ITEM_ID.equals(rl)) {
             return 0;
         }
+        if (BASE_PRICES.containsKey(rl)) {
+            return 1;
+        }
         int base = getBasePrice(rl);
-        if (base <= 0) return 0;
+        if (base <= 0) return 1;
 
         double qm = 1.0;
         if (QualityUtils.hasQuality(itemStack)) {
