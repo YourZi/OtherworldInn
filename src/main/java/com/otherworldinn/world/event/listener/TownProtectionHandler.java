@@ -1,5 +1,6 @@
 package com.otherworldinn.world.event.listener;
 
+import com.github.ysbbbbbb.kaleidoscopecookery.api.event.SickleHarvestEvent;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.food.FoodBlock;
 import com.github.ysbbbbbb.kaleidoscopetavern.block.brew.BottleBlock;
 import com.otherworldinn.OtherworldInn;
@@ -327,6 +328,12 @@ public class TownProtectionHandler {
         // 3. 始终放行：Depot 展示块
         if (isDepotDisplayBlock(clickedState)) return;
 
+        if (!TownZonePolicyService.canPlayerHarvestCropAt(level, event.getPos(), clickedState, player)) {
+            denyRightClickBlock(event, player,
+                    getDenyMessage(level, event.getPos()));
+            return;
+        }
+
         // 4. 保护区内：
         //    a) 方块实体交互 (容器、工作台等) → 放行
         //       （自由修改区内直接放行，保护区内允许容器交互）
@@ -364,6 +371,18 @@ public class TownProtectionHandler {
                         getDenyMessage(level, event.getPos()));
             }
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onSickleHarvest(SickleHarvestEvent event) {
+        Player player = event.getEntity();
+        if (!(player.level() instanceof ServerLevel level) || !isTownDimension(level)) return;
+        if (TownZonePolicyService.canPlayerHarvestCropAt(
+                level, event.getHarvestPos(), event.getHarvestState(), player)) {
+            return;
+        }
+        event.setCanceled(true);
+        event.setCostDurability(false);
     }
 
     // ── 右键空气 ──────────────────────────────────────────

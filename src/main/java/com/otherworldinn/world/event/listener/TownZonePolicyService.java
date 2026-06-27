@@ -17,11 +17,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CocoaBlock;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -180,6 +184,22 @@ public final class TownZonePolicyService {
         return isFreeEditZone(level, pos);
     }
 
+    public static boolean canPlayerHarvestCropAt(
+            Level level, BlockPos pos, BlockState state, @Nullable Player player) {
+        return !isProtectedCropState(state) || canPlayerModifyAt(level, pos, player);
+    }
+
+    public static boolean isProtectedCropState(BlockState state) {
+        if (state == null) {
+            return false;
+        }
+        return state.getBlock() instanceof CropBlock
+                || state.getBlock() instanceof SweetBerryBushBlock
+                || state.getBlock() instanceof CocoaBlock
+                || state.getBlock() instanceof NetherWartBlock
+                || state.is(BlockTags.CROPS);
+    }
+
     public static boolean canCreateModifyBlockAt(Level level, BlockPos pos) {
         return !isTownDimension(level) || isFreeEditZone(level, pos);
     }
@@ -259,7 +279,7 @@ public final class TownZonePolicyService {
         if (isFreeEditZone(level, pos)) {
             return true;
         }
-        if (isProtectedWheatChange(oldState, newState)) {
+        if (isProtectedCropChange(oldState, newState)) {
             return false;
         }
         if (Objects.equals(oldState, newState)) {
@@ -300,8 +320,8 @@ public final class TownZonePolicyService {
         return false;
     }
 
-    private static boolean isProtectedWheatChange(BlockState oldState, BlockState newState) {
-        return oldState.is(Blocks.WHEAT) || newState.is(Blocks.WHEAT);
+    private static boolean isProtectedCropChange(BlockState oldState, BlockState newState) {
+        return isProtectedCropState(oldState) || isProtectedCropState(newState);
     }
 
     public static ProtectionBypassScope beginProtectionBypass(
