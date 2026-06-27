@@ -299,7 +299,7 @@ public final class CommissionService {
         data.setCompletedCount(Math.max(0, data.getCompletedCount()) + 1);
         data.setRewardClaimed(true);
         data.setNextAutoRefreshDay(
-                currentDay(triggerPlayer.serverLevel()) + UNACCEPTED_REFRESH_INTERVAL_DAYS);
+                currentDay(triggerPlayer.serverLevel()) + COMPLETED_REFRESH_INTERVAL_DAYS);
         if (data.getCompletedCount() >= 1) {
             AdvancementUtils.award(triggerPlayer, AdvancementUtils.COMPLETE_1_COMMISSION);
         }
@@ -508,7 +508,7 @@ public final class CommissionService {
     }
 
     private static long currentDay(Level level) {
-        return level.getGameTime() / 24000L;
+        return level.getDayTime() / 24000L;
     }
 
     private static boolean isKillRequirementComplete(
