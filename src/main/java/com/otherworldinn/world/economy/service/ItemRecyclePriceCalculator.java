@@ -14,6 +14,8 @@ public final class ItemRecyclePriceCalculator {
 
     /** 通用回收价上限 */
     private static final int MAX_RECYCLE_PRICE = 16;
+    private static final ResourceLocation COIN_ITEM_ID =
+            ResourceLocation.fromNamespaceAndPath("otherworldinn", "coin");
     private static final ResourceLocation RECALL_SCROLL_ITEM_ID =
             ResourceLocation.fromNamespaceAndPath("otherworldinn", "recall_scroll");
 
@@ -191,13 +193,16 @@ public final class ItemRecyclePriceCalculator {
         if (stack.isEmpty()) return 0;
 
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (COIN_ITEM_ID.equals(id)) {
+            return 0;
+        }
         if (RECALL_SCROLL_ITEM_ID.equals(id)) {
             return 1;
         }
 
-        // 已配置明确价格的菜品 → 走 ItemSellPriceManager，不参与回收
+        // 已配置明确价格的菜品对游商售卖价格仅为1
         if (ItemSellPriceManager.BASE_PRICES.containsKey(id)) {
-            return 0;
+            return 1;
         }
 
         // ═══ 第一步：基础价值 ═══

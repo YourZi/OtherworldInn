@@ -18,8 +18,6 @@ import net.minecraft.world.item.ItemStack;
  * floatedPrices 由服务端计算后通过 S2CPriceSyncPacket 同步到客户端。
  */
 public class ItemSellPriceManager {
-    private static final ResourceLocation COIN_ITEM_ID =
-            ResourceLocation.fromNamespaceAndPath("otherworldinn", "coin");
 
     static final Map<ResourceLocation, Integer> BASE_PRICES = new HashMap<>();
     private static final Map<String, Integer> floatedPrices = new HashMap<>();
@@ -236,14 +234,8 @@ public class ItemSellPriceManager {
     public static int getPrice(ItemStack itemStack) {
         if (itemStack.isEmpty()) return 0;
         ResourceLocation rl = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
-        if (COIN_ITEM_ID.equals(rl)) {
-            return 0;
-        }
-        if (BASE_PRICES.containsKey(rl)) {
-            return 1;
-        }
         int base = getBasePrice(rl);
-        if (base <= 0) return 1;
+        if (base <= 0) return 0;
 
         double qm = 1.0;
         if (QualityUtils.hasQuality(itemStack)) {
