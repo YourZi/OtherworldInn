@@ -3,6 +3,7 @@ package com.otherworldinn.world.event.listener;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.food.FoodBlock;
 import com.github.ysbbbbbb.kaleidoscopetavern.block.brew.BottleBlock;
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.world.dimension.TownDimensions;
 
 import java.util.ArrayList;
@@ -136,6 +137,10 @@ public class TownProtectionHandler {
                 || state.getBlock() instanceof BottleBlock;
     }
 
+    private static boolean isPlayerCleanableClutter(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos).is(ModBlocks.CLUTTER.get());
+    }
+
     private static boolean isTouhouLittleMaid(Entity entity) {
         if (entity == null || entity.getType() == null) return false;
         ResourceLocation key = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
@@ -191,6 +196,9 @@ public class TownProtectionHandler {
         if (!(event.getLevel() instanceof ServerLevel level) || !isTownDimension(level)) return;
         Player player = event.getPlayer();
         if (TownZonePolicyService.canPlayerModifyAt(level, event.getPos(), player)) {
+            return;
+        }
+        if (isPlayerCleanableClutter(level, event.getPos())) {
             return;
         }
         if (!(player instanceof ServerPlayer) || player instanceof FakePlayer || !player.isCreative()) {
