@@ -435,6 +435,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.book.roster")
                 .zh("潜行右键前台铃铛可生成旅客名册")
                 .en("Sneak + right-click Desk Bell to create a guest roster.");
+        entry("tooltip.otherworldinn.name_tag.room_rename")
+                .zh("可用于重命名旅社房间")
+                .en("Can be used to rename inn rooms");
         entry("message.otherworldinn.book.desk_bell")
                 .zh("潜行生成旅客名册")
                 .en("Create Guest Roster");

@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
@@ -79,11 +80,17 @@ public class ModTooltips {
                                     .withStyle(style -> style.withColor(ModColors.INFO)));
         }
 
-        if (itemStack.is(net.minecraft.world.item.Items.BOOK)
-                || itemStack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) {
+        if (itemStack.is(Items.BOOK) || itemStack.is(Items.WRITABLE_BOOK)) {
             event.getToolTip()
                     .add(
                             Component.translatable("tooltip.otherworldinn.book.roster")
+                                    .withStyle(style -> style.withColor(ModColors.INFO)));
+        }
+
+        if (itemStack.is(Items.NAME_TAG)) {
+            event.getToolTip()
+                    .add(
+                            Component.translatable("tooltip.otherworldinn.name_tag.room_rename")
                                     .withStyle(style -> style.withColor(ModColors.INFO)));
         }
 

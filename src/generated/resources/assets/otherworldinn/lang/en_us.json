@@ -915,6 +915,7 @@
   "tooltip.otherworldinn.kaleidoscope_cookery.scarecrow": "Slightly speeds up nearby crop growth",
   "tooltip.otherworldinn.land_deed.area_status": "Expanded Area: %s / Remaining: %s",
   "tooltip.otherworldinn.land_deed.rating": "Current Rating: %s",
+  "tooltip.otherworldinn.name_tag.room_rename": "Can be used to rename inn rooms",
   "tooltip.otherworldinn.only_in_town": "§cOnly usable in Town dimension",
   "tooltip.otherworldinn.room_key.beds": "Beds: %d/%d",
   "tooltip.otherworldinn.room_key.pos": "Pos: %s -> %s",

@@ -915,6 +915,7 @@
   "tooltip.otherworldinn.kaleidoscope_cookery.scarecrow": "可以轻微催熟附近作物",
   "tooltip.otherworldinn.land_deed.area_status": "已扩展范围: %s / 剩余可用: %s",
   "tooltip.otherworldinn.land_deed.rating": "当前星级: %s",
+  "tooltip.otherworldinn.name_tag.room_rename": "可用于重命名旅社房间",
   "tooltip.otherworldinn.only_in_town": "§c仅限城镇维度使用",
   "tooltip.otherworldinn.room_key.beds": "床位: %d/%d",
   "tooltip.otherworldinn.room_key.pos": "位置: %s -> %s",
