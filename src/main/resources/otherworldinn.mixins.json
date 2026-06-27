@@ -23,6 +23,7 @@
     "MixinReskillableRequestLevelUp",
     "MixinFTBUltimineServerConfig",
     "MixinSeasonalCropGrowthHandler",
+    "MixinKaleidoscopeDrinkBlock",
     "MixinCropBlockTownDecorSurvival",
     "MixinBushBlockTownDecorSurvival",
     "MixinServerLevel",
