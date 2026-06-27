@@ -19,9 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestService {
-    private static final int GLOBAL_MIN_RETURN_DAYS = 2;
-    private static final int GLOBAL_MAX_RETURN_DAYS = 5;
-
     private StoryGuestService() {}
 
     @Nullable
@@ -61,7 +58,7 @@ public final class StoryGuestService {
         StoryGuestSavedData data = StoryGuestSavedData.get(level);
         StoryGuestProgress progress = data.getOrCreateProgress(definition.id());
         long currentDay = level.getDayTime() / 24000L;
-        long nextEligibleVisitDay = currentDay + rollSharedReturnInterval(level.random);
+        long nextEligibleVisitDay = currentDay + rollReturnInterval(progress, definition, level.random);
         progress.setActiveEntityUuid(null);
         progress.setLastCheckoutDay(currentDay);
         progress.setNextEligibleVisitDay(nextEligibleVisitDay);
@@ -331,6 +328,10 @@ public final class StoryGuestService {
             if (hasActiveEntity(level, progress)) {
                 continue;
             }
+            long nextEligibleVisitDay = progress.getNextEligibleVisitDay();
+            if (nextEligibleVisitDay != Long.MIN_VALUE && currentDay < nextEligibleVisitDay) {
+                continue;
+            }
             int weight = Math.max(1, definition.spawnWeight());
             totalWeight += weight;
             candidates.add(new WeightedDefinition(definition, weight));
@@ -396,12 +397,24 @@ public final class StoryGuestService {
         return StoryGuestSavedData.get(level).getOrCreateProgress(definition.id());
     }
 
-    private static int rollSharedReturnInterval(RandomSource random) {
-        if (GLOBAL_MIN_RETURN_DAYS >= GLOBAL_MAX_RETURN_DAYS) {
-            return GLOBAL_MIN_RETURN_DAYS;
+    private static int rollReturnInterval(
+            StoryGuestProgress progress, StoryGuestDefinition definition, RandomSource random) {
+        int minDays = progress.getPendingMinReturnDays();
+        int maxDays = progress.getPendingMaxReturnDays();
+        if (minDays >= 0 && maxDays >= 0) {
+            return rollReturnInterval(random, minDays, maxDays);
         }
-        return GLOBAL_MIN_RETURN_DAYS
-                + random.nextInt(GLOBAL_MAX_RETURN_DAYS - GLOBAL_MIN_RETURN_DAYS + 1);
+        return rollReturnInterval(
+                random, definition.minReturnIntervalDays(), definition.maxReturnIntervalDays());
+    }
+
+    private static int rollReturnInterval(RandomSource random, int minDays, int maxDays) {
+        int min = Math.max(0, minDays);
+        int max = Math.max(min, maxDays);
+        if (min >= max) {
+            return min;
+        }
+        return min + random.nextInt(max - min + 1);
     }
 
     private record WeightedDefinition(StoryGuestDefinition definition, int weight) {}
