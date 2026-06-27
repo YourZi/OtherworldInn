@@ -5,8 +5,10 @@ import com.otherworldinn.init.ModMenuTypes;
 import com.otherworldinn.world.economy.service.ItemRecyclePriceCalculator;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -25,7 +27,10 @@ import net.minecraft.world.item.ItemStack;
  * <p>多人互斥：同一游商实体同时只允许一名玩家打开。
  */
 public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
-    private static final int MAX_PRICED_COUNT_PER_ITEM = 8;
+    private static final int FULL_PRICE_LIMIT = 16;
+    private static final int HALF_PRICE_LIMIT = 32;
+    private static final int LOW_PRICE_LIMIT = 64;
+    private static final int RECYCLE_FAVOR_CAP = 100;
 
     private static final int ROWS = 3;
     private static final int COLS = 9;
@@ -34,16 +39,39 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     private final Player player;
     private final int traderEntityId;
     private final SimpleContainer container;
+    private final Map<Item, Integer> initialRecycledCounts;
+    private final int initialRecycleFavorGained;
 
     public WanderingTraderRecycleMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
-        this(containerId, playerInventory, extraData.readInt());
+        this(
+                containerId,
+                playerInventory,
+                extraData.readInt(),
+                extraData.readVarInt(),
+                readRecycledCounts(extraData));
     }
 
-    public WanderingTraderRecycleMenu(int containerId, Inventory playerInventory, int traderEntityId) {
+    public WanderingTraderRecycleMenu(int containerId, Inventory playerInventory, WanderingTraderEntity trader) {
+        this(
+                containerId,
+                playerInventory,
+                trader.getId(),
+                trader.getRecycleFavorGained(),
+                trader.copyRecycledItemCounts());
+    }
+
+    private WanderingTraderRecycleMenu(
+            int containerId,
+            Inventory playerInventory,
+            int traderEntityId,
+            int initialRecycleFavorGained,
+            Map<Item, Integer> initialRecycledCounts) {
         super(ModMenuTypes.WANDERING_TRADER_RECYCLE.get(), containerId);
         this.player = playerInventory.player;
         this.traderEntityId = traderEntityId;
         this.container = new SimpleContainer(SLOT_COUNT);
+        this.initialRecycleFavorGained = Math.max(0, initialRecycleFavorGained);
+        this.initialRecycledCounts = new HashMap<>(initialRecycledCounts);
 
         // 回收物品槽位（3行）
         for (int row = 0; row < ROWS; row++) {
@@ -133,47 +161,134 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     }
 
     private void settle(ServerPlayer serverPlayer) {
-        int total = calculateCappedTotal(this.container);
+        RecycleQuote quote;
+        Entity entity = serverPlayer.level().getEntity(traderEntityId);
+        if (entity instanceof WanderingTraderEntity trader) {
+            quote = calculateRecycleQuote(
+                    this.container,
+                    trader.copyRecycledItemCounts(),
+                    trader.getRecycleFavorGained());
+            trader.applyRecycleVisitProgress(quote.addedCounts(), quote.favorToAdd());
+            if (quote.favorToAdd() > 0) {
+                trader.addFavorProgress(quote.favorToAdd());
+            }
+        } else {
+            quote = calculateRecycleQuote(
+                    this.container,
+                    this.initialRecycledCounts,
+                    this.initialRecycleFavorGained);
+        }
         for (int i = 0; i < SLOT_COUNT; i++) {
             if (!container.getItem(i).isEmpty()) {
                 container.setItem(i, ItemStack.EMPTY);
             }
         }
-        if (total > 0) {
-            Entity entity = serverPlayer.level().getEntity(traderEntityId);
-            if (entity instanceof WanderingTraderEntity trader) {
-                trader.addFavorProgress(total / 10);
-            }
+        if (quote.totalCoins() > 0) {
             TeamData team = TeamManager.getInstance().getPlayerTeam(serverPlayer);
             if (team != null) {
-                TeamManager.getInstance().addCoins(team, total, serverPlayer.server);
+                TeamManager.getInstance().addCoins(team, quote.totalCoins(), serverPlayer.server);
             }
         }
     }
 
     public int getTotalPrice() {
-        return calculateCappedTotal(this.container);
+        return calculateRecycleQuote(
+                        this.container,
+                        this.initialRecycledCounts,
+                        this.initialRecycleFavorGained)
+                .totalCoins();
     }
 
-    private static int calculateCappedTotal(Container container) {
+    private static Map<Item, Integer> readRecycledCounts(FriendlyByteBuf extraData) {
+        int size = extraData.readVarInt();
+        Map<Item, Integer> counts = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            Item item = BuiltInRegistries.ITEM.byId(extraData.readVarInt());
+            int count = Math.max(0, extraData.readVarInt());
+            if (item != null && count > 0) {
+                counts.put(item, count);
+            }
+        }
+        return counts;
+    }
+
+    private static RecycleQuote calculateRecycleQuote(
+            Container container, Map<Item, Integer> baseCounts, int currentFavorGained) {
         int total = 0;
-        Map<Item, Integer> pricedCounts = new HashMap<>();
+        Map<Item, Integer> simulatedCounts = new HashMap<>(baseCounts);
+        Map<Item, Integer> addedCounts = new HashMap<>();
         for (int i = 0; i < SLOT_COUNT; i++) {
             ItemStack stack = container.getItem(i);
             if (!stack.isEmpty()) {
                 Item item = stack.getItem();
-                int alreadyCounted = pricedCounts.getOrDefault(item, 0);
-                if (alreadyCounted >= MAX_PRICED_COUNT_PER_ITEM) {
-                    continue;
-                }
-                int countToPrice =
-                        Math.min(stack.getCount(), MAX_PRICED_COUNT_PER_ITEM - alreadyCounted);
                 int unitPrice = ItemRecyclePriceCalculator.getRecyclePrice(stack);
-                total += unitPrice * countToPrice;
-                pricedCounts.put(item, alreadyCounted + countToPrice);
+                int alreadyRecycled = simulatedCounts.getOrDefault(item, 0);
+                int stackCount = stack.getCount();
+                total += calculateSegmentedValue(unitPrice, alreadyRecycled, stackCount);
+                simulatedCounts.put(item, alreadyRecycled + stackCount);
+                addedCounts.merge(item, stackCount, Integer::sum);
             }
         }
+        int remainingFavor = Math.max(0, RECYCLE_FAVOR_CAP - Math.max(0, currentFavorGained));
+        int favorToAdd = Math.min(total / 10, remainingFavor);
+        return new RecycleQuote(total, favorToAdd, Collections.unmodifiableMap(addedCounts));
+    }
+
+    private static int calculateSegmentedValue(int unitPrice, int alreadyRecycled, int stackCount) {
+        if (stackCount <= 0 || unitPrice <= 0) {
+            return 0;
+        }
+
+        int total = 0;
+        int cursor = Math.max(0, alreadyRecycled);
+        int remaining = stackCount;
+        while (remaining > 0) {
+            int rangeEnd = nextRangeEnd(cursor);
+            int countInRange = Math.min(remaining, rangeEnd - cursor);
+            total += applyRate(unitPrice, countInRange, ratePercentFor(cursor));
+            cursor += countInRange;
+            remaining -= countInRange;
+        }
         return total;
+    }
+
+    private static int nextRangeEnd(int alreadyRecycled) {
+        if (alreadyRecycled < FULL_PRICE_LIMIT) {
+            return FULL_PRICE_LIMIT;
+        }
+        if (alreadyRecycled < HALF_PRICE_LIMIT) {
+            return HALF_PRICE_LIMIT;
+        }
+        if (alreadyRecycled < LOW_PRICE_LIMIT) {
+            return LOW_PRICE_LIMIT;
+        }
+        return Integer.MAX_VALUE;
+    }
+
+    private static int ratePercentFor(int alreadyRecycled) {
+        if (alreadyRecycled < FULL_PRICE_LIMIT) {
+            return 100;
+        }
+        if (alreadyRecycled < HALF_PRICE_LIMIT) {
+            return 50;
+        }
+        if (alreadyRecycled < LOW_PRICE_LIMIT) {
+            return 20;
+        }
+        return 0;
+    }
+
+    private static int applyRate(int unitPrice, int count, int ratePercent) {
+        if (count <= 0 || ratePercent <= 0) {
+            return 0;
+        }
+        return unitPrice * count * ratePercent / 100;
+    }
+
+    private record RecycleQuote(int totalCoins, int favorToAdd, Map<Item, Integer> addedCounts) {}
+
+    public int getRecycleFavorCap() {
+        return RECYCLE_FAVOR_CAP;
     }
 
     public int getTraderEntityId() {

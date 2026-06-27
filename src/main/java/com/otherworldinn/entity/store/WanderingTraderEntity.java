@@ -4,12 +4,15 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.world.inventory.WanderingTraderRecycleMenu;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -30,6 +33,8 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class WanderingTraderEntity extends StoreEntity {
+    private static final String TAG_RECYCLE_FAVOR_GAINED = "RecycleFavorGained";
+    private static final String TAG_RECYCLED_ITEM_COUNTS = "RecycledItemCounts";
 
     private static final int RANDOM_ITEMS_COUNT = 16;
     private static final Map<ResourceLocation, SpecialVanillaOffer> SPECIAL_VANILLA_OFFERS =
@@ -96,6 +101,7 @@ public class WanderingTraderEntity extends StoreEntity {
 
     @Override
     protected void refreshRandomItems() {
+        this.resetRecycleVisitLimits();
         super.refreshRandomItems();
         long day = this.level().getDayTime() / 24000L;
         java.util.Random rng = new java.util.Random(this.level().random.nextLong() ^ day);
@@ -183,6 +189,8 @@ public class WanderingTraderEntity extends StoreEntity {
     /** 当前正在使用回收菜单的玩家（互斥锁） */
     @Nullable
     private Player currentRecyclePlayer;
+    private final Map<Item, Integer> recycledItemCounts = new HashMap<>();
+    private int recycleFavorGained;
 
     @Nullable
     public Player getCurrentRecyclePlayer() {
@@ -191,6 +199,40 @@ public class WanderingTraderEntity extends StoreEntity {
 
     public void setCurrentRecyclePlayer(@Nullable Player player) {
         this.currentRecyclePlayer = player;
+    }
+
+    public void resetRecycleVisitLimits() {
+        this.recycledItemCounts.clear();
+        this.recycleFavorGained = 0;
+    }
+
+    public Map<Item, Integer> copyRecycledItemCounts() {
+        return new HashMap<>(this.recycledItemCounts);
+    }
+
+    public int getRecycleFavorGained() {
+        return this.recycleFavorGained;
+    }
+
+    public void applyRecycleVisitProgress(Map<Item, Integer> itemCounts, int favorToAdd) {
+        for (Map.Entry<Item, Integer> entry : itemCounts.entrySet()) {
+            int addedCount = Math.max(0, entry.getValue());
+            if (addedCount <= 0) {
+                continue;
+            }
+            this.recycledItemCounts.merge(entry.getKey(), addedCount, Integer::sum);
+        }
+        this.recycleFavorGained = Math.max(0, this.recycleFavorGained + Math.max(0, favorToAdd));
+    }
+
+    private void writeRecycleMenuSnapshot(FriendlyByteBuf buf) {
+        buf.writeInt(this.getId());
+        buf.writeVarInt(this.recycleFavorGained);
+        buf.writeVarInt(this.recycledItemCounts.size());
+        for (Map.Entry<Item, Integer> entry : this.recycledItemCounts.entrySet()) {
+            buf.writeVarInt(BuiltInRegistries.ITEM.getId(entry.getKey()));
+            buf.writeVarInt(Math.max(0, entry.getValue()));
+        }
     }
 
     /**
@@ -203,9 +245,50 @@ public class WanderingTraderEntity extends StoreEntity {
         currentRecyclePlayer = player;
 
         MenuProvider provider = new SimpleMenuProvider(
-                (containerId, inv, p) -> new WanderingTraderRecycleMenu(containerId, inv, this.getId()),
+                (containerId, inv, p) -> new WanderingTraderRecycleMenu(containerId, inv, this),
                 Component.translatable("screen.otherworldinn.recycle.title"));
-        player.openMenu(provider, buf -> buf.writeInt(this.getId()));
+        player.openMenu(provider, this::writeRecycleMenuSnapshot);
         return true;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt(TAG_RECYCLE_FAVOR_GAINED, this.recycleFavorGained);
+
+        CompoundTag recycledCountsTag = new CompoundTag();
+        for (Map.Entry<Item, Integer> entry : this.recycledItemCounts.entrySet()) {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(entry.getKey());
+            if (itemId != null) {
+                recycledCountsTag.putInt(itemId.toString(), Math.max(0, entry.getValue()));
+            }
+        }
+        compound.put(TAG_RECYCLED_ITEM_COUNTS, recycledCountsTag);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.recycleFavorGained = Math.max(0, compound.getInt(TAG_RECYCLE_FAVOR_GAINED));
+        this.recycledItemCounts.clear();
+
+        if (!compound.contains(TAG_RECYCLED_ITEM_COUNTS, CompoundTag.TAG_COMPOUND)) {
+            return;
+        }
+
+        CompoundTag recycledCountsTag = compound.getCompound(TAG_RECYCLED_ITEM_COUNTS);
+        for (String key : recycledCountsTag.getAllKeys()) {
+            ResourceLocation itemId = ResourceLocation.tryParse(key);
+            if (itemId == null) {
+                continue;
+            }
+            Item item = BuiltInRegistries.ITEM.get(itemId);
+            if (item != null && item != Items.AIR) {
+                int count = Math.max(0, recycledCountsTag.getInt(key));
+                if (count > 0) {
+                    this.recycledItemCounts.put(item, count);
+                }
+            }
+        }
     }
 }
