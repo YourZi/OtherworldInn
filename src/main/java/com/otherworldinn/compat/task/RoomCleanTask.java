@@ -14,6 +14,7 @@ import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.BedSheetItem;
 import com.otherworldinn.item.MessyBedSheetItem;
+import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
 import com.otherworldinn.world.team.TeamData;
@@ -200,7 +201,15 @@ public class RoomCleanTask implements IMaidTask{
             clearTarget(maid);
             return;
         }
-        level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+        try (TownZonePolicyService.ProtectionBypassScope ignored =
+                TownZonePolicyService.beginProtectionBypass(
+                        TownZonePolicyService.ProtectionBypassReason.ROOM_CLEAN_CLUTTER,
+                        java.util.List.of(pos.immutable()))) {
+            if (!level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3)) {
+                clearTarget(maid);
+                return;
+            }
+        }
         maid.swing(InteractionHand.MAIN_HAND, true);
         level.playSound(null, pos, SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 0.7F, 1.1F);
 

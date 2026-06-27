@@ -58,6 +58,8 @@ public final class TownZonePolicyService {
     public enum ProtectionBypassReason {
         FACILITY_UPGRADE,
         TRADER_SHIP_REBUILD,
+        CHECKOUT_CLUTTER_SPAWN,
+        ROOM_CLEAN_CLUTTER,
         CREATIVE_PLAYER_ACTION
     }
 

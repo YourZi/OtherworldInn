@@ -8,6 +8,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.util.BlockEntitySearchUtils;
 import com.otherworldinn.util.EntityUtils;
+import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.decoration.InnDecorationStats;
@@ -1584,15 +1585,27 @@ public class InnData {
                         MIN_CLUTTER_PER_CHECKOUT
                                 + level.random.nextInt(MAX_CLUTTER_PER_CHECKOUT - MIN_CLUTTER_PER_CHECKOUT + 1));
 
-        boolean spawned = false;
-        BlockState clutterState = ModBlocks.CLUTTER.get().defaultBlockState();
+        List<BlockPos> selectedPositions = new ArrayList<>();
         for (int i = 0; i < spawnCount; i++) {
             BlockPos pos = candidates.get(i);
-            if (!level.getBlockState(pos).isAir()) {
-                continue;
+            if (level.getBlockState(pos).isAir()) {
+                selectedPositions.add(pos.immutable());
             }
-            if (level.setBlock(pos, clutterState, 3)) {
-                spawned = true;
+        }
+        if (selectedPositions.isEmpty()) {
+            return false;
+        }
+
+        boolean spawned = false;
+        BlockState clutterState = ModBlocks.CLUTTER.get().defaultBlockState();
+        try (TownZonePolicyService.ProtectionBypassScope ignored =
+                TownZonePolicyService.beginProtectionBypass(
+                        TownZonePolicyService.ProtectionBypassReason.CHECKOUT_CLUTTER_SPAWN,
+                        selectedPositions)) {
+            for (BlockPos pos : selectedPositions) {
+                if (level.setBlock(pos, clutterState, 3)) {
+                    spawned = true;
+                }
             }
         }
         return spawned;
