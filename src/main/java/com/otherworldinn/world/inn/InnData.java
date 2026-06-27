@@ -1591,8 +1591,9 @@ public class InnData {
             if (!level.getBlockState(pos).isAir()) {
                 continue;
             }
-            level.setBlock(pos, clutterState, 3);
-            spawned = true;
+            if (level.setBlock(pos, clutterState, 3)) {
+                spawned = true;
+            }
         }
         return spawned;
     }
@@ -1805,8 +1806,8 @@ public class InnData {
         if (targetRoom != null) {
             BlockPos boundBedPos = guest == null ? null : guest.getAssignedBedPos();
             setRoomBedMessy(targetRoom.getId(), level, boundBedPos);
-            trySpawnRoomClutter(targetRoom, level);
             targetRoom.removeGuest(guestId);
+            trySpawnRoomClutter(targetRoom, level);
             team = TeamManager.getInstance().getTeamAt(targetRoom.getMinPos(), level.getServer());
             if (team == null) {
                 TeamSavedData data = TeamManager.getInstance().getData(level.getServer());
