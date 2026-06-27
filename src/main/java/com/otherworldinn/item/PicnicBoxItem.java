@@ -25,6 +25,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ClickAction;
@@ -332,6 +333,10 @@ public class PicnicBoxItem extends Item {
         }
 
         Player rawPlayer = event.getPlayer();
+        if (!isPlayerInventorySlot(rawPlayer, event.getSlot())) {
+            return;
+        }
+
         int slotIndex = resolveMenuSlotIndex(rawPlayer, event.getSlot());
         int action = resolveInventoryAction(carried, stackedOn);
         if (action < 0 || slotIndex < 0) {
@@ -396,7 +401,7 @@ public class PicnicBoxItem extends Item {
         }
 
         Slot slot = getMenuSlot(player, slotIndex);
-        if (slot == null) {
+        if (slot == null || !isPlayerInventorySlot(player, slot)) {
             return false;
         }
 
@@ -411,16 +416,21 @@ public class PicnicBoxItem extends Item {
             return false;
         }
 
-        int inserted = data.insert(slotStack, transferable);
-        if (inserted <= 0) {
+        ItemStack taken = slot.safeTake(transferable, transferable, player);
+        if (taken.isEmpty()) {
             return false;
         }
 
-        slotStack.shrink(inserted);
-        if (slotStack.isEmpty()) {
-            slot.setByPlayer(ItemStack.EMPTY);
-        } else {
-            slot.setChanged();
+        int inserted = data.insert(taken, taken.getCount());
+        if (inserted <= 0) {
+            safeGiveToPlayer(player, taken);
+            return false;
+        }
+
+        if (inserted < taken.getCount()) {
+            ItemStack leftover = taken.copy();
+            leftover.setCount(taken.getCount() - inserted);
+            safeGiveToPlayer(player, leftover);
         }
         playInsertSound(player);
         return true;
@@ -432,7 +442,7 @@ public class PicnicBoxItem extends Item {
         }
 
         Slot slot = getMenuSlot(player, slotIndex);
-        if (slot == null || !slot.getItem().isEmpty()) {
+        if (slot == null || !isPlayerInventorySlot(player, slot) || !slot.getItem().isEmpty()) {
             return false;
         }
 
@@ -452,7 +462,9 @@ public class PicnicBoxItem extends Item {
 
     private static boolean insertFromCarried(ServerPlayer player, int slotIndex) {
         Slot slot = getMenuSlot(player, slotIndex);
-        if (slot == null || !(slot.getItem().getItem() instanceof PicnicBoxItem)) {
+        if (slot == null
+                || !isPlayerInventorySlot(player, slot)
+                || !(slot.getItem().getItem() instanceof PicnicBoxItem)) {
             return false;
         }
         if (!canInsertFood(player.level())) {
@@ -479,7 +491,9 @@ public class PicnicBoxItem extends Item {
 
     private static boolean removeToCarried(ServerPlayer player, int slotIndex) {
         Slot slot = getMenuSlot(player, slotIndex);
-        if (slot == null || !(slot.getItem().getItem() instanceof PicnicBoxItem)) {
+        if (slot == null
+                || !isPlayerInventorySlot(player, slot)
+                || !(slot.getItem().getItem() instanceof PicnicBoxItem)) {
             return false;
         }
         if (!player.containerMenu.getCarried().isEmpty()) {
@@ -510,6 +524,13 @@ public class PicnicBoxItem extends Item {
 
     private static int resolveMenuSlotIndex(Player player, Slot slot) {
         return player.containerMenu.slots.indexOf(slot);
+    }
+
+    private static boolean isPlayerInventorySlot(Player player, Slot slot) {
+        return slot != null
+                && slot.container == player.getInventory()
+                && slot.getContainerSlot() >= 0
+                && slot.getContainerSlot() < Inventory.INVENTORY_SIZE;
     }
 
     private static PicnicBoxData getData(Player player) {
