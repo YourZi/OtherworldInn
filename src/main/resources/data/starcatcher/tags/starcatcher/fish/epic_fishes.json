@@ -1,10 +1,6 @@
 {
   "values": [
     {
-      "id": "minecraft:creeper_head",
-      "required": false
-    },
-    {
       "id": "starcatcher:twilight_koi",
       "required": false
     },

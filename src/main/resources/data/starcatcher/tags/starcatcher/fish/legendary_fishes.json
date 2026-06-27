@@ -1,10 +1,6 @@
 {
   "values": [
     {
-      "id": "minecraft:nether_star",
-      "required": false
-    },
-    {
       "id": "starcatcher:aurora",
       "required": false
     },

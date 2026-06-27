@@ -315,20 +315,6 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("已重置 %s 个商店NPC数据（好感进度归零，并按代码默认值重建）")
                 .en(
                         "Reset %s store NPC(s): favor progress cleared and data rebuilt from code defaults.");
-
-        entry("message.otherworldinn.reset.warning")
-                .zh("§c[注意] §e外部维度还有%d分钟重置，请尽快回到城镇")
-                .en(
-                        "§c[Notice] §eExternal dimensions will reset in %d minutes! Please return to Town ASAP.");
-        entry("message.otherworldinn.reset.start")
-                .zh("§c[警告] 外部维度重置中，请暂时不要离开城镇")
-                .en("§c[WARNING] External dimensions resetting... Please do not leave Town.");
-        entry("message.otherworldinn.reset.teleported")
-                .zh("§a你已被传送到城镇安全区域")
-                .en("§aYou have been teleported to the Town safe zone.");
-        entry("message.otherworldinn.reset.complete")
-                .zh("§a外部维度重置完成，准备迎接新的冒险")
-                .en("§aExternal dimension reset complete. Get ready for new adventures!");
         entry("message.otherworldinn.town.boundary_warning")
                 .zh("前面的区域，还是不要去探索了吧...")
                 .en("You should not explore the area ahead...");
@@ -705,21 +691,6 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.reward_line.favor")
                 .zh("- %s好感 +%s")
                 .en("- %s Favor +%s");
-        entry("message.otherworldinn.decoration.activated")
-                .zh("【%s】修建完成！")
-                .en("[%s] construction completed!");
-        entry("message.otherworldinn.decoration.already_active")
-                .zh("这个装饰已经起作用了...")
-                .en("This decoration is already working...");
-        entry("message.otherworldinn.decoration.limit_reached")
-                .zh("不能有更多的%s了...")
-                .en("You cannot have any more %s...");
-        entry("message.otherworldinn.decoration.not_found")
-                .zh("这个装饰的结构似乎不太对...")
-                .en("Something seems off about this decoration's structure...");
-        entry("message.otherworldinn.decoration.invalidated")
-                .zh("【%s】似乎被破坏了...")
-                .en("[%s] seems to have been damaged...");
         entry("message.otherworldinn.commission.submit_not_needed")
                 .zh("该委托无需提交物品")
                 .en("This commission does not require item submission");
@@ -769,7 +740,7 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("米蕾雅的恒火药剂")
                 .en("Mireya's Everflame Draught");
         entry("tooltip.otherworldinn.story_alchemist_potion")
-                .zh("她把一整段危险旅途里最稳定的火候，封进了这一瓶里。")
+                .zh("她把旅途中付出的心血，封进了这一瓶里。")
                 .en("She sealed the steadiest flame of a perilous journey into this single bottle.");
         entry("item.otherworldinn.story_archaeologist_brush")
                 .zh("索恩教授的旧刷")

@@ -1234,10 +1234,6 @@
       "is_loot_table": true,
       "location": "minecraft:gameplay/fishing/treasure"
     },
-    "minecraft:creeper_head": {
-      "is_loot_table": true,
-      "location": "minecraft:gameplay/fishing/treasure"
-    },
     "minecraft:extra_diamond": {
       "is_loot_table": true,
       "location": "minecraft:gameplay/fishing/treasure"
@@ -1247,10 +1243,6 @@
       "location": "minecraft:gameplay/fishing/treasure"
     },
     "minecraft:extra_netherite_upgrade_smithing_template": {
-      "is_loot_table": true,
-      "location": "minecraft:gameplay/fishing/treasure"
-    },
-    "minecraft:nether_star": {
       "is_loot_table": true,
       "location": "minecraft:gameplay/fishing/treasure"
     },
