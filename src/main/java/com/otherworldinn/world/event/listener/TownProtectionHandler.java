@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -515,6 +516,10 @@ public class TownProtectionHandler {
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
         Entity entity = event.getEntity();
+        if (entity.getType() == EntityType.WITHER) {
+            event.setCanceled(true);
+            return;
+        }
         if (entity instanceof LightningBolt bolt) bolt.setVisualOnly(true);
         if (entity instanceof SkeletonHorse horse && horse.isTrap()) event.setCanceled(true);
     }
