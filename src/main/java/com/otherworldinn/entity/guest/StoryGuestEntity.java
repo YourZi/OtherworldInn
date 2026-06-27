@@ -48,6 +48,7 @@ public class StoryGuestEntity extends GuestEntity {
         this.visitStageSnapshot = -1;
         this.visitStageConsumed = false;
         applyDefinitionState();
+        initializeBudgetFromDefinition();
     }
 
     @Nullable
@@ -176,6 +177,9 @@ public class StoryGuestEntity extends GuestEntity {
         this.visitStageConsumed = compound.getBoolean(TAG_VISIT_STAGE_CONSUMED);
         this.definition = this.storyGuestId == null ? null : StoryGuestRegistry.get(this.storyGuestId);
         applyDefinitionState();
+        if (!compound.contains("Budget")) {
+            initializeBudgetFromDefinition();
+        }
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             refreshAssignedDialogue(serverLevel);
         }
@@ -189,6 +193,13 @@ public class StoryGuestEntity extends GuestEntity {
         this.setCustomName(
                 Component.translatable(storyDefinition.nameKey()).withStyle(ChatFormatting.LIGHT_PURPLE));
         this.setSkinVariant(storyDefinition.fixedSkinVariant());
+    }
+
+    private void initializeBudgetFromDefinition() {
+        StoryGuestDefinition storyDefinition = getStoryGuestDefinition();
+        if (storyDefinition == null) {
+            return;
+        }
         this.setBudget(randomInRange(storyDefinition.guestProfile().budgetRange()));
     }
 
