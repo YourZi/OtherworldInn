@@ -168,13 +168,13 @@ public class ItemSellPriceManager {
         addPrice("kaleidoscope_cookery:suspicious_stir_fry_rice_bowl", 2); // 谜之炒菜盖饭
 
         //森罗厨房 熟制半成品
-        addPrice("kaleidoscope_cookery:cooked_lamb_chops", 10); // 熟羊排
-        addPrice("kaleidoscope_cookery:cooked_cow_offal", 10); // 熟牛杂
-        addPrice("kaleidoscope_cookery:cooked_pork_belly", 10); // 熟五花肉
-        addPrice("kaleidoscope_cookery:cooked_cut_small_meats", 8); // 熟切制小肉
-        addPrice("kaleidoscope_cookery:cooked_meatball", 10); // 熟丸子
-        addPrice("kaleidoscope_cookery:cooked_donkey_meat", 12); // 熟驴肉
-        addPrice("kaleidoscope_cookery:fruit_basket", 16); // 水果篮
+        addPrice("kaleidoscope_cookery:cooked_lamb_chops", 3); // 熟羊排
+        addPrice("kaleidoscope_cookery:cooked_cow_offal", 3); // 熟牛杂
+        addPrice("kaleidoscope_cookery:cooked_pork_belly", 4); // 熟五花肉
+        addPrice("kaleidoscope_cookery:cooked_cut_small_meats", 3); // 熟切制小肉
+        addPrice("kaleidoscope_cookery:cooked_meatball", 7); // 熟丸子
+        addPrice("kaleidoscope_cookery:cooked_donkey_meat", 7); // 熟驴肉
+        addPrice("kaleidoscope_cookery:fruit_basket", 12); // 水果篮
 
         //森罗厨房 茶饮
         addPrice("kaleidoscope_cookery:barley_tea", 8); // 大麦茶

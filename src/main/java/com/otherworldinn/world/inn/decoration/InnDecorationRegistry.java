@@ -1,5 +1,6 @@
 package com.otherworldinn.world.inn.decoration;
 
+import com.otherworldinn.init.ModBlocks;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,9 @@ public final class InnDecorationRegistry {
         registerBlock(
                 Blocks.DRAGON_EGG,
                 new InnDecorationStats("dragon_egg", 0.1D, 0.1D, 0.0D, 0.0D, 1));
+        registerBlock(
+                ModBlocks.CLUTTER.get(),
+                new InnDecorationStats("clutter", 0.0D, 0.0D, 0.0D, -0.1D, 8));
         for (KeywordRule rule : KEYWORD_RULES) {
             ID_STATS.put(rule.stats().id(), rule.stats());
         }

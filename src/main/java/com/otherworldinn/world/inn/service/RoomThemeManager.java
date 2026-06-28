@@ -14,6 +14,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class RoomThemeManager {
 
+    public enum ThemePart {
+        SHELL,
+        INTERIOR,
+        BOTH
+    }
+
+    public record ThemeMembership(RoomTheme theme, ThemePart part) {}
+
     public record BlockMatcher(
             @Nullable String tagKeyword,
             @Nullable String idKeyword,
@@ -102,7 +110,7 @@ public class RoomThemeManager {
                 BlockMatcher.byExactId("minecraft:dragon_head"),
                 BlockMatcher.byIdKeyword("shulker_box")));
 
-        register(new RoomTheme("end", "末地", "End", endShell, endInterior, StatModifiers.NONE));
+        register(new RoomTheme("end", "末地", "End", endShell, endInterior, new StatModifiers(10, 0, 0)));
 
         // ── 下界主题 ──
         // 外壳组:
@@ -121,7 +129,7 @@ public class RoomThemeManager {
                 BlockMatcher.byExactId("minecraft:soul_lantern"),
                 BlockMatcher.byExactId("minecraft:soul_wall_torch")));
 
-        register(new RoomTheme("nether", "下界", "Nether", netherShell, netherInterior, StatModifiers.NONE));
+        register(new RoomTheme("nether", "下界", "Nether", netherShell, netherInterior, new StatModifiers(0, 10, 0)));
 
         // ── 海洋主题 ──
         // 外壳组:
@@ -138,6 +146,26 @@ public class RoomThemeManager {
 
     public static void register(RoomTheme theme) {
         THEMES.put(theme.id(), theme);
+    }
+
+    @Nullable
+    public static ThemeMembership findThemeMembership(Block block) {
+        if (block == null) {
+            return null;
+        }
+        for (RoomTheme theme : THEMES.values()) {
+            boolean shellMatch = anyMatcherMatches(theme.shellGroups(), block);
+            boolean interiorMatch = anyMatcherMatches(theme.interiorGroups(), block);
+            if (!shellMatch && !interiorMatch) {
+                continue;
+            }
+            ThemePart part =
+                    shellMatch && interiorMatch
+                            ? ThemePart.BOTH
+                            : (shellMatch ? ThemePart.SHELL : ThemePart.INTERIOR);
+            return new ThemeMembership(theme, part);
+        }
+        return null;
     }
 
     @Nullable

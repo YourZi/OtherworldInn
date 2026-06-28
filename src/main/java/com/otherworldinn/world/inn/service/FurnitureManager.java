@@ -2,10 +2,12 @@ package com.otherworldinn.world.inn.service;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.util.tooltip.FurnitureSetTooltipHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -254,6 +256,8 @@ public class FurnitureManager {
                                                                                                 .HUMIDITY)));
                                     }
                                 });
+                FurnitureSetTooltipHelper.appendSetTooltip(
+                        block, event.getToolTip(), Screen.hasShiftDown());
             }
         }
     }

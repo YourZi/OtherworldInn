@@ -526,6 +526,39 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.furniture.humidity")
                 .zh("§f\uE004§r湿度: %s")
                 .en("§f\uE004§rHumidity: %s");
+        entry("tooltip.otherworldinn.furniture.set.hold_shift")
+                .zh("按下<SHIFT>查看套装效果")
+                .en("Hold <SHIFT> to view set bonus");
+        entry("tooltip.otherworldinn.furniture.set.name")
+                .zh("所属套装：")
+                .en("Set:");
+        entry("tooltip.otherworldinn.furniture.set.part")
+                .zh("套装部件：")
+                .en("Part:");
+        entry("tooltip.otherworldinn.furniture.set.effect")
+                .zh("套装效果：")
+                .en("Set Effect:");
+        entry("tooltip.otherworldinn.furniture.set.part.shell")
+                .zh("外壳")
+                .en("Shell");
+        entry("tooltip.otherworldinn.furniture.set.part.interior")
+                .zh("内饰")
+                .en("Interior");
+        entry("tooltip.otherworldinn.furniture.set.part.both")
+                .zh("外壳/内饰")
+                .en("Shell / Interior");
+        entry("tooltip.otherworldinn.furniture.set.effect.none")
+                .zh("无")
+                .en("None");
+        entry("tooltip.otherworldinn.furniture.set.effect.comfort")
+                .zh("舒适度%s")
+                .en("Comfort %s");
+        entry("tooltip.otherworldinn.furniture.set.effect.light")
+                .zh("光照度%s")
+                .en("Light %s");
+        entry("tooltip.otherworldinn.furniture.set.effect.humidity")
+                .zh("湿度%s")
+                .en("Humidity %s");
         entry("tooltip.otherworldinn.decoration.lodging_income")
                 .zh("§f\uE00C§r旅社房费: %s")
                 .en("§f\uE00C§rLodging Income: %s");
