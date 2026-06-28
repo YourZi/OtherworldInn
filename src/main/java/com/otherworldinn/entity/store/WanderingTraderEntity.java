@@ -44,9 +44,6 @@ public class WanderingTraderEntity extends StoreEntity {
                             ResourceLocation.withDefaultNamespace("elytra"),
                             new SpecialVanillaOffer(128, 1)),
                     Map.entry(
-                            ResourceLocation.withDefaultNamespace("dragon_egg"),
-                            new SpecialVanillaOffer(160, 1)),
-                    Map.entry(
                             ResourceLocation.withDefaultNamespace("dragon_head"),
                             new SpecialVanillaOffer(128, 1)),
                     Map.entry(
