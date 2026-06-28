@@ -468,6 +468,12 @@ public abstract class GuestEntity extends PathfinderMob {
         this.getNavigation().stop();
     }
 
+    @Nullable
+    private TeamData getActualInnTeamAt(ServerLevel level, BlockPos pos) {
+        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
+        return team != null && team.isInInnZone(pos) ? team : null;
+    }
+
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -485,6 +491,7 @@ public abstract class GuestEntity extends PathfinderMob {
 
     private class FindInnGoal extends Goal {
         private BlockPos targetInnPos;
+        private TeamData.InnRegion targetInnRegion;
         private int recalculatePathDelay;
 
         public FindInnGoal() {
@@ -519,24 +526,22 @@ public abstract class GuestEntity extends PathfinderMob {
             if (team != null && !team.getInnRegions().isEmpty()) {
                 // 取第一个区域的中心作为目标
                 TeamData.InnRegion region = team.getInnRegions().get(0);
+                targetInnRegion = region;
                 targetInnPos =
                         new BlockPos(
                                 (region.minX() + region.maxX()) / 2,
                                 64,
                                 (region.minZ() + region.maxZ()) / 2);
+            } else {
+                targetInnRegion = null;
             }
         }
 
         @Override
         public void start() {
-            if (targetInnPos != null) {
-                GuestEntity.this
-                        .getNavigation()
-                        .moveTo(
-                                targetInnPos.getX(),
-                                targetInnPos.getY(),
-                                targetInnPos.getZ(),
-                                1.0D);
+            BlockPos moveTarget = getMoveTarget();
+            if (moveTarget != null) {
+                moveToFindInnTarget(moveTarget);
                 this.recalculatePathDelay = 0;
             }
         }
@@ -560,38 +565,91 @@ public abstract class GuestEntity extends PathfinderMob {
                     // 停止移动
                     GuestEntity.this.getNavigation().stop();
                     targetInnPos = null;
+                    targetInnRegion = null;
                     return;
                 }
             }
 
+            BlockPos moveTarget = getMoveTarget();
+
             // 重新计算路径逻辑 (每 40 tick / 2秒)
             if (--this.recalculatePathDelay <= 0) {
                 this.recalculatePathDelay = 40;
-                if (targetInnPos != null) {
+                if (moveTarget != null) {
                     if (GuestEntity.this.getNavigation().isDone()) {
                         // 如果导航完成了但还没到，尝试重新寻找目标并移动
                         if (GuestEntity.this.level() instanceof ServerLevel serverLevel) {
                             findNearestInn(serverLevel);
                         }
+                        moveTarget = getMoveTarget();
                     }
-                    GuestEntity.this
-                            .getNavigation()
-                            .moveTo(
-                                    targetInnPos.getX(),
-                                    targetInnPos.getY(),
-                                    targetInnPos.getZ(),
-                                    1.0D);
+                    if (moveTarget != null) {
+                        moveToFindInnTarget(moveTarget);
+                    }
                 }
             }
         }
 
+        @Nullable
+        private BlockPos getMoveTarget() {
+            if (targetInnPos == null) {
+                return null;
+            }
+            if (targetInnRegion == null) {
+                return targetInnPos;
+            }
+
+            BlockPos current = GuestEntity.this.blockPosition();
+            if (current.getX() >= targetInnRegion.minX()) {
+                return targetInnPos;
+            }
+
+            int centerZ = targetInnRegion.minZ() <= 0 && targetInnRegion.maxZ() >= 0
+                    ? 0
+                    : (targetInnRegion.minZ() + targetInnRegion.maxZ()) / 2;
+            int x = current.getX();
+            int waypointX;
+            if (x < 32) {
+                waypointX = 36;
+            } else if (x < 44) {
+                waypointX = 48;
+            } else {
+                waypointX = targetInnRegion.minX();
+            }
+
+            waypointX = Mth.clamp(waypointX, Integer.MIN_VALUE, targetInnRegion.minX());
+            return findStandableWaypoint(waypointX, centerZ);
+        }
+
+        private BlockPos findStandableWaypoint(int x, int z) {
+            int baseY = GuestEntity.this.blockPosition().getY();
+            for (int y = baseY + 3; y >= baseY - 3; y--) {
+                BlockPos candidate = new BlockPos(x, y, z);
+                BlockState feetState = GuestEntity.this.level().getBlockState(candidate);
+                BlockState headState = GuestEntity.this.level().getBlockState(candidate.above());
+                BlockState groundState = GuestEntity.this.level().getBlockState(candidate.below());
+                if (!feetState.isSolid() && !headState.isSolid() && groundState.isSolid()) {
+                    return candidate;
+                }
+            }
+            return new BlockPos(x, baseY + 1, z);
+        }
+
+        private void moveToFindInnTarget(BlockPos moveTarget) {
+            GuestEntity.this
+                    .getNavigation()
+                    .moveTo(
+                            moveTarget.getX() + 0.5D,
+                            moveTarget.getY(),
+                            moveTarget.getZ() + 0.5D,
+                            1.0D);
+        }
+
         private boolean isInInnRange() {
             if (GuestEntity.this.level() instanceof ServerLevel serverLevel) {
-                TeamData team =
-                        TeamManager.getInstance()
-                                .getTeamAt(
-                                        GuestEntity.this.blockPosition(), serverLevel.getServer());
-                return team != null;
+                return GuestEntity.this.getActualInnTeamAt(
+                                serverLevel, GuestEntity.this.blockPosition())
+                        != null;
             }
             return false;
         }
@@ -972,9 +1030,7 @@ public abstract class GuestEntity extends PathfinderMob {
             if (this.tickCount % 20 == 0
                     && this.guestData.getState() == GuestData.GuestState.IDLE) {
                 if (this.level() instanceof ServerLevel serverLevel) {
-                    TeamData team =
-                            TeamManager.getInstance()
-                                    .getTeamAt(this.blockPosition(), serverLevel.getServer());
+                    TeamData team = this.getActualInnTeamAt(serverLevel, this.blockPosition());
                     if (team != null) {
                         // 旅客在旅社范围内，触发进入旅社逻辑
                         team.getInnData().addGuest(this, team, serverLevel);
