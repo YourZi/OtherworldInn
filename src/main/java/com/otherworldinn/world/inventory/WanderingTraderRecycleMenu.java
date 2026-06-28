@@ -31,6 +31,7 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     private static final int HALF_PRICE_LIMIT = 32;
     private static final int LOW_PRICE_LIMIT = 64;
     private static final int RECYCLE_FAVOR_CAP = 100;
+    private static final int RECYCLE_COIN_CAP = 256;
 
     private static final int ROWS = 3;
     private static final int COLS = 9;
@@ -41,12 +42,14 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     private final SimpleContainer container;
     private final Map<Item, Integer> initialRecycledCounts;
     private final int initialRecycleFavorGained;
+    private final int initialRecycleCoinGained;
 
     public WanderingTraderRecycleMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(
                 containerId,
                 playerInventory,
                 extraData.readInt(),
+                extraData.readVarInt(),
                 extraData.readVarInt(),
                 readRecycledCounts(extraData));
     }
@@ -57,6 +60,7 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
                 playerInventory,
                 trader.getId(),
                 trader.getRecycleFavorGained(),
+                trader.getRecycleCoinGained(),
                 trader.copyRecycledItemCounts());
     }
 
@@ -65,12 +69,14 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             Inventory playerInventory,
             int traderEntityId,
             int initialRecycleFavorGained,
+            int initialRecycleCoinGained,
             Map<Item, Integer> initialRecycledCounts) {
         super(ModMenuTypes.WANDERING_TRADER_RECYCLE.get(), containerId);
         this.player = playerInventory.player;
         this.traderEntityId = traderEntityId;
         this.container = new SimpleContainer(SLOT_COUNT);
         this.initialRecycleFavorGained = Math.max(0, initialRecycleFavorGained);
+        this.initialRecycleCoinGained = Math.max(0, initialRecycleCoinGained);
         this.initialRecycledCounts = new HashMap<>(initialRecycledCounts);
 
         // 回收物品槽位（3行）
@@ -167,8 +173,9 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             quote = calculateRecycleQuote(
                     this.container,
                     trader.copyRecycledItemCounts(),
-                    trader.getRecycleFavorGained());
-            trader.applyRecycleVisitProgress(quote.addedCounts(), quote.favorToAdd());
+                    trader.getRecycleFavorGained(),
+                    trader.getRecycleCoinGained());
+            trader.applyRecycleVisitProgress(quote.addedCounts(), quote.favorToAdd(), quote.totalCoins());
             if (quote.favorToAdd() > 0) {
                 trader.addFavorProgress(quote.favorToAdd());
             }
@@ -176,7 +183,8 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             quote = calculateRecycleQuote(
                     this.container,
                     this.initialRecycledCounts,
-                    this.initialRecycleFavorGained);
+                    this.initialRecycleFavorGained,
+                    this.initialRecycleCoinGained);
         }
         for (int i = 0; i < SLOT_COUNT; i++) {
             if (!container.getItem(i).isEmpty()) {
@@ -195,8 +203,13 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
         return calculateRecycleQuote(
                         this.container,
                         this.initialRecycledCounts,
-                        this.initialRecycleFavorGained)
+                        this.initialRecycleFavorGained,
+                        this.initialRecycleCoinGained)
                 .totalCoins();
+    }
+
+    public boolean isRecycleCoinCapReached() {
+        return this.initialRecycleCoinGained >= RECYCLE_COIN_CAP;
     }
 
     private static Map<Item, Integer> readRecycledCounts(FriendlyByteBuf extraData) {
@@ -213,8 +226,11 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     }
 
     private static RecycleQuote calculateRecycleQuote(
-            Container container, Map<Item, Integer> baseCounts, int currentFavorGained) {
-        int total = 0;
+            Container container,
+            Map<Item, Integer> baseCounts,
+            int currentFavorGained,
+            int currentCoinGained) {
+        int theoreticalTotal = 0;
         Map<Item, Integer> simulatedCounts = new HashMap<>(baseCounts);
         Map<Item, Integer> addedCounts = new HashMap<>();
         for (int i = 0; i < SLOT_COUNT; i++) {
@@ -224,11 +240,13 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
                 int unitPrice = ItemRecyclePriceCalculator.getRecyclePrice(stack);
                 int alreadyRecycled = simulatedCounts.getOrDefault(item, 0);
                 int stackCount = stack.getCount();
-                total += calculateSegmentedValue(unitPrice, alreadyRecycled, stackCount);
+                theoreticalTotal += calculateSegmentedValue(unitPrice, alreadyRecycled, stackCount);
                 simulatedCounts.put(item, alreadyRecycled + stackCount);
                 addedCounts.merge(item, stackCount, Integer::sum);
             }
         }
+        int remainingCoins = Math.max(0, RECYCLE_COIN_CAP - Math.max(0, currentCoinGained));
+        int total = Math.min(theoreticalTotal, remainingCoins);
         int remainingFavor = Math.max(0, RECYCLE_FAVOR_CAP - Math.max(0, currentFavorGained));
         int favorToAdd = Math.min(total / 10, remainingFavor);
         return new RecycleQuote(total, favorToAdd, Collections.unmodifiableMap(addedCounts));
@@ -289,6 +307,10 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
 
     public int getRecycleFavorCap() {
         return RECYCLE_FAVOR_CAP;
+    }
+
+    public int getRecycleCoinCap() {
+        return RECYCLE_COIN_CAP;
     }
 
     public int getTraderEntityId() {

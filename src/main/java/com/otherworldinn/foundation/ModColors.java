@@ -35,7 +35,7 @@ public class ModColors {
     public static final int INN_DINING_BUFF = 0xC4A90F; // #C4A90F
     public static final int INN_GUEST_ARRIVAL_BUFF = 0x0FB8C4; // #0FB8C4
     public static final int INN_REPUTATION_BUFF = 0xF4AC49; // #F4AC49
-    public static final int FURNITURE_SET_HEADER = GRAY_LIGHT;
+    public static final int FURNITURE_SET_HEADER = GRAY_DARK;
     public static final int FURNITURE_SET_OCEAN = 0x3D6FD1; // #3D6FD1
     public static final int FURNITURE_SET_NETHER = 0x8B2E2E; // #8B2E2E
     public static final int FURNITURE_SET_END = 0xD6C785; // #D6C785

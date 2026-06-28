@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class WanderingTraderEntity extends StoreEntity {
     private static final String TAG_RECYCLE_FAVOR_GAINED = "RecycleFavorGained";
+    private static final String TAG_RECYCLE_COIN_GAINED = "RecycleCoinGained";
     private static final String TAG_RECYCLED_ITEM_COUNTS = "RecycledItemCounts";
 
     private static final int RANDOM_ITEMS_COUNT = 16;
@@ -191,6 +192,7 @@ public class WanderingTraderEntity extends StoreEntity {
     private Player currentRecyclePlayer;
     private final Map<Item, Integer> recycledItemCounts = new HashMap<>();
     private int recycleFavorGained;
+    private int recycleCoinGained;
 
     @Nullable
     public Player getCurrentRecyclePlayer() {
@@ -204,6 +206,7 @@ public class WanderingTraderEntity extends StoreEntity {
     public void resetRecycleVisitLimits() {
         this.recycledItemCounts.clear();
         this.recycleFavorGained = 0;
+        this.recycleCoinGained = 0;
     }
 
     public Map<Item, Integer> copyRecycledItemCounts() {
@@ -214,7 +217,11 @@ public class WanderingTraderEntity extends StoreEntity {
         return this.recycleFavorGained;
     }
 
-    public void applyRecycleVisitProgress(Map<Item, Integer> itemCounts, int favorToAdd) {
+    public int getRecycleCoinGained() {
+        return this.recycleCoinGained;
+    }
+
+    public void applyRecycleVisitProgress(Map<Item, Integer> itemCounts, int favorToAdd, int coinsToAdd) {
         for (Map.Entry<Item, Integer> entry : itemCounts.entrySet()) {
             int addedCount = Math.max(0, entry.getValue());
             if (addedCount <= 0) {
@@ -223,11 +230,13 @@ public class WanderingTraderEntity extends StoreEntity {
             this.recycledItemCounts.merge(entry.getKey(), addedCount, Integer::sum);
         }
         this.recycleFavorGained = Math.max(0, this.recycleFavorGained + Math.max(0, favorToAdd));
+        this.recycleCoinGained = Math.max(0, this.recycleCoinGained + Math.max(0, coinsToAdd));
     }
 
     private void writeRecycleMenuSnapshot(FriendlyByteBuf buf) {
         buf.writeInt(this.getId());
         buf.writeVarInt(this.recycleFavorGained);
+        buf.writeVarInt(this.recycleCoinGained);
         buf.writeVarInt(this.recycledItemCounts.size());
         for (Map.Entry<Item, Integer> entry : this.recycledItemCounts.entrySet()) {
             buf.writeVarInt(BuiltInRegistries.ITEM.getId(entry.getKey()));
@@ -255,6 +264,7 @@ public class WanderingTraderEntity extends StoreEntity {
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt(TAG_RECYCLE_FAVOR_GAINED, this.recycleFavorGained);
+        compound.putInt(TAG_RECYCLE_COIN_GAINED, this.recycleCoinGained);
 
         CompoundTag recycledCountsTag = new CompoundTag();
         for (Map.Entry<Item, Integer> entry : this.recycledItemCounts.entrySet()) {
@@ -270,6 +280,7 @@ public class WanderingTraderEntity extends StoreEntity {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.recycleFavorGained = Math.max(0, compound.getInt(TAG_RECYCLE_FAVOR_GAINED));
+        this.recycleCoinGained = Math.max(0, compound.getInt(TAG_RECYCLE_COIN_GAINED));
         this.recycledItemCounts.clear();
 
         if (!compound.contains(TAG_RECYCLED_ITEM_COUNTS, CompoundTag.TAG_COMPOUND)) {

@@ -1119,6 +1119,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("gui.otherworldinn.store.favor.progress")
                 .zh("进度: §f\uE001§r%s/%s")
                 .en("Progress: §f\uE001§r%s/%s");
+        entry("gui.otherworldinn.recycle.coin_cap_reached").zh("已达上限").en("Cap Reached");
 
         // 女仆任务
         entry("task.otherworldinn.clean_room").zh("清理房间").en("Room Cleaning");

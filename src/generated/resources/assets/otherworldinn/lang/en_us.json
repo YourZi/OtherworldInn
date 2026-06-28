@@ -610,6 +610,7 @@
   "guest.name.last.7": "Grimm",
   "guest.name.last.8": "Hawthorne",
   "guest.name.last.9": "Ironwood",
+  "gui.otherworldinn.recycle.coin_cap_reached": "Cap Reached",
   "gui.otherworldinn.store.confirm": "Confirm",
   "gui.otherworldinn.store.favor.level": "Favor Level: %s",
   "gui.otherworldinn.store.favor.progress": "Progress: §f§r%s/%s",

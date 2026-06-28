@@ -129,7 +129,7 @@ public class RoomThemeManager {
                 BlockMatcher.byExactId("minecraft:soul_lantern"),
                 BlockMatcher.byExactId("minecraft:soul_wall_torch")));
 
-        register(new RoomTheme("nether", "下界", "Nether", netherShell, netherInterior, new StatModifiers(0, 10, 0)));
+        register(new RoomTheme("nether", "下界", "Nether", netherShell, netherInterior, new StatModifiers(0, 10, -20)));
 
         // ── 海洋主题 ──
         // 外壳组:

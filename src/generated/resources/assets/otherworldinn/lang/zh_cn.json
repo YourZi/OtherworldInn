@@ -610,6 +610,7 @@
   "guest.name.last.7": "格林",
   "guest.name.last.8": "霍桑",
   "guest.name.last.9": "铁木",
+  "gui.otherworldinn.recycle.coin_cap_reached": "已达上限",
   "gui.otherworldinn.store.confirm": "确定",
   "gui.otherworldinn.store.favor.level": "好感度: %s",
   "gui.otherworldinn.store.favor.progress": "进度: §f§r%s/%s",

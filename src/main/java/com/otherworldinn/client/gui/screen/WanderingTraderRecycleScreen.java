@@ -50,12 +50,13 @@ public class WanderingTraderRecycleScreen extends AbstractContainerScreen<Wander
         super.render(graphics, mouseX, mouseY, partialTick);
 
         // 居中靠上显示总价值
-        int total = this.menu.getTotalPrice();
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
 
         String icon = "\uE001";
-        String value = Integer.toString(total);
+        String value = this.menu.isRecycleCoinCapReached()
+                ? Component.translatable("gui.otherworldinn.recycle.coin_cap_reached").getString()
+                : Integer.toString(this.menu.getTotalPrice());
         int iconWidth = this.font.width(icon);
         int valueWidth = this.font.width(value);
         int gap = 0;
@@ -63,8 +64,8 @@ public class WanderingTraderRecycleScreen extends AbstractContainerScreen<Wander
         int textX = x + (this.imageWidth - totalTextWidth) / 2;
         int textY = y + 6;
 
-        graphics.drawString(this.font, icon, textX, textY, 0xFFFFFFFF, false);
-        graphics.drawString(this.font, value, textX + iconWidth + gap, textY, 0xFFFFFFFF, false);
+        graphics.drawString(this.font, icon, textX, textY, 0xFFFFFFFF, true);
+        graphics.drawString(this.font, value, textX + iconWidth + gap, textY, 0xFFFFFFFF, true);
 
         this.renderTooltip(graphics, mouseX, mouseY);
     }
