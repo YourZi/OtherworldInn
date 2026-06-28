@@ -24,8 +24,6 @@
     "MixinFTBUltimineServerConfig",
     "MixinFTBUltimineCropHarvesting",
     "MixinSeasonalCropGrowthHandler",
-    "MixinCropBlockTownDecorSurvival",
-    "MixinBushBlockTownDecorSurvival",
     "MixinServerLevel",
     "MixinLevelStructuralWrite",
     "MixinLittleMaidFarmMoveTask",

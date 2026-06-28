@@ -81,6 +81,13 @@
         "base_value": 5,
         "processors": []
       }
+    },
+    "minecraft:rotten_flesh": {
+      "replace": true,
+      "value": {
+        "base_value": 1,
+        "processors": []
+      }
     }
   }
 }
