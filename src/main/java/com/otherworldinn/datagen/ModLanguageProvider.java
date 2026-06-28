@@ -495,6 +495,51 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("todo.otherworldinn.town_commission_pending")
                 .zh("有待完成的居民委托")
                 .en("Pending town commission");
+        entry("todo.otherworldinn.story.cartographer_supplies")
+                .zh("准备三张纸和一根羽毛")
+                .en("Gather 3 paper and 1 feather");
+        entry("todo.otherworldinn.story.cartographer_ocean_photo")
+                .zh("拍摄海洋群系照片")
+                .en("Photograph the ocean.");
+        entry("todo.otherworldinn.story.minstrel_supplies")
+                .zh("准备五张纸和一个墨囊")
+                .en("Gather 5 paper and 1 ink sac");
+        entry("todo.otherworldinn.story.minstrel_plains_photo")
+                .zh("拍摄平原风景照片")
+                .en("Photograph the plains");
+        entry("todo.otherworldinn.story.chef_meal")
+                .zh("准备面包、熟牛肉、烤土豆、南瓜派和一瓶蜂蜜")
+                .en("Gather bread, cooked beef, baked potato, pumpkin pie, and 1 bottle of honey");
+        entry("todo.otherworldinn.story.chef_farm_photo")
+                .zh("拍摄鸡、猪、牛或羊的照片")
+                .en("Photograph chickens, pigs, cows, or sheep");
+        entry("todo.otherworldinn.story.noble_attire")
+                .zh("准备两块金锭和十六团白羊毛")
+                .en("Gather 2 gold ingots and 16 white wool");
+        entry("todo.otherworldinn.story.noble_mansion_photo")
+                .zh("拍摄林地府邸照片")
+                .en("Photograph a woodland mansion");
+        entry("todo.otherworldinn.story.alchemist_supplies")
+                .zh("准备两份下界疣、一份烈焰粉和一个玻璃瓶")
+                .en("Gather 2 nether wart, 1 blaze powder, and 1 glass bottle");
+        entry("todo.otherworldinn.story.alchemist_fortress_photo")
+                .zh("拍摄下界堡垒照片")
+                .en("Photograph a Nether fortress");
+        entry("todo.otherworldinn.story.archaeologist_tools")
+                .zh("准备一把铁镐和十六支火把")
+                .en("Gather 1 iron pickaxe and 16 torches");
+        entry("todo.otherworldinn.story.archaeologist_temple_photo")
+                .zh("拍摄沙漠神殿或丛林神庙照片")
+                .en("Photograph a pyramid or temple entrance");
+        entry("todo.otherworldinn.story.gem_merchant_wagon_supplies")
+                .zh("准备八块皮革、十二根线和六块铁锭")
+                .en("Gather 8 leather, 12 string, and 6 iron ingots");
+        entry("todo.otherworldinn.story.gem_merchant_ore_photo")
+                .zh("拍摄洞穴照片")
+                .en("Photograph a cave");
+        entry("todo.otherworldinn.story.old_knight_repairs")
+                .zh("准备六块铁锭、四块皮革和八团红羊毛")
+                .en("Gather 6 iron ingots, 4 leather, and 8 red wool");
 
         // 房间重命名
         entry("message.otherworldinn.room_rename.success")
@@ -793,18 +838,6 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.story_old_knight_shield")
                 .zh("有些旧誓言不会说话，却仍愿意替人挡下一记风浪。")
                 .en("Some old vows do not speak, but they still rise to take the blow.");
-        entry("item.otherworldinn.story_cursed_adventurer_apple")
-                .zh("凯尔压住诅咒的金苹果")
-                .en("Kael's Curse-Hushed Apple");
-        entry("tooltip.otherworldinn.story_cursed_adventurer_apple")
-                .zh("它没能治好一切，却让他第一次有余力停下来喘气。")
-                .en("It cured nothing completely, but it gave him his first real breath of rest.");
-        entry("item.otherworldinn.story_old_angler_rod")
-                .zh("老许留下的旧钓竿")
-                .en("Old Xu's Weathered Rod");
-        entry("tooltip.otherworldinn.story_old_angler_rod")
-                .zh("懂得等鱼上钩的人，通常也懂得等一个地方慢慢变成熟悉。")
-                .en("Anyone who knows how to wait for a fish usually knows how to wait for a place to become home.");
         entry("message.otherworldinn.story.photo_recorded")
                 .zh("你已经替%s记录下目标照片：%s")
                 .en("You have recorded the requested photograph for %s: %s");

@@ -7,6 +7,7 @@ import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
 import com.otherworldinn.world.storyguest.StoryGuestService;
+import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import java.util.HashMap;
@@ -58,10 +59,6 @@ public final class DialogueService {
             ResourceLocation.fromNamespaceAndPath("minecraft", "nether_star");
     private static final ResourceLocation OLD_KNIGHT_SHIELD_ID =
             ResourceLocation.fromNamespaceAndPath("minecraft", "shield");
-    private static final ResourceLocation CURSED_ADVENTURER_APPLE_ID =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "golden_apple");
-    private static final ResourceLocation OLD_ANGLER_ROD_ID =
-            ResourceLocation.fromNamespaceAndPath("minecraft", "fishing_rod");
     private static final Map<UUID, DialogueSession> SESSIONS = new HashMap<>();
 
     private DialogueService() {}
@@ -122,6 +119,9 @@ public final class DialogueService {
         }
         if (!applyEffects(player, entity, selected)) {
             return;
+        }
+        if (entity instanceof StoryGuestEntity storyGuest) {
+            updateStoryGuestTodosForOption(player, storyGuest, selected);
         }
         if (entity instanceof StoryGuestEntity storyGuest && advancesStoryStage(selected)) {
             storyGuest.markVisitStageConsumed(player.serverLevel());
@@ -320,6 +320,26 @@ public final class DialogueService {
         }
         TeamManager.getInstance().addCoins(team, amount, player.getServer());
         return true;
+    }
+
+    private static void updateStoryGuestTodosForOption(
+            ServerPlayer player, StoryGuestEntity storyGuest, DialogueOptionDef selected) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return;
+        }
+
+        String storyGuestId = storyGuest.getStoryGuestId();
+        String completedTodo =
+                StoryGuestTodoRegistry.resolveCompletedTodoTextByOption(storyGuestId, selected.id());
+        if (completedTodo != null) {
+            team.getInnData().removeTodo(player.serverLevel(), team, completedTodo);
+        }
+
+        String acceptedTodo = StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, selected.id());
+        if (acceptedTodo != null) {
+            team.getInnData().addTodo(player.serverLevel(), team, acceptedTodo);
+        }
     }
 
     private static boolean applyStoryFlag(
@@ -554,34 +574,6 @@ public final class DialogueService {
                                             .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
             reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
             return reward;
-        }
-        if ("cursed_adventurer".equals(storyGuestId)
-                && CURSED_ADVENTURER_APPLE_ID.equals(itemId)) {
-            reward.set(
-                    DataComponents.CUSTOM_NAME,
-                    Component.translatable("item.otherworldinn.story_cursed_adventurer_apple")
-                            .withStyle(style -> style.withColor(ChatFormatting.LIGHT_PURPLE).withItalic(false)));
-            reward.set(
-                    DataComponents.LORE,
-                    new ItemLore(
-                            List.of(
-                                    Component.translatable(
-                                                    "tooltip.otherworldinn.story_cursed_adventurer_apple")
-                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
-            return reward;
-        }
-        if ("old_angler".equals(storyGuestId) && OLD_ANGLER_ROD_ID.equals(itemId)) {
-            reward.set(
-                    DataComponents.CUSTOM_NAME,
-                    Component.translatable("item.otherworldinn.story_old_angler_rod")
-                            .withStyle(style -> style.withColor(ChatFormatting.AQUA).withItalic(false)));
-            reward.set(
-                    DataComponents.LORE,
-                    new ItemLore(
-                            List.of(
-                                    Component.translatable("tooltip.otherworldinn.story_old_angler_rod")
-                                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))));
-            reward.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
         }
         return reward;
     }

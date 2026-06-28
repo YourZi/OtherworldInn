@@ -8,6 +8,9 @@ import com.otherworldinn.world.photo.StoryGuestPhotoTask;
 import com.otherworldinn.world.photo.StoryGuestPhotoTaskRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestService;
+import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
+import com.otherworldinn.world.team.TeamData;
+import com.otherworldinn.world.team.service.TeamManager;
 import io.github.mortuusars.exposure.neoforge.api.event.FrameAddedEvent;
 import io.github.mortuusars.exposure.world.camera.frame.Frame;
 import net.minecraft.network.chat.Component;
@@ -67,6 +70,16 @@ public final class ExposurePhotoTaskService {
 
             if (!StoryGuestService.addStoryFlag(level, task.storyGuestId(), task.completionFlag())) {
                 continue;
+            }
+
+            TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+            if (team != null) {
+                String todoText =
+                        StoryGuestTodoRegistry.resolveCompletedTodoTextByFlag(
+                                task.storyGuestId(), task.completionFlag());
+                if (todoText != null) {
+                    team.getInnData().removeTodo(level, team, todoText);
+                }
             }
 
             StoryGuestDefinition definition = StoryGuestService.getDefinition(task.storyGuestId());
