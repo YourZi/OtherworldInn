@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -41,6 +42,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -61,7 +63,14 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * 旅客实体
@@ -166,10 +175,104 @@ public abstract class GuestEntity extends PathfinderMob {
 
     @Override
     protected PathNavigation createNavigation(Level level) {
-        GroundPathNavigation navigation = new GroundPathNavigation(this, level);
+        GroundPathNavigation navigation = new GuestGroundPathNavigation(this, level);
         navigation.setCanOpenDoors(true);
         navigation.setCanPassDoors(true);
         return navigation;
+    }
+
+    private static class GuestGroundPathNavigation extends GroundPathNavigation {
+        public GuestGroundPathNavigation(Mob mob, Level level) {
+            super(mob, level);
+        }
+
+        @Override
+        protected PathFinder createPathFinder(int maxVisitedNodes) {
+            this.nodeEvaluator = new GuestWalkNodeEvaluator();
+            this.nodeEvaluator.setCanPassDoors(true);
+            return new PathFinder(this.nodeEvaluator, maxVisitedNodes);
+        }
+    }
+
+    private static class GuestWalkNodeEvaluator extends WalkNodeEvaluator {
+        private static final double COLLISION_EPSILON = 1.0E-6D;
+
+        @Override
+        @Nullable
+        protected Node findAcceptedNode(
+                int x,
+                int y,
+                int z,
+                int jumpHeight,
+                double floorLevel,
+                Direction direction,
+                PathType previousPathType) {
+            Node node =
+                    super.findAcceptedNode(
+                            x, y, z, jumpHeight, floorLevel, direction, previousPathType);
+            if (node != null && node.costMalus >= 0.0F && !this.canGuestOccupy(node)) {
+                return null;
+            }
+            return node;
+        }
+
+        @Override
+        protected boolean canStartAt(BlockPos pos) {
+            return super.canStartAt(pos) && this.canGuestOccupy(pos);
+        }
+
+        @Override
+        protected boolean isNeighborValid(@Nullable Node node, Node previousNode) {
+            return super.isNeighborValid(node, previousNode)
+                    && this.canGuestMoveBetween(previousNode, node);
+        }
+
+        private boolean canGuestOccupy(Node node) {
+            return this.canGuestOccupy(new BlockPos(node.x, node.y, node.z));
+        }
+
+        private boolean canGuestOccupy(BlockPos pos) {
+            if (this.currentContext == null || this.mob == null) {
+                return false;
+            }
+            return this.currentContext.level().noCollision(this.mob, this.makeGuestBox(pos));
+        }
+
+        private boolean canGuestMoveBetween(Node from, Node to) {
+            if (this.currentContext == null || this.mob == null) {
+                return false;
+            }
+            AABB box = this.makeGuestBox(new BlockPos(from.x, from.y, from.z));
+            double fromFloor = box.minY;
+            double toFloor = this.getFloorLevel(new BlockPos(to.x, to.y, to.z));
+            Vec3 movement =
+                    new Vec3(
+                            (double) to.x - from.x,
+                            toFloor - fromFloor,
+                            (double) to.z - from.z);
+            int steps = Math.max(1, Mth.ceil(movement.length() / box.getSize()));
+            Vec3 step = movement.scale(1.0D / steps);
+            for (int i = 1; i <= steps; i++) {
+                box = box.move(step);
+                if (!this.currentContext.level().noCollision(this.mob, box)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private AABB makeGuestBox(BlockPos pos) {
+            double floorY = this.getFloorLevel(pos);
+            double halfWidth = this.mob.getBbWidth() / 2.0D;
+            return new AABB(
+                            pos.getX() + 0.5D - halfWidth,
+                            floorY,
+                            pos.getZ() + 0.5D - halfWidth,
+                            pos.getX() + 0.5D + halfWidth,
+                            floorY + this.mob.getBbHeight(),
+                            pos.getZ() + 0.5D + halfWidth)
+                    .deflate(COLLISION_EPSILON);
+        }
     }
 
     private class MoveToTargetGoal extends Goal {
@@ -463,6 +566,42 @@ public abstract class GuestEntity extends PathfinderMob {
         this.getNavigation().stop();
     }
 
+    private boolean canGuestStandAt(Level level, BlockPos pos) {
+        return this.hasWalkableSupport(level, pos) && this.hasGuestBodyRoom(level, pos);
+    }
+
+    private boolean hasWalkableSupport(Level level, BlockPos pos) {
+        BlockPos groundPos = pos.below();
+        VoxelShape groundShape = level.getBlockState(groundPos).getCollisionShape(level, groundPos);
+        if (groundShape.isEmpty()) {
+            return false;
+        }
+        double floorY = WalkNodeEvaluator.getFloorLevel(level, pos);
+        return floorY <= pos.getY() + 1.0E-3D
+                && pos.getY() - floorY <= Math.max(1.0D, this.maxUpStep()) + 1.0E-3D;
+    }
+
+    private boolean hasGuestBodyRoom(Level level, BlockPos pos) {
+        double floorY = WalkNodeEvaluator.getFloorLevel(level, pos);
+        double halfWidth = this.getBbWidth() / 2.0D;
+        AABB box =
+                new AABB(
+                                pos.getX() + 0.5D - halfWidth,
+                                floorY,
+                                pos.getZ() + 0.5D - halfWidth,
+                                pos.getX() + 0.5D + halfWidth,
+                                floorY + this.getBbHeight(),
+                                pos.getZ() + 0.5D + halfWidth)
+                        .deflate(1.0E-6D);
+        return level.noCollision(this, box);
+    }
+
+    @Nullable
+    private TeamData getActualInnTeamAt(ServerLevel level, BlockPos pos) {
+        TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
+        return team != null && team.isInInnZone(pos) ? team : null;
+    }
+
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -582,11 +721,9 @@ public abstract class GuestEntity extends PathfinderMob {
 
         private boolean isInInnRange() {
             if (GuestEntity.this.level() instanceof ServerLevel serverLevel) {
-                TeamData team =
-                        TeamManager.getInstance()
-                                .getTeamAt(
-                                        GuestEntity.this.blockPosition(), serverLevel.getServer());
-                return team != null;
+                return GuestEntity.this.getActualInnTeamAt(
+                                serverLevel, GuestEntity.this.blockPosition())
+                        != null;
             }
             return false;
         }
@@ -931,10 +1068,7 @@ public abstract class GuestEntity extends PathfinderMob {
                     footPos
                 };
         for (BlockPos candidate : candidates) {
-            BlockState feetState = level.getBlockState(candidate);
-            BlockState headAboveState = level.getBlockState(candidate.above());
-            BlockState groundState = level.getBlockState(candidate.below());
-            if (!feetState.isSolid() && !headAboveState.isSolid() && groundState.isSolid()) {
+            if (this.canGuestStandAt(level, candidate)) {
                 return candidate.immutable();
             }
         }
@@ -951,9 +1085,7 @@ public abstract class GuestEntity extends PathfinderMob {
             if (this.tickCount % 20 == 0
                     && this.guestData.getState() == GuestData.GuestState.IDLE) {
                 if (this.level() instanceof ServerLevel serverLevel) {
-                    TeamData team =
-                            TeamManager.getInstance()
-                                    .getTeamAt(this.blockPosition(), serverLevel.getServer());
+                    TeamData team = this.getActualInnTeamAt(serverLevel, this.blockPosition());
                     if (team != null) {
                         // 旅客在旅社范围内，触发进入旅社逻辑
                         if (team.getInnData().addGuest(this, team, serverLevel)) {
@@ -1469,7 +1601,7 @@ public abstract class GuestEntity extends PathfinderMob {
                     if (y < minY || y > maxY) {
                         return;
                     }
-                    if (!TeamData.isInGlobalMaxInnZone(pos)) {
+                    if (!team.isInInnZone(pos)) {
                         return;
                     }
                     double dist = origin.distSqr(pos);
