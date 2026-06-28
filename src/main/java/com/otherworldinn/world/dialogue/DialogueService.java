@@ -76,7 +76,13 @@ public final class DialogueService {
             return false;
         }
         DialogueSession session =
-                new DialogueSession(player.getUUID(), entity.getId(), definition, root.id(), entity.getUUID());
+                new DialogueSession(
+                        player.getUUID(),
+                        entity.getId(),
+                        definition,
+                        root.id(),
+                        entity.getUUID(),
+                        resolveStoryStage(player, entity));
         SESSIONS.put(player.getUUID(), session);
         sendNodeToPlayer(player, session, root);
         return true;
@@ -97,10 +103,6 @@ public final class DialogueService {
             closeDialogue(player, true);
             return;
         }
-        if (!storySessionStillCurrent(entity, session)) {
-            closeDialogue(player, true);
-            return;
-        }
         DialogueNodeDef currentNode = session.definition().getNode(session.currentNodeId());
         if (currentNode == null) {
             closeDialogue(player, true);
@@ -117,6 +119,10 @@ public final class DialogueService {
             return;
         }
 
+        if (!canApplyStoryAdvance(player, entity, session, selected)) {
+            closeDialogue(player, true);
+            return;
+        }
         if (!requirementsMet(player, entity, selected)) {
             return;
         }
@@ -160,7 +166,8 @@ public final class DialogueService {
                         session.entityId(),
                         session.definition(),
                         nextNode.id(),
-                        session.entityUuid());
+                        session.entityUuid(),
+                        session.storyStageAtStart());
         SESSIONS.put(player.getUUID(), nextSession);
         sendNodeToPlayer(player, nextSession, nextNode);
     }
@@ -170,14 +177,6 @@ public final class DialogueService {
         if (notifyClient) {
             ModMessages.sendToPlayer(new S2CDialogueClosePacket(), player);
         }
-    }
-
-    private static boolean storySessionStillCurrent(Entity entity, DialogueSession session) {
-        if (!(entity instanceof StoryGuestEntity)) {
-            return true;
-        }
-        DialogueDefinition currentDefinition = DialogueRegistry.resolve(entity);
-        return currentDefinition != null && currentDefinition.id().equals(session.definition().id());
     }
 
     private static void closeOtherSessionsForEntity(ServerPlayer currentPlayer, Entity entity) {
@@ -350,6 +349,21 @@ public final class DialogueService {
             }
         }
         return false;
+    }
+
+    private static int resolveStoryStage(ServerPlayer player, Entity entity) {
+        if (!(entity instanceof StoryGuestEntity storyGuest)) {
+            return -1;
+        }
+        return StoryGuestService.getStoryStage(storyGuest, player.serverLevel());
+    }
+
+    private static boolean canApplyStoryAdvance(
+            ServerPlayer player, Entity entity, DialogueSession session, DialogueOptionDef selected) {
+        if (!(entity instanceof StoryGuestEntity storyGuest) || !advancesStoryStage(selected)) {
+            return true;
+        }
+        return StoryGuestService.getStoryStage(storyGuest, player.serverLevel()) == session.storyStageAtStart();
     }
 
     private static boolean invalidatesStorySessions(DialogueOptionDef selected) {
@@ -627,5 +641,6 @@ public final class DialogueService {
             int entityId,
             DialogueDefinition definition,
             String currentNodeId,
-            @Nullable UUID entityUuid) {}
+            @Nullable UUID entityUuid,
+            int storyStageAtStart) {}
 }
