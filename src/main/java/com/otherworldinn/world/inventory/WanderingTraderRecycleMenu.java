@@ -169,16 +169,14 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     private void settle(ServerPlayer serverPlayer) {
         RecycleQuote quote;
         Entity entity = serverPlayer.level().getEntity(traderEntityId);
-        if (entity instanceof WanderingTraderEntity trader) {
+        WanderingTraderEntity trader = null;
+        if (entity instanceof WanderingTraderEntity currentTrader) {
+            trader = currentTrader;
             quote = calculateRecycleQuote(
                     this.container,
                     trader.copyRecycledItemCounts(),
                     trader.getRecycleFavorGained(),
                     trader.getRecycleCoinGained());
-            trader.applyRecycleVisitProgress(quote.addedCounts(), quote.favorToAdd(), quote.totalCoins());
-            if (quote.favorToAdd() > 0) {
-                trader.addFavorProgress(quote.favorToAdd());
-            }
         } else {
             quote = calculateRecycleQuote(
                     this.container,
@@ -186,15 +184,55 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
                     this.initialRecycleFavorGained,
                     this.initialRecycleCoinGained);
         }
-        for (int i = 0; i < SLOT_COUNT; i++) {
-            if (!container.getItem(i).isEmpty()) {
-                container.setItem(i, ItemStack.EMPTY);
+
+        TeamData team = quote.totalCoins() > 0
+                ? TeamManager.getInstance().getPlayerTeam(serverPlayer)
+                : null;
+        if (quote.totalCoins() > 0 && team == null) {
+            returnContainerContents(serverPlayer);
+            return;
+        }
+
+        if (trader != null) {
+            trader.applyRecycleVisitProgress(quote.consumedCounts(), quote.favorToAdd(), quote.totalCoins());
+            if (quote.favorToAdd() > 0) {
+                trader.addFavorProgress(quote.favorToAdd());
             }
         }
+        settleContainer(serverPlayer, quote);
         if (quote.totalCoins() > 0) {
-            TeamData team = TeamManager.getInstance().getPlayerTeam(serverPlayer);
-            if (team != null) {
-                TeamManager.getInstance().addCoins(team, quote.totalCoins(), serverPlayer.server);
+            TeamManager.getInstance().addCoins(team, quote.totalCoins(), serverPlayer.server);
+        }
+    }
+
+    private void settleContainer(ServerPlayer serverPlayer, RecycleQuote quote) {
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            ItemStack stack = container.getItem(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            int consumedCount = Math.min(stack.getCount(), Math.max(0, quote.consumedCountAt(i)));
+            if (consumedCount > 0) {
+                stack.shrink(consumedCount);
+            }
+
+            if (stack.isEmpty()) {
+                container.setItem(i, ItemStack.EMPTY);
+                continue;
+            }
+
+            ItemStack remaining = stack.copy();
+            container.setItem(i, ItemStack.EMPTY);
+            serverPlayer.getInventory().placeItemBackInInventory(remaining);
+        }
+    }
+
+    private void returnContainerContents(ServerPlayer serverPlayer) {
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            ItemStack stack = this.container.removeItemNoUpdate(i);
+            if (!stack.isEmpty()) {
+                serverPlayer.getInventory().placeItemBackInInventory(stack);
             }
         }
     }
@@ -230,26 +268,80 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
             Map<Item, Integer> baseCounts,
             int currentFavorGained,
             int currentCoinGained) {
-        int theoreticalTotal = 0;
+        int total = 0;
+        int remainingCoins = Math.max(0, RECYCLE_COIN_CAP - Math.max(0, currentCoinGained));
         Map<Item, Integer> simulatedCounts = new HashMap<>(baseCounts);
-        Map<Item, Integer> addedCounts = new HashMap<>();
+        Map<Item, Integer> consumedCounts = new HashMap<>();
+        int[] consumedPerSlot = new int[SLOT_COUNT];
         for (int i = 0; i < SLOT_COUNT; i++) {
+            if (remainingCoins <= 0) {
+                break;
+            }
             ItemStack stack = container.getItem(i);
             if (!stack.isEmpty()) {
                 Item item = stack.getItem();
                 int unitPrice = ItemRecyclePriceCalculator.getRecyclePrice(stack);
+                if (unitPrice <= 0) {
+                    continue;
+                }
                 int alreadyRecycled = simulatedCounts.getOrDefault(item, 0);
                 int stackCount = stack.getCount();
-                theoreticalTotal += calculateSegmentedValue(unitPrice, alreadyRecycled, stackCount);
-                simulatedCounts.put(item, alreadyRecycled + stackCount);
-                addedCounts.merge(item, stackCount, Integer::sum);
+                int consumedCount =
+                        findAffordablePurchaseCount(unitPrice, alreadyRecycled, stackCount, remainingCoins);
+                if (consumedCount <= 0) {
+                    continue;
+                }
+                int stackValue = calculateSegmentedValue(unitPrice, alreadyRecycled, consumedCount);
+                if (stackValue <= 0) {
+                    continue;
+                }
+                total += stackValue;
+                remainingCoins -= stackValue;
+                simulatedCounts.put(item, alreadyRecycled + consumedCount);
+                consumedCounts.merge(item, consumedCount, Integer::sum);
+                consumedPerSlot[i] = consumedCount;
             }
         }
-        int remainingCoins = Math.max(0, RECYCLE_COIN_CAP - Math.max(0, currentCoinGained));
-        int total = Math.min(theoreticalTotal, remainingCoins);
         int remainingFavor = Math.max(0, RECYCLE_FAVOR_CAP - Math.max(0, currentFavorGained));
         int favorToAdd = Math.min(total / 10, remainingFavor);
-        return new RecycleQuote(total, favorToAdd, Collections.unmodifiableMap(addedCounts));
+        return new RecycleQuote(total, favorToAdd, Collections.unmodifiableMap(consumedCounts), consumedPerSlot);
+    }
+
+    private static int findAffordablePurchaseCount(
+            int unitPrice, int alreadyRecycled, int stackCount, int coinBudget) {
+        if (unitPrice <= 0 || stackCount <= 0 || coinBudget <= 0) {
+            return 0;
+        }
+
+        int low = 0;
+        int high = stackCount;
+        while (low < high) {
+            int mid = (low + high + 1) / 2;
+            int value = calculateSegmentedValue(unitPrice, alreadyRecycled, mid);
+            if (value <= coinBudget) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        int affordableValue = calculateSegmentedValue(unitPrice, alreadyRecycled, low);
+        if (affordableValue <= 0) {
+            return 0;
+        }
+
+        int first = 1;
+        int last = low;
+        while (first < last) {
+            int mid = (first + last) / 2;
+            int value = calculateSegmentedValue(unitPrice, alreadyRecycled, mid);
+            if (value >= affordableValue) {
+                last = mid;
+            } else {
+                first = mid + 1;
+            }
+        }
+        return first;
     }
 
     private static int calculateSegmentedValue(int unitPrice, int alreadyRecycled, int stackCount) {
@@ -303,7 +395,12 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
         return unitPrice * count * ratePercent / 100;
     }
 
-    private record RecycleQuote(int totalCoins, int favorToAdd, Map<Item, Integer> addedCounts) {}
+    private record RecycleQuote(
+            int totalCoins, int favorToAdd, Map<Item, Integer> consumedCounts, int[] consumedPerSlot) {
+        private int consumedCountAt(int slot) {
+            return slot >= 0 && slot < consumedPerSlot.length ? consumedPerSlot[slot] : 0;
+        }
+    }
 
     public int getRecycleFavorCap() {
         return RECYCLE_FAVOR_CAP;
