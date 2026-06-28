@@ -42,6 +42,7 @@ public final class CommissionService {
     private static final int BOARD_SIZE = 2;
     private static final long UNACCEPTED_REFRESH_INTERVAL_DAYS = 2L;
     private static final long COMPLETED_REFRESH_INTERVAL_DAYS = 1L;
+    private static final long FULL_TEMPLATE_POOL_UNLOCK_DAY = 15L;
     private static final String TOWN_COMMISSION_TODO_TEXT_KEY =
             "todo.otherworldinn.town_commission_pending";
 
@@ -455,10 +456,13 @@ public final class CommissionService {
     private static CommissionEntry generateEntry(
             ServerLevel level, RandomSource random, long day, int slot, List<String> usedTemplateIds) {
         List<String> excludedTemplateIds = new ArrayList<>(usedTemplateIds);
+        int allowedMaxStars = resolveAllowedMaxStarsForDay(day);
+        boolean restrictTemplatePool = shouldRestrictTemplatePool(day);
         int maxAttempts = Math.max(1, CommissionRegistry.allTemplates().size());
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
             CommissionTemplate template =
-                    CommissionRegistry.pickRandomTemplate(random, excludedTemplateIds);
+                    CommissionRegistry.pickRandomTemplate(
+                            random, excludedTemplateIds, allowedMaxStars, restrictTemplatePool);
             if (template == null) {
                 return null;
             }
@@ -495,6 +499,22 @@ public final class CommissionService {
             excludedTemplateIds.add(template.id());
         }
         return null;
+    }
+
+    private static boolean shouldRestrictTemplatePool(long zeroBasedDay) {
+        return toGameplayDay(zeroBasedDay) < FULL_TEMPLATE_POOL_UNLOCK_DAY;
+    }
+
+    private static int resolveAllowedMaxStarsForDay(long zeroBasedDay) {
+        long gameplayDay = toGameplayDay(zeroBasedDay);
+        if (gameplayDay >= FULL_TEMPLATE_POOL_UNLOCK_DAY) {
+            return 5;
+        }
+        return Math.min(4, 2 + (int) (((gameplayDay - 1L) * 3L) / 14L));
+    }
+
+    private static long toGameplayDay(long zeroBasedDay) {
+        return Math.max(1L, zeroBasedDay + 1L);
     }
 
     private static long durationByStars(int stars) {

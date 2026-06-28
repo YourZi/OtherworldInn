@@ -583,15 +583,45 @@ public final class CommissionRegistry {
 
     public static CommissionTemplate pickRandomTemplate(
             RandomSource random, List<String> excludedTemplateIds) {
-        List<CommissionTemplate> pool = new ArrayList<>();
-        for (CommissionTemplate template : TEMPLATES) {
-            if (!excludedTemplateIds.contains(template.id())) {
-                pool.add(template);
-            }
+        List<CommissionTemplate> pool = buildTemplatePool(excludedTemplateIds, Integer.MAX_VALUE, false);
+        if (pool.isEmpty()) {
+            pool = TEMPLATES;
+        }
+        return pickFromPool(random, pool);
+    }
+
+    public static CommissionTemplate pickRandomTemplate(
+            RandomSource random,
+            List<String> excludedTemplateIds,
+            int allowedMaxStars,
+            boolean restrictByStars) {
+        List<CommissionTemplate> pool =
+                buildTemplatePool(excludedTemplateIds, allowedMaxStars, restrictByStars);
+        if (pool.isEmpty()) {
+            pool = buildTemplatePool(excludedTemplateIds, Integer.MAX_VALUE, false);
         }
         if (pool.isEmpty()) {
             pool = TEMPLATES;
         }
+        return pickFromPool(random, pool);
+    }
+
+    private static List<CommissionTemplate> buildTemplatePool(
+            List<String> excludedTemplateIds, int allowedMaxStars, boolean restrictByStars) {
+        List<CommissionTemplate> pool = new ArrayList<>();
+        for (CommissionTemplate template : TEMPLATES) {
+            if (excludedTemplateIds.contains(template.id())) {
+                continue;
+            }
+            if (restrictByStars && template.maxStars() > allowedMaxStars) {
+                continue;
+            }
+            pool.add(template);
+        }
+        return pool;
+    }
+
+    private static CommissionTemplate pickFromPool(RandomSource random, List<CommissionTemplate> pool) {
         if (pool.isEmpty()) {
             return null;
         }
