@@ -8,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.loading.FMLPaths;
@@ -25,39 +27,12 @@ public class TownPresetApplier {
     @SubscribeEvent
     public static void onServerAboutToStart(ServerAboutToStartEvent event) {
         Path worldRoot = event.getServer().getWorldPath(LevelResource.ROOT);
-        Path townRoot =
-                worldRoot.resolve("dimensions")
-                        .resolve(TownDimensions.TOWN_LEVEL.location().getNamespace())
-                        .resolve(TownDimensions.TOWN_LEVEL.location().getPath());
-        Path townRegion = townRoot.resolve("region");
-        Path presetRoot = resolvePresetRoot();
-
-        if (hasRegionData(townRegion)) {
-            OtherworldInn.LOGGER.info(
-                    "Town region data already exists, skip preset apply: {}", townRegion.toAbsolutePath());
-            return;
-        }
-        if (presetRoot == null) {
-            OtherworldInn.LOGGER.warn(
-                    "Town preset not found. Expected path: {}", PRESET_ROOT.toAbsolutePath());
-            return;
-        }
-        if (!hasRegionData(presetRoot.resolve("region"))) {
-            OtherworldInn.LOGGER.error(
-                    "Town preset is invalid (missing region .mca files): {}",
-                    presetRoot.toAbsolutePath());
-            return;
-        }
-
-        try {
-            copyDirectory(presetRoot, townRoot);
-            OtherworldInn.LOGGER.info(
-                    "Applied town preset from {} to {}",
-                    presetRoot.toAbsolutePath(),
-                    townRoot.toAbsolutePath());
-        } catch (IOException ex) {
-            OtherworldInn.LOGGER.error("Failed to apply town preset.", ex);
-        }
+        applyPresetIfMissing(worldRoot, TownDimensions.TOWN_LEVEL, resolveTownPresetRoot(), "Town");
+        applyPresetIfMissing(
+                worldRoot,
+                TownDimensions.MAGIC_SPACE_LEVEL,
+                resolveNestedPresetRoot(TownDimensions.MAGIC_SPACE_LEVEL),
+                "Magic space");
     }
 
     @SubscribeEvent
@@ -77,7 +52,7 @@ public class TownPresetApplier {
         }
     }
 
-    private static Path resolvePresetRoot() {
+    private static Path resolveTownPresetRoot() {
         // Layout A: config/otherworldinn/town_preset/region|poi|entities
         if (Files.exists(PRESET_ROOT)) {
             if (Files.isDirectory(PRESET_ROOT.resolve("region"))
@@ -86,15 +61,57 @@ public class TownPresetApplier {
                 return PRESET_ROOT;
             }
         }
-        // Layout B: config/otherworldinn/town_preset/dimensions/otherworldinn/town/...
+        return resolveNestedPresetRoot(TownDimensions.TOWN_LEVEL);
+    }
+
+    private static Path resolveNestedPresetRoot(ResourceKey<Level> levelKey) {
+        // Layout B: config/otherworldinn/town_preset/dimensions/<namespace>/<path>/...
         Path nested =
                 PRESET_ROOT.resolve("dimensions")
-                        .resolve(TownDimensions.TOWN_LEVEL.location().getNamespace())
-                        .resolve(TownDimensions.TOWN_LEVEL.location().getPath());
+                        .resolve(levelKey.location().getNamespace())
+                        .resolve(levelKey.location().getPath());
         if (Files.exists(nested)) {
             return nested;
         }
         return null;
+    }
+
+    private static void applyPresetIfMissing(
+            Path worldRoot, ResourceKey<Level> levelKey, Path presetRoot, String label) {
+        Path targetRoot =
+                worldRoot.resolve("dimensions")
+                        .resolve(levelKey.location().getNamespace())
+                        .resolve(levelKey.location().getPath());
+        Path targetRegion = targetRoot.resolve("region");
+
+        if (hasRegionData(targetRegion)) {
+            OtherworldInn.LOGGER.info(
+                    "{} region data already exists, skip preset apply: {}",
+                    label,
+                    targetRegion.toAbsolutePath());
+            return;
+        }
+        if (presetRoot == null) {
+            return;
+        }
+        if (!hasRegionData(presetRoot.resolve("region"))) {
+            OtherworldInn.LOGGER.error(
+                    "{} preset is invalid (missing region .mca files): {}",
+                    label,
+                    presetRoot.toAbsolutePath());
+            return;
+        }
+
+        try {
+            copyDirectory(presetRoot, targetRoot);
+            OtherworldInn.LOGGER.info(
+                    "Applied {} preset from {} to {}",
+                    label,
+                    presetRoot.toAbsolutePath(),
+                    targetRoot.toAbsolutePath());
+        } catch (IOException ex) {
+            OtherworldInn.LOGGER.error("Failed to apply {} preset.", label, ex);
+        }
     }
 
     private static boolean hasRegionData(Path regionDir) {
