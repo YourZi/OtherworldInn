@@ -16,6 +16,7 @@ import com.otherworldinn.network.packet.S2CDialogueNodePacket;
 import com.otherworldinn.network.packet.S2CFatigueSyncPacket;
 import com.otherworldinn.network.packet.S2CPicnicBoxSyncPacket;
 import com.otherworldinn.network.packet.S2CPriceSyncPacket;
+import com.otherworldinn.network.packet.S2CTaskHudSnapshotPacket;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,6 +69,10 @@ public class ModMessages {
                 S2CPicnicBoxSyncPacket.TYPE,
                 S2CPicnicBoxSyncPacket.STREAM_CODEC,
                 S2CPicnicBoxSyncPacket::handle);
+        registrar.playToClient(
+                S2CTaskHudSnapshotPacket.TYPE,
+                S2CTaskHudSnapshotPacket.STREAM_CODEC,
+                S2CTaskHudSnapshotPacket::handle);
 
         // 注册 C2S 数据包
         registrar.playToServer(

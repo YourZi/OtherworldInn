@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestTodoRegistry {
+    private static final List<TodoEntry> ALL_TODOS = new ArrayList<>();
     private static final Map<OptionKey, TodoEntry> ACCEPT_OPTION_TODOS = new HashMap<>();
     private static final Map<OptionKey, TodoEntry> COMPLETION_OPTION_TODOS = new HashMap<>();
     private static final Map<FlagKey, TodoEntry> COMPLETION_FLAG_TODOS = new HashMap<>();
@@ -103,6 +104,10 @@ public final class StoryGuestTodoRegistry {
 
     private StoryGuestTodoRegistry() {}
 
+    public static List<TodoEntry> allTodos() {
+        return List.copyOf(ALL_TODOS);
+    }
+
     @Nullable
     public static String resolveAcceptedTodoText(String storyGuestId, String optionId) {
         TodoEntry entry = ACCEPT_OPTION_TODOS.get(new OptionKey(storyGuestId, optionId));
@@ -135,7 +140,9 @@ public final class StoryGuestTodoRegistry {
 
     private static void registerItemTask(
             String storyGuestId, String todoKey, String acceptOptionId, String completionOptionId) {
-        TodoEntry entry = new TodoEntry(todoKey);
+        TodoEntry entry =
+                new TodoEntry(storyGuestId, todoKey, acceptOptionId, completionOptionId, null, false);
+        ALL_TODOS.add(entry);
         ACCEPT_OPTION_TODOS.put(new OptionKey(storyGuestId, acceptOptionId), entry);
         COMPLETION_OPTION_TODOS.put(new OptionKey(storyGuestId, completionOptionId), entry);
         registerStoryGuestTodo(storyGuestId, entry);
@@ -143,7 +150,9 @@ public final class StoryGuestTodoRegistry {
 
     private static void registerPhotoTask(
             String storyGuestId, String todoKey, String acceptOptionId, String completionFlag) {
-        TodoEntry entry = new TodoEntry(todoKey);
+        TodoEntry entry =
+                new TodoEntry(storyGuestId, todoKey, acceptOptionId, null, completionFlag, true);
+        ALL_TODOS.add(entry);
         ACCEPT_OPTION_TODOS.put(new OptionKey(storyGuestId, acceptOptionId), entry);
         COMPLETION_FLAG_TODOS.put(new FlagKey(storyGuestId, completionFlag), entry);
         registerStoryGuestTodo(storyGuestId, entry);
@@ -157,8 +166,14 @@ public final class StoryGuestTodoRegistry {
 
     private record FlagKey(String storyGuestId, String flag) {}
 
-    private record TodoEntry(String todoKey) {
-        private String resolveText() {
+    public record TodoEntry(
+            String storyGuestId,
+            String todoKey,
+            String acceptOptionId,
+            @Nullable String completionOptionId,
+            @Nullable String completionFlag,
+            boolean isPhotoTask) {
+        public String resolveText() {
             return Component.translatable(todoKey).getString();
         }
     }
