@@ -1,8 +1,12 @@
 package com.otherworldinn.world.storyguest;
 
 import com.otherworldinn.world.photo.StoryGuestPhotoTaskRegistry;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +14,7 @@ public final class StoryGuestTodoRegistry {
     private static final Map<OptionKey, TodoEntry> ACCEPT_OPTION_TODOS = new HashMap<>();
     private static final Map<OptionKey, TodoEntry> COMPLETION_OPTION_TODOS = new HashMap<>();
     private static final Map<FlagKey, TodoEntry> COMPLETION_FLAG_TODOS = new HashMap<>();
+    private static final Map<String, Set<TodoEntry>> STORY_GUEST_TODOS = new HashMap<>();
 
     static {
         registerItemTask(
@@ -116,11 +121,24 @@ public final class StoryGuestTodoRegistry {
         return entry == null ? null : entry.resolveText();
     }
 
+    public static List<String> resolveAllTodoTexts(String storyGuestId) {
+        Set<TodoEntry> entries = STORY_GUEST_TODOS.get(storyGuestId);
+        if (entries == null || entries.isEmpty()) {
+            return List.of();
+        }
+        List<String> todoTexts = new ArrayList<>(entries.size());
+        for (TodoEntry entry : entries) {
+            todoTexts.add(entry.resolveText());
+        }
+        return todoTexts;
+    }
+
     private static void registerItemTask(
             String storyGuestId, String todoKey, String acceptOptionId, String completionOptionId) {
         TodoEntry entry = new TodoEntry(todoKey);
         ACCEPT_OPTION_TODOS.put(new OptionKey(storyGuestId, acceptOptionId), entry);
         COMPLETION_OPTION_TODOS.put(new OptionKey(storyGuestId, completionOptionId), entry);
+        registerStoryGuestTodo(storyGuestId, entry);
     }
 
     private static void registerPhotoTask(
@@ -128,6 +146,11 @@ public final class StoryGuestTodoRegistry {
         TodoEntry entry = new TodoEntry(todoKey);
         ACCEPT_OPTION_TODOS.put(new OptionKey(storyGuestId, acceptOptionId), entry);
         COMPLETION_FLAG_TODOS.put(new FlagKey(storyGuestId, completionFlag), entry);
+        registerStoryGuestTodo(storyGuestId, entry);
+    }
+
+    private static void registerStoryGuestTodo(String storyGuestId, TodoEntry entry) {
+        STORY_GUEST_TODOS.computeIfAbsent(storyGuestId, ignored -> new LinkedHashSet<>()).add(entry);
     }
 
     private record OptionKey(String storyGuestId, String optionId) {}

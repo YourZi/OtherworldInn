@@ -18,11 +18,15 @@ import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
 import com.otherworldinn.world.inn.service.InnMenuDishRegistry;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
 import com.otherworldinn.world.storyguest.StoryGuestService;
+import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamData.InnRegion;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.team.TeamSavedData;
 import java.util.*;
+
+import javax.annotation.Nullable;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -1734,6 +1738,7 @@ public class InnData {
                                 .getString();
                 removeTodo(level, team, todoText);
             }
+            removeStoryGuestTodosIfNeeded(level, team, guestEntity);
         }
 
         if (isAngry) {
@@ -1867,6 +1872,10 @@ public class InnData {
             guest.setRoomId(-1);
             guest.setCheckedOut(true);
         }
+        if (team == null && guestEntity != null) {
+            team = TeamManager.getInstance().getTeamAt(guestEntity.blockPosition(), level.getServer());
+        }
+        removeStoryGuestTodosIfNeeded(level, team, guestEntity);
         if (guestEntity != null) {
             StoryGuestService.handleGuestVisitEnded(guestEntity, level);
         }
@@ -1894,6 +1903,16 @@ public class InnData {
             mismatch++;
         }
         return mismatch;
+    }
+
+    private void removeStoryGuestTodosIfNeeded(
+            ServerLevel level, @Nullable TeamData team, @Nullable GuestEntity guestEntity) {
+        if (team == null || !(guestEntity instanceof StoryGuestEntity storyGuest)) {
+            return;
+        }
+        for (String todoText : StoryGuestTodoRegistry.resolveAllTodoTexts(storyGuest.getStoryGuestId())) {
+            removeTodo(level, team, todoText);
+        }
     }
 
     /**
