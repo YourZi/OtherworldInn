@@ -19,6 +19,7 @@ public class TeamCommissionData {
     private final Set<String> photoProgress = new HashSet<>();
     private int acceptedIndex = -1;
     private long acceptedDay = -1L;
+    private long acceptedOrder = Long.MAX_VALUE;
     private long expireDay = -1L;
     private long nextAutoRefreshDay = 0L;
     private long refreshSequence = 0L;
@@ -39,6 +40,7 @@ public class TeamCommissionData {
     public void resetAcceptedState() {
         this.acceptedIndex = -1;
         this.acceptedDay = -1L;
+        this.acceptedOrder = Long.MAX_VALUE;
         this.expireDay = -1L;
         this.rewardClaimed = false;
         this.killProgress.clear();
@@ -71,6 +73,7 @@ public class TeamCommissionData {
 
         tag.putInt("AcceptedIndex", acceptedIndex);
         tag.putLong("AcceptedDay", acceptedDay);
+        tag.putLong("AcceptedOrder", acceptedOrder);
         tag.putLong("ExpireDay", expireDay);
         tag.putLong("NextAutoRefreshDay", nextAutoRefreshDay);
         tag.putLong("RefreshSequence", refreshSequence);
@@ -117,6 +120,7 @@ public class TeamCommissionData {
 
         acceptedIndex = tag.contains("AcceptedIndex", Tag.TAG_INT) ? tag.getInt("AcceptedIndex") : -1;
         acceptedDay = tag.contains("AcceptedDay", Tag.TAG_LONG) ? tag.getLong("AcceptedDay") : -1L;
+        acceptedOrder = tag.contains("AcceptedOrder", Tag.TAG_LONG) ? tag.getLong("AcceptedOrder") : Long.MAX_VALUE;
         expireDay = tag.contains("ExpireDay", Tag.TAG_LONG) ? tag.getLong("ExpireDay") : -1L;
         nextAutoRefreshDay =
                 tag.contains("NextAutoRefreshDay", Tag.TAG_LONG)

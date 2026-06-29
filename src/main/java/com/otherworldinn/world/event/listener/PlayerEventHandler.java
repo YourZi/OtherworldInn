@@ -5,6 +5,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
@@ -157,6 +158,7 @@ public class PlayerEventHandler {
             }
 
             DeathExploreAnchorSyncHelper.sync(player);
+            TaskHudSnapshotSync.syncPlayer(player);
         }
     }
 

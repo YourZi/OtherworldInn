@@ -7,6 +7,7 @@ import com.otherworldinn.network.packet.S2CCommissionBoardPacket;
 import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -78,10 +79,12 @@ public final class CommissionService {
         data.setRewardClaimed(false);
         data.getKillProgress().clear();
         data.getPhotoProgress().clear();
-        addTownCommissionTodo(player.serverLevel(), team);
+        String todoText = addTownCommissionTodo(player.serverLevel(), team);
+        data.setAcceptedOrder(team.getInnData().getTodoAcceptedAt(todoText));
         notifyTeamCommissionAccepted(player.serverLevel(), team, player, entry.getDurationDays());
         TeamManager.getInstance().syncTeam(team, player.getServer());
         broadcastBoard(team, player.serverLevel(), null);
+        TaskHudSnapshotSync.syncTeam(team, player.serverLevel());
     }
 
     public static boolean handleBoardLeftClickSubmit(ServerPlayer player, BlockPos boardPos) {
@@ -162,6 +165,7 @@ public final class CommissionService {
         }
         TeamManager.getInstance().syncTeam(team, killer.getServer());
         broadcastBoard(team, killer.serverLevel(), null);
+        TaskHudSnapshotSync.syncTeam(team, killer.serverLevel());
     }
 
     public static void onTeamMemberPhotoObjectiveMatched(ServerPlayer player, ResourceLocation objectiveId) {
@@ -202,6 +206,7 @@ public final class CommissionService {
         }
         TeamManager.getInstance().syncTeam(team, player.getServer());
         broadcastBoard(team, player.serverLevel(), null);
+        TaskHudSnapshotSync.syncTeam(team, player.serverLevel());
     }
 
     public static List<ResourceLocation> getActivePhotoObjectives(ServerPlayer player) {
@@ -287,6 +292,7 @@ public final class CommissionService {
         refreshBoard(level, team, currentDay(level));
         TeamManager.getInstance().syncTeam(team, player.getServer());
         broadcastBoard(team, level, null);
+        TaskHudSnapshotSync.syncTeam(team, level);
         return true;
     }
 
@@ -311,6 +317,7 @@ public final class CommissionService {
         notifyTeamCommissionCompleted(triggerPlayer.serverLevel(), team, active);
         TeamManager.getInstance().syncTeam(team, triggerPlayer.getServer());
         broadcastBoard(team, triggerPlayer.serverLevel(), null);
+        TaskHudSnapshotSync.syncTeam(team, triggerPlayer.serverLevel());
     }
 
     private static void notifyTeamCommissionCompleted(
@@ -716,9 +723,10 @@ public final class CommissionService {
         }
     }
 
-    private static void addTownCommissionTodo(ServerLevel level, TeamData team) {
+    private static String addTownCommissionTodo(ServerLevel level, TeamData team) {
         String todoText = Component.translatable(TOWN_COMMISSION_TODO_TEXT_KEY).getString();
         team.getInnData().addTodo(level, team, todoText);
+        return todoText;
     }
 
     private static void removeTownCommissionTodo(ServerLevel level, TeamData team) {

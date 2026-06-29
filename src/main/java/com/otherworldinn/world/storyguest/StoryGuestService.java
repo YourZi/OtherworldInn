@@ -4,6 +4,7 @@ import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.init.ModEntities;
 import com.otherworldinn.util.EntityUtils;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -82,9 +83,13 @@ public final class StoryGuestService {
 
     public static void setStoryStage(StoryGuestEntity guest, ServerLevel level, int stage) {
         StoryGuestProgress progress = getProgress(guest, level);
+        int previousStage = progress.getStoryStage();
         progress.setStoryStage(stage);
         StoryGuestSavedData.get(level).setDirty();
         guest.refreshAssignedDialogue(level);
+        if (previousStage != progress.getStoryStage()) {
+            TaskHudSnapshotSync.syncAllTeams(level);
+        }
     }
 
     public static void addStoryFlag(StoryGuestEntity guest, ServerLevel level, @Nullable String storyFlag) {
@@ -92,9 +97,13 @@ public final class StoryGuestService {
             return;
         }
         StoryGuestProgress progress = getProgress(guest, level);
+        if (progress.hasFlag(storyFlag)) {
+            return;
+        }
         progress.addFlag(storyFlag);
         StoryGuestSavedData.get(level).setDirty();
         guest.refreshAssignedDialogue(level);
+        TaskHudSnapshotSync.syncAllTeams(level);
     }
 
     public static void setPendingReturnRange(
@@ -214,11 +223,15 @@ public final class StoryGuestService {
             return false;
         }
         StoryGuestProgress progress = StoryGuestSavedData.get(level).getOrCreateProgress(definition.id());
+        int previousStage = progress.getStoryStage();
         progress.setStoryStage(stage);
         StoryGuestSavedData.get(level).setDirty();
         StoryGuestEntity activeGuest = getActiveStoryGuest(level, storyGuestId);
         if (activeGuest != null) {
             activeGuest.refreshAssignedDialogue((ServerLevel) activeGuest.level());
+        }
+        if (previousStage != progress.getStoryStage()) {
+            TaskHudSnapshotSync.syncAllTeams(level);
         }
         return true;
     }
@@ -260,6 +273,7 @@ public final class StoryGuestService {
         if (activeGuest != null) {
             activeGuest.refreshAssignedDialogue((ServerLevel) activeGuest.level());
         }
+        TaskHudSnapshotSync.syncAllTeams(level);
         return true;
     }
 

@@ -3,6 +3,7 @@ package com.otherworldinn.world.commission;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamSavedData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -33,6 +34,7 @@ public final class CommissionEventHandler {
         for (TeamData team : data.getTeams().values()) {
             if (CommissionService.tick(level, team)) {
                 TeamManager.getInstance().syncTeam(team, level.getServer());
+                TaskHudSnapshotSync.syncTeam(team, level);
             }
         }
     }

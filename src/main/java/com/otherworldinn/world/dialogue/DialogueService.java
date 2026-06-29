@@ -82,6 +82,9 @@ public final class DialogueService {
                         resolveStoryStage(player, entity));
         SESSIONS.put(player.getUUID(), session);
         sendNodeToPlayer(player, session, root);
+        if (entity instanceof StoryGuestEntity storyGuest) {
+            addStoryGuestTodosForVisibleOptions(player, storyGuest, root);
+        }
         return true;
     }
 
@@ -127,7 +130,7 @@ public final class DialogueService {
             return;
         }
         if (entity instanceof StoryGuestEntity storyGuest) {
-            updateStoryGuestTodosForOption(player, storyGuest, selected);
+            updateStoryGuestTodosForOption(player, storyGuest, currentNode, selected);
         }
         if (entity instanceof StoryGuestEntity storyGuest && advancesStoryStage(selected)) {
             storyGuest.markVisitStageConsumed(player.serverLevel());
@@ -322,7 +325,10 @@ public final class DialogueService {
     }
 
     private static void updateStoryGuestTodosForOption(
-            ServerPlayer player, StoryGuestEntity storyGuest, DialogueOptionDef selected) {
+            ServerPlayer player,
+            StoryGuestEntity storyGuest,
+            DialogueNodeDef currentNode,
+            DialogueOptionDef selected) {
         TeamData team = TeamManager.getInstance().getPlayerTeam(player);
         if (team == null) {
             return;
@@ -338,6 +344,37 @@ public final class DialogueService {
         String acceptedTodo = StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, selected.id());
         if (acceptedTodo != null) {
             team.getInnData().addTodo(player.serverLevel(), team, acceptedTodo);
+        } else if (advancesStoryStage(selected)) {
+            removeStoryGuestTodosForVisibleOptions(player, team, storyGuestId, currentNode);
+        }
+    }
+
+    private static void addStoryGuestTodosForVisibleOptions(
+            ServerPlayer player, StoryGuestEntity storyGuest, DialogueNodeDef currentNode) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return;
+        }
+
+        String storyGuestId = storyGuest.getStoryGuestId();
+        for (DialogueOptionDef option : currentNode.options()) {
+            String acceptedTodo =
+                    StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, option.id());
+            if (acceptedTodo != null) {
+                team.getInnData().addTodo(player.serverLevel(), team, acceptedTodo);
+                return;
+            }
+        }
+    }
+
+    private static void removeStoryGuestTodosForVisibleOptions(
+            ServerPlayer player, TeamData team, String storyGuestId, DialogueNodeDef currentNode) {
+        for (DialogueOptionDef option : currentNode.options()) {
+            String acceptedTodo =
+                    StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, option.id());
+            if (acceptedTodo != null) {
+                team.getInnData().removeTodo(player.serverLevel(), team, acceptedTodo);
+            }
         }
     }
 

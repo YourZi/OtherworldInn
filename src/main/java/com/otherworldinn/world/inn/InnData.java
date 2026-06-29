@@ -17,6 +17,7 @@ import com.otherworldinn.world.inn.service.FurnitureManager;
 import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
 import com.otherworldinn.world.inn.service.InnMenuDishRegistry;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
 import com.otherworldinn.world.team.TeamData;
@@ -1931,6 +1932,9 @@ public class InnData {
             return false;
         }
         todoList.add(todoText);
+        if (level instanceof ServerLevel serverLevel) {
+            TaskHudSnapshotSync.syncTeam(team, serverLevel);
+        }
 
         // 2. 尝试同步到剪贴板
         boolean addedToClipboard = false;
@@ -1980,7 +1984,10 @@ public class InnData {
      */
     public void removeTodo(Level level, TeamData team, String todoText) {
         // 1. 从缓存移除
-        todoList.remove(todoText);
+        boolean removed = todoList.remove(todoText);
+        if (removed && level instanceof ServerLevel serverLevel) {
+            TaskHudSnapshotSync.syncTeam(team, serverLevel);
+        }
 
         // 2. 从剪贴板移除
         for (TeamData.InnRegion region : team.getInnRegions()) {
@@ -1988,6 +1995,14 @@ public class InnData {
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
             ClipboardManager.removeTodo(level, area, todoText);
         }
+    }
+
+    public long getTodoAcceptedAt(String todoText) {
+        if (todoText == null || todoText.isBlank()) {
+            return Long.MAX_VALUE;
+        }
+        int index = todoList.indexOf(todoText);
+        return index < 0 ? Long.MAX_VALUE : index;
     }
 
     /**

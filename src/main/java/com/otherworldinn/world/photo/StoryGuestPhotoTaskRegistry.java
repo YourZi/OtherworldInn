@@ -1,6 +1,7 @@
 package com.otherworldinn.world.photo;
 
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestPhotoTaskRegistry {
     public static final String CARTOGRAPHER_OCEAN_PHOTO_REQUESTED_FLAG =
@@ -81,5 +82,19 @@ public final class StoryGuestPhotoTaskRegistry {
 
     public static List<StoryGuestPhotoTask> all() {
         return TASKS;
+    }
+
+    @Nullable
+    public static StoryGuestPhotoTask findByCompletionFlag(String storyGuestId, @Nullable String completionFlag) {
+        if (storyGuestId == null || completionFlag == null || completionFlag.isBlank()) {
+            return null;
+        }
+        for (StoryGuestPhotoTask task : TASKS) {
+            if (storyGuestId.equals(task.storyGuestId())
+                    && completionFlag.equals(task.completionFlag())) {
+                return task;
+            }
+        }
+        return null;
     }
 }
