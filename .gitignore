@@ -46,6 +46,7 @@ debug/
 config/
 gradle/
 docs/
+scripts/
 
 # Logs
 *.log

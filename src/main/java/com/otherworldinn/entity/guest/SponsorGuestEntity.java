@@ -2,12 +2,14 @@ package com.otherworldinn.entity.guest;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.util.ClientServices;
-import com.otherworldinn.util.service.MojangProfileService;
+import com.otherworldinn.client.util.SponsorSkinTextureService;
 import com.otherworldinn.entity.base.VipGuestEntity;
-import com.otherworldinn.util.service.SponsorNamePool;
+import com.otherworldinn.world.sponsor.SponsorAppearanceSnapshot;
+import com.otherworldinn.world.sponsor.SponsorDefinition;
+import com.otherworldinn.world.sponsor.SponsorProfileSourceType;
+import com.otherworldinn.world.sponsor.SponsorRegistry;
+import com.otherworldinn.world.sponsor.service.SponsorProfileResolver;
 import com.otherworldinn.world.inn.GuestData;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -25,13 +27,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public class SponsorGuestEntity extends VipGuestEntity {
-    private static final EntityDataAccessor<Boolean> SLIM_MODEL =
-            SynchedEntityData.defineId(SponsorGuestEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> SPONSOR_NAME =
+            SynchedEntityData.defineId(SponsorGuestEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> MODEL_TYPE =
+            SynchedEntityData.defineId(SponsorGuestEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> RESOLVED_SKIN_URL =
+            SynchedEntityData.defineId(SponsorGuestEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> PROFILE_SOURCE =
+            SynchedEntityData.defineId(SponsorGuestEntity.class, EntityDataSerializers.INT);
+    private static final String TAG_SPONSOR_NAME = "SponsorName";
+    private static final String TAG_MODEL_TYPE = "SponsorModelType";
+    private static final String TAG_SKIN_URL = "SponsorSkinUrl";
+    private static final String TAG_PROFILE_SOURCE = "SponsorProfileSource";
     private static final ResourceLocation DEFAULT_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
-                    OtherworldInn.MODID, "textures/entity/guest/sponsor_guest/1.png");
-    private static final List<ResourceLocation> TEXTURES = new ArrayList<>();
-    private static boolean texturesLoaded = false;
+                    OtherworldInn.MODID, "textures/entity/guest/ordinary_guest/1.png");
+
     public SponsorGuestEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
     }
@@ -48,34 +59,24 @@ public class SponsorGuestEntity extends VipGuestEntity {
 
     @Override
     public ResourceLocation getSkinTexture() {
-        String name = this.getName().getString();
-        ResourceLocation fallback = resolveLocalFallbackTexture();
-        return ClientServices.getMojangSkinTexture(name, fallback);
+        String sponsorName = this.getSponsorName();
+        ResourceLocation fallback = SponsorSkinTextureService.resolveFallbackTexture(sponsorName);
+        String resolvedSkinUrl = this.entityData.get(RESOLVED_SKIN_URL);
+        if (resolvedSkinUrl == null || resolvedSkinUrl.isBlank()) {
+            return fallback != null ? fallback : DEFAULT_TEXTURE;
+        }
+        return SponsorSkinTextureService.getResolvedTexture(sponsorName, resolvedSkinUrl, fallback);
     }
 
     @Override
     public String getModelType() {
-        return this.entityData.get(SLIM_MODEL) ? "slim" : "default";
+        String modelType = this.entityData.get(MODEL_TYPE);
+        return "slim".equalsIgnoreCase(modelType) ? "slim" : "default";
     }
 
-    private ResourceLocation resolveLocalFallbackTexture() {
-        if (!texturesLoaded && this.level().isClientSide) {
-            try {
-                List<ResourceLocation> found =
-                        ClientServices.findTexturesInFolder(
-                                OtherworldInn.MODID, "textures/entity/guest/sponsor_guest");
-                if (!found.isEmpty()) {
-                    TEXTURES.clear();
-                    TEXTURES.addAll(found);
-                }
-            } catch (Throwable e) {
-            }
-            texturesLoaded = true;
-        }
-        if (TEXTURES.isEmpty()) {
-            return DEFAULT_TEXTURE;
-        }
-        return TEXTURES.get(Math.abs(this.getSkinVariant()) % TEXTURES.size());
+    @Override
+    protected boolean shouldUseRandomName() {
+        return false;
     }
 
     @Override
@@ -86,39 +87,89 @@ public class SponsorGuestEntity extends VipGuestEntity {
             @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData);
         ServerLevel serverLevel = level instanceof ServerLevel server ? server : null;
-        String sponsorName = SponsorNamePool.getRandomName(this.getRandom(), serverLevel);
-        this.setCustomName(Component.literal(sponsorName));
-        this.entityData.set(SLIM_MODEL, false);
+        SponsorDefinition sponsor = SponsorRegistry.pickRandom(this.getRandom(), serverLevel);
+        this.setSponsorName(sponsor.playerName());
+        this.applyAppearanceSnapshot(SponsorAppearanceSnapshot.localFallback(sponsor.playerName()));
         if (serverLevel != null) {
-            final String lockedName = sponsorName;
-            MojangProfileService.resolveSlimModelAsync(
-                    sponsorName,
-                    serverLevel.getServer(),
-                    slim -> {
-                        if (!this.isRemoved() && lockedName.equals(this.getName().getString())) {
-                            this.entityData.set(SLIM_MODEL, slim);
-                        }
-                    });
+            this.resolveAppearanceAsync(serverLevel);
         }
-        this.setSkinVariant(this.getRandom().nextInt(10000));
         return spawnData;
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(SLIM_MODEL, false);
+        builder.define(SPONSOR_NAME, "");
+        builder.define(MODEL_TYPE, "default");
+        builder.define(RESOLVED_SKIN_URL, "");
+        builder.define(PROFILE_SOURCE, SponsorProfileSourceType.LOCAL_FALLBACK.syncCode());
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putBoolean("SponsorSlimModel", this.entityData.get(SLIM_MODEL));
+        compound.putString(TAG_SPONSOR_NAME, this.getSponsorName());
+        compound.putString(TAG_MODEL_TYPE, this.getModelType());
+        compound.putString(TAG_SKIN_URL, this.entityData.get(RESOLVED_SKIN_URL));
+        compound.putInt(TAG_PROFILE_SOURCE, this.entityData.get(PROFILE_SOURCE));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        this.entityData.set(SLIM_MODEL, compound.getBoolean("SponsorSlimModel"));
+        this.setSponsorName(compound.getString(TAG_SPONSOR_NAME));
+        this.entityData.set(MODEL_TYPE, normalizeModelType(compound.getString(TAG_MODEL_TYPE)));
+        this.entityData.set(RESOLVED_SKIN_URL, compound.getString(TAG_SKIN_URL));
+        this.entityData.set(PROFILE_SOURCE, compound.getInt(TAG_PROFILE_SOURCE));
+        if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
+            this.resolveAppearanceAsync(serverLevel);
+        }
+    }
+
+    public String getSponsorName() {
+        String sponsorName = this.entityData.get(SPONSOR_NAME);
+        if (sponsorName != null && !sponsorName.isBlank()) {
+            return sponsorName;
+        }
+        return this.getName().getString();
+    }
+
+    private void setSponsorName(String sponsorName) {
+        String normalizedName = sponsorName == null ? "" : sponsorName.trim();
+        this.entityData.set(SPONSOR_NAME, normalizedName);
+        if (!normalizedName.isBlank()) {
+            this.setCustomName(Component.literal(normalizedName));
+        }
+    }
+
+    private void applyAppearanceSnapshot(SponsorAppearanceSnapshot snapshot) {
+        this.entityData.set(MODEL_TYPE, normalizeModelType(snapshot.modelType()));
+        this.entityData.set(RESOLVED_SKIN_URL, snapshot.skinUrl());
+        this.entityData.set(PROFILE_SOURCE, snapshot.sourceType().syncCode());
+        if (!snapshot.displayName().isBlank()) {
+            this.setCustomName(Component.literal(snapshot.displayName()));
+        }
+    }
+
+    private void resolveAppearanceAsync(ServerLevel serverLevel) {
+        String sponsorName = this.getSponsorName();
+        if (sponsorName.isBlank()) {
+            return;
+        }
+        SponsorDefinition definition = SponsorRegistry.resolveByName(sponsorName);
+        String lockedSponsorName = sponsorName;
+        SponsorProfileResolver.resolveAppearanceAsync(
+                definition,
+                serverLevel.getServer(),
+                snapshot -> {
+                    if (this.isRemoved() || !lockedSponsorName.equalsIgnoreCase(this.getSponsorName())) {
+                        return;
+                    }
+                    this.applyAppearanceSnapshot(snapshot);
+                });
+    }
+
+    private static String normalizeModelType(String modelType) {
+        return "slim".equalsIgnoreCase(modelType) ? "slim" : "default";
     }
 }
