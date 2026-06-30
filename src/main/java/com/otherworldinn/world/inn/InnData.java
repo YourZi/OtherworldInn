@@ -22,8 +22,8 @@ import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamData.InnRegion;
-import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.team.TeamSavedData;
+import com.otherworldinn.world.team.service.TeamManager;
 import java.util.*;
 
 import javax.annotation.Nullable;
@@ -1932,9 +1932,7 @@ public class InnData {
             return false;
         }
         todoList.add(todoText);
-        if (level instanceof ServerLevel serverLevel) {
-            TaskHudSnapshotSync.syncTeam(team, serverLevel);
-        }
+        syncTodoMutation(level, team);
 
         // 2. 尝试同步到剪贴板
         boolean addedToClipboard = false;
@@ -1985,8 +1983,8 @@ public class InnData {
     public void removeTodo(Level level, TeamData team, String todoText) {
         // 1. 从缓存移除
         boolean removed = todoList.remove(todoText);
-        if (removed && level instanceof ServerLevel serverLevel) {
-            TaskHudSnapshotSync.syncTeam(team, serverLevel);
+        if (removed) {
+            syncTodoMutation(level, team);
         }
 
         // 2. 从剪贴板移除
@@ -1994,6 +1992,13 @@ public class InnData {
             AABB area =
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
             ClipboardManager.removeTodo(level, area, todoText);
+        }
+    }
+
+    private void syncTodoMutation(Level level, TeamData team) {
+        if (level instanceof ServerLevel serverLevel) {
+            TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
+            TaskHudSnapshotSync.syncTeam(team, serverLevel);
         }
     }
 

@@ -3,6 +3,7 @@ package com.otherworldinn.world.team.service;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamSavedData;
 import java.util.ArrayList;
@@ -218,7 +219,7 @@ public class TeamManager {
         if (player instanceof ServerPlayer serverPlayer) {
             TeamSavedData data = getData(serverPlayer.getServer());
             data.addTeam(team);
-            invalidateTeamChunkIndex();
+            syncTeamAndTaskHud(team, serverPlayer);
         }
 
         return team;
@@ -238,10 +239,15 @@ public class TeamManager {
         TeamData team = data.getTeams().get(teamId);
         if (team == null) return false;
 
+        if (teamId.equals(data.getPlayerToTeam().get(player.getUUID()))) {
+            syncTeamAndTaskHud(team, serverPlayer);
+            return true;
+        }
+
         leaveTeam(player);
 
         data.addMember(teamId, player.getUUID());
-        invalidateTeamChunkIndex();
+        syncTeamAndTaskHud(team, serverPlayer);
         return true;
     }
 
@@ -261,15 +267,20 @@ public class TeamManager {
             data.removeMember(oldTeamId, playerId);
 
             TeamData oldTeam = data.getTeams().get(oldTeamId);
-            if (oldTeam != null && oldTeam.getMembers().isEmpty()) {
-                data.removeTeam(oldTeamId);
-                lastSyncedTeamState.remove(oldTeamId);
-                for (Map<UUID, TeamData> pending : pendingTeamSyncs.values()) {
-                    pending.remove(oldTeamId);
+            if (oldTeam != null) {
+                if (oldTeam.getMembers().isEmpty()) {
+                    data.removeTeam(oldTeamId);
+                    lastSyncedTeamState.remove(oldTeamId);
+                    for (Map<UUID, TeamData> pending : pendingTeamSyncs.values()) {
+                        pending.remove(oldTeamId);
+                    }
+                } else {
+                    syncTeamAndTaskHud(oldTeam, serverPlayer);
                 }
             }
             invalidateTeamChunkIndex();
         }
+        TaskHudSnapshotSync.syncPlayer(serverPlayer);
     }
 
     /**
@@ -294,6 +305,11 @@ public class TeamManager {
         getData(server).markDirty();
         invalidateTeamChunkIndex();
         enqueueTeamSync(team, server);
+    }
+
+    private void syncTeamAndTaskHud(TeamData team, ServerPlayer contextPlayer) {
+        syncTeam(team, contextPlayer.getServer());
+        TaskHudSnapshotSync.syncTeam(team, contextPlayer.serverLevel());
     }
 
     public boolean setCoins(TeamData team, int coins, MinecraftServer server) {
