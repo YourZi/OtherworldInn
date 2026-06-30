@@ -8,6 +8,7 @@ import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -79,8 +80,8 @@ public final class CommissionService {
         data.setRewardClaimed(false);
         data.getKillProgress().clear();
         data.getPhotoProgress().clear();
-        String todoText = addTownCommissionTodo(player.serverLevel(), team);
-        data.setAcceptedOrder(team.getInnData().getTodoAcceptedAt(todoText));
+        InnTodo todo = addTownCommissionTodo(player.serverLevel(), team);
+        data.setAcceptedOrder(team.getInnData().getTodoAcceptedAt(todo));
         notifyTeamCommissionAccepted(player.serverLevel(), team, player, entry.getDurationDays());
         TeamManager.getInstance().syncTeam(team, player.getServer());
         broadcastBoard(team, player.serverLevel(), null);
@@ -723,14 +724,17 @@ public final class CommissionService {
         }
     }
 
-    private static String addTownCommissionTodo(ServerLevel level, TeamData team) {
-        String todoText = Component.translatable(TOWN_COMMISSION_TODO_TEXT_KEY).getString();
-        team.getInnData().addTodo(level, team, todoText);
-        return todoText;
+    private static InnTodo townCommissionTodo() {
+        return InnTodo.translatable("town_commission", TOWN_COMMISSION_TODO_TEXT_KEY);
+    }
+
+    private static InnTodo addTownCommissionTodo(ServerLevel level, TeamData team) {
+        InnTodo todo = townCommissionTodo();
+        team.getInnData().addTodo(level, team, todo);
+        return todo;
     }
 
     private static void removeTownCommissionTodo(ServerLevel level, TeamData team) {
-        String todoText = Component.translatable(TOWN_COMMISSION_TODO_TEXT_KEY).getString();
-        team.getInnData().removeTodo(level, team, todoText);
+        team.getInnData().removeTodo(level, team, townCommissionTodo());
     }
 }

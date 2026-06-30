@@ -6,6 +6,7 @@ import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
 import com.otherworldinn.world.team.TeamData;
@@ -335,13 +336,13 @@ public final class DialogueService {
         }
 
         String storyGuestId = storyGuest.getStoryGuestId();
-        String completedTodo =
-                StoryGuestTodoRegistry.resolveCompletedTodoTextByOption(storyGuestId, selected.id());
+        InnTodo completedTodo =
+                StoryGuestTodoRegistry.resolveCompletedTodoByOption(storyGuestId, selected.id());
         if (completedTodo != null) {
             team.getInnData().removeTodo(player.serverLevel(), team, completedTodo);
         }
 
-        String acceptedTodo = StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, selected.id());
+        InnTodo acceptedTodo = StoryGuestTodoRegistry.resolveAcceptedTodo(storyGuestId, selected.id());
         if (acceptedTodo != null) {
             team.getInnData().addTodo(player.serverLevel(), team, acceptedTodo);
         } else if (advancesStoryStage(selected)) {
@@ -358,8 +359,8 @@ public final class DialogueService {
 
         String storyGuestId = storyGuest.getStoryGuestId();
         for (DialogueOptionDef option : currentNode.options()) {
-            String acceptedTodo =
-                    StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, option.id());
+            InnTodo acceptedTodo =
+                    StoryGuestTodoRegistry.resolveAcceptedTodo(storyGuestId, option.id());
             if (acceptedTodo != null) {
                 team.getInnData().addTodo(player.serverLevel(), team, acceptedTodo);
                 return;
@@ -370,8 +371,8 @@ public final class DialogueService {
     private static void removeStoryGuestTodosForVisibleOptions(
             ServerPlayer player, TeamData team, String storyGuestId, DialogueNodeDef currentNode) {
         for (DialogueOptionDef option : currentNode.options()) {
-            String acceptedTodo =
-                    StoryGuestTodoRegistry.resolveAcceptedTodoText(storyGuestId, option.id());
+            InnTodo acceptedTodo =
+                    StoryGuestTodoRegistry.resolveAcceptedTodo(storyGuestId, option.id());
             if (acceptedTodo != null) {
                 team.getInnData().removeTodo(player.serverLevel(), team, acceptedTodo);
             }

@@ -1,6 +1,7 @@
 package com.otherworldinn.world.inn.service;
 
 import com.otherworldinn.util.BlockEntitySearchUtils;
+import com.otherworldinn.world.inn.InnTodo;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.equipment.clipboard.ClipboardBlockEntity;
@@ -31,6 +32,10 @@ public class ClipboardManager {
      * @return 是否成功添加（至少修改了一个剪贴板）
      */
     public static boolean addTodo(Level level, AABB area, String text) {
+        return addTodo(level, area, Component.literal(text));
+    }
+
+    public static boolean addTodo(Level level, AABB area, Component text) {
         return modifyClipboards(
                 level,
                 area,
@@ -51,18 +56,22 @@ public class ClipboardManager {
                     }
 
                     // 添加新的未勾选条目
-                    targetPage.add(new ClipboardEntry(false, Component.literal(text)));
+                    targetPage.add(new ClipboardEntry(false, text.copy()));
                 });
     }
 
     /** 在指定范围内删除所有匹配文本的待办事项 */
     public static void removeTodo(Level level, AABB area, String text) {
+        removeTodo(level, area, InnTodo.legacy(text));
+    }
+
+    public static void removeTodo(Level level, AABB area, InnTodo todo) {
         modifyClipboards(
                 level,
                 area,
                 pages -> {
                     for (List<ClipboardEntry> page : pages) {
-                        page.removeIf(entry -> entry.text.getString().equals(text));
+                        page.removeIf(entry -> matches(entry, todo));
                     }
                     // 移除空页面
                     pages.removeIf(List::isEmpty);
@@ -87,6 +96,10 @@ public class ClipboardManager {
                         }
                     }
                 });
+    }
+
+    private static boolean matches(ClipboardEntry entry, InnTodo todo) {
+        return entry.text.equals(todo.component()) || todo.matchesText(entry.text.getString());
     }
 
     /** 清空范围内所有剪贴板的内容 */

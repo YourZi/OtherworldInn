@@ -128,7 +128,7 @@ public class InnData {
     private final Set<BlockPos> dirtyDiningDisplayPositions = new HashSet<>();
 
     // 待办事项缓存列表
-    private final List<String> todoList = new ArrayList<>();
+    private final List<InnTodo> todoEntries = new ArrayList<>();
 
     // 下一次生成旅客的时间 (GameTime)
     private long nextGuestSpawnTime = 0;
@@ -140,6 +140,10 @@ public class InnData {
     private static final double SPAWN_DELAY_JITTER_RATIO = 0.20D;
     private static final int MIN_SPAWN_DELAY_TICKS = 600;
     private static final int MAX_SPAWN_DELAY_TICKS = 7200;
+    private static final String TODO_GUEST_WAITING_KEY = "todo.otherworldinn.guest_waiting";
+    private static final String TODO_GUEST_WAITING_ID_PREFIX = "guest_waiting:";
+    private static final String TODO_ROOM_CLEANING_KEY = "todo.otherworldinn.room_cleaning";
+    private static final String TODO_ROOM_CLEANING_ID_PREFIX = "room_cleaning:";
     private static final float CLUTTER_SPAWN_CHANCE = 0.65F;
     private static final int MIN_CLUTTER_PER_CHECKOUT = 1;
     private static final int MAX_CLUTTER_PER_CHECKOUT = 3;
@@ -152,6 +156,37 @@ public class InnData {
     private double currentDiningVarietyBonusValue = 0.0D;
 
     public InnData() {}
+
+    public List<String> getTodoList() {
+        return todoEntries.stream().map(InnTodo::fallbackText).toList();
+    }
+
+    public List<InnTodo> getTodos() {
+        return List.copyOf(todoEntries);
+    }
+
+    private static InnTodo guestWaitingTodo(Entity guest) {
+        return InnTodo.translatable(
+                guestWaitingTodoId(guest.getUUID()),
+                TODO_GUEST_WAITING_KEY,
+                entityDisplayName(guest));
+    }
+
+    private static String guestWaitingTodoId(UUID guestId) {
+        return TODO_GUEST_WAITING_ID_PREFIX + guestId;
+    }
+
+    private static Component entityDisplayName(Entity entity) {
+        Component customName = entity.getCustomName();
+        return customName == null ? entity.getName().copy() : customName.copy();
+    }
+
+    private static InnTodo roomCleaningTodo(RoomData room) {
+        return InnTodo.translatable(
+                TODO_ROOM_CLEANING_ID_PREFIX + room.getId(),
+                TODO_ROOM_CLEANING_KEY,
+                Component.literal(RoomData.getDisplayName(room)));
+    }
 
     public void setRating(int rating) {
         this.rating = Math.max(0, Math.min(5, rating));
@@ -577,12 +612,7 @@ public class InnData {
         data.setWaiting(true, level.getDayTime());
 
         // 添加待办事项
-        String guestName =
-                guest.getCustomName() != null ? guest.getCustomName().getString() : "Guest";
-        String todoText =
-                Component.translatable("todo.otherworldinn.guest_waiting", guestName)
-                        .getString();
-        addTodo(level, team, todoText);
+        addTodo(level, team, guestWaitingTodo(guest));
         return true;
     }
 
@@ -592,8 +622,10 @@ public class InnData {
 
     /** 清除所有旅客数据并移除待入住待办事项（调试用） */
     public void clearAllGuests(Level level, TeamData team) {
-        for (String todo : List.copyOf(todoList)) {
-            if (todo.contains("guest_waiting")) {
+        for (InnTodo todo : List.copyOf(todoEntries)) {
+            if (todo.id().startsWith(TODO_GUEST_WAITING_ID_PREFIX)
+                    || todo.fallbackText().contains("正在等待办理入住")
+                    || todo.fallbackText().contains("waiting to check in")) {
                 removeTodo(level, team, todo);
             }
         }
@@ -1080,17 +1112,16 @@ public class InnData {
         if (room == null || team == null) {
             return;
         }
-        String todoText = getRoomCleaningTodoText(room);
+        InnTodo todo = getRoomCleaningTodo(room);
         if (roomNeedsCleaning(room, level)) {
-            addTodo(level, team, todoText);
+            addTodo(level, team, todo);
         } else {
-            removeTodo(level, team, todoText);
+            removeTodo(level, team, todo);
         }
     }
 
-    private String getRoomCleaningTodoText(RoomData room) {
-        return Component.translatable("todo.otherworldinn.room_cleaning", RoomData.getDisplayName(room))
-                .getString();
+    private InnTodo getRoomCleaningTodo(RoomData room) {
+        return roomCleaningTodo(room);
     }
 
     private boolean roomNeedsCleaning(RoomData room, Level level) {
@@ -1183,21 +1214,11 @@ public class InnData {
                         findBestRoomNavigationTarget(level, guestEntity, room, assignedBedPos);
                 guestEntity.setNavigationTarget(targetPos);
 
-                // 移除剪贴板 TODO
-                String guestName =
-                        entity.getCustomName() != null
-                                ? entity.getCustomName().getString()
-                                : "Guest";
-                // 使用与生成时相同的 Key
-                String todoText =
-                        Component.translatable("todo.otherworldinn.guest_waiting", guestName)
-                                .getString();
-
                 // 获取当前队伍并移除 TODO
                 TeamData team =
                         TeamManager.getInstance().getTeamAt(room.getMinPos(), level.getServer());
                 if (team != null) {
-                    removeTodo(level, team, todoText);
+                    removeTodo(level, team, guestWaitingTodo(entity));
                     // 触发客户端同步，更新 Tooltip
                     TeamManager.getInstance().syncTeam(team, level.getServer());
                 }
@@ -1730,14 +1751,7 @@ public class InnData {
         if (guestEntity != null) {
             GuestData guestData = guestEntity.getGuestData();
             if (guestData.getState() == GuestData.GuestState.WAITING) {
-                String guestName =
-                        entity.getCustomName() != null
-                                ? entity.getCustomName().getString()
-                                : "Guest";
-                String todoText =
-                        Component.translatable("todo.otherworldinn.guest_waiting", guestName)
-                                .getString();
-                removeTodo(level, team, todoText);
+                removeTodo(level, team, guestWaitingTodo(entity));
             }
             removeStoryGuestTodosIfNeeded(level, team, guestEntity);
         }
@@ -1911,8 +1925,8 @@ public class InnData {
         if (team == null || !(guestEntity instanceof StoryGuestEntity storyGuest)) {
             return;
         }
-        for (String todoText : StoryGuestTodoRegistry.resolveAllTodoTexts(storyGuest.getStoryGuestId())) {
-            removeTodo(level, team, todoText);
+        for (InnTodo todo : StoryGuestTodoRegistry.resolveAllTodos(storyGuest.getStoryGuestId())) {
+            removeTodo(level, team, todo);
         }
     }
 
@@ -1927,11 +1941,18 @@ public class InnData {
      * @return 是否成功添加到剪贴板（如果只添加到缓存也算处理成功，但返回 false 表示没有物理剪贴板更新）
      */
     public boolean addTodo(Level level, TeamData team, String todoText) {
-        // 1. 仅在首次新增时继续同步，避免房间清扫过程中的重复提示
-        if (todoList.contains(todoText)) {
+        return addTodo(level, team, InnTodo.legacy(todoText));
+    }
+
+    public boolean addTodo(Level level, TeamData team, InnTodo todo) {
+        if (todo == null) {
             return false;
         }
-        todoList.add(todoText);
+        // 1. 仅在首次新增时继续同步，避免房间清扫过程中的重复提示
+        if (findTodoIndex(todo) >= 0) {
+            return false;
+        }
+        todoEntries.add(todo);
         syncTodoMutation(level, team);
 
         // 2. 尝试同步到剪贴板
@@ -1939,7 +1960,7 @@ public class InnData {
         for (TeamData.InnRegion region : team.getInnRegions()) {
             AABB area =
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
-            if (ClipboardManager.addTodo(level, area, todoText)) {
+            if (ClipboardManager.addTodo(level, area, todo.component())) {
                 addedToClipboard = true;
             }
         }
@@ -1955,7 +1976,7 @@ public class InnData {
                                     player.displayClientMessage(
                                             Component.translatable(
                                                             "message.otherworldinn.todo.new_task",
-                                                            todoText)
+                                                            todo.component())
                                                     .withStyle(
                                                             style ->
                                                                     style.withColor(
@@ -1981,9 +2002,17 @@ public class InnData {
      * @param todoText 待办事项文本
      */
     public void removeTodo(Level level, TeamData team, String todoText) {
+        removeTodo(level, team, InnTodo.legacy(todoText));
+    }
+
+    public void removeTodo(Level level, TeamData team, InnTodo todo) {
+        if (todo == null) {
+            return;
+        }
         // 1. 从缓存移除
-        boolean removed = todoList.remove(todoText);
-        if (removed) {
+        int index = findTodoIndex(todo);
+        if (index >= 0) {
+            todoEntries.remove(index);
             syncTodoMutation(level, team);
         }
 
@@ -1991,8 +2020,35 @@ public class InnData {
         for (TeamData.InnRegion region : team.getInnRegions()) {
             AABB area =
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
-            ClipboardManager.removeTodo(level, area, todoText);
+            ClipboardManager.removeTodo(level, area, todo);
         }
+    }
+
+    public void removeTodoByIdOrText(Level level, TeamData team, String id, String fallbackText) {
+        int index = findTodoIndexById(id);
+        if (index >= 0) {
+            removeTodo(level, team, todoEntries.get(index));
+            return;
+        }
+        removeTodo(level, team, fallbackText);
+    }
+
+    private int findTodoIndex(InnTodo todo) {
+        for (int i = 0; i < todoEntries.size(); i++) {
+            if (todoEntries.get(i).matches(todo)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int findTodoIndexById(String id) {
+        for (int i = 0; i < todoEntries.size(); i++) {
+            if (todoEntries.get(i).matchesId(id)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void syncTodoMutation(Level level, TeamData team) {
@@ -2006,7 +2062,17 @@ public class InnData {
         if (todoText == null || todoText.isBlank()) {
             return Long.MAX_VALUE;
         }
-        int index = todoList.indexOf(todoText);
+        int index = findTodoIndex(InnTodo.legacy(todoText));
+        return index < 0 ? Long.MAX_VALUE : index;
+    }
+
+    public long getTodoAcceptedAt(InnTodo todo) {
+        int index = findTodoIndex(todo);
+        return index < 0 ? Long.MAX_VALUE : index;
+    }
+
+    public long getTodoAcceptedAtId(String id) {
+        int index = findTodoIndexById(id);
         return index < 0 ? Long.MAX_VALUE : index;
     }
 
@@ -2016,10 +2082,10 @@ public class InnData {
      * <p>通常在放置新的剪贴板时调用。
      */
     public void syncTodosToClipboard(Level level, AABB area) {
-        if (todoList.isEmpty()) return;
+        if (todoEntries.isEmpty()) return;
 
-        for (String todo : todoList) {
-            ClipboardManager.addTodo(level, area, todo);
+        for (InnTodo todo : todoEntries) {
+            ClipboardManager.addTodo(level, area, todo.component());
         }
     }
 
@@ -2028,8 +2094,8 @@ public class InnData {
             AABB area =
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
             ClipboardManager.clear(level, area);
-            for (String todo : todoList) {
-                ClipboardManager.addTodo(level, area, todo);
+            for (InnTodo todo : todoEntries) {
+                ClipboardManager.addTodo(level, area, todo.component());
             }
         }
     }
@@ -2073,12 +2139,15 @@ public class InnData {
         }
         tag.put("Rooms", roomsTag);
 
-        // 保存待办事项
-        ListTag todosTag = new ListTag();
-        for (String todo : todoList) {
-            todosTag.add(StringTag.valueOf(todo));
+        // 保存待办事项；TodoList 保留给旧版本和兜底显示读取。
+        ListTag structuredTodosTag = new ListTag();
+        ListTag legacyTodosTag = new ListTag();
+        for (InnTodo todo : todoEntries) {
+            structuredTodosTag.add(todo.save());
+            legacyTodosTag.add(StringTag.valueOf(todo.fallbackText()));
         }
-        tag.put("TodoList", todosTag);
+        tag.put("Todos", structuredTodosTag);
+        tag.put("TodoList", legacyTodosTag);
 
         tag.putLong("NextGuestSpawnTime", nextGuestSpawnTime);
         CompoundTag facilityLevelsTag = new CompoundTag();
@@ -2214,11 +2283,22 @@ public class InnData {
             }
         }
 
-        todoList.clear();
-        if (tag.contains("TodoList")) {
+        todoEntries.clear();
+        if (tag.contains("Todos", Tag.TAG_LIST)) {
+            ListTag todosTag = tag.getList("Todos", Tag.TAG_COMPOUND);
+            for (Tag t : todosTag) {
+                InnTodo todo = InnTodo.load(t);
+                if (!todo.fallbackText().isBlank()) {
+                    todoEntries.add(todo);
+                }
+            }
+        } else if (tag.contains("TodoList", Tag.TAG_LIST)) {
             ListTag todosTag = tag.getList("TodoList", Tag.TAG_STRING);
             for (Tag t : todosTag) {
-                todoList.add(t.getAsString());
+                String text = t.getAsString();
+                if (!text.isBlank()) {
+                    todoEntries.add(InnTodo.legacy(text));
+                }
             }
         }
 
