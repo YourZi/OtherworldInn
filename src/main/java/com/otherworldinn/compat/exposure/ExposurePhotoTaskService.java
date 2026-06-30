@@ -2,6 +2,7 @@ package com.otherworldinn.compat.exposure;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.commission.CommissionService;
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.photo.PhotoObjective;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.photo.StoryGuestPhotoTask;
@@ -74,11 +75,11 @@ public final class ExposurePhotoTaskService {
 
             TeamData team = TeamManager.getInstance().getPlayerTeam(player);
             if (team != null) {
-                String todoText =
-                        StoryGuestTodoRegistry.resolveCompletedTodoTextByFlag(
+                InnTodo todo =
+                        StoryGuestTodoRegistry.resolveCompletedTodoByFlag(
                                 task.storyGuestId(), task.completionFlag());
-                if (todoText != null) {
-                    team.getInnData().removeTodo(level, team, todoText);
+                if (todo != null) {
+                    team.getInnData().removeTodo(level, team, todo);
                 }
             }
 

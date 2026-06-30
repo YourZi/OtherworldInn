@@ -1,5 +1,6 @@
 package com.otherworldinn.world.storyguest;
 
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.photo.StoryGuestPhotoTaskRegistry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 public final class StoryGuestTodoRegistry {
@@ -110,32 +110,62 @@ public final class StoryGuestTodoRegistry {
 
     @Nullable
     public static String resolveAcceptedTodoText(String storyGuestId, String optionId) {
+        InnTodo todo = resolveAcceptedTodo(storyGuestId, optionId);
+        return todo == null ? null : todo.fallbackText();
+    }
+
+    @Nullable
+    public static InnTodo resolveAcceptedTodo(String storyGuestId, String optionId) {
         TodoEntry entry = ACCEPT_OPTION_TODOS.get(new OptionKey(storyGuestId, optionId));
-        return entry == null ? null : entry.resolveText();
+        return entry == null ? null : entry.toTodo();
     }
 
     @Nullable
     public static String resolveCompletedTodoTextByOption(String storyGuestId, String optionId) {
+        InnTodo todo = resolveCompletedTodoByOption(storyGuestId, optionId);
+        return todo == null ? null : todo.fallbackText();
+    }
+
+    @Nullable
+    public static InnTodo resolveCompletedTodoByOption(String storyGuestId, String optionId) {
         TodoEntry entry = COMPLETION_OPTION_TODOS.get(new OptionKey(storyGuestId, optionId));
-        return entry == null ? null : entry.resolveText();
+        return entry == null ? null : entry.toTodo();
     }
 
     @Nullable
     public static String resolveCompletedTodoTextByFlag(String storyGuestId, String completionFlag) {
+        InnTodo todo = resolveCompletedTodoByFlag(storyGuestId, completionFlag);
+        return todo == null ? null : todo.fallbackText();
+    }
+
+    @Nullable
+    public static InnTodo resolveCompletedTodoByFlag(String storyGuestId, String completionFlag) {
         TodoEntry entry = COMPLETION_FLAG_TODOS.get(new FlagKey(storyGuestId, completionFlag));
-        return entry == null ? null : entry.resolveText();
+        return entry == null ? null : entry.toTodo();
     }
 
     public static List<String> resolveAllTodoTexts(String storyGuestId) {
+        List<InnTodo> todos = resolveAllTodos(storyGuestId);
+        if (todos.isEmpty()) {
+            return List.of();
+        }
+        List<String> todoTexts = new ArrayList<>(todos.size());
+        for (InnTodo todo : todos) {
+            todoTexts.add(todo.fallbackText());
+        }
+        return todoTexts;
+    }
+
+    public static List<InnTodo> resolveAllTodos(String storyGuestId) {
         Set<TodoEntry> entries = STORY_GUEST_TODOS.get(storyGuestId);
         if (entries == null || entries.isEmpty()) {
             return List.of();
         }
-        List<String> todoTexts = new ArrayList<>(entries.size());
+        List<InnTodo> todos = new ArrayList<>(entries.size());
         for (TodoEntry entry : entries) {
-            todoTexts.add(entry.resolveText());
+            todos.add(entry.toTodo());
         }
-        return todoTexts;
+        return todos;
     }
 
     private static void registerItemTask(
@@ -173,8 +203,16 @@ public final class StoryGuestTodoRegistry {
             @Nullable String completionOptionId,
             @Nullable String completionFlag,
             boolean isPhotoTask) {
+        public String todoId() {
+            return "story_guest:" + storyGuestId + ":" + todoKey;
+        }
+
+        public InnTodo toTodo() {
+            return InnTodo.translatable(todoId(), todoKey);
+        }
+
         public String resolveText() {
-            return Component.translatable(todoKey).getString();
+            return toTodo().fallbackText();
         }
     }
 }

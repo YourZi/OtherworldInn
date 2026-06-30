@@ -3,6 +3,7 @@ package com.otherworldinn.entity.base;
 import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -49,6 +50,8 @@ public abstract class VipGuestEntity extends GuestEntity {
     private static final String TAG_PENDING_TODO_TEAM = "VipPendingTodoTeam";
     private static final String TAG_CHECKOUT_DEFERRED = "VipCheckoutDeferred";
     private static final String TAG_DEFERRED_CHECKOUT_TIME = "VipDeferredCheckoutTime";
+    private static final String VIP_MEAL_TODO_KEY = "todo.otherworldinn.vip_meal_order";
+    private static final String VIP_MEAL_TODO_ID_PREFIX = "vip_meal_order:";
     private int vipOrderCount = 0;
     private long vipNextOrderTime = 0L;
     private boolean vipWaitingForMeal = false;
@@ -224,13 +227,9 @@ public abstract class VipGuestEntity extends GuestEntity {
         this.vipWaitingDeadline = level.getGameTime() + VIP_WAITING_TIMEOUT_TICKS;
         this.vipOrderCount++;
         this.vipPendingTodoTeamId = team.getTeamId();
-        this.vipPendingTodoText =
-                Component.translatable(
-                                "todo.otherworldinn.vip_meal_order",
-                                this.getName(),
-                                mealStack.getHoverName())
-                        .getString();
-        team.getInnData().addTodo(level, team, this.vipPendingTodoText);
+        InnTodo todo = createVipMealTodo(mealStack);
+        this.vipPendingTodoText = todo.fallbackText();
+        team.getInnData().addTodo(level, team, todo);
     }
 
     private void handleVipOrderTimeout(ServerLevel level) {
@@ -278,18 +277,28 @@ public abstract class VipGuestEntity extends GuestEntity {
         if (this.vipPendingTodoTeamId != null) {
             TeamData exactTeam = manager.getData(level.getServer()).getTeams().get(this.vipPendingTodoTeamId);
             if (exactTeam != null) {
-                exactTeam.getInnData().removeTodo(level, exactTeam, this.vipPendingTodoText);
+                exactTeam.getInnData().removeTodoByIdOrText(
+                        level, exactTeam, vipMealTodoId(), this.vipPendingTodoText);
                 return;
             }
         }
         TeamData team = resolveInnTeam(level);
         if (team != null) {
-            team.getInnData().removeTodo(level, team, this.vipPendingTodoText);
+            team.getInnData().removeTodoByIdOrText(level, team, vipMealTodoId(), this.vipPendingTodoText);
             return;
         }
         for (TeamData fallbackTeam : manager.getData(level.getServer()).getTeams().values()) {
-            fallbackTeam.getInnData().removeTodo(level, fallbackTeam, this.vipPendingTodoText);
+            fallbackTeam.getInnData().removeTodoByIdOrText(
+                    level, fallbackTeam, vipMealTodoId(), this.vipPendingTodoText);
         }
+    }
+
+    private String vipMealTodoId() {
+        return VIP_MEAL_TODO_ID_PREFIX + getUUID();
+    }
+
+    private InnTodo createVipMealTodo(ItemStack mealStack) {
+        return InnTodo.translatable(vipMealTodoId(), VIP_MEAL_TODO_KEY, this.getName(), mealStack.getHoverName());
     }
 
     private void scheduleNextVipOrder(ServerLevel level) {

@@ -9,6 +9,7 @@ import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
 import com.otherworldinn.world.dialogue.DialogueRequirementDef;
 import com.otherworldinn.world.dialogue.DialogueRequirementType;
+import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.photo.PhotoObjective;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.photo.StoryGuestPhotoTask;
@@ -53,15 +54,15 @@ public final class TaskHudSnapshotBuilder {
 
         CompoundTag snapshot = OtherworldInnHudSnapshotApi.createEmptySnapshot();
         ListTag tasks = new ListTag();
-        List<String> todoList = team.getInnData().getTodoList();
-        addCommissionTask(tasks, player, team, todoList);
-        addStoryGuestTasks(tasks, player.serverLevel(), player, team, todoList);
+        List<InnTodo> todos = team.getInnData().getTodos();
+        addCommissionTask(tasks, player, team, todos);
+        addStoryGuestTasks(tasks, player.serverLevel(), player, team, todos);
         snapshot.put("Tasks", tasks);
         return snapshot;
     }
 
     private static void addCommissionTask(
-            ListTag tasks, ServerPlayer player, TeamData team, List<String> todoList) {
+            ListTag tasks, ServerPlayer player, TeamData team, List<InnTodo> todos) {
         TeamCommissionData data = team.getCommissionData();
         CommissionEntry active = data.getAcceptedEntry();
         if (active == null) {
@@ -75,7 +76,7 @@ public final class TaskHudSnapshotBuilder {
                 resolveText(active.getDescriptionKey(), active.getId()),
                 active.hasSubmitRequirement(),
                 data.isRewardClaimed(),
-                commissionAcceptedAt(data, todoList));
+                commissionAcceptedAt(data, todos));
 
         ListTag requirements = new ListTag();
         for (CommissionEntry.ItemRequirement requirement : active.getSubmitRequirements()) {
@@ -139,14 +140,15 @@ public final class TaskHudSnapshotBuilder {
     }
 
     private static void addStoryGuestTasks(
-            ListTag tasks, ServerLevel level, ServerPlayer player, TeamData team, List<String> todoList) {
-        if (todoList.isEmpty()) {
+            ListTag tasks, ServerLevel level, ServerPlayer player, TeamData team, List<InnTodo> todos) {
+        if (todos.isEmpty()) {
             return;
         }
 
         for (StoryGuestTodoRegistry.TodoEntry entry : StoryGuestTodoRegistry.allTodos()) {
-            String titleText = entry.resolveText();
-            if (!todoList.contains(titleText)) {
+            InnTodo todo = entry.toTodo();
+            long acceptedAt = todoAcceptedAt(todos, todo);
+            if (acceptedAt == Long.MAX_VALUE) {
                 continue;
             }
             if (!isStoryTodoRelevant(level, entry)) {
@@ -159,10 +161,10 @@ public final class TaskHudSnapshotBuilder {
                     "story_guest:" + entry.storyGuestId() + ":" + entry.todoKey(),
                     KIND_STORY_GUEST,
                     entry.todoKey(),
-                    titleText,
+                    todo.fallbackText(),
                     !entry.isPhotoTask(),
                     complete,
-                    todoAcceptedAt(todoList, titleText));
+                    acceptedAt);
 
             ListTag requirements = new ListTag();
             if (entry.isPhotoTask()) {
@@ -326,9 +328,9 @@ public final class TaskHudSnapshotBuilder {
         return reward;
     }
 
-    private static long commissionAcceptedAt(TeamCommissionData data, List<String> todoList) {
-        String todoText = Component.translatable(TOWN_COMMISSION_TODO_TEXT_KEY).getString();
-        long todoOrder = todoAcceptedAt(todoList, todoText);
+    private static long commissionAcceptedAt(TeamCommissionData data, List<InnTodo> todos) {
+        InnTodo todo = InnTodo.translatable("town_commission", TOWN_COMMISSION_TODO_TEXT_KEY);
+        long todoOrder = todoAcceptedAt(todos, todo);
         if (todoOrder != Long.MAX_VALUE) {
             return todoOrder;
         }
@@ -338,9 +340,13 @@ public final class TaskHudSnapshotBuilder {
         return data.getAcceptedDay() >= 0L ? data.getAcceptedDay() : Long.MAX_VALUE;
     }
 
-    private static long todoAcceptedAt(List<String> todoList, String todoText) {
-        int index = todoList.indexOf(todoText);
-        return index < 0 ? Long.MAX_VALUE : index;
+    private static long todoAcceptedAt(List<InnTodo> todos, InnTodo target) {
+        for (int i = 0; i < todos.size(); i++) {
+            if (todos.get(i).matches(target)) {
+                return i;
+            }
+        }
+        return Long.MAX_VALUE;
     }
 
     private static int countMatchingItems(
