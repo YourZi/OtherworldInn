@@ -1,7 +1,7 @@
 package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.dialogue.DialogueClientManager;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.dialogue.DialogueNodeView;
 import com.otherworldinn.world.dialogue.DialogueOptionType;
 import com.otherworldinn.world.dialogue.DialogueOptionView;
@@ -59,6 +59,6 @@ public record S2CDialogueNodePacket(DialogueNodeView view) implements CustomPack
     }
 
     public static void handle(S2CDialogueNodePacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> DialogueClientManager.handleNode(packet.view()));
+        context.enqueueWork(() -> ClientServices.handleDialogueNode(packet.view()));
     }
 }

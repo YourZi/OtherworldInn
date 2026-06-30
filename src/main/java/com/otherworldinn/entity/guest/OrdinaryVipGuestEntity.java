@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.util.TextureUtils;
 import com.otherworldinn.entity.base.VipGuestEntity;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.inn.GuestData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -43,7 +43,7 @@ public class OrdinaryVipGuestEntity extends VipGuestEntity {
         if (!texturesLoaded && this.level().isClientSide) {
             try {
                 List<ResourceLocation> found =
-                        TextureUtils.findTexturesInFolder(
+                        ClientServices.findTexturesInFolder(
                                 OtherworldInn.MODID, "textures/entity/guest/ordinary_vip_guest");
                 if (!found.isEmpty()) {
                     TEXTURES.clear();

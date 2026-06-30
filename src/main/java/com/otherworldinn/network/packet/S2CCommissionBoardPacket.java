@@ -1,7 +1,7 @@
 package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.commission.CommissionClientManager;
+import com.otherworldinn.util.ClientServices;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -30,6 +30,6 @@ public record S2CCommissionBoardPacket(CompoundTag data, boolean openScreen)
 
     public static void handle(S2CCommissionBoardPacket packet, IPayloadContext context) {
         context.enqueueWork(
-                () -> CommissionClientManager.handleBoardData(packet.data(), packet.openScreen()));
+                () -> ClientServices.handleCommissionBoard(packet.data(), packet.openScreen()));
     }
 }

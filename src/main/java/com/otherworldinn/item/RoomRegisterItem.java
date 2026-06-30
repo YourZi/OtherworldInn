@@ -1,8 +1,8 @@
 package com.otherworldinn.item;
 
-import com.otherworldinn.client.ClientHooks;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.util.AdvancementUtils;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
 import com.otherworldinn.world.team.TeamData;
@@ -24,8 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
 
 /**
  * 房间登记册物品
@@ -151,9 +149,7 @@ public class RoomRegisterItem extends Item {
         }
 
         if (level.isClientSide) {
-            if (FMLEnvironment.dist == Dist.CLIENT) {
-                ClientHooks.activateRoomOutline(100);
-            }
+            ClientServices.activateRoomOutline(100);
             return InteractionResultHolder.sidedSuccess(stack, true);
         }
 

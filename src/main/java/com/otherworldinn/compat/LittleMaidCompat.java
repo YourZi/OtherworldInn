@@ -2,16 +2,11 @@ package com.otherworldinn.compat;
 
 import com.github.tartaricacid.touhoulittlemaid.api.ILittleMaid;
 import com.github.tartaricacid.touhoulittlemaid.api.LittleMaidExtension;
-import com.github.tartaricacid.touhoulittlemaid.client.overlay.MaidTipsOverlay;
 import com.github.tartaricacid.touhoulittlemaid.entity.ai.brain.ExtraMaidBrainManager;
 import com.github.tartaricacid.touhoulittlemaid.entity.task.TaskManager;
 import com.github.tartaricacid.touhoulittlemaid.item.bauble.BaubleManager;
 import com.otherworldinn.compat.task.FrontDeskTask;
 import com.otherworldinn.compat.task.RoomCleanTask;
-
-import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 这个类是实现女仆模型相关功能的入口类。<br>
@@ -48,14 +43,6 @@ public class LittleMaidCompat implements ILittleMaid {
     public void addMaidTask(TaskManager manager) {
         manager.add(new RoomCleanTask());
         manager.add(new FrontDeskTask());
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addMaidTips(MaidTipsOverlay maidTipsOverlay) {
-        // 前面的是语言文件的 key，后面的是物品
-        // The first part is the key in the language file, and the second part is the item
-        //maidTipsOverlay.addTips("overlay.example.apple.tips", Items.APPLE);
     }
 
     @Override

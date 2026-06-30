@@ -5,6 +5,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SPicnicBoxActionPacket;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.event.listener.PlayerFatigueHandler;
 import com.otherworldinn.world.fatigue.FatigueCalculator;
@@ -14,7 +15,6 @@ import com.otherworldinn.world.picnic.PicnicBoxSyncHelper;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import net.minecraft.client.Minecraft;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.component.DataComponents;
@@ -602,7 +602,7 @@ public class PicnicBoxItem extends Item {
     }
 
     private static Player getClientPlayer() {
-        return Minecraft.getInstance().player;
+        return ClientServices.getClientPlayer();
     }
 
     private static void showMessage(Player player, String key) {

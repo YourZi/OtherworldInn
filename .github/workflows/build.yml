@@ -21,5 +21,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Check client-only boundaries
+        run: python scripts/check_client_boundaries.py
+
       - name: Build with Gradle
         run: ./gradlew build
