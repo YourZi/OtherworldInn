@@ -46,7 +46,7 @@ public class RoomCleanTask implements IMaidTask{
     private static final ItemStack ICON = new ItemStack(InitItems.BROOM.get());
 
     private static final Map<UUID, Long> WASH_COOLDOWN = new HashMap<>();
-    private static final int CLEAN_SEARCH_RANGE = 32;
+    private static final int CLEAN_SEARCH_RANGE = 48;
 
     @Override
     public ResourceLocation getUid() {
@@ -67,30 +67,33 @@ public class RoomCleanTask implements IMaidTask{
     @Override
     public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
         return Lists.newArrayList(
+                // 背包里有脏床单就去洗
                 Pair.of(
                         5,
                         new MaidMoveToPredicateBlockTask(
                                 0.8f,
                                 CLEAN_SEARCH_RANGE,
-                                RoomCleanTask::shouldCleanBeds,
-                                RoomCleanTask::isMessyBed)),
-                Pair.of(6, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanMessyBedAt)),
+                                RoomCleanTask::shouldWashDirtySheets,
+                                RoomCleanTask::isWashTarget)),
+                Pair.of(6, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)),
+                // 寻找脏床并换床单
                 Pair.of(
                         7,
                         new MaidMoveToPredicateBlockTask(
                                 0.8f,
                                 CLEAN_SEARCH_RANGE,
-                                RoomCleanTask::shouldCleanClutter,
-                                RoomCleanTask::isClutter)),
-                Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanClutterAt)),
+                                RoomCleanTask::shouldCleanBeds,
+                                RoomCleanTask::isMessyBed)),
+                Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanMessyBedAt)),
+                // 清理杂物垃圾
                 Pair.of(
                         9,
                         new MaidMoveToPredicateBlockTask(
                                 0.8f,
                                 CLEAN_SEARCH_RANGE,
-                                RoomCleanTask::shouldWashDirtySheets,
-                                RoomCleanTask::isWashTarget)),
-                Pair.of(10, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)));
+                                RoomCleanTask::shouldCleanClutter,
+                                RoomCleanTask::isClutter)),
+                Pair.of(10, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanClutterAt)));
     }
 
     private static boolean hasCleanSheet(EntityMaid maid) {
@@ -123,13 +126,7 @@ public class RoomCleanTask implements IMaidTask{
         if (isWashOnCooldown(maid)) {
             return false;
         }
-        int dirtyCount = countItem(maid.getMaidInv(), ModItems.MESSY_BED_SHEET.get());
-        if (dirtyCount <= 0) {
-            return false;
-        }
-        int cleanCount = countItem(maid.getMaidInv(), ModItems.BED_SHEET.get());
-        int totalCount = cleanCount + dirtyCount;
-        return dirtyCount * 3 > totalCount;
+        return hasDirtySheet(maid);
     }
 
     private static boolean isMessyBed(EntityMaid maid, BlockPos pos) {
@@ -238,17 +235,6 @@ public class RoomCleanTask implements IMaidTask{
             }
         }
         return -1;
-    }
-
-    private static int countItem(ItemStackHandler inv, net.minecraft.world.item.Item item) {
-        int count = 0;
-        for (int i = 0; i < inv.getSlots(); i++) {
-            ItemStack stack = inv.getStackInSlot(i);
-            if (!stack.isEmpty() && stack.is(item)) {
-                count += stack.getCount();
-            }
-        }
-        return count;
     }
 
     private static void consumeOne(ItemStackHandler inv, int slot) {

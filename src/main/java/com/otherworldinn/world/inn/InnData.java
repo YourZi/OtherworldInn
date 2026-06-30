@@ -1656,7 +1656,7 @@ public class InnData {
         boolean changed = false;
 
         // 自动歇业：世界中没有在线玩家时自动歇业
-        if (level.players().isEmpty() && this.state == InnState.OPEN) {
+        if (level.getServer().getPlayerCount() <= 0 && this.state == InnState.OPEN) {
             this.state = InnState.CLOSED;
             changed = true;
         }
