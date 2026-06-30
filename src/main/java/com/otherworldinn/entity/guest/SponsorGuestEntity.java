@@ -1,8 +1,6 @@
 package com.otherworldinn.entity.guest;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.util.ClientServices;
-import com.otherworldinn.client.util.SponsorSkinTextureService;
 import com.otherworldinn.entity.base.VipGuestEntity;
 import com.otherworldinn.world.sponsor.SponsorAppearanceSnapshot;
 import com.otherworldinn.world.sponsor.SponsorDefinition;
@@ -59,13 +57,7 @@ public class SponsorGuestEntity extends VipGuestEntity {
 
     @Override
     public ResourceLocation getSkinTexture() {
-        String sponsorName = this.getSponsorName();
-        ResourceLocation fallback = SponsorSkinTextureService.resolveFallbackTexture(sponsorName);
-        String resolvedSkinUrl = this.entityData.get(RESOLVED_SKIN_URL);
-        if (resolvedSkinUrl == null || resolvedSkinUrl.isBlank()) {
-            return fallback != null ? fallback : DEFAULT_TEXTURE;
-        }
-        return SponsorSkinTextureService.getResolvedTexture(sponsorName, resolvedSkinUrl, fallback);
+        return DEFAULT_TEXTURE;
     }
 
     @Override
@@ -132,6 +124,10 @@ public class SponsorGuestEntity extends VipGuestEntity {
             return sponsorName;
         }
         return this.getName().getString();
+    }
+
+    public String getResolvedSkinUrl() {
+        return this.entityData.get(RESOLVED_SKIN_URL);
     }
 
     private void setSponsorName(String sponsorName) {

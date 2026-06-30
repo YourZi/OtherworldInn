@@ -19,6 +19,7 @@ import com.otherworldinn.client.renderer.GrocerRenderer;
 import com.otherworldinn.client.renderer.GuestRenderer;
 import com.otherworldinn.client.renderer.MagicianModel;
 import com.otherworldinn.client.renderer.MagicianRenderer;
+import com.otherworldinn.client.renderer.SponsorGuestRenderer;
 import com.otherworldinn.client.renderer.WanderingTraderModel;
 import com.otherworldinn.client.renderer.WanderingTraderRenderer;
 import com.otherworldinn.item.RoomKeyItem;
@@ -81,7 +82,7 @@ public class ModClientEvents {
         event.registerEntityRenderer(ModEntities.ULTRA_RICH_GUEST.get(), GuestRenderer::new);
         event.registerEntityRenderer(ModEntities.ORDINARY_VIP_GUEST.get(), GuestRenderer::new);
         event.registerEntityRenderer(ModEntities.ADVANCED_VIP_GUEST.get(), GuestRenderer::new);
-        event.registerEntityRenderer(ModEntities.SPONSOR_GUEST.get(), GuestRenderer::new);
+        event.registerEntityRenderer(ModEntities.SPONSOR_GUEST.get(), SponsorGuestRenderer::new);
         event.registerEntityRenderer(ModEntities.STORY_GUEST.get(), GuestRenderer::new);
         event.registerEntityRenderer(ModEntities.BLACKSMITH.get(), BlacksmithRenderer::new);
         event.registerEntityRenderer(ModEntities.MAGICIAN.get(), MagicianRenderer::new);
