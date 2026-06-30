@@ -1655,6 +1655,12 @@ public class InnData {
         long currentTime = level.getDayTime();
         boolean changed = false;
 
+        // 自动歇业：世界中没有在线玩家时自动歇业
+        if (level.players().isEmpty() && this.state == InnState.OPEN) {
+            this.state = InnState.CLOSED;
+            changed = true;
+        }
+
         // 尝试生成旅客 (每 20 tick 检查一次，减少开销)
         if (currentTime % 20 == 0 && trySpawnGuest(level)) {
             changed = true;
