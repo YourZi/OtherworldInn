@@ -1,7 +1,7 @@
 package com.otherworldinn.network.packet;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.dialogue.DialogueClientManager;
+import com.otherworldinn.util.ClientServices;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -21,6 +21,6 @@ public record S2CDialogueClosePacket() implements CustomPacketPayload {
     }
 
     public static void handle(S2CDialogueClosePacket packet, IPayloadContext context) {
-        context.enqueueWork(DialogueClientManager::handleClose);
+        context.enqueueWork(ClientServices::handleDialogueClose);
     }
 }

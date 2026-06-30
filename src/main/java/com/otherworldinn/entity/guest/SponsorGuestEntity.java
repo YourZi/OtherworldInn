@@ -1,7 +1,7 @@
 package com.otherworldinn.entity.guest;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.util.TextureUtils;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.util.service.MojangProfileService;
 import com.otherworldinn.entity.base.VipGuestEntity;
 import com.otherworldinn.util.service.SponsorNamePool;
@@ -50,7 +50,7 @@ public class SponsorGuestEntity extends VipGuestEntity {
     public ResourceLocation getSkinTexture() {
         String name = this.getName().getString();
         ResourceLocation fallback = resolveLocalFallbackTexture();
-        return TextureUtils.getMojangSkinTexture(name, fallback);
+        return ClientServices.getMojangSkinTexture(name, fallback);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SponsorGuestEntity extends VipGuestEntity {
         if (!texturesLoaded && this.level().isClientSide) {
             try {
                 List<ResourceLocation> found =
-                        TextureUtils.findTexturesInFolder(
+                        ClientServices.findTexturesInFolder(
                                 OtherworldInn.MODID, "textures/entity/guest/sponsor_guest");
                 if (!found.isEmpty()) {
                     TEXTURES.clear();

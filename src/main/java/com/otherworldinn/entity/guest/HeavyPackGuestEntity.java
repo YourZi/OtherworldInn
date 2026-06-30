@@ -1,8 +1,8 @@
 package com.otherworldinn.entity.guest;
 
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.util.TextureUtils;
 import com.otherworldinn.entity.base.GuestEntity;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.inn.GuestData;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +108,7 @@ public class HeavyPackGuestEntity extends GuestEntity {
         if (!texturesLoaded && this.level().isClientSide) {
             try {
                 List<ResourceLocation> found =
-                        TextureUtils.findTexturesInFolder(
+                        ClientServices.findTexturesInFolder(
                                 OtherworldInn.MODID, "textures/entity/guest/heavy_pack_guest");
                 if (!found.isEmpty()) {
                     TEXTURES.clear();

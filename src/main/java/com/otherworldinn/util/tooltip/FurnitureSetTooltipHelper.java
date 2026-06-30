@@ -1,10 +1,9 @@
 package com.otherworldinn.util.tooltip;
 
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.inn.service.RoomThemeManager;
 import java.util.List;
-import java.util.Locale;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.Block;
@@ -48,12 +47,7 @@ public final class FurnitureSetTooltipHelper {
     }
 
     private static boolean isChineseLocale() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft == null) {
-            return true;
-        }
-        String locale = minecraft.getLanguageManager().getSelected();
-        return locale != null && locale.toLowerCase(Locale.ROOT).startsWith("zh");
+        return ClientServices.isChineseLocale();
     }
 
     private static Component getPartComponent(RoomThemeManager.ThemePart part) {
