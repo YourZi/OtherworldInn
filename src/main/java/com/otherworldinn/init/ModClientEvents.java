@@ -125,6 +125,7 @@ public class ModClientEvents {
     public static void onRegisterKeyMappings(
             net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent event) {
         event.register(ModKeyBindings.TOGGLE_MAP_MODE);
+        event.register(ModKeyBindings.TOGGLE_INN_OVERLAY);
     }
 
     @SubscribeEvent

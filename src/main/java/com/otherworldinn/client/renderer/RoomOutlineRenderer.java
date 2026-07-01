@@ -12,6 +12,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.RoomKeyItem;
+import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
 import com.otherworldinn.world.team.TeamData;
@@ -24,6 +25,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +52,8 @@ public class RoomOutlineRenderer {
 
     private static final Object PREVIEW_SLOT = "room_preview";
     private static int forcedRoomOutlineTicks = 0;
+    private static boolean overlayToggled = false;
+    private static boolean overlayTogglePressed = false;
 
     public static void activateTimedRoomOutline(int ticks) {
         if (ticks > 0) {
@@ -104,6 +109,23 @@ public class RoomOutlineRenderer {
         Player player = mc.player;
         if (player == null) return;
 
+        // 检测按键绑定切换重叠层显示
+        boolean pressed = ModKeyBindings.TOGGLE_INN_OVERLAY.isDown();
+        if (pressed && !overlayTogglePressed) {
+            overlayToggled = !overlayToggled;
+            player.displayClientMessage(
+                    Component.translatable(
+                            "message.otherworldinn.inn_overlay.toggled",
+                            Component.translatable(
+                                    overlayToggled
+                                            ? "message.otherworldinn.inn_overlay.on"
+                                            : "message.otherworldinn.inn_overlay.off")
+                                    .setStyle(Style.EMPTY.withColor(
+                                            overlayToggled ? 0x55FF55 : 0xFF5555))),
+                    true);
+        }
+        overlayTogglePressed = pressed;
+
         // 检查是否手持房间登记册或地契
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean holdingRegistry = stack.is(ModItems.ROOM_REGISTER.get());
@@ -118,7 +140,7 @@ public class RoomOutlineRenderer {
             holdingRoomKey = stack.is(ModItems.ROOM_KEY.get());
         }
 
-        if (!holdingRegistry && !holdingLandDeed && !holdingRoomKey && !forceRenderRooms) {
+        if (!holdingRegistry && !holdingLandDeed && !holdingRoomKey && !forceRenderRooms && !overlayToggled) {
             return;
         }
 
@@ -201,13 +223,76 @@ public class RoomOutlineRenderer {
                                     AllSpecialTextures.CUTOUT_CHECKERED);
                 }
             }
+
+            // 4. 按键切换重叠层：显示所有房间 + 旅社范围
+            if (overlayToggled && !holdingRegistry && !holdingRoomKey && !holdingLandDeed) {
+                for (RoomData room : innData.getRooms().values()) {
+                    AABB box =
+                            new AABB(
+                                    room.getMinPos().getX(),
+                                    room.getMinPos().getY(),
+                                    room.getMinPos().getZ(),
+                                    room.getMaxPos().getX() + 1.0,
+                                    room.getMaxPos().getY() + 1.0,
+                                    room.getMaxPos().getZ() + 1.0);
+                    Outliner.getInstance()
+                            .showAABB(room.getId(), box)
+                            .colored(ModColors.BLUE)
+                            .lineWidth(1 / 16f)
+                            .withFaceTextures(
+                                    AllSpecialTextures.CUTOUT_CHECKERED,
+                                    AllSpecialTextures.CUTOUT_CHECKERED);
+                }
+
+                int minBuildHeight = mc.level.getMinBuildHeight();
+                int maxBuildHeight = mc.level.getMaxBuildHeight();
+                List<TeamData.InnRegion> regions = team.getInnRegions();
+                for (int i = 0; i < regions.size(); i++) {
+                    TeamData.InnRegion region = regions.get(i);
+                    AABB innBox =
+                            new AABB(
+                                    region.minX(),
+                                    minBuildHeight,
+                                    region.minZ(),
+                                    region.maxX() + 1.0,
+                                    maxBuildHeight,
+                                    region.maxZ() + 1.0);
+                    Outliner.getInstance()
+                            .showAABB("inn_overlay_region_" + i, innBox)
+                            .colored(ModColors.GREEN)
+                            .lineWidth(1 / 16f)
+                            .withFaceTextures(
+                                    AllSpecialTextures.CUTOUT_CHECKERED,
+                                    AllSpecialTextures.CUTOUT_CHECKERED);
+                }
+
+                // 最大可建造地皮范围 (橙色)
+                AABB maxBounds =
+                        new AABB(
+                                LandDeedItem.MAX_REGION_MIN_X,
+                                minBuildHeight,
+                                LandDeedItem.MAX_REGION_MIN_Z,
+                                LandDeedItem.MAX_REGION_MAX_X + 1.0,
+                                maxBuildHeight,
+                                LandDeedItem.MAX_REGION_MAX_Z + 1.0);
+                Outliner.getInstance()
+                        .showAABB("inn_max_bounds", maxBounds)
+                        .colored(ModColors.YELLOW)
+                        .lineWidth(1 / 16f)
+                        .withFaceTextures(
+                                AllSpecialTextures.CUTOUT_CHECKERED,
+                                AllSpecialTextures.CUTOUT_CHECKERED);
+            }
         }
 
         if (forcedRoomOutlineTicks > 0) {
             forcedRoomOutlineTicks--;
         }
 
-        // 2. 渲染预览区域 (黄绿色/地契颜色)
+        // 2. 渲染预览区域 (黄绿色/地契颜色) - 仅在手持相关物品时
+        if (!holdingLandDeed && !holdingRegistry) {
+            return;
+        }
         CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         CompoundTag tag = customData.copyTag();
 

@@ -50,6 +50,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("key.categories.otherworldinn").zh("旅社物语").en("Otherworld Inn");
 
         entry("key.otherworldinn.map_mode").zh("地图视图").en("Map View");
+        entry("key.otherworldinn.inn_overlay").zh("旅社范围显示").en("Inn Overlay");
+        entry("message.otherworldinn.inn_overlay.toggled")
+                .zh("旅社范围显示：%s")
+                .en("Inn Overlay: %s");
+        entry("message.otherworldinn.inn_overlay.on").zh("开").en("ON");
+        entry("message.otherworldinn.inn_overlay.off").zh("关").en("OFF");
         entry("skill.fishing").zh("钓鱼").en("Fishing");
         entry("skill.magic").zh("钓鱼").en("Fishing");
 
@@ -1006,7 +1012,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.guest.tooltip.preference.humidity")
                 .zh("§f\uE004§r湿度偏好: %s-%s")
                 .en("§f\uE004§rHumidity Preference: %s-%s");
-        entry("message.otherworldinn.guest.tooltip.budget").zh("预算: §f\uE001§r%s").en("Budget: §f\uE001§r%s");
+        entry("message.otherworldinn.guest.tooltip.budget").zh("餐饮预算: §f\uE001§r%s").en("Budget: §f\uE001§r%s");
         entry("message.otherworldinn.guest.tooltip.rewards").zh("可能奖励:").en("Possible Rewards:");
         entry("message.otherworldinn.guest.tooltip.rewards.none").zh("无").en("None");
         entry("message.otherworldinn.guest.tooltip.rewards.entry")

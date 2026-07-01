@@ -216,7 +216,7 @@ public final class FacilityRegistry {
                                         new ItemStack(AllBlocks.COPPER_CASING.asItem(), 16),
                                         new ItemStack(AllBlocks.STEAM_ENGINE.asItem(), 4),
                                         new ItemStack(AllBlocks.BLAZE_BURNER.asItem(), 9)),
-                                3200)),
+                                1300)),
                 new FacilityMapPointConfig(
                         new Vec3(30, 62, -39),
                         new Vec2(70, 50),
@@ -239,18 +239,18 @@ public final class FacilityRegistry {
                                 List.of(
                                         new ItemStack(Items.GLASS, 24),
                                         new ItemStack(Items.OAK_PLANKS, 16)),
-                                500),
+                                300),
                         new LevelUpgradeCost(
                                 List.of(
                                         new ItemStack(Items.GLASS_PANE, 32),
                                         new ItemStack(Items.IRON_INGOT, 12)),
-                                1200),
+                                700),
                         new LevelUpgradeCost(
                                 List.of(
                                         new ItemStack(Items.GLASS, 32),
                                         new ItemStack(Items.IRON_INGOT, 48),
                                         new ItemStack(Items.LANTERN, 8)),
-                                2600)),
+                                1200)),
                 new FacilityMapPointConfig(
                         new Vec3(2, 71, 52),
                         new Vec2(20, -40),

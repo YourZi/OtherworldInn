@@ -1,7 +1,7 @@
 {
   "type": "create:sequenced_assembly",
   "ingredient": {
-    "item": "create:iron_sheet"
+    "item": "create:brass_sheet"
   },
   "loops": 1,
   "results": [
@@ -14,7 +14,7 @@
       "type": "create:deploying",
       "ingredients": [
         {
-          "item": "create:iron_sheet"
+          "item": "create:brass_sheet"
         },
         {
           "item": "otherworldinn:space_sphere"
@@ -22,7 +22,7 @@
       ],
       "results": [
         {
-          "id": "create:iron_sheet"
+          "id": "create:brass_sheet"
         }
       ]
     },
@@ -30,7 +30,7 @@
       "type": "create:deploying",
       "ingredients": [
         {
-          "item": "create:iron_sheet"
+          "item": "create:brass_sheet"
         },
         {
           "item": "minecraft:quartz"
@@ -38,7 +38,7 @@
       ],
       "results": [
         {
-          "id": "create:iron_sheet"
+          "id": "create:brass_sheet"
         }
       ]
     },
@@ -46,7 +46,7 @@
       "type": "create:deploying",
       "ingredients": [
         {
-          "item": "create:iron_sheet"
+          "item": "create:brass_sheet"
         },
         {
           "tag": "c:glass_blocks"
@@ -54,7 +54,7 @@
       ],
       "results": [
         {
-          "id": "create:iron_sheet"
+          "id": "create:brass_sheet"
         }
       ]
     },
@@ -62,17 +62,17 @@
       "type": "create:pressing",
       "ingredients": [
         {
-          "item": "create:iron_sheet"
+          "item": "create:brass_sheet"
         }
       ],
       "results": [
         {
-          "id": "create:iron_sheet"
+          "id": "create:brass_sheet"
         }
       ]
     }
   ],
   "transitional_item": {
-    "id": "create:iron_sheet"
+    "id": "create:brass_sheet"
   }
 }

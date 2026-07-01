@@ -16,4 +16,13 @@ public class ModKeyBindings {
                     InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_M,
                     "key.categories.otherworldinn");
+
+    public static final KeyMapping TOGGLE_INN_OVERLAY =
+            new KeyMapping(
+                    "key.otherworldinn.inn_overlay",
+                    KeyConflictContext.IN_GAME,
+                    KeyModifier.NONE,
+                    InputConstants.Type.KEYSYM,
+                    GLFW.GLFW_KEY_I,
+                    "key.categories.otherworldinn");
 }

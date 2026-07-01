@@ -95,7 +95,7 @@ public abstract class GuestEntity extends PathfinderMob {
     private static final int DINING_SEARCH_RADIUS = 32;
     // 平均一天触发 3 次：24000 / 3 = 8000 tick
     private static final int DINING_AVERAGE_INTERVAL = 8000;
-    private static final int MIN_DAILY_DINING_ATTEMPTS = 3;
+    private static final int MIN_DAILY_DINING_ATTEMPTS = 6;
     private static final int NAVIGATION_STUCK_TIMEOUT_TICKS = 200;
     private static final double NAVIGATION_PROGRESS_THRESHOLD_SQR = 0.0625D;
     private static final String TAG_ASSIGNED_DIALOGUE_ID = "AssignedDialogueId";
