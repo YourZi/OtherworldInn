@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.components.WidgetSprites;
 
 public class NpcDialogueScreen extends Screen {
     private static final String BRANCH_ICON = "\uE007";
@@ -29,16 +30,16 @@ public class NpcDialogueScreen extends Screen {
     private static final int OPTION_TO_DIALOG_GAP = 10;
     private static final int OPTION_TEXT_LEFT_PADDING = 8;
     private static final int OPTION_TEXT_RIGHT_PADDING = 8;
-    private static final int OPTION_ATLAS_WIDTH = 180;
-    private static final int OPTION_ATLAS_STATE_COUNT = 3;
-    private static final int OPTION_ATLAS_SLICE_WIDTH = OPTION_ATLAS_WIDTH / 3;
-    private static final int OPTION_MIN_WIDTH = OPTION_ATLAS_SLICE_WIDTH * 2;
+    private static final int OPTION_MIN_WIDTH = 120;
     private static final ResourceLocation DIALOGUE_BOX_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
                     OtherworldInn.MODID, "textures/gui/dialogue/dialogue_box.png");
-    private static final ResourceLocation OPTION_BUTTON_ATLAS_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(
-                    OtherworldInn.MODID, "textures/gui/dialogue/dialogue_option_button_atlas.png");
+
+    private static final WidgetSprites OPTION_BUTTON_SPRITES =
+            new WidgetSprites(
+                    ResourceLocation.withDefaultNamespace("widget/button"),
+                    ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+                    ResourceLocation.withDefaultNamespace("widget/button_highlighted"));
 
     private DialogueNodeView view;
     private final List<Button> optionButtons = new ArrayList<>();
@@ -210,65 +211,18 @@ public class NpcDialogueScreen extends Screen {
 
         @Override
         public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            ResourceLocation sprite = this.active
+                    ? (this.isHoveredOrFocused()
+                            ? OPTION_BUTTON_SPRITES.enabledFocused()
+                            : OPTION_BUTTON_SPRITES.enabled())
+                    : OPTION_BUTTON_SPRITES.disabled();
+            guiGraphics.blitSprite(sprite, this.getX(), this.getY(), this.width, this.height);
+
             Minecraft mc = Minecraft.getInstance();
-            if (mc.getResourceManager().getResource(OPTION_BUTTON_ATLAS_TEXTURE).isPresent()) {
-                int vOffset = 0;
-                if (this.isHoveredOrFocused()) {
-                    vOffset = this.isActive() && mc.mouseHandler.isLeftPressed() ? this.height * 2 : this.height;
-                }
-                int middleWidth = Math.max(0, this.width - OPTION_ATLAS_SLICE_WIDTH * 2);
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-                drawOptionSlice(
-                        guiGraphics,
-                        this.getX(),
-                        this.getY(),
-                        OPTION_ATLAS_SLICE_WIDTH,
-                        0,
-                        vOffset,
-                        OPTION_ATLAS_SLICE_WIDTH);
-                if (middleWidth > 0) {
-                    drawOptionSlice(
-                            guiGraphics,
-                            this.getX() + OPTION_ATLAS_SLICE_WIDTH,
-                            this.getY(),
-                            middleWidth,
-                            OPTION_ATLAS_SLICE_WIDTH,
-                            vOffset,
-                            OPTION_ATLAS_SLICE_WIDTH);
-                }
-                drawOptionSlice(
-                        guiGraphics,
-                        this.getX() + OPTION_ATLAS_SLICE_WIDTH + middleWidth,
-                        this.getY(),
-                        OPTION_ATLAS_SLICE_WIDTH,
-                        OPTION_ATLAS_SLICE_WIDTH * 2,
-                        vOffset,
-                        OPTION_ATLAS_SLICE_WIDTH);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.disableBlend();
-            }
             int textColor = this.active ? 0xFFFFFF : 0xA0A0A0;
             int textX = this.getX() + OPTION_TEXT_LEFT_PADDING;
             int textY = this.getY() + (this.height - mc.font.lineHeight) / 2;
             guiGraphics.drawString(mc.font, this.label, textX, textY, textColor, false);
-        }
-
-        private void drawOptionSlice(
-                GuiGraphics guiGraphics, int x, int y, int width, int uOffset, int vOffset, int sourceWidth) {
-            guiGraphics.blit(
-                    OPTION_BUTTON_ATLAS_TEXTURE,
-                    x,
-                    y,
-                    width,
-                    this.height,
-                    uOffset,
-                    vOffset,
-                    sourceWidth,
-                    this.height,
-                    OPTION_ATLAS_WIDTH,
-                    this.height * OPTION_ATLAS_STATE_COUNT);
         }
     }
 }

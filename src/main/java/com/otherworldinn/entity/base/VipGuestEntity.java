@@ -178,7 +178,7 @@ public abstract class VipGuestEntity extends GuestEntity {
                 InnData inn = team.getInnData();
                 int payout = inn.calculateDiningIncomeAmount(basePayout);
                 TeamManager.getInstance().addCoins(team, payout, level.getServer());
-                inn.recordDiningIncome(payout, level);
+                inn.recordDiningIncome(payout, level, team);
                 inn.addReputation(inn.scaleGuestReputationDelta(this, reputationGain));
                 TeamManager.getInstance().syncTeam(team, level.getServer());
                 level.sendParticles(

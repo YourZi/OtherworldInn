@@ -8,6 +8,7 @@ import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.compat.MaidEfficiencyHelper;
 import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.init.ModItems;
 import com.otherworldinn.item.RoomKeyItem;
@@ -54,15 +55,18 @@ public class FrontDeskTask implements IMaidTask {
 
     @Override
     public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
+        float efficiency = MaidEfficiencyHelper.getEfficiency(maid);
+        float moveSpeed = MaidEfficiencyHelper.adjustMoveSpeed(0.85F, efficiency);
+        double arrivalDelay = MaidEfficiencyHelper.adjustCooldown(26, efficiency) / 10.0D;
         return Lists.newArrayList(
                 Pair.of(
                         5,
                         new MaidMoveToPredicateBlockTask(
-                                0.85f,
+                                moveSpeed,
                                 IMaidTask.VERTICAL_SEARCH_RANGE,
                                 FrontDeskTask::canStartReception,
                                 FrontDeskTask::hasWaitingGuestNearby)),
-                Pair.of(6, new MaidArriveAtBlockTask(2.6, FrontDeskTask::handleReceptionAt)));
+                Pair.of(6, new MaidArriveAtBlockTask(arrivalDelay, FrontDeskTask::handleReceptionAt)));
     }
 
     private static boolean canStartReception(EntityMaid maid) {

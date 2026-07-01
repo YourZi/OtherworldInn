@@ -31,6 +31,10 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -40,6 +44,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import com.otherworldinn.client.render.SlotIconRenderer;
 
 /**
@@ -138,6 +143,17 @@ public class ModClientEvents {
                     SlotIconRenderer.renderCentered(guiGraphics,
                             new ItemStack(Items.BARRIER), x, y, 0, 1.0f);
                     return false;
-                });
+            });
+    }
+
+    @SubscribeEvent
+    public static void onAddPackFinders(AddPackFindersEvent event) {
+        event.addPackFinders(
+                ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "resourcepacks/otherworldinn_ui"),
+                PackType.CLIENT_RESOURCES,
+                Component.literal("《旅社物语》UI包"),
+                PackSource.BUILT_IN,
+                false,
+                Pack.Position.TOP);
     }
 }

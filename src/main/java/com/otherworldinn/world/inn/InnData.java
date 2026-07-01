@@ -6,6 +6,7 @@ import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModBlocks;
+import com.otherworldinn.init.ModStats;
 import com.otherworldinn.util.BlockEntitySearchUtils;
 import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.world.event.listener.TownZonePolicyService;
@@ -291,13 +292,14 @@ public class InnData {
         todayLodgingIncome += amount;
     }
 
-    public void recordDiningIncome(int amount, ServerLevel level) {
+    public void recordDiningIncome(int amount, ServerLevel level, TeamData team) {
         if (amount <= 0) {
             return;
         }
         syncIncomeStatDay(level);
         totalDiningIncome += amount;
         todayDiningIncome += amount;
+        InnStatHelper.awardTeamMemberStat(team, level.getServer(), ModStats.MEALS_SOLD);
     }
 
     public void recordOtherIncome(int amount, ServerLevel level) {
@@ -1866,6 +1868,7 @@ public class InnData {
                 int finalPrice = calculateLodgingIncomeAmount(basePrice);
                 TeamManager.getInstance().addCoins(team, finalPrice, level.getServer());
                 this.recordLodgingIncome(finalPrice, level);
+                InnStatHelper.awardTeamMemberStat(team, level.getServer(), ModStats.GUESTS_CHECKED_OUT);
             }
             if (isNormalCheckout && guest != null) {
                 guest.updatePreferenceScore(targetRoom);

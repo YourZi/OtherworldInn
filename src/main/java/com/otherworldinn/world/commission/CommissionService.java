@@ -8,6 +8,8 @@ import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
+import com.otherworldinn.world.inn.InnStatHelper;
+import com.otherworldinn.init.ModStats;
 import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import com.otherworldinn.world.team.TeamData;
@@ -306,6 +308,7 @@ public final class CommissionService {
         grantRewards(triggerPlayer, team, active);
         data.setCompletedCount(Math.max(0, data.getCompletedCount()) + 1);
         data.setRewardClaimed(true);
+        InnStatHelper.awardTeamMemberStat(team, triggerPlayer.getServer(), ModStats.COMMISSIONS_COMPLETED);
         data.setNextAutoRefreshDay(
                 currentDay(triggerPlayer.serverLevel()) + COMPLETED_REFRESH_INTERVAL_DAYS);
         if (data.getCompletedCount() >= 1) {

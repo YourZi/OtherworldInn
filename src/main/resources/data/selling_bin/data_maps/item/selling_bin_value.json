@@ -11,16 +11,6 @@
       ]
     },
     "#starcatcher:uncommon_fishes": {
-      "base_value": 6,
-      "processors": [
-        {
-          "type": "starcatcher:fishes_processor",
-          "golden_multiplier": 0.34,
-          "percentile_increase": 1.34
-        }
-      ]
-    },
-    "#starcatcher:rare_fishes": {
       "base_value": 9,
       "processors": [
         {
@@ -30,8 +20,18 @@
         }
       ]
     },
+    "#starcatcher:rare_fishes": {
+      "base_value": 15,
+      "processors": [
+        {
+          "type": "starcatcher:fishes_processor",
+          "golden_multiplier": 0.34,
+          "percentile_increase": 1.34
+        }
+      ]
+    },
     "#starcatcher:epic_fishes": {
-      "base_value": 12,
+      "base_value": 20,
       "processors": [
         {
           "type": "starcatcher:fishes_processor",
@@ -41,7 +41,7 @@
       ]
     },
     "#starcatcher:legendary_fishes": {
-      "base_value": 15,
+      "base_value": 30,
       "processors": [
         {
           "type": "starcatcher:fishes_processor",

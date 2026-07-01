@@ -9,6 +9,7 @@ import com.github.tartaricacid.touhoulittlemaid.init.InitItems;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.compat.MaidEfficiencyHelper;
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
@@ -66,12 +67,14 @@ public class RoomCleanTask implements IMaidTask{
 
     @Override
     public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
+        float efficiency = MaidEfficiencyHelper.getEfficiency(maid);
+        float moveSpeed = MaidEfficiencyHelper.adjustMoveSpeed(0.8F, efficiency);
         return Lists.newArrayList(
                 // 背包里有脏床单就去洗
                 Pair.of(
                         5,
                         new MaidMoveToPredicateBlockTask(
-                                0.8f,
+                                moveSpeed,
                                 CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldWashDirtySheets,
                                 RoomCleanTask::isWashTarget)),
@@ -80,7 +83,7 @@ public class RoomCleanTask implements IMaidTask{
                 Pair.of(
                         7,
                         new MaidMoveToPredicateBlockTask(
-                                0.8f,
+                                moveSpeed,
                                 CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldCleanBeds,
                                 RoomCleanTask::isMessyBed)),
@@ -89,7 +92,7 @@ public class RoomCleanTask implements IMaidTask{
                 Pair.of(
                         9,
                         new MaidMoveToPredicateBlockTask(
-                                0.8f,
+                                moveSpeed,
                                 CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldCleanClutter,
                                 RoomCleanTask::isClutter)),
@@ -118,7 +121,9 @@ public class RoomCleanTask implements IMaidTask{
     }
 
     private static void setWashCooldown(EntityMaid maid) {
-        long cd = 20 + maid.getRandom().nextInt(21);
+        long baseCd = 20 + maid.getRandom().nextInt(21);
+        float efficiency = MaidEfficiencyHelper.getEfficiency(maid);
+        long cd = MaidEfficiencyHelper.adjustCooldown(baseCd, efficiency);
         WASH_COOLDOWN.put(maid.getUUID(), maid.level().getGameTime() + cd);
     }
 

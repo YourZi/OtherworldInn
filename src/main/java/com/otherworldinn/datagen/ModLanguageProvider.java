@@ -1161,9 +1161,15 @@ public class ModLanguageProvider extends LanguageProvider {
                 .en("Automatically replaces messy bed sheets, clears clutter trash blocks, and washes dirty sheets when needed.");
         entry("task.otherworldinn.front_desk").zh("前台接待").en("Front Desk");
         entry("task.otherworldinn.front_desk.desc")
-                .zh("旅社营业时，自动为等待旅客匹配最合适房间并办理入住。")
+                .zh(
+                        "旅社营业时，自动为等待旅客匹配最合适房间并办理入住。")
                 .en(
                         "When the Inn is open, automatically matches waiting guests to the best room and checks them in.");
+
+        // 自定义统计
+        entry("stat.otherworldinn.guests_checked_out").zh("总接待旅客数").en("Guests Checked Out");
+        entry("stat.otherworldinn.meals_sold").zh("卖出餐品数").en("Meals Sold");
+        entry("stat.otherworldinn.commissions_completed").zh("委托完成数").en("Commissions Completed");
     }
 
     private void addDialogueTranslations() {
