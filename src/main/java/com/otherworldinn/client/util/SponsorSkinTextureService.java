@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.otherworldinn.OtherworldInn;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,9 +25,10 @@ public final class SponsorSkinTextureService {
         if (sponsorName == null || sponsorName.isBlank()) {
             return DEFAULT_FALLBACK_TEXTURE;
         }
+        String textureName = sanitizePathComponent(sponsorName);
         ResourceLocation candidate =
                 ResourceLocation.fromNamespaceAndPath(
-                        OtherworldInn.MODID, "textures/entity/guest/sponsor_guest/" + sponsorName + ".png");
+                        OtherworldInn.MODID, "textures/entity/guest/sponsor_guest/" + textureName + ".png");
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft != null && minecraft.getResourceManager().getResource(candidate).isPresent()) {
             return candidate;
@@ -97,6 +99,6 @@ public final class SponsorSkinTextureService {
         if (text == null || text.isBlank()) {
             return "unknown";
         }
-        return text.trim().toLowerCase().replaceAll("[^a-z0-9_\\-]", "_");
+        return text.trim().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_\\-]", "_");
     }
 }
