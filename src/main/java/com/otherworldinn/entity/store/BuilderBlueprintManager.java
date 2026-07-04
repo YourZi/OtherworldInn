@@ -33,24 +33,31 @@ public final class BuilderBlueprintManager {
     private static final String BLUEPRINT_PATH = "data/otherworldinn/builder_blueprints/%s.nbt";
 
     public record BlueprintEntry(
-            String id, String resourcePath, String schematicFileName, int minPrice, int maxPrice) {}
+            String id,
+            String displayName,
+            String resourcePath,
+            String schematicFileName,
+            int minPrice,
+            int maxPrice) {}
 
     private static final List<BlueprintEntry> POOL;
 
     static {
         List<BlueprintEntry> list = new ArrayList<>();
-        list.add(load("3层大型旅社_by_xiao_zhan", 240, 320));
-        list.add(load("大型旅社_summyao_", 250, 300));
-        list.add(load("小花房_mountain", 80, 120));
-        list.add(load("阳光花房_面包面包", 90, 130));
-        list.add(load("破旧的风车磨坊_面包面包", 60, 120));
-        list.add(load("樱花池_面包面包", 160, 240));
+
+        list.add(load("large_inn_3f_by_xiao_zhan", "3层大型旅社_by_xiao_zhan", 240, 320));
+        list.add(load("large_inn_3f_by_summyao", "大型旅社_summyao", 250, 300));
+        list.add(load("small_flower_mountain", "小花房_mountain", 80, 120));
+        list.add(load("sunflower_mianbao", "阳光花房_面包面包", 90, 130));
+        list.add(load("old_windmill_mianbao", "破旧的风车磨坊_面包面包", 60, 120));
+        list.add(load("sakura_mianbao", "樱花池_面包面包", 160, 240));
+
         POOL = List.copyOf(list);
     }
 
     private BuilderBlueprintManager() {}
 
-    private static BlueprintEntry load(String id, int minPrice, int maxPrice) {
+    private static BlueprintEntry load(String id, String displayName, int minPrice, int maxPrice) {
         String resourcePath = String.format(BLUEPRINT_PATH, id);
         String fileName = id + ".nbt";
         try (InputStream in =
@@ -61,7 +68,7 @@ public final class BuilderBlueprintManager {
         } catch (IOException e) {
             OtherworldInn.LOGGER.warn("Failed to inspect builder blueprint: {}", resourcePath, e);
         }
-        return new BlueprintEntry(id, resourcePath, fileName, minPrice, maxPrice);
+        return new BlueprintEntry(id, displayName, resourcePath, fileName, minPrice, maxPrice);
     }
 
     /**
@@ -82,11 +89,11 @@ public final class BuilderBlueprintManager {
         ItemStack stack = new ItemStack(AllItems.EMPTY_SCHEMATIC.get());
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         tag.putString(BUILDER_BLUEPRINT_ID_KEY, entry.id());
-        tag.putString(BUILDER_BLUEPRINT_DISPLAY_KEY, entry.id());
+        tag.putString(BUILDER_BLUEPRINT_DISPLAY_KEY, entry.displayName());
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         stack.set(
                 DataComponents.CUSTOM_NAME,
-                Component.literal(entry.id()).withStyle(ChatFormatting.AQUA));
+                Component.literal(entry.displayName()).withStyle(ChatFormatting.AQUA));
         return stack;
     }
 
@@ -108,7 +115,7 @@ public final class BuilderBlueprintManager {
         ItemStack stack = SchematicItem.create(level, entry.schematicFileName(), BLUEPRINT_OWNER);
         stack.set(
                 DataComponents.CUSTOM_NAME,
-                Component.literal(entry.id()).withStyle(ChatFormatting.AQUA));
+                Component.literal(entry.displayName()).withStyle(ChatFormatting.AQUA));
         SchematicSurvivalPrintHelper.enable(stack);
         return stack;
     }

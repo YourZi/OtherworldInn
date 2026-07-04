@@ -273,6 +273,46 @@ sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 neoForge.ideSyncTask generateModMetadata
 
+def resourceLocationPathRoots = [
+        [root: file('src/main/resources/assets'), label: 'src/main/resources/assets'],
+        [root: file('src/main/resources/data'), label: 'src/main/resources/data'],
+        [root: file('src/generated/resources/assets'), label: 'src/generated/resources/assets'],
+        [root: file('src/generated/resources/data'), label: 'src/generated/resources/data']
+]
+
+tasks.register('validateResourceLocationPaths') {
+    inputs.files(resourceLocationPathRoots.collect { fileTree(it.root) })
+
+    doLast {
+        def invalidPaths = []
+        resourceLocationPathRoots.findAll { it.root.exists() }.each { entry ->
+            def rootPath = entry.root.toPath()
+            def stream = java.nio.file.Files.walk(rootPath)
+            try {
+                stream.filter { java.nio.file.Files.isRegularFile(it) }.forEach { resourcePath ->
+                    def relativePath = rootPath
+                            .relativize(resourcePath)
+                            .toString()
+                            .replace(File.separatorChar, '/' as char)
+                    if (!(relativePath ==~ /^[a-z0-9._\/-]+$/)) {
+                        invalidPaths << "${entry.label}/${relativePath}"
+                    }
+                }
+            } finally {
+                stream.close()
+            }
+        }
+        if (!invalidPaths.isEmpty()) {
+            throw new GradleException(
+                    "Invalid resource location paths:\n" + invalidPaths.sort().join('\n'))
+        }
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn tasks.named('validateResourceLocationPaths')
+}
+
 // Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
