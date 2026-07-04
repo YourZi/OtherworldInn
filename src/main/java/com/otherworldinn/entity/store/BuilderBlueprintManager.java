@@ -46,11 +46,11 @@ public final class BuilderBlueprintManager {
         List<BlueprintEntry> list = new ArrayList<>();
 
         list.add(load("large_inn_3f_by_xiao_zhan", "3层大型旅社_by_xiao_zhan", 240, 320));
-        list.add(load("large_inn_3f_by_summyao", "大型旅社_summyao", 250, 300));
-        list.add(load("small_flower_mountain", "小花房_mountain", 80, 120));
-        list.add(load("sunflower_mianbao", "阳光花房_面包面包", 90, 130));
-        list.add(load("old_windmill_mianbao", "破旧的风车磨坊_面包面包", 60, 120));
-        list.add(load("sakura_mianbao", "樱花池_面包面包", 160, 240));
+        list.add(load("large_inn_summyao", "大型旅社_summyao", 250, 300));
+        list.add(load("small_flower_house_mountain", "小花房_mountain", 80, 120));
+        list.add(load("sunny_flower_house_mianbao", "阳光花房_面包面包", 90, 130));
+        list.add(load("old_windmill_bakery_mianbao", "破旧的风车磨坊_面包面包", 60, 120));
+        list.add(load("sakura_pond_mianbao", "樱花池_面包面包", 160, 240));
 
         POOL = List.copyOf(list);
     }
