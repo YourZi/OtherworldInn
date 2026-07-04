@@ -276,7 +276,7 @@ public class PicnicBoxItem extends Item {
             return false;
         }
         FoodProperties food = stack.get(DataComponents.FOOD);
-        return food != null && player.canEat(food.canAlwaysEat());
+        return food != null && player.canEat(true);
     }
 
     private static int findFirstOccupiedSlot(Player player) {

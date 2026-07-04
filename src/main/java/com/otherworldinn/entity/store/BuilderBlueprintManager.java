@@ -40,6 +40,11 @@ public final class BuilderBlueprintManager {
     static {
         List<BlueprintEntry> list = new ArrayList<>();
         list.add(load("3层大型旅社_by_xiao_zhan", 240, 320));
+        list.add(load("大型旅社_summyao_", 250, 300));
+        list.add(load("小花房_mountain", 80, 120));
+        list.add(load("阳光花房_面包面包", 90, 130));
+        list.add(load("破旧的风车磨坊_面包面包", 60, 120));
+        list.add(load("樱花池_面包面包", 160, 240));
         POOL = List.copyOf(list);
     }
 

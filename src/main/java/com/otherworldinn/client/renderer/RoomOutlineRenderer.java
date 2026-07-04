@@ -15,6 +15,7 @@ import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
+import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.AllSpecialTextures;
@@ -66,6 +67,10 @@ public class RoomOutlineRenderer {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
             return;
         }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.player.level().dimension() != TownDimensions.TOWN_LEVEL) {
+            return;
+        }
         if (forcedRoomOutlineTicks <= 0) {
             return;
         }
@@ -108,6 +113,14 @@ public class RoomOutlineRenderer {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null) return;
+
+        // 仅在城镇维度显示范围
+        if (player.level().dimension() != TownDimensions.TOWN_LEVEL) {
+            if (overlayToggled) {
+                overlayToggled = false;
+            }
+            return;
+        }
 
         // 检测按键绑定切换重叠层显示
         boolean pressed = ModKeyBindings.TOGGLE_INN_OVERLAY.isDown();

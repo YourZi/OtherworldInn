@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.control.CameraHandler;
+import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;

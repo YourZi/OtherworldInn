@@ -215,6 +215,10 @@ dependencies {
     localRuntime("curse.maven:kaleidoscope-cookery-1309203:${kaleidoscope_cookery_version}")
     compileOnly("curse.maven:kaleidoscope-tavern-1475175:${kaleidoscope_tavern_version}")
     localRuntime("curse.maven:kaleidoscope-tavern-1475175:${kaleidoscope_tavern_version}")
+    compileOnly("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    localRuntime("maven.modrinth:xaeros-minimap:${xaero_minimap_version}")
+    compileOnly("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
+    localRuntime("maven.modrinth:xaeros-world-map:${xaero_worldmap_version}")
     compileOnly("maven.modrinth:glitchcore:${glitchcore_version}")
     localRuntime("maven.modrinth:glitchcore:${glitchcore_version}")
     compileOnly("maven.modrinth:serene-seasons:${serene_seasons_version}")
@@ -285,6 +289,11 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+tasks.register('xaeroCompatSelfTest', JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.otherworldinn.compat.xaero.XaeroCompatBridgeSelfTest'
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

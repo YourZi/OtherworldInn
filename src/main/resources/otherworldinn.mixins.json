@@ -52,7 +52,9 @@
     "MixinSchematicItemTooltipSurvivalPrint",
     "MixinSchematicToolBaseAccessor",
     "MixinDeployToolPreviewColor",
-    "MixinSchematicToolBasePreviewColor"
+    "MixinSchematicToolBasePreviewColor",
+    "MixinXaeroHudRenderer",
+    "MixinXaeroWorldMapClientEvents"
   ],
   "injectors": {
     "defaultRequire": 1
