@@ -9,6 +9,7 @@ import com.otherworldinn.world.dialogue.DialogueOptionType;
 import com.otherworldinn.world.dialogue.DialogueOptionView;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -174,14 +175,15 @@ public class NpcDialogueScreen extends Screen {
         int npcNameX = boxX + (boxWidth - this.font.width(npcName)) / 2;
         guiGraphics.drawString(this.font, npcName, npcNameX, boxY + 10, 0xFFE9DDAA, false);
 
+        Component dialogueComponent = Component.translatable(this.view.textKey())
+                .withStyle(style -> style.withColor(0xF0F0F0).withItalic(false));
         List<FormattedCharSequence> lines =
-                this.font.split(
-                        Component.translatable(this.view.textKey()),
-                        Math.max(60, boxWidth - 20));
+                this.font.split(dialogueComponent, Math.max(60, boxWidth - 20));
         int y = boxY + 30;
         for (FormattedCharSequence line : lines) {
             int lineX = boxX + (boxWidth - this.font.width(line)) / 2;
-            guiGraphics.drawString(this.font, line, lineX, y, 0xFFF0F0F0, false);
+            // 使用 0xFFFFFFFF 避免覆盖文本中 § 格式码定义的颜色
+            guiGraphics.drawString(this.font, line, lineX, y, 0xFFFFFFFF, false);
             y += this.font.lineHeight + 2;
             if (y > boxY + DIALOG_BOX_HEIGHT - 14) {
                 break;
