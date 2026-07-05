@@ -37,6 +37,14 @@ public class TeamData {
     public static final int GLOBAL_MAX_MAX_X = 80;
     public static final int GLOBAL_MAX_MAX_Z = 27;
 
+    /** 新队伍初始地皮，作为旅社默认区域和地契面积基准的唯一来源。 */
+    public static final InnRegion DEFAULT_INN_REGION = new InnRegion(55, -15, 78, 13);
+
+    public static int getDefaultInnArea() {
+        return (DEFAULT_INN_REGION.maxX() - DEFAULT_INN_REGION.minX() + 1)
+                * (DEFAULT_INN_REGION.maxZ() - DEFAULT_INN_REGION.minZ() + 1);
+    }
+
     public record InnRegion(int minX, int minZ, int maxX, int maxZ) {
 
         public boolean contains(int x, int z) {
@@ -98,8 +106,8 @@ public class TeamData {
     public TeamData(UUID teamId) {
         this.teamId = teamId;
         this.name = "Team-" + teamId.toString().substring(0, 8);
-        // 初始化默认区域 (30, -32) ~ (82, 27)
-        addRegion(new InnRegion(55, -15, 78, 13));
+        // 初始化默认区域，与 DEFAULT_INN_REGION 对齐
+        addRegion(DEFAULT_INN_REGION);
     }
 
     public void addMember(UUID playerId) {

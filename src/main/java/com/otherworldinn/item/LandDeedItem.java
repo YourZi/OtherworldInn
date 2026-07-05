@@ -33,18 +33,12 @@ public class LandDeedItem extends Item {
     public static final int MAX_REGION_MIN_Z = -28;
     public static final int MAX_REGION_MAX_X = 80;
     public static final int MAX_REGION_MAX_Z = 27;
-    private static final int DEFAULT_INN_MIN_X = 30;
-    private static final int DEFAULT_INN_MIN_Z = -14;
-    private static final int DEFAULT_INN_MAX_X = 51;
-    private static final int DEFAULT_INN_MAX_Z = 14;
     private static final int MAX_INN_RATING = 5;
     private static final String RATING_ICON = "§f\uE005§r";
     private static final int PRICE_PER_BLOCK = 2;
     private static final int MAX_EXPANDABLE_AREA =
             (MAX_REGION_MAX_X - MAX_REGION_MIN_X + 1) * (MAX_REGION_MAX_Z - MAX_REGION_MIN_Z + 1);
-    private static final int BASE_INN_AREA =
-            (DEFAULT_INN_MAX_X - DEFAULT_INN_MIN_X + 1)
-                    * (DEFAULT_INN_MAX_Z - DEFAULT_INN_MIN_Z + 1);
+    private static final int BASE_INN_AREA = TeamData.getDefaultInnArea();
 
     public LandDeedItem(Properties properties) {
         super(properties);
