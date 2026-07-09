@@ -39,6 +39,10 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModBlocks.COMMISSION_BOARD.get());
                                                 output.accept(ModBlocks.CRYSTAL_BALL.get());
                                                 output.accept(ModBlocks.CLUTTER.get());
+                                                output.accept(ModBlocks.INFRASTRUCTURE_TROPHY.get());
+                                                output.accept(ModBlocks.SOCIAL_TROPHY.get());
+                                                output.accept(ModBlocks.TRAVEL_TROPHY.get());
+                                                output.accept(ModBlocks.AQUATIC_TROPHY.get());
                                             })
                                     .build());
 }

@@ -86,6 +86,18 @@ public final class InnDecorationRegistry {
         registerBlock(
                 ModBlocks.CLUTTER.get(),
                 new InnDecorationStats("clutter", 0.0D, 0.0D, 0.0D, -0.1D, 8));
+        registerBlock(
+                ModBlocks.INFRASTRUCTURE_TROPHY.get(),
+                new InnDecorationStats("infrastructure_trophy", 0.1D, 0.0D, 0.0D, 0.0D, 1));
+        registerBlock(
+                ModBlocks.SOCIAL_TROPHY.get(),
+                new InnDecorationStats("social_trophy", 0.0D, 0.0D, 0.0D, 0.1D, 1));
+        registerBlock(
+                ModBlocks.AQUATIC_TROPHY.get(),
+                new InnDecorationStats("aquatic_trophy", 0.0D, 0.1D, 0.0D, 0.0D, 1));
+        registerBlock(
+                ModBlocks.TRAVEL_TROPHY.get(),
+                new InnDecorationStats("travel_trophy", 0.0D, 0.0D, 0.1D, 0.0D, 1));
         for (KeywordRule rule : KEYWORD_RULES) {
             ID_STATS.put(rule.stats().id(), rule.stats());
         }

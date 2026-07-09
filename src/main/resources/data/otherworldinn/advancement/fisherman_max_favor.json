@@ -1,0 +1,23 @@
+{
+  "parent": "otherworldinn:inn_rating_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:fishing_rod"
+    },
+    "title": {
+      "translate": "advancements.otherworldinn.fisherman_max_favor.title"
+    },
+    "description": {
+      "translate": "advancements.otherworldinn.fisherman_max_favor.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

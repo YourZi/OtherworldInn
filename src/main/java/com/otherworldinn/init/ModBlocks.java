@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.block.ClutterBlock;
 import com.otherworldinn.block.CommissionBoardBlock;
 import com.otherworldinn.block.CrystalBallBlock;
+import com.otherworldinn.block.TrophyBlock;
 import com.otherworldinn.foundation.BlockDataGenInfo;
 import com.otherworldinn.foundation.BlockReg;
 import java.util.HashMap;
@@ -66,6 +67,51 @@ public class ModBlocks {
                     .noLoot()
                     .lang("Clutter Trash", "杂物垃圾");
     public static final DeferredBlock<ClutterBlock> CLUTTER = CLUTTER_REG.register();
+
+    public static final BlockReg<TrophyBlock> INFRASTRUCTURE_TROPHY_REG =
+            register("infrastructure_trophy", TrophyBlock::new)
+                    .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
+                    .pickaxe()
+                    .noCollision()
+                    .cutout()
+                    .noModel()
+                    .lang("Infrastructure Trophy", "基建奖杯")
+                    .tooltip("+10% lodging income when placed in the inn", "放置于旅社时，住宿收入+10%");
+    public static final DeferredBlock<TrophyBlock> INFRASTRUCTURE_TROPHY =
+            INFRASTRUCTURE_TROPHY_REG.register();
+
+    public static final BlockReg<TrophyBlock> SOCIAL_TROPHY_REG =
+            register("social_trophy", TrophyBlock::new)
+                    .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
+                    .pickaxe()
+                    .noCollision()
+                    .cutout()
+                    .noModel()
+                    .lang("Social Trophy", "社交奖杯")
+                    .tooltip("+10% reputation gain when placed in the inn", "放置于旅社时，声望获取+10%");
+    public static final DeferredBlock<TrophyBlock> SOCIAL_TROPHY = SOCIAL_TROPHY_REG.register();
+
+    public static final BlockReg<TrophyBlock> AQUATIC_TROPHY_REG =
+            register("aquatic_trophy", TrophyBlock::new)
+                    .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
+                    .pickaxe()
+                    .noCollision()
+                    .cutout()
+                    .noModel()
+                    .lang("Aquatic Trophy", "水产奖杯")
+                    .tooltip("+10% dining income when placed in the inn", "放置于旅社时，餐饮收入+10%");
+    public static final DeferredBlock<TrophyBlock> AQUATIC_TROPHY = AQUATIC_TROPHY_REG.register();
+
+    public static final BlockReg<TrophyBlock> TRAVEL_TROPHY_REG =
+            register("travel_trophy", TrophyBlock::new)
+                    .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
+                    .pickaxe()
+                    .noCollision()
+                    .cutout()
+                    .noModel()
+                    .lang("Travel Trophy", "旅行奖杯")
+                    .tooltip("+10% guest arrival speed when placed in the inn", "放置于旅社时，旅客来访速度+10%");
+    public static final DeferredBlock<TrophyBlock> TRAVEL_TROPHY = TRAVEL_TROPHY_REG.register();
 
     // --- 辅助方法 ---
 

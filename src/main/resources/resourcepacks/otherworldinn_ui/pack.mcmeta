@@ -1,6 +1,7 @@
 {
   "pack": {
     "pack_format": 34,
+    "supported_formats": [34, 55],
     "description": "《旅社物语》UI包"
   }
 }

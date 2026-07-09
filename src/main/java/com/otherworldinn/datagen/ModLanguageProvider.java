@@ -161,6 +161,36 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.grocer_max_favor.description")
                 .zh("杂货店老板对你的好感达到了最高")
                 .en("The Grocer holds you in the highest regard");
+        entry("advancements.otherworldinn.builder_max_favor.title")
+                .zh("建筑师的挚友")
+                .en("Builder's Bosom Friend");
+        entry("advancements.otherworldinn.builder_max_favor.description")
+                .zh("建筑师对你的好感达到了最高")
+                .en("The Builder holds you in the highest regard");
+        entry("advancements.otherworldinn.butcher_max_favor.title")
+                .zh("屠夫的挚友")
+                .en("Butcher's Bosom Friend");
+        entry("advancements.otherworldinn.butcher_max_favor.description")
+                .zh("屠夫对你的好感达到了最高")
+                .en("The Butcher holds you in the highest regard");
+        entry("advancements.otherworldinn.fisherman_max_favor.title")
+                .zh("渔夫的挚友")
+                .en("Fisherman's Bosom Friend");
+        entry("advancements.otherworldinn.fisherman_max_favor.description")
+                .zh("渔夫对你的好感达到了最高")
+                .en("The Fisherman holds you in the highest regard");
+        entry("advancements.otherworldinn.starcatcher_full_collection.title")
+                .zh("鱼类大百科")
+                .en("Master Angler's Compendium");
+        entry("advancements.otherworldinn.starcatcher_full_collection.description")
+                .zh("集齐了所有鱼类图鉴")
+                .en("Complete every fish entry in the fishing guide");
+        entry("advancements.otherworldinn.field_guide_complete.title")
+                .zh("博物学大成")
+                .en("Grand Encyclopedia");
+        entry("advancements.otherworldinn.field_guide_complete.description")
+                .zh("集齐了所有冒险图鉴")
+                .en("Complete every entry in the Field Guide");
         entry("advancements.otherworldinn.all_npc_max_favor.title")
                 .zh("人见人爱")
                 .en("Everyone's Favorite");

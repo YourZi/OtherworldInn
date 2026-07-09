@@ -1,0 +1,119 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "minecraft:hanyi9px.ttf",
+      "shift": [0, 0],
+      "size": 9,
+      "oversample": 6
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/coin.png",
+      "height": 12,
+      "ascent": 9,
+      "chars": [
+        "\uE001"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/comfort.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE002"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/light.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE003"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/humidity.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE004"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/rating.png",
+      "height": 8,
+      "ascent": 7,
+      "chars": [
+        "\uE005"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/rating_empty.png",
+      "height": 8,
+      "ascent": 7,
+      "chars": [
+        "\uE006"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/dialogue_branch.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE007"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/dialogue_function.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE008"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_lodging.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00C"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_dining.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00D"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_arrival.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00E"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "otherworldinn:font/decoration_reputation.png",
+      "height": 8,
+      "ascent": 6,
+      "chars": [
+        "\uE00F"
+      ]
+    }
+  ]
+}

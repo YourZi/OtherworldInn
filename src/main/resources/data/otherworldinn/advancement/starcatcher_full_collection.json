@@ -1,0 +1,23 @@
+{
+  "parent": "otherworldinn:inn_rating_1",
+  "display": {
+    "icon": {
+      "id": "starcatcher:pearl"
+    },
+    "title": {
+      "translate": "advancements.otherworldinn.starcatcher_full_collection.title"
+    },
+    "description": {
+      "translate": "advancements.otherworldinn.starcatcher_full_collection.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

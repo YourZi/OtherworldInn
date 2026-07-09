@@ -32,20 +32,20 @@ public class FurnitureManager {
     private static final Map<TagKey<Block>, FurnitureStats> TAG_STATS = new HashMap<>();
     private static final Map<Block, Integer> BLOCK_LIGHT_LEVEL_CACHE = new HashMap<>();
     private static final List<KeywordRule> KEYWORD_RULES = List.of(
-            new KeywordRule("fish_tank", new FurnitureStats(2, 0, 10)),
-            new KeywordRule("potted", new FurnitureStats(3, 0, 7)),
+            new KeywordRule("fish_tank", new FurnitureStats(2, 0, 12)),
+            new KeywordRule("potted", new FurnitureStats(2, 0, 8)),
             new KeywordRule("bookshelf", new FurnitureStats(5, 0, 0)),
             new KeywordRule("desk", new FurnitureStats(4, 0, 0)),
             new KeywordRule("table", new FurnitureStats(4, 0, 0)),
             new KeywordRule("drawer", new FurnitureStats(3, 0, 0)),
-            new KeywordRule("sofa", new FurnitureStats(3, 0, 0)),
+            new KeywordRule("sofa", new FurnitureStats(5, 0, 0)),
             new KeywordRule("carpet", new FurnitureStats(3, 0, 0)),
-            new KeywordRule("chair", new FurnitureStats(2, 0, 0)),
+            new KeywordRule("chair", new FurnitureStats(4, 0, 0)),
             new KeywordRule("wardrobe", new FurnitureStats(5, 0, 0)),
             new KeywordRule("sink", new FurnitureStats(2, 0, 7)),
             new KeywordRule("couch", new FurnitureStats(3, 0, 0)),
             new KeywordRule("chaise", new FurnitureStats(3, 0, 0)),
-            new KeywordRule("toilet", new FurnitureStats(5, 0, 10)),
+            new KeywordRule("toilet", new FurnitureStats(3, 0, 8)),
             new KeywordRule("clutter", new FurnitureStats(-20, 0, 0)),
             new KeywordRule("photograph_frame", new FurnitureStats(6, 0, 0))
         );
