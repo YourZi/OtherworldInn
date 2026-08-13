@@ -29,7 +29,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class FrontDeskTask implements IMaidTask {
     private static final ResourceLocation UID =
@@ -79,7 +79,7 @@ public class FrontDeskTask implements IMaidTask {
             clearTarget(maid);
             return false;
         }
-        if (!hasBoundRoomKey(maid.getMaidInv())) {
+        if (!hasBoundRoomKey(maid.getAvailableInv(true))) {
             clearTarget(maid);
             return false;
         }
@@ -137,19 +137,20 @@ public class FrontDeskTask implements IMaidTask {
             clearTarget(maid);
             return;
         }
-        int keySlot = findBestRoomKeySlotForGuest(maid.getMaidInv(), team, guest.getGuestData());
+        IItemHandler availableInv = maid.getAvailableInv(true);
+        int keySlot = findBestRoomKeySlotForGuest(availableInv, team, guest.getGuestData());
         if (keySlot < 0) {
             clearTarget(maid);
             return;
         }
-        ItemStack keyStack = maid.getMaidInv().getStackInSlot(keySlot);
+        ItemStack keyStack = availableInv.getStackInSlot(keySlot);
         Optional<Integer> roomIdOpt = RoomKeyItem.getBoundRoomId(keyStack);
         if (roomIdOpt.isEmpty()) {
             clearTarget(maid);
             return;
         }
         if (team.getInnData().checkIn(guest.getUUID(), roomIdOpt.get(), level)) {
-            consumeOne(maid.getMaidInv(), keySlot);
+            consumeOne(availableInv, keySlot);
             maid.swing(InteractionHand.MAIN_HAND, true);
         }
         clearTarget(maid);
@@ -161,7 +162,7 @@ public class FrontDeskTask implements IMaidTask {
     }
 
     private static int findBestRoomKeySlotForGuest(
-            ItemStackHandler inventory, TeamData team, GuestData guestData) {
+            IItemHandler inventory, TeamData team, GuestData guestData) {
         int bestSlot = -1;
         int bestScore = Integer.MIN_VALUE;
         int bestCurrentGuests = Integer.MAX_VALUE;
@@ -246,7 +247,7 @@ public class FrontDeskTask implements IMaidTask {
         return nearest;
     }
 
-    private static boolean hasBoundRoomKey(ItemStackHandler inventory) {
+    private static boolean hasBoundRoomKey(IItemHandler inventory) {
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty()
@@ -258,17 +259,7 @@ public class FrontDeskTask implements IMaidTask {
         return false;
     }
 
-    private static void consumeOne(ItemStackHandler inv, int slot) {
-        ItemStack stack = inv.getStackInSlot(slot);
-        if (stack.isEmpty()) {
-            return;
-        }
-        if (stack.getCount() <= 1) {
-            inv.setStackInSlot(slot, ItemStack.EMPTY);
-        } else {
-            ItemStack copy = stack.copy();
-            copy.shrink(1);
-            inv.setStackInSlot(slot, copy);
-        }
+    private static void consumeOne(IItemHandler inv, int slot) {
+        inv.extractItem(slot, 1, false);
     }
 }

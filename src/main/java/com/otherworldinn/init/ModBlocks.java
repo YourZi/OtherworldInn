@@ -73,7 +73,7 @@ public class ModBlocks {
                     .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
                     .pickaxe()
                     .noCollision()
-                    .cutout()
+                    .translucent()
                     .noModel()
                     .lang("Infrastructure Trophy", "基建奖杯")
                     .tooltip("+10% lodging income when placed in the inn", "放置于旅社时，住宿收入+10%");
@@ -85,7 +85,7 @@ public class ModBlocks {
                     .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
                     .pickaxe()
                     .noCollision()
-                    .cutout()
+                    .translucent()
                     .noModel()
                     .lang("Social Trophy", "社交奖杯")
                     .tooltip("+10% reputation gain when placed in the inn", "放置于旅社时，声望获取+10%");
@@ -96,7 +96,7 @@ public class ModBlocks {
                     .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
                     .pickaxe()
                     .noCollision()
-                    .cutout()
+                    .translucent()
                     .noModel()
                     .lang("Aquatic Trophy", "水产奖杯")
                     .tooltip("+10% dining income when placed in the inn", "放置于旅社时，餐饮收入+10%");
@@ -107,7 +107,7 @@ public class ModBlocks {
                     .properties(props -> props.strength(2.0F).noOcclusion().sound(SoundType.METAL))
                     .pickaxe()
                     .noCollision()
-                    .cutout()
+                    .translucent()
                     .noModel()
                     .lang("Travel Trophy", "旅行奖杯")
                     .tooltip("+10% guest arrival speed when placed in the inn", "放置于旅社时，旅客来访速度+10%");

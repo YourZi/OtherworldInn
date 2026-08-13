@@ -1,6 +1,9 @@
 package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.init.ModBlocks;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import com.otherworldinn.compat.waystones.WaystonesClientCompat;
 import com.otherworldinn.client.gui.screen.StoreScreen;
 import com.otherworldinn.client.gui.screen.WanderingTraderRecycleScreen;
@@ -76,6 +79,13 @@ public class ModClientEvents {
                     if (ModList.get().isLoaded("waystones")) {
                         WaystonesClientCompat.init();
                     }
+
+                    // 半透明渲染
+                    var translucent = RenderType.translucent();
+                    ItemBlockRenderTypes.setRenderLayer(ModBlocks.INFRASTRUCTURE_TROPHY.get(), translucent);
+                    ItemBlockRenderTypes.setRenderLayer(ModBlocks.SOCIAL_TROPHY.get(), translucent);
+                    ItemBlockRenderTypes.setRenderLayer(ModBlocks.AQUATIC_TROPHY.get(), translucent);
+                    ItemBlockRenderTypes.setRenderLayer(ModBlocks.TRAVEL_TROPHY.get(), translucent);
                 });
     }
 

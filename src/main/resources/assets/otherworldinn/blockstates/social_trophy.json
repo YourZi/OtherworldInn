@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "otherworldinn:block/social_trophy"
+    "facing=north": {
+      "model": "otherworldinn:block/social_trophy",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "otherworldinn:block/social_trophy",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "otherworldinn:block/social_trophy",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "otherworldinn:block/social_trophy",
+      "y": 270
     }
   }
 }
