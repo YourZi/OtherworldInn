@@ -1,9 +1,9 @@
 {
   "values": [
-    "otherworldinn:social_trophy",
     "otherworldinn:infrastructure_trophy",
-    "otherworldinn:crystal_ball",
     "otherworldinn:aquatic_trophy",
+    "otherworldinn:social_trophy",
+    "otherworldinn:crystal_ball",
     "otherworldinn:travel_trophy"
   ]
 }

@@ -46,6 +46,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -992,26 +993,11 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private void syncBrainActivity(Activity targetActivity) {
-        // 不直接依赖具体 Brain API 签名，避免版本差异导致编译失败
-        Object brain = this.getBrain();
+        Brain<?> brain = this.getBrain();
         if (brain == null) {
             return;
         }
-        try {
-            java.lang.reflect.Method setActive =
-                    brain.getClass().getMethod("setActiveActivityIfPossible", Activity.class);
-            setActive.invoke(brain, targetActivity);
-            return;
-        } catch (ReflectiveOperationException ignored) {
-            // 继续尝试兼容其他签名
-        }
-        try {
-            java.lang.reflect.Method setDefault =
-                    brain.getClass().getMethod("setDefaultActivity", Activity.class);
-            setDefault.invoke(brain, targetActivity);
-        } catch (ReflectiveOperationException ignored) {
-            // 若 Brain API 变动，则退化为仅使用本地 activity 状态
-        }
+        brain.setActiveActivityIfPossible(targetActivity);
     }
 
     private void tickBehaviorTree(ServerLevel level) {

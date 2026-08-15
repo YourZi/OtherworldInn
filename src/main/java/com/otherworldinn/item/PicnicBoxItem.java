@@ -12,8 +12,6 @@ import com.otherworldinn.world.fatigue.FatigueCalculator;
 import com.otherworldinn.world.fatigue.FatigueData;
 import com.otherworldinn.world.picnic.PicnicBoxData;
 import com.otherworldinn.world.picnic.PicnicBoxSyncHelper;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -553,52 +551,8 @@ public class PicnicBoxItem extends Item {
     }
 
     private static ItemStack resolveLegacyRemainder(ItemStack consumed) {
-        ItemStack fromStack =
-                tryInvokeRemainderMethod(
-                        consumed,
-                        consumed,
-                        "getCraftingRemainingItem",
-                        "getCraftingRemainder",
-                        "getRecipeRemainder");
-        if (!fromStack.isEmpty()) {
-            return fromStack;
-        }
-        return tryInvokeRemainderMethod(
-                consumed.getItem(),
-                consumed,
-                "getCraftingRemainingItem",
-                "getCraftingRemainder",
-                "getRecipeRemainder",
-                "getContainerItem");
-    }
-
-    private static ItemStack tryInvokeRemainderMethod(
-            Object target, ItemStack consumed, String... candidateNames) {
-        for (String candidate : candidateNames) {
-            for (Method method : target.getClass().getMethods()) {
-                if (!method.getName().equals(candidate)) {
-                    continue;
-                }
-                try {
-                    Object value;
-                    if (method.getParameterCount() == 0) {
-                        value = method.invoke(target);
-                    } else if (method.getParameterCount() == 1
-                            && method.getParameterTypes()[0] == ItemStack.class) {
-                        value = method.invoke(target, consumed.copy());
-                    } else {
-                        continue;
-                    }
-
-                    if (value instanceof ItemStack remainder && !remainder.isEmpty()) {
-                        return remainder.copy();
-                    }
-                } catch (IllegalAccessException | InvocationTargetException ignored) {
-                    continue;
-                }
-            }
-        }
-        return ItemStack.EMPTY;
+        ItemStack remainder = consumed.getItem().getCraftingRemainingItem(consumed);
+        return remainder.isEmpty() ? ItemStack.EMPTY : remainder.copy();
     }
 
     private static Player getClientPlayer() {
