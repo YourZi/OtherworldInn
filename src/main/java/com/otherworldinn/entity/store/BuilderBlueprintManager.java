@@ -40,7 +40,7 @@ public final class BuilderBlueprintManager {
             int minPrice,
             int maxPrice) {}
 
-    private static final List<BlueprintEntry> POOL;
+    static final List<BlueprintEntry> POOL;
 
     static {
         List<BlueprintEntry> list = new ArrayList<>();

@@ -4,6 +4,7 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.simibubi.create.AllItems;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
@@ -85,11 +86,31 @@ public class FarmerEntity extends StoreEntity {
     }
 
     private void initDefaultStoreItems() {
-        this.addFavorStoreItem(2, new ItemStack(Items.BONE_MEAL), 4, 64);
-        this.addFavorStoreItem(4, new ItemStack(AllItems.TREE_FERTILIZER.get()), 6, 64);
-        this.addFavorStoreItem(6, new ItemStack(ModItems.SCARECROW.get()), 24, 8);
-        this.addFavorStoreItem(8, new ItemStack(Items.NETHERITE_HOE), 64, 1);
+        this.applyCatalog(createCatalog());
         this.refreshRandomItems();
+    }
+
+    public static List<CatalogEntry> createCatalog() {
+        List<CatalogEntry> entries = new ArrayList<>();
+        entries.add(new CatalogEntry(new ItemStack(Items.BONE_MEAL), 4, 64, 2));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.TREE_FERTILIZER.get()), 6, 64, 4));
+        entries.add(new CatalogEntry(new ItemStack(ModItems.SCARECROW.get()), 24, 8, 6));
+        entries.add(new CatalogEntry(new ItemStack(Items.NETHERITE_HOE), 64, 1, 8));
+        return entries;
+    }
+
+    public static List<RandomOffer> createRandomOffers() {
+        List<RandomOffer> offers = new ArrayList<>();
+        for (SeasonalProduct product : SEASONAL_PRODUCTS) {
+            ItemStack stack = product.stackSupplier().get();
+            if (stack.isEmpty()) {
+                continue;
+            }
+            offers.add(
+                    new RandomOffer(
+                            stack, product.price(), product.price(), product.stock(), product.stock()));
+        }
+        return offers;
     }
 
     @Override

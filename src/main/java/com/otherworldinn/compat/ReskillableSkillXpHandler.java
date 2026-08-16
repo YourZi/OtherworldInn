@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -153,6 +154,33 @@ public final class ReskillableSkillXpHandler {
         UUID playerId = player.getUUID();
         LAST_SPRINT_STATS.remove(playerId);
         SPRINT_DISTANCE_PROGRESS.remove(playerId);
+    }
+
+    /**
+     * Reskillable 的生命加成是以瞬态属性修饰符在登录/重生后重挂载的，
+     * 而 Minecraft 在实体反序列化时会先按基础上限(20)钳制血量。
+     * 这里用 LOW 优先级保证在 Reskillable 挂载完修饰符后再补满，避免出现 20/25 不满血。
+     */
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!ReskillableCompat.isLoaded()) {
+            return;
+        }
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        player.setHealth(player.getMaxHealth());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (!ReskillableCompat.isLoaded()) {
+            return;
+        }
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        player.setHealth(player.getMaxHealth());
     }
 
     private static boolean isMatureCrop(BlockState state) {

@@ -3,6 +3,7 @@ package com.otherworldinn.entity.store;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -35,27 +36,46 @@ public class ButcherEntity extends StoreEntity {
     }
 
     private void initDefaultStoreItems() {
-        // 生肉
-        this.addStoreItem("minecraft:beef", 4, 8);
-        this.addStoreItem("minecraft:porkchop", 4, 8);
-        this.addStoreItem("minecraft:chicken", 3, 8);
-        this.addStoreItem("minecraft:mutton", 3, 8);
-        this.addStoreItem("minecraft:rabbit", 4, 32);
-        this.addStoreItem("minecraft:cod", 3, 8);
-        this.addStoreItem("minecraft:salmon", 3, 8);
-
-        this.addStoreItem("minecraft:leather", 4, 8);
-        this.addStoreItem("minecraft:bone", 3, 8);
-        this.addStoreItem("minecraft:egg", 2, 8);
-
-        this.addStoreItem(new ItemStack(ModItems.IRON_KITCHEN_KNIFE.get()), 16, 1);
-
-        this.addFavorStoreItem(2, new ItemStack(Items.MILK_BUCKET), 6, 8);
-        this.addFavorStoreItem(4, new ItemStack(Items.HONEY_BOTTLE), 8, 16);
-        this.addFavorStoreItem(6, new ItemStack(Items.SLIME_BALL), 10, 32);
-        this.addFavorStoreItem(8, new ItemStack(Items.LEAD), 16, 8);
-
+        this.applyCatalog(createCatalog());
         this.refreshRandomItems();
+    }
+
+    public static List<CatalogEntry> createCatalog() {
+        List<CatalogEntry> entries = new ArrayList<>();
+        // 生肉
+        entries.add(new CatalogEntry(new ItemStack(Items.BEEF), 4, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.PORKCHOP), 4, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.CHICKEN), 3, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.MUTTON), 3, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.RABBIT), 4, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.COD), 3, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.SALMON), 3, 8));
+
+        entries.add(new CatalogEntry(new ItemStack(Items.LEATHER), 4, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.BONE), 3, 8));
+        entries.add(new CatalogEntry(new ItemStack(Items.EGG), 2, 8));
+
+        entries.add(new CatalogEntry(new ItemStack(ModItems.IRON_KITCHEN_KNIFE.get()), 16, 1));
+
+        entries.add(new CatalogEntry(new ItemStack(Items.MILK_BUCKET), 6, 8, 2));
+        entries.add(new CatalogEntry(new ItemStack(Items.HONEY_BOTTLE), 8, 16, 4));
+        entries.add(new CatalogEntry(new ItemStack(Items.SLIME_BALL), 10, 32, 6));
+        entries.add(new CatalogEntry(new ItemStack(Items.LEAD), 16, 8, 8));
+        return entries;
+    }
+
+    public static List<RandomOffer> createRandomOffers() {
+        List<RandomOffer> offers = new ArrayList<>();
+        for (RandomDropItem drop : DAILY_RANDOM_DROPS) {
+            offers.add(
+                    new RandomOffer(
+                            drop.stackSupplier().get(),
+                            drop.minPrice(),
+                            drop.maxPrice(),
+                            drop.minStock(),
+                            drop.maxStock()));
+        }
+        return offers;
     }
 
     @Override
@@ -82,7 +102,7 @@ public class ButcherEntity extends StoreEntity {
     @Override
     public ResourceLocation getStoreBackground() {
         return ResourceLocation.fromNamespaceAndPath(
-                OtherworldInn.MODID, "textures/gui/store/magician.png");
+                OtherworldInn.MODID, "textures/gui/store/fisher.png");
     }
 
     @Override

@@ -599,7 +599,7 @@ public abstract class StoreEntity extends PathfinderMob {
         this.addAchievementsStoreItem(itemId, price, maxStock, requiredAdvancementId, null);
     }
 
-    private static String buildAdvancementTitleKey(ResourceLocation advancementId) {
+    public static String buildAdvancementTitleKey(ResourceLocation advancementId) {
         String namespacePrefix =
                 "minecraft".equals(advancementId.getNamespace())
                         ? ""
@@ -1003,6 +1003,79 @@ public abstract class StoreEntity extends PathfinderMob {
 
     public record FavorStoreItemData(
             int requiredFavorLevel, ItemStack itemStack, int price, int maxStock) {}
+
+    /**
+     * 商品目录条目（固定/好感/成就解锁商品）。
+     *
+     * <p>由子类以静态方式定义，作为游戏内商品与 JEI 展示的同一数据来源：
+     * 运行时经 {@link #applyCatalog(List)} 写入商店库存，JEI 直接读取生成配方。
+     *
+     * @param requiredFavorLevel >= 2 表示好感度解锁商品
+     * @param requiredAdvancementId 非空表示成就解锁商品
+     */
+    public record CatalogEntry(
+            ItemStack stack,
+            int price,
+            int maxStock,
+            int requiredFavorLevel,
+            @Nullable String requiredAdvancementId,
+            @Nullable String requiredAdvancementTitleKey) {
+
+        public CatalogEntry(ItemStack stack, int price, int maxStock) {
+            this(stack, price, maxStock, 1, null, null);
+        }
+
+        public CatalogEntry(ItemStack stack, int price, int maxStock, int requiredFavorLevel) {
+            this(stack, price, maxStock, requiredFavorLevel, null, null);
+        }
+    }
+
+    /** 随机商品池条目（用于 JEI 展示每日随机可购范围）。 */
+    public record RandomOffer(
+            ItemStack stack,
+            int minPrice,
+            int maxPrice,
+            int minStock,
+            int maxStock,
+            int requiredFavorLevel) {
+
+        public RandomOffer(ItemStack stack, int minPrice, int maxPrice, int minStock, int maxStock) {
+            this(stack, minPrice, maxPrice, minStock, maxStock, 1);
+        }
+    }
+
+    /**
+     * 将商品目录写入商店库存（供运行时初始化使用）。
+     *
+     * <p>根据条目属性路由到对应的添加方法，与原先各子类在
+     * {@code initDefaultStoreItems()} 中的调用顺序保持一致。
+     */
+    protected void applyCatalog(List<CatalogEntry> entries) {
+        for (CatalogEntry entry : entries) {
+            if (entry.stack() == null || entry.stack().isEmpty()) {
+                continue;
+            }
+            if (entry.requiredAdvancementId() != null && !entry.requiredAdvancementId().isBlank()) {
+                ResourceLocation id = ResourceLocation.tryParse(entry.requiredAdvancementId());
+                if (id != null) {
+                    this.addAchievementsStoreItem(
+                            entry.stack(),
+                            entry.price(),
+                            entry.maxStock(),
+                            id,
+                            entry.requiredAdvancementTitleKey());
+                }
+            } else if (entry.requiredFavorLevel() >= 2) {
+                this.addFavorStoreItem(
+                        entry.requiredFavorLevel(),
+                        entry.stack(),
+                        entry.price(),
+                        entry.maxStock());
+            } else {
+                this.addStoreItem(entry.stack(), entry.price(), entry.maxStock());
+            }
+        }
+    }
 
     /** 商品条目内部类 */
     public static class StoreItem {

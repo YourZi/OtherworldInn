@@ -2,6 +2,9 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.entity.store.BuilderBlueprintManager.BlueprintEntry;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -24,32 +27,75 @@ public class BuilderEntity extends StoreEntity {
     }
 
     private void initDefaultStoreItems() {
-        this.addAllPlanks();
-        this.addAllStoneVariants();
-        this.addStoreItem("minecraft:white_wool", 4, 32);
-        this.addStoreItem("minecraft:glass", 3, 64);
-        this.addStoreItem("minecraft:glass_pane", 2, 64);
-        this.addStoreItem("minecraft:bricks", 4, 64);
-        this.addStoreItem("minecraft:stone_bricks", 4, 64);
-        this.addStoreItem("minecraft:smooth_stone", 4, 64);
-        this.addStoreItem("minecraft:terracotta", 6, 64);
-        this.addStoreItem("minecraft:gravel", 2, 64);
-        this.addStoreItem("minecraft:sand", 2, 64);
-        this.addStoreItem("minecraft:red_sand", 3, 64);
-        this.addStoreItem("minecraft:sandstone", 3, 64);
-        this.addStoreItem("minecraft:nether_bricks", 6, 64);
-        this.addStoreItem("minecraft:prismarine", 8, 32);
-        this.addStoreItem("minecraft:prismarine_bricks", 10, 32);
-        this.addStoreItem("minecraft:dark_prismarine", 12, 32);
-        this.addStoreItem("minecraft:sea_lantern", 12, 32);
-        this.addStoreItem("minecraft:quartz_block", 10, 48);
-
-        this.addFavorStoreItem(2, new ItemStack(Items.GLOWSTONE), 8, 32);
-        this.addFavorStoreItem(4, new ItemStack(Items.OBSIDIAN), 20, 16);
-        this.addFavorStoreItem(6, new ItemStack(Items.PURPUR_BLOCK), 16, 48);
-        this.addFavorStoreItem(8, new ItemStack(Items.END_ROD), 16, 32);
-
+        this.applyCatalog(createCatalog());
         this.refreshRandomItems();
+    }
+
+    public static List<CatalogEntry> createCatalog() {
+        List<CatalogEntry> entries = new ArrayList<>();
+        // 木板
+        entries.add(new CatalogEntry(new ItemStack(Items.OAK_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.SPRUCE_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.BIRCH_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.JUNGLE_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.ACACIA_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.DARK_OAK_PLANKS), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.MANGROVE_PLANKS), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.CHERRY_PLANKS), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.BAMBOO_PLANKS), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.CRIMSON_PLANKS), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.WARPED_PLANKS), 3, 64));
+        // 石质方块
+        entries.add(new CatalogEntry(new ItemStack(Items.COBBLESTONE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.STONE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.GRANITE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.DIORITE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.ANDESITE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.TUFF), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.CALCITE), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.COBBLED_DEEPSLATE), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.DEEPSLATE), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.BLACKSTONE), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.BASALT), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.DRIPSTONE_BLOCK), 4, 64));
+        // 其他建筑材料
+        entries.add(new CatalogEntry(new ItemStack(Items.WHITE_WOOL), 4, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.GLASS), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.GLASS_PANE), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.BRICKS), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.STONE_BRICKS), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.SMOOTH_STONE), 4, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.TERRACOTTA), 6, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.GRAVEL), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.SAND), 2, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.RED_SAND), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.SANDSTONE), 3, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.NETHER_BRICKS), 6, 64));
+        entries.add(new CatalogEntry(new ItemStack(Items.PRISMARINE), 8, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.PRISMARINE_BRICKS), 10, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.DARK_PRISMARINE), 12, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.SEA_LANTERN), 12, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.QUARTZ_BLOCK), 10, 48));
+        // 好感度物品
+        entries.add(new CatalogEntry(new ItemStack(Items.GLOWSTONE), 8, 32, 2));
+        entries.add(new CatalogEntry(new ItemStack(Items.OBSIDIAN), 20, 16, 4));
+        entries.add(new CatalogEntry(new ItemStack(Items.PURPUR_BLOCK), 16, 48, 6));
+        entries.add(new CatalogEntry(new ItemStack(Items.END_ROD), 16, 32, 8));
+        return entries;
+    }
+
+    public static List<RandomOffer> createRandomOffers() {
+        List<RandomOffer> offers = new ArrayList<>();
+        for (BlueprintEntry entry : BuilderBlueprintManager.POOL) {
+            offers.add(
+                    new RandomOffer(
+                            BuilderBlueprintManager.createStorePreviewStack(entry),
+                            entry.minPrice(),
+                            entry.maxPrice(),
+                            1,
+                            1));
+        }
+        return offers;
     }
 
     // ═══ 每日随机蓝图 ═══
@@ -67,35 +113,6 @@ public class BuilderEntity extends StoreEntity {
                             .nextInt(Math.max(1, entry.maxPrice() - entry.minPrice() + 1));
             this.addRandomStoreItem(stack, price, price, 1, 1);
         }
-    }
-
-    private void addAllPlanks() {
-        this.addStoreItem("minecraft:oak_planks", 2, 64);
-        this.addStoreItem("minecraft:spruce_planks", 2, 64);
-        this.addStoreItem("minecraft:birch_planks", 2, 64);
-        this.addStoreItem("minecraft:jungle_planks", 2, 64);
-        this.addStoreItem("minecraft:acacia_planks", 2, 64);
-        this.addStoreItem("minecraft:dark_oak_planks", 2, 64);
-        this.addStoreItem("minecraft:mangrove_planks", 3, 64);
-        this.addStoreItem("minecraft:cherry_planks", 3, 64);
-        this.addStoreItem("minecraft:bamboo_planks", 3, 64);
-        this.addStoreItem("minecraft:crimson_planks", 3, 64);
-        this.addStoreItem("minecraft:warped_planks", 3, 64);
-    }
-
-    private void addAllStoneVariants() {
-        this.addStoreItem("minecraft:cobblestone", 2, 64);
-        this.addStoreItem("minecraft:stone", 2, 64);
-        this.addStoreItem("minecraft:granite", 2, 64);
-        this.addStoreItem("minecraft:diorite", 2, 64);
-        this.addStoreItem("minecraft:andesite", 2, 64);
-        this.addStoreItem("minecraft:tuff", 3, 64);
-        this.addStoreItem("minecraft:calcite", 3, 64);
-        this.addStoreItem("minecraft:cobbled_deepslate", 3, 64);
-        this.addStoreItem("minecraft:deepslate", 4, 64);
-        this.addStoreItem("minecraft:blackstone", 4, 64);
-        this.addStoreItem("minecraft:basalt", 4, 64);
-        this.addStoreItem("minecraft:dripstone_block", 4, 64);
     }
 
     @Override

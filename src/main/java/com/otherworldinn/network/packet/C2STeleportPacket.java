@@ -83,6 +83,10 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                         // 查找目标点并执行传送
                         Optional<MapPoint> pointOpt = TownDataProvider.getPoint(pointId);
                         if (pointOpt.isPresent()) {
+                            // 先退出地图模式（保留当前位置，不恢复到进入前的位置），
+                            // 避免 maintainMapHover 在客户端关闭动画期间把玩家拉回地图虚拟位置。
+                            C2SMapModeSyncPacket.exitMapMode(player, false);
+
                             Vec3 target = pointOpt.get().worldPosition();
                             // 传送到目标位置
                             player.teleportTo(
@@ -123,6 +127,9 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
     }
 
     private static void teleportToExploreSpawn(ServerPlayer player) {
+        // 先退出地图模式（保留当前位置），避免 maintainMapHover 拉回玩家。
+        C2SMapModeSyncPacket.exitMapMode(player, false);
+
         // 先传送到旅社出生点
         player.teleportTo(
                 player.serverLevel(),

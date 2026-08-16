@@ -2,6 +2,7 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -41,31 +42,64 @@ public class FishermanEntity extends StoreEntity {
     }
 
     private void initDefaultStoreItems() {
-        this.addBaseStarcatcherItem("starcatcher_guide", 6, 1);
-        this.addBaseStarcatcherItem("starcatcher_rod", 10, 1);
-        this.addBaseStarcatcherItem("hook", 4, 4);
-        this.addBaseStarcatcherItem("bobber", 4, 4);
-        this.addBaseStarcatcherItem("worm", 4, 16);
-
-        this.addFavorStarcatcherItem(2, "starcatcher_twine", 5, 8);
-        this.addFavorStarcatcherItem(2, "vanilla_hook", 6, 2);
-        this.addFavorStarcatcherItem(2, "vanilla_bobber", 6, 2);
-        this.addFavorStarcatcherItem(2, "tackle_box", 18, 1);
-
-        this.addFavorStarcatcherItem(4, "steady_bobber", 12, 2);
-        this.addFavorStarcatcherItem(4, "leaf_bobber", 12, 2);
-        this.addFavorStarcatcherItem(4, "mossy_hook", 14, 2);
-        this.addFavorStarcatcherItem(4, "murkwater_bait", 10, 4);
-
-        this.addFavorStarcatcherItem(6, "shiny_hook", 22, 1);
-        this.addFavorStarcatcherItem(6, "aqua_bobber", 18, 1);
-        this.addFavorStarcatcherItem(6, "seeking_worm", 18, 2);
-        this.addFavorStarcatcherItem(6, "meteorological_bait", 18, 2);
-
-        this.addFavorStarcatcherItem(8, "fish_radar", 32, 1);
-        this.addFavorStarcatcherItem(8, "aquarium", 48, 1);
-        this.addFavorStarcatcherItem(8, "display", 24, 1);
+        this.applyCatalog(createCatalog());
         this.refreshRandomItems();
+    }
+
+    public static List<CatalogEntry> createCatalog() {
+        List<CatalogEntry> entries = new ArrayList<>();
+        addStarcatcher(entries, "starcatcher_guide", 6, 1, 1);
+        addStarcatcher(entries, "starcatcher_rod", 10, 1, 1);
+        addStarcatcher(entries, "hook", 4, 4, 1);
+        addStarcatcher(entries, "bobber", 4, 4, 1);
+        addStarcatcher(entries, "worm", 4, 16, 1);
+
+        addStarcatcher(entries, "starcatcher_twine", 5, 8, 2);
+        addStarcatcher(entries, "vanilla_hook", 6, 2, 2);
+        addStarcatcher(entries, "vanilla_bobber", 6, 2, 2);
+        addStarcatcher(entries, "tackle_box", 18, 1, 2);
+
+        addStarcatcher(entries, "steady_bobber", 12, 2, 4);
+        addStarcatcher(entries, "leaf_bobber", 12, 2, 4);
+        addStarcatcher(entries, "mossy_hook", 14, 2, 4);
+        addStarcatcher(entries, "murkwater_bait", 10, 4, 4);
+
+        addStarcatcher(entries, "shiny_hook", 22, 1, 6);
+        addStarcatcher(entries, "aqua_bobber", 18, 1, 6);
+        addStarcatcher(entries, "seeking_worm", 18, 2, 6);
+        addStarcatcher(entries, "meteorological_bait", 18, 2, 6);
+
+        addStarcatcher(entries, "fish_radar", 32, 1, 8);
+        addStarcatcher(entries, "aquarium", 48, 1, 8);
+        addStarcatcher(entries, "display", 24, 1, 8);
+        return entries;
+    }
+
+    private static void addStarcatcher(
+            List<CatalogEntry> entries, String itemPath, int price, int maxStock, int favorLevel) {
+        ItemStack stack = createStarcatcherStack(itemPath, 1);
+        if (!stack.isEmpty()) {
+            entries.add(new CatalogEntry(stack, price, maxStock, favorLevel));
+        }
+    }
+
+    public static List<RandomOffer> createRandomOffers() {
+        List<RandomOffer> offers = new ArrayList<>();
+        for (RandomProduct product : DAILY_FISH_POOL) {
+            ItemStack stack = createRegisteredStack(product.itemId(), product.count());
+            if (stack.isEmpty()) {
+                continue;
+            }
+            offers.add(
+                    new RandomOffer(
+                            stack,
+                            product.minPrice(),
+                            product.maxPrice(),
+                            product.minStock(),
+                            product.maxStock(),
+                            product.requiredFavorLevel()));
+        }
+        return offers;
     }
 
     @Override
@@ -84,12 +118,12 @@ public class FishermanEntity extends StoreEntity {
         List<RandomProduct> pool =
                 DAILY_FISH_POOL.stream()
                         .filter(product -> product.requiredFavorLevel() <= this.getFavorLevel())
-                        .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+                        .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         java.util.Collections.shuffle(pool, new java.util.Random(seed));
         int count = Math.min(2, pool.size());
         for (int i = 0; i < count; i++) {
             RandomProduct p = pool.get(i);
-            ItemStack stack = this.createRegisteredStack(p.itemId(), p.count());
+            ItemStack stack = createRegisteredStack(p.itemId(), p.count());
             if (stack.isEmpty()) {
                 continue;
             }
@@ -112,30 +146,7 @@ public class FishermanEntity extends StoreEntity {
         return SoundEvents.FISHING_BOBBER_SPLASH;
     }
 
-    private void addBaseStarcatcherItem(String itemPath, int price, int maxStock) {
-        this.addBaseStarcatcherItem(itemPath, price, maxStock, 1);
-    }
-
-    private void addBaseStarcatcherItem(String itemPath, int price, int maxStock, int count) {
-        ItemStack stack = this.createStarcatcherStack(itemPath, count);
-        if (!stack.isEmpty()) {
-            this.addStoreItem(stack, price, maxStock);
-        }
-    }
-
-    private void addFavorStarcatcherItem(int requiredFavorLevel, String itemPath, int price, int maxStock) {
-        this.addFavorStarcatcherItem(requiredFavorLevel, itemPath, price, maxStock, 1);
-    }
-
-    private void addFavorStarcatcherItem(
-            int requiredFavorLevel, String itemPath, int price, int maxStock, int count) {
-        ItemStack stack = this.createStarcatcherStack(itemPath, count);
-        if (!stack.isEmpty()) {
-            this.addFavorStoreItem(requiredFavorLevel, stack, price, maxStock);
-        }
-    }
-
-    private ItemStack createStarcatcherStack(String itemPath, int count) {
+    private static ItemStack createStarcatcherStack(String itemPath, int count) {
         Item item =
                 BuiltInRegistries.ITEM
                         .getOptional(ResourceLocation.fromNamespaceAndPath(STARCATCHER, itemPath))
@@ -143,7 +154,7 @@ public class FishermanEntity extends StoreEntity {
         return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, count);
     }
 
-    private ItemStack createRegisteredStack(String itemId, int count) {
+    private static ItemStack createRegisteredStack(String itemId, int count) {
         ResourceLocation id = ResourceLocation.tryParse(itemId);
         if (id == null) {
             return ItemStack.EMPTY;

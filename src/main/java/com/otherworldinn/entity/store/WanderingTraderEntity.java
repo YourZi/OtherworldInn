@@ -89,6 +89,26 @@ public class WanderingTraderEntity extends StoreEntity {
         this.refreshRandomItems();
     }
 
+    /**
+     * 游商可售商品范围（供 JEI 展示）。
+     *
+     * <p>游商本身完全动态：每日从注册表中随机抽取 16 种物品，外加 8 种固定价格的特殊原版物品。
+     * JEI 展示这 8 种特殊原版物品
+     */
+    public static List<RandomOffer> createRandomOffers() {
+        List<RandomOffer> offers = new ArrayList<>();
+        for (Map.Entry<ResourceLocation, SpecialVanillaOffer> entry : SPECIAL_VANILLA_OFFERS.entrySet()) {
+            ItemStack stack = BuiltInRegistries.ITEM.getOptional(entry.getKey()).map(ItemStack::new)
+                    .orElse(ItemStack.EMPTY);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            SpecialVanillaOffer offer = entry.getValue();
+            offers.add(new RandomOffer(stack, offer.price(), offer.price(), offer.stock(), offer.stock()));
+        }
+        return offers;
+    }
+
     @Override
     protected void applyCodeDefaultsAfterDebugReset() {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.EMERALD));

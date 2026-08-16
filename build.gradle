@@ -331,11 +331,6 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-tasks.register('xaeroCompatSelfTest', JavaExec) {
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'com.otherworldinn.compat.xaero.XaeroCompatBridgeSelfTest'
-}
-
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
     module {

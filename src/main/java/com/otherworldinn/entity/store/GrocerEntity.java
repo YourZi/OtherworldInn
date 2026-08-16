@@ -2,12 +2,16 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -24,39 +28,56 @@ public class GrocerEntity extends StoreEntity {
     }
 
     private void initDefaultStoreItems() {
-        this.addStoreItem("sophisticatedbackpacks:upgrade_base", 12, 16);
-        this.addStoreItem("refinedstorage:storage_housing", 12, 16);
-        this.addStoreItem("otherworldinn:land_deed", 32, 1);
-        this.addStoreItem("otherworldinn:inn_upgrade_voucher", 128, 1);
-        this.addStoreItem("otherworldinn:facility_upgrade_template", 32, 4);
-        this.addStoreItem("minecraft:book", 6, 16);
-        this.addStoreItem("minecraft:paper", 2, 64);
-        this.addStoreItem("minecraft:name_tag", 12, 8);
-        this.addStoreItem("minecraft:slime_ball", 10, 16);
-        this.addAllDyes();
-        this.addFavorStoreItem(2, "refinedstorage:1k_storage_part", 32, 8);
-        this.addFavorStoreItem(4, "refinedstorage:4k_storage_part", 64, 6);
-        this.addFavorStoreItem(6, "refinedstorage:16k_storage_part", 128, 4);
-        this.addFavorStoreItem(8, "refinedstorage:64k_storage_part", 256, 2);
+        this.applyCatalog(createCatalog());
     }
 
-    private void addAllDyes() {
-        this.addStoreItem("minecraft:white_dye", 2, 32);
-        this.addStoreItem("minecraft:orange_dye", 2, 32);
-        this.addStoreItem("minecraft:magenta_dye", 2, 32);
-        this.addStoreItem("minecraft:light_blue_dye", 2, 32);
-        this.addStoreItem("minecraft:yellow_dye", 2, 32);
-        this.addStoreItem("minecraft:lime_dye", 2, 32);
-        this.addStoreItem("minecraft:pink_dye", 2, 32);
-        this.addStoreItem("minecraft:gray_dye", 2, 32);
-        this.addStoreItem("minecraft:light_gray_dye", 2, 32);
-        this.addStoreItem("minecraft:cyan_dye", 2, 32);
-        this.addStoreItem("minecraft:purple_dye", 2, 32);
-        this.addStoreItem("minecraft:blue_dye", 2, 32);
-        this.addStoreItem("minecraft:brown_dye", 2, 32);
-        this.addStoreItem("minecraft:green_dye", 2, 32);
-        this.addStoreItem("minecraft:red_dye", 2, 32);
-        this.addStoreItem("minecraft:black_dye", 2, 32);
+    public static List<CatalogEntry> createCatalog() {
+        List<CatalogEntry> entries = new ArrayList<>();
+        entries.add(new CatalogEntry(createStack("sophisticatedbackpacks:upgrade_base"), 12, 16));
+        entries.add(new CatalogEntry(createStack("refinedstorage:storage_housing"), 12, 16));
+        entries.add(new CatalogEntry(createStack("otherworldinn:land_deed"), 32, 1));
+        entries.add(new CatalogEntry(createStack("otherworldinn:inn_upgrade_voucher"), 128, 1));
+        entries.add(new CatalogEntry(createStack("otherworldinn:facility_upgrade_template"), 32, 4));
+        entries.add(new CatalogEntry(createStack("minecraft:book"), 6, 16));
+        entries.add(new CatalogEntry(createStack("minecraft:paper"), 2, 64));
+        entries.add(new CatalogEntry(createStack("minecraft:name_tag"), 12, 8));
+        entries.add(new CatalogEntry(createStack("minecraft:slime_ball"), 10, 16));
+        for (String dye : DYED_ITEMS) {
+            entries.add(new CatalogEntry(createStack("minecraft:" + dye), 2, 32));
+        }
+        entries.add(new CatalogEntry(createStack("refinedstorage:1k_storage_part"), 32, 8, 2));
+        entries.add(new CatalogEntry(createStack("refinedstorage:4k_storage_part"), 64, 6, 4));
+        entries.add(new CatalogEntry(createStack("refinedstorage:16k_storage_part"), 128, 4, 6));
+        entries.add(new CatalogEntry(createStack("refinedstorage:64k_storage_part"), 256, 2, 8));
+        return entries;
+    }
+
+    private static final List<String> DYED_ITEMS =
+            List.of(
+                    "white_dye",
+                    "orange_dye",
+                    "magenta_dye",
+                    "light_blue_dye",
+                    "yellow_dye",
+                    "lime_dye",
+                    "pink_dye",
+                    "gray_dye",
+                    "light_gray_dye",
+                    "cyan_dye",
+                    "purple_dye",
+                    "blue_dye",
+                    "brown_dye",
+                    "green_dye",
+                    "red_dye",
+                    "black_dye");
+
+    private static ItemStack createStack(String itemId) {
+        ResourceLocation id = ResourceLocation.tryParse(itemId);
+        if (id == null) {
+            return ItemStack.EMPTY;
+        }
+        Item item = BuiltInRegistries.ITEM.getOptional(id).orElse(Items.AIR);
+        return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
 
     @Override
