@@ -1,5 +1,6 @@
 package com.otherworldinn.datagen;
 
+import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModItems;
 import java.util.concurrent.CompletableFuture;
@@ -10,6 +11,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -55,10 +57,14 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_planks", has(ItemTags.PLANKS))
                 .save(recipeOutput);
 
+        // 使用本模组命名空间保存，避免覆盖原版书与笔配方
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.WRITABLE_BOOK, 1)
                 .requires(Items.WRITTEN_BOOK)
                 .unlockedBy("has_written_book", has(Items.WRITTEN_BOOK))
-                .save(recipeOutput);
+                .save(
+                        recipeOutput,
+                        ResourceLocation.fromNamespaceAndPath(
+                                OtherworldInn.MODID, "writable_book_from_written_book"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.END_SPACE_SPHERE.get(), 1)
                 .pattern("EPE")
@@ -85,9 +91,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_crystal_ball", has(ModBlocks.CRYSTAL_BALL.get()))
                 .save(recipeOutput, "space_sphere_from_crystal_ball");
 
+        // 使用本模组命名空间保存，避免覆盖原版甘蔗→纸配方
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.PAPER, 1)
                 .requires(ModItems.RECALL_SCROLL.get())
                 .unlockedBy("has_recall_scroll", has(ModItems.RECALL_SCROLL.get()))
-                .save(recipeOutput);
+                .save(
+                        recipeOutput,
+                        ResourceLocation.fromNamespaceAndPath(
+                                OtherworldInn.MODID, "paper_from_recall_scroll"));
     }
 }

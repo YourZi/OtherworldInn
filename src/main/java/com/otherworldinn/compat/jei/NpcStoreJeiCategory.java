@@ -30,15 +30,8 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
     private static final String WANDERING_TRADER = "entity.otherworldinn.wandering_trader";
     private static final int ICON_SIZE = 40;
     private static final int ICON_MARGIN = 18;
-    private static final ResourceLocation BG_FARMER =
-            ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/jei/npc_store_farmer.png");
-    private static final ResourceLocation BG_BLACKSMITH =
-            ResourceLocation.fromNamespaceAndPath(
-                    "otherworldinn", "textures/gui/jei/npc_store_blacksmith.png");
-    private static final ResourceLocation BG_MAGICIAN =
-            ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/jei/npc_store_magician.png");
-    private static final ResourceLocation BG_GROCER =
-            ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/jei/npc_store_grocer.png");
+    private static final ResourceLocation BG =
+            ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/jei/npc_store.png");
     private static final ResourceLocation ICON_FARMER =
             ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/jei/farmer-icon.png");
     private static final ResourceLocation ICON_BLACKSMITH =
@@ -98,18 +91,16 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
             GuiGraphics guiGraphics,
             double mouseX,
             double mouseY) {
-        boolean hasCustomBackground = drawNpcBackground(guiGraphics, recipe);
+        drawNpcBackground(guiGraphics);
         Font font = Minecraft.getInstance().font;
 
         // 店主图标
         drawStoreIcon(guiGraphics, recipe);
 
-        // 店主名：与店主图标水平中心线居中对齐
-        if (!hasCustomBackground) {
-            Component name = Component.translatable(recipe.storeNameKey());
-            int iconCenterX = WIDTH - ICON_SIZE - ICON_MARGIN + ICON_SIZE / 2;
-            guiGraphics.drawString(font, name, iconCenterX - font.width(name) / 2, 4, 0x404040, false);
-        }
+        // 店主名：始终绘制，与店主图标水平中心线居中对齐
+        Component name = Component.translatable(recipe.storeNameKey());
+        int iconCenterX = WIDTH - ICON_SIZE - ICON_MARGIN + ICON_SIZE / 2;
+        guiGraphics.drawString(font, name, iconCenterX - font.width(name) / 2, 4, 0x404040, false);
 
         // 底部：需求/提示
         int bottomY = 56;
@@ -158,20 +149,12 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
         return stacks;
     }
 
-    private static boolean drawNpcBackground(GuiGraphics guiGraphics, NpcStoreJeiRecipe recipe) {
-        ResourceLocation texture = switch (recipe.storeNameKey()) {
-            case FARMER -> BG_FARMER;
-            case BLACKSMITH -> BG_BLACKSMITH;
-            case MAGICIAN -> BG_MAGICIAN;
-            case GROCER -> BG_GROCER;
-            default -> BG_FARMER;
-        };
-        if (!Minecraft.getInstance().getResourceManager().getResource(texture).isPresent()) {
+    private static void drawNpcBackground(GuiGraphics guiGraphics) {
+        if (!Minecraft.getInstance().getResourceManager().getResource(BG).isPresent()) {
             // 纹理不存在时回退 JEI 默认背景表现（不绘制自定义背景层）。
-            return false;
+            return;
         }
-        guiGraphics.blit(texture, 0, 0, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
-        return true;
+        guiGraphics.blit(BG, 0, 0, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
     }
 
     /** 在面板右侧垂直居中的位置绘制店主图标（源纹理 800x800，缩放到 ICON_SIZE）。 */

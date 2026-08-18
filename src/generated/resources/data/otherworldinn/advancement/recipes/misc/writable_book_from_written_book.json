@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:writable_book"
+        "recipe": "otherworldinn:writable_book_from_written_book"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "minecraft:writable_book"
+      "otherworldinn:writable_book_from_written_book"
     ]
   }
 }

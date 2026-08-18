@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:paper"
+        "recipe": "otherworldinn:paper_from_recall_scroll"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "minecraft:paper"
+      "otherworldinn:paper_from_recall_scroll"
     ]
   }
 }
