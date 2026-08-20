@@ -1,0 +1,23 @@
+{
+  "parent": "otherworldinn:inn_rating_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.otherworldinn.mine_max_level.title"
+    },
+    "description": {
+      "translate": "advancements.otherworldinn.mine_max_level.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

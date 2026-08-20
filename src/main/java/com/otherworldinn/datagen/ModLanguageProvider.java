@@ -209,6 +209,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.greenhouse_max_level.description")
                 .zh("将温室设施升级至满级")
                 .en("Upgrade the Greenhouse facility to max level");
+        entry("advancements.otherworldinn.mine_max_level.title")
+                .zh("矿脉富饶")
+                .en("Abundant Ore Veins");
+        entry("advancements.otherworldinn.mine_max_level.description")
+                .zh("将矿井设施升级至满级")
+                .en("Upgrade the Mine facility to max level");
         entry("advancements.otherworldinn.all_facility_max_level.title")
                 .zh("设施全精通")
                 .en("Master of Facilities");

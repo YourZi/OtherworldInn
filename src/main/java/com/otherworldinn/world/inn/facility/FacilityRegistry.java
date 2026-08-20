@@ -266,6 +266,36 @@ public final class FacilityRegistry {
                         List.of(new FacilityRange(new BlockPos(-2, 71, 63), new BlockPos(-17, 75, 51))),
                         3,
                         List.of(new FacilityRange(new BlockPos(-2, 71, 63), new BlockPos(-23, 75, 51)))));
+
+        // TODO 矿井：centerPos / facilityRange 为临时占位坐标，正式建筑与坐标待设计确定
+        // TODO 结构 NBT：data/otherworldinn/structure/facility/mine/level_0..3.nbt 待补充
+        // TODO 地图图标：textures/gui/map/icon_mine.png 待补充（暂用默认图标）
+        registerFacility(
+                "mine",
+                "Mine",
+                "矿井",
+                3,
+                new BlockPos(0, 70, -60),
+                new FacilityRange(new BlockPos(-3, 68, -63), new BlockPos(3, 74, -57)),
+                List.of(
+                        new LevelUpgradeCost(
+                                List.of(
+                                        new ItemStack(Items.TORCH, 16),
+                                        new ItemStack(Items.IRON_PICKAXE, 1)),
+                                300),
+                        new LevelUpgradeCost(
+                                List.of(
+                                        new ItemStack(Items.GOLD_INGOT, 8),
+                                        new ItemStack(AllBlocks.ANDESITE_CASING.asItem(), 4)),
+                                700),
+                        new LevelUpgradeCost(
+                                List.of(
+                                        new ItemStack(Items.DIAMOND_PICKAXE, 1),
+                                        new ItemStack(AllBlocks.MECHANICAL_SAW.asItem(), 2),
+                                        new ItemStack(Items.REDSTONE, 16)),
+                                1200)),
+                null,
+                Map.of());
     }
 
     private static FacilityMapPointConfig normalizeMapPointConfig(

@@ -178,16 +178,16 @@ public class BlacksmithEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(Items.GOLD_ORE), 12, 8));
 
         // 粗矿
-        entries.add(new CatalogEntry(new ItemStack(Items.RAW_IRON), 5, 64));
-        entries.add(new CatalogEntry(new ItemStack(AllItems.RAW_ZINC.get()), 4, 64));
-        entries.add(new CatalogEntry(new ItemStack(Items.RAW_COPPER), 3, 64));
-        entries.add(new CatalogEntry(new ItemStack(Items.RAW_GOLD), 8, 32));
+        entries.add(new CatalogEntry(new ItemStack(Items.RAW_IRON), 8, 16));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.RAW_ZINC.get()), 6, 16));
+        entries.add(new CatalogEntry(new ItemStack(Items.RAW_COPPER), 5, 16));
+        entries.add(new CatalogEntry(new ItemStack(Items.RAW_GOLD), 12, 8));
 
         // 粉碎矿
-        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_IRON.get()), 5, 32));
-        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_ZINC.get()), 4, 32));
-        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_COPPER.get()), 3, 32));
-        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_GOLD.get()), 8, 16));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_IRON.get()), 8, 8));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_ZINC.get()), 6, 8));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_COPPER.get()), 5, 8));
+        entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_GOLD.get()), 12, 4));
 
         // 矿锭
         entries.add(new CatalogEntry(new ItemStack(Items.IRON_INGOT), 10, 32));

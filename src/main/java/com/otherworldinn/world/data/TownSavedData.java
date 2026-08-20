@@ -28,6 +28,10 @@ public class TownSavedData extends SavedData {
     @Nullable
     private UUID traderEntityUuid = null;
 
+    // === 矿井状态 ===
+    /** 矿井最近一次填充产出的世界日，-1 表示从未填充 */
+    private long lastMineFillDay = -1;
+
     public static TownSavedData get(ServerLevel level) {
         return level.getDataStorage()
                 .computeIfAbsent(
@@ -46,6 +50,8 @@ public class TownSavedData extends SavedData {
         if (tag.hasUUID("traderEntityUuid")) {
             data.traderEntityUuid = tag.getUUID("traderEntityUuid");
         }
+        data.lastMineFillDay =
+                tag.contains("lastMineFillDay") ? tag.getLong("lastMineFillDay") : -1;
         return data;
     }
 
@@ -59,6 +65,7 @@ public class TownSavedData extends SavedData {
         if (traderEntityUuid != null) {
             tag.putUUID("traderEntityUuid", traderEntityUuid);
         }
+        tag.putLong("lastMineFillDay", lastMineFillDay);
         return tag;
     }
 
@@ -109,6 +116,17 @@ public class TownSavedData extends SavedData {
         this.traderActive = false;
         this.traderDepartureTime = 0;
         this.nextTraderArrivalTime = nextArrivalTime;
+        this.setDirty();
+    }
+
+    // === 矿井状态 ===
+
+    public long getLastMineFillDay() {
+        return lastMineFillDay;
+    }
+
+    public void setLastMineFillDay(long lastMineFillDay) {
+        this.lastMineFillDay = lastMineFillDay;
         this.setDirty();
     }
 }

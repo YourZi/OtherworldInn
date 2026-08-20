@@ -61,6 +61,8 @@ public final class AdvancementUtils {
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "boiler_room_max_level");
     public static final ResourceLocation GREENHOUSE_MAX_LEVEL =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "greenhouse_max_level");
+    public static final ResourceLocation MINE_MAX_LEVEL =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "mine_max_level");
     public static final ResourceLocation ALL_FACILITY_MAX_LEVEL =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "all_facility_max_level");
     public static final ResourceLocation TOO_MANY_BEDS =

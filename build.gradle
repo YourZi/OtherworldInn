@@ -199,6 +199,15 @@ def createUtilitiesModuleJar = tasks.register("createUtilitiesModuleJar", Jar) {
     }
 }
 
+def otherWorldInnHudModuleJar = tasks.register("otherWorldInnHudModuleJar", Jar) {
+    from(zipTree(layout.projectDirectory.file("libs/OtherworldInnHud-neoforge-0.1.1.jar")))
+    destinationDirectory.set(layout.buildDirectory.dir("tmp/jarjar-libs"))
+    archiveFileName.set("OtherworldInnHud-neoforge-0.1.1-module.jar")
+    manifest {
+        attributes("Automatic-Module-Name": "com.xiwanzi.otherworldinnhud")
+    }
+}
+
 dependencies {
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     implementation("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
@@ -241,6 +250,8 @@ dependencies {
     localRuntime("maven.modrinth:starcatcher:${starcatcher_version}")
     implementation(jarJar(files(createUtilitiesModuleJar)))
     localRuntime(files("libs/createutilities-0.3.2+1.21.1.jar"))
+    implementation(jarJar(files(otherWorldInnHudModuleJar)))
+    localRuntime(files("libs/OtherworldInnHud-neoforge-0.1.1.jar"))
 
     implementation(jarJar("io.github.llamalad7:mixinextras-neoforge:${mixin_extras_version}"))
 

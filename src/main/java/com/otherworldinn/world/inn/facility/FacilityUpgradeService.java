@@ -67,6 +67,8 @@ public final class FacilityUpgradeService {
                     AdvancementUtils.award(player, AdvancementUtils.BOILER_ROOM_MAX_LEVEL);
                 } else if ("greenhouse".equals(context.facility().id())) {
                     AdvancementUtils.award(player, AdvancementUtils.GREENHOUSE_MAX_LEVEL);
+                } else if ("mine".equals(context.facility().id())) {
+                    AdvancementUtils.award(player, AdvancementUtils.MINE_MAX_LEVEL);
                 }
                 if (isAllFacilitiesAtMaxLevel(context.team())) {
                     AdvancementUtils.award(player, AdvancementUtils.ALL_FACILITY_MAX_LEVEL);
