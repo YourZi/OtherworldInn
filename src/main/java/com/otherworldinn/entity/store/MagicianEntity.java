@@ -2,6 +2,7 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.init.ModItems;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class MagicianEntity extends StoreEntity {
         }
 
         // 每日随机下界/稀有材料
-        long day = this.level().getDayTime() / 24000L;
+        long day = WorldDayUtils.currentDay(this.level());
         RandomSource dailyRandom = RandomSource.create(this.level().random.nextLong() ^ day);
         List<DailyNetherMaterial> dailyPool = new ArrayList<>(DAILY_NETHER_MATERIALS);
         java.util.Collections.shuffle(dailyPool, new java.util.Random(day));

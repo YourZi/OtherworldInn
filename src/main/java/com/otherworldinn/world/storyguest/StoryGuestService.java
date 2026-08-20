@@ -4,6 +4,7 @@ import com.otherworldinn.entity.base.GuestEntity;
 import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.init.ModEntities;
 import com.otherworldinn.util.EntityUtils;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.team.TeamData;
@@ -58,7 +59,7 @@ public final class StoryGuestService {
         }
         StoryGuestSavedData data = StoryGuestSavedData.get(level);
         StoryGuestProgress progress = data.getOrCreateProgress(definition.id());
-        long currentDay = level.getDayTime() / 24000L;
+        long currentDay = WorldDayUtils.currentDay(level);
         long nextEligibleVisitDay = currentDay + rollReturnInterval(progress, definition, level.random);
         progress.setActiveEntityUuid(null);
         progress.setLastCheckoutDay(currentDay);
@@ -321,7 +322,7 @@ public final class StoryGuestService {
     private static StoryGuestDefinition pickSpawnDefinition(
             ServerLevel level, int innRating, RandomSource random) {
         StoryGuestSavedData data = StoryGuestSavedData.get(level);
-        long currentDay = level.getDayTime() / 24000L;
+        long currentDay = WorldDayUtils.currentDay(level);
         if (hasAnyActiveStoryGuest(level)) {
             return null;
         }

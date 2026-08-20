@@ -3,6 +3,7 @@ package com.otherworldinn.entity.store;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.entity.store.BuilderBlueprintManager.BlueprintEntry;
+import com.otherworldinn.util.WorldDayUtils;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
@@ -103,7 +104,7 @@ public class BuilderEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        long day = this.level().getDayTime() / 24000L;
+        long day = WorldDayUtils.currentDay(this.level());
         long seed = this.level().random.nextLong() ^ day;
         var picks = BuilderBlueprintManager.pickDailyRandom(4, seed);
         for (var entry : picks) {

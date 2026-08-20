@@ -9,6 +9,7 @@ import com.otherworldinn.entity.guest.RichGuestEntity;
 import com.otherworldinn.entity.guest.SponsorGuestEntity;
 import com.otherworldinn.entity.guest.UltraRichGuestEntity;
 import com.otherworldinn.util.BlockEntitySearchUtils;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.util.service.GuestNameManager;
 import com.otherworldinn.world.dialogue.DialogueService;
 import com.otherworldinn.world.economy.service.ItemSellPriceManager;
@@ -120,7 +121,7 @@ public abstract class GuestEntity extends PathfinderMob {
     private int dailyPurchaseTarget = 0;
     private int dailyPurchaseCount = 0;
     private int dailyPurchaseAttemptCount = 0;
-    // 下一次尝试“用餐购买”的时间戳（游戏刻）
+    // 下一次尝试"用餐购买"的时间戳（世界时间 DayTime）
     private long nextDiningAttemptTime = 0L;
     // 行为树活动状态（对齐原版 Activity 概念）
     private Activity activeActivity = Activity.IDLE;
@@ -514,7 +515,7 @@ public abstract class GuestEntity extends PathfinderMob {
      * @return 停留时长 (ticks)
      */
     protected long getStayDuration() {
-        return 24000L;
+        return WorldDayUtils.TICKS_PER_DAY;
     }
 
     /**
@@ -748,6 +749,10 @@ public abstract class GuestEntity extends PathfinderMob {
                 InnData innData = team.getInnData();
                 // 强制退房，标记为非正常退房（不支付房费）
                 innData.checkOut(this.getUUID(), serverLevel, false);
+            } else {
+                // 兜底清理：队伍领地外死亡时残留的旅客/房间占用
+                TeamManager.getInstance()
+                        .cleanupGuestResidue(this.getUUID(), serverLevel.getServer());
             }
         }
     }
@@ -755,7 +760,7 @@ public abstract class GuestEntity extends PathfinderMob {
     private void scheduleNextDiningAttempt(ServerLevel level) {
         int intervalBase = this.getBudgetBasedDiningInterval();
         int next = intervalBase / 2 + this.getRandom().nextInt(intervalBase + 1);
-        this.nextDiningAttemptTime = level.getGameTime() + next;
+        this.nextDiningAttemptTime = level.getDayTime() + next;
     }
 
     private boolean isDiningDisplay(BlockState state) {
@@ -884,7 +889,7 @@ public abstract class GuestEntity extends PathfinderMob {
             this.pendingDiningTarget = null;
             this.navigationTarget = null;
             this.getNavigation().stop();
-            long nextDayStart = (this.diningPlanDay + 1L) * 24000L;
+            long nextDayStart = WorldDayUtils.nextDayStart(this.diningPlanDay);
             this.nextDiningAttemptTime =
                     Math.max(
                             this.nextDiningAttemptTime,
@@ -908,27 +913,27 @@ public abstract class GuestEntity extends PathfinderMob {
             } else if (this.navigationTarget == null) {
                 this.pendingDiningTarget = null;
                 this.nextDiningAttemptTime =
-                        level.getGameTime() + this.getBudgetBasedRetryInterval();
+                        level.getDayTime() + this.getBudgetBasedRetryInterval();
             }
             return;
         }
 
         if (this.nextDiningAttemptTime == 0L) {
-            this.nextDiningAttemptTime = level.getGameTime() + this.getInitialDiningAttemptDelay();
+            this.nextDiningAttemptTime = level.getDayTime() + this.getInitialDiningAttemptDelay();
             return;
         }
         // 避免在已有导航任务时插入餐饮任务，减少行为冲突
-        if (level.getGameTime() < this.nextDiningAttemptTime || this.navigationTarget != null) {
+        if (level.getDayTime() < this.nextDiningAttemptTime || this.navigationTarget != null) {
             return;
         }
         if (!this.shouldAttemptDiningPurchaseNow()) {
-            this.nextDiningAttemptTime = level.getGameTime() + this.getBudgetBasedRetryInterval();
+            this.nextDiningAttemptTime = level.getDayTime() + this.getBudgetBasedRetryInterval();
             return;
         }
 
         BlockPos target = findNearbyDiningDisplay(level);
         if (target == null) {
-            this.nextDiningAttemptTime = level.getGameTime() + this.getBudgetBasedRetryInterval();
+            this.nextDiningAttemptTime = level.getDayTime() + this.getBudgetBasedRetryInterval();
             return;
         }
 
@@ -1378,7 +1383,9 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private void ensureDailyDiningPlan(ServerLevel level) {
-        long currentDay = level.getDayTime() / 24000L;
+        // 统一按世界时间（DayTime）计算日期：睡眠跳时、/time set 等都会推进日期，
+        // 使次日餐饮计划与商店补货、游商周期等其它每日逻辑使用同一时间源
+        long currentDay = WorldDayUtils.currentDay(level);
         if (this.diningPlanDay == currentDay) {
             return;
         }

@@ -5,6 +5,7 @@ import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CCommissionBoardPacket;
 import com.otherworldinn.util.AdvancementUtils;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
@@ -539,7 +540,7 @@ public final class CommissionService {
     }
 
     private static long currentDay(Level level) {
-        return level.getDayTime() / 24000L;
+        return WorldDayUtils.currentDay(level);
     }
 
     private static boolean isKillRequirementComplete(

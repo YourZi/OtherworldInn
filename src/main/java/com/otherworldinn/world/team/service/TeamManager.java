@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
+import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.TeamSavedData;
 import java.util.ArrayList;
@@ -343,6 +344,29 @@ public class TeamManager {
         }
         syncTeam(team, server);
         return true;
+    }
+
+    /**
+     * 清理旅客残留数据
+     *
+     * <p>当旅客实体在队伍领地外死亡（无法定位所属队伍）时，遍历所有队伍，
+     * 将其从旅社旅客列表与房间占用中移除，防止死旅客 UUID 永久占用床位/容量。
+     *
+     * @param guestId 旅客 UUID
+     * @param server 服务器实例
+     */
+    public void cleanupGuestResidue(UUID guestId, MinecraftServer server) {
+        if (server == null) {
+            return;
+        }
+        for (TeamData team : getData(server).getTeams().values()) {
+            InnData inn = team.getInnData();
+            if (inn.getGuestIds().contains(guestId)) {
+                inn.getRooms().values().forEach(room -> room.removeGuest(guestId));
+                inn.removeGuest(guestId);
+                syncTeam(team, server);
+            }
+        }
     }
 
     /**

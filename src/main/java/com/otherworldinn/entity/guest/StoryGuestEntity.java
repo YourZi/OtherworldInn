@@ -2,6 +2,7 @@ package com.otherworldinn.entity.guest;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.GuestEntity;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestSavedData;
@@ -113,7 +114,7 @@ public class StoryGuestEntity extends GuestEntity {
 
     @Override
     protected long getStayDuration() {
-        return (2L + this.getRandom().nextInt(2)) * 24000L;
+        return WorldDayUtils.daysToTicks(2L + this.getRandom().nextInt(2));
     }
 
     @Override

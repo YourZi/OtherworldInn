@@ -2,6 +2,7 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.inventory.WanderingTraderRecycleMenu;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +122,7 @@ public class WanderingTraderEntity extends StoreEntity {
     protected void refreshRandomItems() {
         this.resetRecycleVisitLimits();
         super.refreshRandomItems();
-        long day = this.level().getDayTime() / 24000L;
+        long day = WorldDayUtils.currentDay(this.level());
         java.util.Random rng = new java.util.Random(this.level().random.nextLong() ^ day);
 
         List<Item> allItems = new ArrayList<>(BuiltInRegistries.ITEM.stream()

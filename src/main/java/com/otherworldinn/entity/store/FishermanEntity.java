@@ -2,6 +2,7 @@ package com.otherworldinn.entity.store;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.StoreEntity;
+import com.otherworldinn.util.WorldDayUtils;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -113,7 +114,7 @@ public class FishermanEntity extends StoreEntity {
     @Override
     protected void refreshRandomItems() {
         super.refreshRandomItems();
-        long day = this.level().getDayTime() / 24000L;
+        long day = WorldDayUtils.currentDay(this.level());
         long seed = this.level().random.nextLong() ^ day;
         List<RandomProduct> pool =
                 DAILY_FISH_POOL.stream()

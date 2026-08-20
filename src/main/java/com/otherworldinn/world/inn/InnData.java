@@ -9,6 +9,7 @@ import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModStats;
 import com.otherworldinn.util.BlockEntitySearchUtils;
 import com.otherworldinn.util.EntityUtils;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
@@ -312,7 +313,7 @@ public class InnData {
     }
 
     private void syncIncomeStatDay(ServerLevel level) {
-        long currentDay = level.getDayTime() / 24000L;
+        long currentDay = WorldDayUtils.currentDay(level);
         if (incomeStatDay < 0L) {
             incomeStatDay = currentDay;
             return;
@@ -1175,6 +1176,10 @@ public class InnData {
      * @return 是否成功入住
      */
     public boolean checkIn(UUID guestId, int roomId, ServerLevel level) {
+        if (this.state != InnState.OPEN) {
+            return false; // 旅社未营业
+        }
+
         RoomData room = rooms.get(roomId);
         if (room == null) {
             return false; // 房间不存在
@@ -1435,7 +1440,7 @@ public class InnData {
         }
 
         // 3. 检查是否有可用床位
-        if (!hasAvailableBed()) {
+        if (!hasAvailableBed(level)) {
             return false;
         }
 
@@ -1454,11 +1459,16 @@ public class InnData {
         return true;
     }
 
-    /** 检查是否有可用床位 */
-    private boolean hasAvailableBed() {
+    /** 检查是否有可用床位（存在干净且未被其他旅客认领的床） */
+    private boolean hasAvailableBed(ServerLevel level) {
         for (RoomData room : rooms.values()) {
-            if (room.getCurrentGuests().size() < room.getMaxGuests()) {
-                return true;
+            if (room.getCurrentGuests().size() >= room.getMaxGuests()) {
+                continue;
+            }
+            for (BlockPos bedHead : collectCleanBedHeads(room, level)) {
+                if (!isBedClaimedByOtherGuest(room, null, bedHead, level)) {
+                    return true;
+                }
             }
         }
         return false;

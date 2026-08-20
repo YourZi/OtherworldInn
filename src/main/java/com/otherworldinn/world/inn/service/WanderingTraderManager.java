@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.store.WanderingTraderEntity;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModEntities;
+import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.data.TownSavedData;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.event.TownStructurePlacer;
@@ -25,7 +26,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * 游商管理器
  *
  * <p>管理游商的出现/消失循环：每 2-5 天出现一次，停留 3 天后离开。
- * 使用世界时间（GameTime），睡觉跳过时间也会同步推进。
+ * 统一按世界时间（DayTime）计算，睡觉跳过时间、/time set 等也会同步推进周期。
  * 出现时全服广播，同时放置/移除商船结构。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
@@ -51,10 +52,10 @@ public final class WanderingTraderManager {
     private static final ResourceLocation WATER_STRUCTURE =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "wandering_trader_ship_removed");
 
-    // === 时间常量（游戏刻，24000 = 1 天） ===
+    // === 时间常量（世界时间 DayTime，24000 = 1 天） ===
     /** 游商停留天数 */
     private static final long STAY_DAYS = 3L;
-    private static final long STAY_TICKS = STAY_DAYS * 24000L;
+    private static final long STAY_TICKS = WorldDayUtils.daysToTicks(STAY_DAYS);
     /** 下次出现的最小/最大间隔（天） */
     private static final long MIN_WAIT_DAYS = 2L;
     private static final long MAX_WAIT_DAYS = 5L;
@@ -70,43 +71,43 @@ public final class WanderingTraderManager {
         if (townLevel == null) return;
 
         TownSavedData data = TownSavedData.get(townLevel);
-        long gameTime = townLevel.getGameTime();
+        long dayTime = townLevel.getDayTime();
 
         if (data.isTraderActive()) {
-            tickArrived(townLevel, data, gameTime);
+            tickArrived(townLevel, data, dayTime);
         } else {
-            tickWaiting(townLevel, data, gameTime);
+            tickWaiting(townLevel, data, dayTime);
         }
     }
 
     // === ARRIVED 阶段 ===
 
-    private static void tickArrived(ServerLevel townLevel, TownSavedData data, long gameTime) {
+    private static void tickArrived(ServerLevel townLevel, TownSavedData data, long dayTime) {
         // 停留时间结束 → 离开
-        if (gameTime >= data.getTraderDepartureTime()) {
+        if (dayTime >= data.getTraderDepartureTime()) {
             moveTraderToHiddenPosition(townLevel, data);
             removeShip(townLevel);
 
-            long nextArrival = gameTime + randomWaitTicks(townLevel);
+            long nextArrival = dayTime + randomWaitTicks(townLevel);
             data.setTraderInactive(nextArrival);
         }
     }
 
     // === WAITING 阶段 ===
 
-    private static void tickWaiting(ServerLevel townLevel, TownSavedData data, long gameTime) {
+    private static void tickWaiting(ServerLevel townLevel, TownSavedData data, long dayTime) {
         // 首次创建世界时 nextTraderArrivalTime 默认为 0，初始化为随机延迟，避免一开档就到达
         if (data.getNextTraderArrivalTime() == 0) {
-            data.setTraderInactive(gameTime + randomWaitTicks(townLevel));
+            data.setTraderInactive(dayTime + randomWaitTicks(townLevel));
             return;
         }
 
-        if (gameTime >= data.getNextTraderArrivalTime()) {
+        if (dayTime >= data.getNextTraderArrivalTime()) {
             arriveTrader(townLevel, data);
             placeShip(townLevel);
             broadcastArrival(townLevel);
 
-            data.setTraderActive(gameTime + STAY_TICKS);
+            data.setTraderActive(dayTime + STAY_TICKS);
         }
     }
 
@@ -198,10 +199,10 @@ public final class WanderingTraderManager {
 
     // === 工具方法 ===
 
-    /** 随机生成 2-5 天的等待时间（tick） */
+    /** 随机生成 2-5 天的等待时间（世界时间 tick） */
     private static long randomWaitTicks(ServerLevel townLevel) {
         long days = MIN_WAIT_DAYS + townLevel.random.nextInt((int) (MAX_WAIT_DAYS - MIN_WAIT_DAYS + 1));
-        return days * 24000L;
+        return WorldDayUtils.daysToTicks(days);
     }
 
     // === 调试命令入口 ===
@@ -218,7 +219,7 @@ public final class WanderingTraderManager {
         placeShip(townLevel);
         broadcastArrival(townLevel);
 
-        data.setTraderActive(townLevel.getGameTime() + STAY_TICKS);
+        data.setTraderActive(townLevel.getDayTime() + STAY_TICKS);
         return true;
     }
 
@@ -239,7 +240,7 @@ public final class WanderingTraderManager {
         moveTraderToHiddenPosition(townLevel, data);
         removeShip(townLevel);
 
-        long nextArrival = townLevel.getGameTime() + randomWaitTicks(townLevel);
+        long nextArrival = townLevel.getDayTime() + randomWaitTicks(townLevel);
         data.setTraderInactive(nextArrival);
         return true;
     }

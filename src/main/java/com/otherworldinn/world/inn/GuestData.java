@@ -381,6 +381,21 @@ public class GuestData {
             }
         }
 
+        // 归一化状态字段，防止 NBT 中存在不一致的数据
+        if (guest.state == GuestState.CHECKED_IN && guest.roomId == -1) {
+            // 已入住但无房间：降级为空闲
+            guest.state = GuestState.IDLE;
+            guest.assignedBedPos = null;
+        }
+        if (guest.state != GuestState.CHECKED_IN) {
+            // 非入住状态不允许持有房间/床位
+            guest.roomId = -1;
+            guest.assignedBedPos = null;
+        }
+        if (guest.state == GuestState.CHECKED_OUT || guest.state == GuestState.IDLE) {
+            guest.waitingSince = 0;
+        }
+
         return guest;
     }
 
