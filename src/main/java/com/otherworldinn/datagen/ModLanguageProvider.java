@@ -74,7 +74,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
         // JEI 信息页
         entry("jei.otherworldinn.recall_scroll.info")
-                .zh("玩家离开城镇自动获取一张，玩家长按右键蓄力 3 秒，传回城镇旅社。在城镇内不能使用；下界、末地等其他维度均可使用。")
+                .zh("玩家离开城镇自动获取一张，玩家长按右键蓄力3秒，传回城镇旅社。在城镇内不能使用；下界、末地等其他维度均可使用。")
                 .en("You get one automatically when leaving the Town. Hold right-click for 3 seconds to teleport back to the Town inn. Cannot be used while inside the Town; works from any other dimension, such as the Nether or the End.");
         entry("jei.otherworldinn.room_register.info")
                 .zh("副手持右键点击房间一个角落，再点另一个对角，条件正确时（房间大小在允许范围内且至少有一张床和一扇门）自动创建房间。主手右键显示当前已有房间数量，并高亮房间轮廓。")
@@ -89,7 +89,7 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("与水、含水方块或炼药锅长按交互清洗，炼药锅清洗有一半概率不消耗耐久。")
                 .en("Hold right-click while looking at water, a waterlogged block, or a cauldron to wash it clean. Washing in a cauldron has a 50% chance to not consume durability.");
         entry("jei.otherworldinn.land_deed.info")
-                .zh("右键方块定第一个角落，右键第二次定对角，右键第三次确认扣款。价格按 2 金币/块计算，已在旅社范围内的部分不重复收费。可扩展面积受旅社评级限制，评级越高可扩范围越大。圈选超出允许区域会自动取消。")
+                .zh("右键方块定第一个角落，右键第二次定对角，右键第三次确认扣款。价格按2金币/块计算，已在旅社范围内的部分不重复收费。可扩展面积受旅社评级限制，评级越高可扩范围越大。圈选超出允许区域会自动取消。")
                 .en("Right-click a block to set the first corner, right-click again to set the opposite corner, and a third time to confirm and pay. It costs 2 coins per block, and areas already inside the inn are not charged again. The expandable area is limited by the inn rating; a higher rating allows a larger expansion. The selection is cancelled automatically if it goes beyond the allowed region.");
         entry("jei.otherworldinn.inn_key.info")
                 .zh("潜行右键点击旅社范围内的 Create 模组的呼唤铃，切换旅社开业/歇业状态。")
@@ -113,7 +113,7 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("右键直接传送到末地主岛的黑曜石平台。")
                 .en("Right-click to teleport directly to the obsidian platform on the End main island.");
         entry("jei.otherworldinn.picnic_box.info")
-                .zh("右键食用盒子里装的第一个食物，只有从野餐盒吃的食物才能恢复疲劳值。只能在城镇或魔法空间维度往盒子里放食物，探索途中无法补充食物。每次食用有 15 秒冷却。潜行左键点击可清空盒子，食物回到背包。")
+                .zh("右键食用盒子里装的第一个食物，只有从野餐盒吃的食物才能恢复疲劳值。只能在城镇或魔法空间维度往盒子里放食物，探索途中无法补充食物。每次食用有15秒冷却。潜行左键点击可清空盒子，食物回到背包。")
                 .en("Right-click to eat the first food stored inside the box. Only food eaten from the picnic box restores fatigue. Food can only be inserted in the Town or Magic Space dimensions; you cannot refill it while exploring. Each use has a 15-second cooldown. Sneak + left-click to empty the box and return the food to your inventory.");
         entry("jei.otherworldinn.organic_fertilizer.info")
                 .zh("右键触发目标方块的一次随机刻逻辑，因此可以催熟原版骨粉无法催熟的作物，例如甘蔗和仙人掌，也可以加速草方块蔓延。")
@@ -849,6 +849,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.commission.expired")
                 .zh("委托已过期！")
                 .en("Commission Expired!");
+        entry("message.otherworldinn.commission.festival_available")
+                .zh("城镇委托板出现了节日限定委托")
+                .en("A festival-limited commission has appeared on the town commission board");
+        entry("message.otherworldinn.commission.festival_not_active")
+                .zh("该节日限定委托已过期")
+                .en("This festival commission is no longer available");
         entry("message.otherworldinn.commission.reward_line.coin")
                 .zh("- \uE001%s")
                 .en("- \uE001%s");
@@ -930,6 +936,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.story.photo_recorded")
                 .zh("你已经替%s记录下目标照片：%s")
                 .en("You have recorded the requested photograph for %s: %s");
+        entry("message.otherworldinn.photo.hint.spotted")
+                .zh("发现拍照任务目标")
+                .en("Photo task target discovered");
         entry("photo_objective.otherworldinn.plains_scene")
                 .zh("平原群系的景色")
                 .en("a plains biome scene");
@@ -1242,6 +1251,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("gui.otherworldinn.store.favor.progress")
                 .zh("进度: §f\uE001§r%s/%s")
                 .en("Progress: §f\uE001§r%s/%s");
+        entry("gui.otherworldinn.commission.festival_exclusive")
+                .zh("【%s】限定")
+                .en("[%s] Limited");
         entry("gui.otherworldinn.recycle.coin_cap_reached").zh("已达上限").en("Cap Reached");
 
         // 女仆任务

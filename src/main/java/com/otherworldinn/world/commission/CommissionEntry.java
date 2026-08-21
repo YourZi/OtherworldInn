@@ -20,6 +20,9 @@ public class CommissionEntry {
     private final List<ItemReward> itemRewards;
     private final int coinReward;
     private final List<NpcFavorReward> npcFavorRewards;
+    /** 非空表示节日限定委托：只在对应节日激活期间出现，须在节日窗口内完成 */
+    @Nullable
+    private final String festivalId;
 
     public CommissionEntry(
             String id,
@@ -31,7 +34,8 @@ public class CommissionEntry {
             List<PhotoRequirement> photoRequirements,
             List<ItemReward> itemRewards,
             int coinReward,
-            List<NpcFavorReward> npcFavorRewards) {
+            List<NpcFavorReward> npcFavorRewards,
+            @Nullable String festivalId) {
         this.id = id;
         this.descriptionKey = descriptionKey == null ? "" : descriptionKey;
         this.stars = Math.max(1, Math.min(5, stars));
@@ -42,6 +46,7 @@ public class CommissionEntry {
         this.itemRewards = List.copyOf(itemRewards);
         this.coinReward = Math.max(0, coinReward);
         this.npcFavorRewards = List.copyOf(npcFavorRewards);
+        this.festivalId = festivalId == null || festivalId.isBlank() ? null : festivalId;
     }
 
     public boolean hasSubmitRequirement() {
@@ -63,6 +68,9 @@ public class CommissionEntry {
         tag.putInt("Stars", stars);
         tag.putLong("DurationDays", durationDays);
         tag.putInt("CoinReward", coinReward);
+        if (festivalId != null) {
+            tag.putString("FestivalId", festivalId);
+        }
 
         ListTag submitTag = new ListTag();
         for (ItemRequirement req : submitRequirements) {
@@ -102,6 +110,8 @@ public class CommissionEntry {
         int stars = tag.getInt("Stars");
         long durationDays = tag.contains("DurationDays") ? tag.getLong("DurationDays") : 3L;
         int coinReward = tag.getInt("CoinReward");
+        // 缺省键时 getString 返回空串，由构造器归一化为 null（普通委托）
+        String festivalId = tag.getString("FestivalId");
 
         List<ItemRequirement> submitRequirements = new ArrayList<>();
         if (tag.contains("SubmitRequirements", Tag.TAG_LIST)) {
@@ -163,7 +173,8 @@ public class CommissionEntry {
                 photoRequirements,
                 itemRewards,
                 coinReward,
-                npcFavorRewards);
+                npcFavorRewards,
+                festivalId);
     }
 
     public record ItemRequirement(String itemId, int count, @Nullable CompoundTag nbt) {

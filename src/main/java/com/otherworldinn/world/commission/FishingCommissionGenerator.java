@@ -46,7 +46,8 @@ final class FishingCommissionGenerator {
                 List.of(),
                 List.of(),
                 profile.coinReward(),
-                List.of(new CommissionEntry.NpcFavorReward(FISHERMAN_ENTITY_ID, profile.favorReward())));
+                List.of(new CommissionEntry.NpcFavorReward(FISHERMAN_ENTITY_ID, profile.favorReward())),
+                null);
     }
 
     private static List<FishingTarget> loadTargets(ResourceManager resourceManager) {

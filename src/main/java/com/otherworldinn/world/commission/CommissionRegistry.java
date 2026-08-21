@@ -8,6 +8,7 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.Nullable;
 
 public final class CommissionRegistry {
     private static final List<CommissionTemplate> TEMPLATES = new ArrayList<>();
@@ -212,15 +213,18 @@ public final class CommissionRegistry {
                 .build();
 
         register("town_festival_prep")
+                .festival("harvest_festival")
                 .stars(2, 3)
                 .weight(8)
                 .description(
                         LocalizedText.of(
-                                "城镇准备举办庆典，需要食物和装饰材料。",
-                                "The town prepares for a festival. Needs food and decoration materials."))
-                .submit("minecraft:cake", 3)
-                .submit("minecraft:cookie", 24)
-                .rewardCoins(90)
+                                "秋收祭的庆典餐桌还缺些点心，送来蛋糕、曲奇和南瓜派。",
+                                "The Harvest Festival table still needs sweets. Deliver cakes, cookies, and pumpkin pies."))
+                .submit("minecraft:cake", 2)
+                .submit("minecraft:cookie", 32)
+                .submit("minecraft:pumpkin_pie", 4)
+                .rewardCoins(125)
+                .rewardFavor("otherworldinn:grocer", 90)
                 .build();
 
         register("town_road_repair")
@@ -561,6 +565,232 @@ public final class CommissionRegistry {
                 .rewardItem("minecraft:ghast_tear", 2)
                 .build();
 
+        // ── 节日限定委托（仅在对应节日激活期间出现，refreshBoard 的保底槽保证可见）──
+
+        register("spring_flower_decor")
+                .festival("spring_festival")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "春祭的街道要布置花饰，请送来一批春花、粉色花瓣和花盆。",
+                                "The Spring Festival streets need floral decor. Deliver spring flowers, pink petals, and flower pots."))
+                .submit("minecraft:pink_petals", 16)
+                .submit("minecraft:dandelion", 12)
+                .submit("minecraft:flower_pot", 6)
+                .rewardCoins(95)
+                .rewardFavor("otherworldinn:farmer", 100)
+                .build();
+
+        register("spring_bee_census")
+                .festival("spring_festival")
+                .stars(1, 2)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "养蜂人想趁着春祭清点蜂群，替他拍到一只蜜蜂，再带几瓶蜂蜜回来。",
+                                "The beekeeper is counting hives during the festival. Photograph a bee and bring back some honey."))
+                .photo(PhotoObjectiveRegistry.BEE_SNAPSHOT_ID.toString())
+                .submit("minecraft:honey_bottle", 4)
+                .rewardCoins(60)
+                .rewardItem("minecraft:honey_block", 2)
+                .rewardFavor("otherworldinn:farmer", 70)
+                .build();
+
+        register("spring_garden_renewal")
+                .festival("spring_festival")
+                .stars(3, 4)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "趁着春祭把镇上的庭院翻修一遍，需要骨粉、苔藓和杜鹃花丛。",
+                                "The town courtyard needs a spring renewal. Bring bone meal, moss, and azalea bushes."))
+                .submit("minecraft:bone_meal", 24)
+                .submit("minecraft:moss_block", 12)
+                .submit("minecraft:azalea", 4)
+                .rewardCoins(140)
+                .rewardFavor("otherworldinn:farmer", 105)
+                .build();
+
+        register("spring_kite_workshop")
+                .festival("spring_festival")
+                .stars(3, 4)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "孩子们想做春祭的纸鸢。清理扰人的幻翼，取回薄膜再备些纸来。",
+                                "The children want festival kites. Clear the bothersome phantoms, gather their membranes, and bring paper."))
+                .kill("minecraft:phantom", 3)
+                .submit("minecraft:phantom_membrane", 3)
+                .submit("minecraft:paper", 12)
+                .rewardCoins(160)
+                .rewardFavor("otherworldinn:builder", 95)
+                .build();
+
+        register("midsummer_night_watch")
+                .festival("midsummer_night")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "仲夏夜的庆典需要安宁，清理夜间出没的骷髅和蜘蛛。",
+                                "The midsummer celebration needs peace. Clear skeletons and spiders stalking the night."))
+                .kill("minecraft:skeleton", 8)
+                .kill("minecraft:spider", 6)
+                .rewardCoins(105)
+                .rewardItem("minecraft:firework_rocket", 12)
+                .build();
+
+        register("midsummer_beach_bonfire")
+                .festival("midsummer_night")
+                .stars(1, 2)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "篝火晚会想换个海边的场地，先拍一张海洋群系的照片，再带些西瓜来。",
+                                "The bonfire party wants a beach venue. Photograph an ocean scene and bring watermelons."))
+                .photo(PhotoObjectiveRegistry.OCEAN_BIOME_SNAPSHOT_ID.toString())
+                .submit("minecraft:melon_slice", 24)
+                .rewardCoins(65)
+                .rewardFavor("otherworldinn:grocer", 80)
+                .build();
+
+        register("midsummer_guest_rush")
+                .festival("midsummer_night")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "仲夏夜的庆典引来了大批旅客，为涌入的客人们备好床铺和口粮。",
+                                "The celebration draws crowds of travelers. Prepare bedding and rations for the incoming guests."))
+                .submit("minecraft:hay_block", 16)
+                .submit("minecraft:torch", 24)
+                .submit("minecraft:bread", 16)
+                .rewardCoins(110)
+                .rewardFavor("otherworldinn:grocer", 90)
+                .build();
+
+        register("midsummer_lantern_night")
+                .festival("midsummer_night")
+                .stars(4, 5)
+                .weight(4)
+                .description(
+                        LocalizedText.of(
+                                "园游会的灯彩与烟花还差一批材料：荧石、紫水晶和火药。",
+                                "The garden lantern night still needs materials: glowstone, amethyst, and gunpowder."))
+                .submit("minecraft:glowstone", 16)
+                .submit("minecraft:amethyst_shard", 12)
+                .submit("minecraft:gunpowder", 12)
+                .rewardCoins(190)
+                .rewardFavor("otherworldinn:magician", 100)
+                .build();
+
+        register("harvest_crop_parade")
+                .festival("harvest_festival")
+                .stars(3, 4)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "丰收巡游需要满载的花车，收集小麦、南瓜和苹果来装点。",
+                                "The harvest parade needs full carts. Gather wheat, pumpkins, and apples for the floats."))
+                .submit("minecraft:wheat", 32)
+                .submit("minecraft:pumpkin", 8)
+                .submit("minecraft:apple", 16)
+                .rewardCoins(145)
+                .rewardFavor("otherworldinn:farmer", 110)
+                .build();
+
+        register("harvest_feast_cooking")
+                .festival("harvest_festival")
+                .stars(3, 4)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "丰宴的主厨需要人手备菜：南瓜派、金胡萝卜和一大批熟肉。",
+                                "The feast chef needs a prep crew: pumpkin pies, golden carrots, and a batch of cooked beef."))
+                .submit("minecraft:pumpkin_pie", 6)
+                .submit("minecraft:golden_carrot", 12)
+                .submit("minecraft:cooked_beef", 16)
+                .rewardCoins(170)
+                .rewardFavor("otherworldinn:butcher", 110)
+                .build();
+
+        register("harvest_cellar_stock")
+                .festival("harvest_festival")
+                .stars(4, 5)
+                .weight(4)
+                .description(
+                        LocalizedText.of(
+                                "把今年的收成封进地窖酿成冬日的甜酒，需要木桶、苹果和蜂蜜。",
+                                "Seal this year's harvest into the cellar for winter cider. Bring barrels, apples, and honey."))
+                .submit("minecraft:barrel", 8)
+                .submit("minecraft:apple", 32)
+                .submit("minecraft:honey_bottle", 12)
+                .rewardCoins(220)
+                .rewardFavor("otherworldinn:farmer", 120)
+                .build();
+
+        register("deep_winter_warm_drive")
+                .festival("deep_winter_festival")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "隆冬节为留宿的旅人募集御寒物资，需要羊毛、皮革和煤炭。",
+                                "The Deep Winter drive collects warm supplies for lodging guests. Bring wool, leather, and coal."))
+                .submit("minecraft:wool", 16)
+                .submit("minecraft:leather", 12)
+                .submit("minecraft:coal", 24)
+                .rewardCoins(110)
+                .rewardFavor("otherworldinn:builder", 95)
+                .build();
+
+        register("deep_winter_snow_survey")
+                .festival("deep_winter_festival")
+                .stars(2, 3)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "补给队想在节前确认雪原路况，带回一张雪原照片，顺便堆些雪球备用。",
+                                "The supply crew wants a road check before the festival. Bring a snowy plains photo and some snowballs."))
+                .photo(PhotoObjectiveRegistry.SNOWY_PLAINS_SCENE_ID.toString())
+                .submit("minecraft:snowball", 16)
+                .rewardCoins(75)
+                .rewardItem("minecraft:campfire", 2)
+                .rewardFavor("otherworldinn:grocer", 60)
+                .build();
+
+        register("deep_winter_grand_feast")
+                .festival("deep_winter_festival")
+                .stars(4, 5)
+                .weight(4)
+                .description(
+                        LocalizedText.of(
+                                "守岁长宴要一直开到新年天亮，备足热食和甜浆果热饮。",
+                                "The vigil feast runs until dawn of the new year. Stock up on hot food and sweet berry drinks."))
+                .submit("minecraft:baked_potato", 32)
+                .submit("minecraft:cooked_mutton", 16)
+                .submit("minecraft:sweet_berries", 24)
+                .rewardCoins(210)
+                .rewardFavor("otherworldinn:grocer", 110)
+                .rewardItem("minecraft:firework_rocket", 16)
+                .build();
+
+        register("deep_winter_ice_carnival")
+                .festival("deep_winter_festival")
+                .stars(3, 4)
+                .weight(8)
+                .description(
+                        LocalizedText.of(
+                                "冰雕嘉年华开工了，需要冰、雪块和一点浮冰做压轴雕塑。",
+                                "The ice sculpture carnival begins. Bring ice, snow blocks, and some packed ice for the centerpiece."))
+                .submit("minecraft:ice", 32)
+                .submit("minecraft:snow_block", 16)
+                .submit("minecraft:packed_ice", 4)
+                .rewardCoins(165)
+                .rewardFavor("otherworldinn:builder", 105)
+                .build();
+
         register(FishingCommissionGenerator.TEMPLATE_ID)
                 .stars(1, 5)
                 .weight(7)
@@ -610,6 +840,10 @@ public final class CommissionRegistry {
             List<String> excludedTemplateIds, int allowedMaxStars, boolean restrictByStars) {
         List<CommissionTemplate> pool = new ArrayList<>();
         for (CommissionTemplate template : TEMPLATES) {
+            if (template.festivalId() != null) {
+                // 节日限定模板只在对应节日激活期间经 pickFestivalTemplate 进入保底槽
+                continue;
+            }
             if (excludedTemplateIds.contains(template.id())) {
                 continue;
             }
@@ -619,6 +853,22 @@ public final class CommissionRegistry {
             pool.add(template);
         }
         return pool;
+    }
+
+    /** 从指定节日的限定模板池中抽取（豁免星级递增过滤），无可用模板返回 null */
+    public static CommissionTemplate pickFestivalTemplate(
+            RandomSource random, String festivalId, List<String> excludedTemplateIds) {
+        List<CommissionTemplate> pool = new ArrayList<>();
+        for (CommissionTemplate template : TEMPLATES) {
+            if (!festivalId.equals(template.festivalId())) {
+                continue;
+            }
+            if (excludedTemplateIds.contains(template.id())) {
+                continue;
+            }
+            pool.add(template);
+        }
+        return pickFromPool(random, pool);
     }
 
     private static CommissionTemplate pickFromPool(RandomSource random, List<CommissionTemplate> pool) {
@@ -651,7 +901,8 @@ public final class CommissionRegistry {
             List<CommissionEntry.PhotoRequirement> photoRequirements,
             List<CommissionEntry.ItemReward> itemRewards,
             int coinReward,
-            List<CommissionEntry.NpcFavorReward> npcFavorRewards) {
+            List<CommissionEntry.NpcFavorReward> npcFavorRewards,
+            @Nullable String festivalId) {
         public String descriptionKey() {
             return "commission.otherworldinn.description." + id;
         }
@@ -669,6 +920,8 @@ public final class CommissionRegistry {
         private final List<CommissionEntry.ItemReward> itemRewards = new ArrayList<>();
         private int coinReward = 0;
         private final List<CommissionEntry.NpcFavorReward> npcFavorRewards = new ArrayList<>();
+        @Nullable
+        private String festivalId;
 
         private Builder(String id) {
             this.id = id;
@@ -728,6 +981,12 @@ public final class CommissionRegistry {
             return this;
         }
 
+        /** 绑定为节日限定委托：仅在对应节日激活期间出现于保底槽 */
+        public Builder festival(String festivalId) {
+            this.festivalId = festivalId == null || festivalId.isBlank() ? null : festivalId;
+            return this;
+        }
+
         public CommissionTemplate build() {
             CommissionTemplate template =
                     new CommissionTemplate(
@@ -741,7 +1000,8 @@ public final class CommissionRegistry {
                             List.copyOf(photoRequirements),
                             List.copyOf(itemRewards),
                             coinReward,
-                            List.copyOf(npcFavorRewards));
+                            List.copyOf(npcFavorRewards),
+                            festivalId);
             TEMPLATES.add(template);
             return template;
         }

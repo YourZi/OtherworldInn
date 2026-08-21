@@ -8,6 +8,7 @@ import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.commission.CommissionRegistry.CommissionTemplate;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.inn.InnStatHelper;
 import com.otherworldinn.init.ModStats;
@@ -42,6 +43,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public final class CommissionService {
     private static final int BOARD_SIZE = 2;
@@ -76,6 +78,12 @@ public final class CommissionService {
             return;
         }
         CommissionEntry entry = data.getBoardEntries().get(index);
+        if (entry.getFestivalId() != null
+                && !isFestivalActive(player.serverLevel(), entry.getFestivalId())) {
+            player.displayClientMessage(
+                    Component.translatable("message.otherworldinn.commission.festival_not_active"), true);
+            return;
+        }
         long day = currentDay(player.serverLevel());
         data.setAcceptedIndex(index);
         data.setAcceptedDay(day);
@@ -455,9 +463,11 @@ public final class CommissionService {
                         ^ day
                         ^ (sequence * 0x9E3779B97F4A7C15L);
         RandomSource random = RandomSource.create(seed);
+        FestivalService.FestivalWindow festivalWindow =
+                FestivalService.getActiveFestivalWindow(level).orElse(null);
         List<String> usedTemplateIds = new ArrayList<>();
         for (int i = 0; i < BOARD_SIZE; i++) {
-            CommissionEntry entry = generateEntry(level, random, day, i, usedTemplateIds);
+            CommissionEntry entry = generateEntry(level, random, day, i, usedTemplateIds, festivalWindow);
             if (entry != null) {
                 data.getBoardEntries().add(entry);
             }
@@ -466,7 +476,20 @@ public final class CommissionService {
     }
 
     private static CommissionEntry generateEntry(
-            ServerLevel level, RandomSource random, long day, int slot, List<String> usedTemplateIds) {
+            ServerLevel level,
+            RandomSource random,
+            long day,
+            int slot,
+            List<String> usedTemplateIds,
+            @Nullable FestivalService.FestivalWindow festivalWindow) {
+        if (slot == 0 && festivalWindow != null) {
+            CommissionEntry entry =
+                    generateFestivalEntry(random, day, slot, usedTemplateIds, festivalWindow);
+            if (entry != null) {
+                return entry;
+            }
+            // 该节日没有可用限定模板时回退普通生成
+        }
         List<String> excludedTemplateIds = new ArrayList<>(usedTemplateIds);
         int allowedMaxStars = resolveAllowedMaxStarsForDay(day);
         boolean restrictTemplatePool = shouldRestrictTemplatePool(day);
@@ -483,25 +506,7 @@ public final class CommissionService {
             if (FishingCommissionGenerator.TEMPLATE_ID.equals(template.id())) {
                 entry = FishingCommissionGenerator.generate(level, random, day, slot);
             } else {
-                int stars =
-                        template.minStars() == template.maxStars()
-                                ? template.minStars()
-                                : template.minStars()
-                                        + random.nextInt(template.maxStars() - template.minStars() + 1);
-                long durationDays = durationByStars(stars);
-                String id = "commission_" + template.id() + "_" + day + "_" + slot;
-                entry =
-                        new CommissionEntry(
-                                id,
-                                template.descriptionKey(),
-                                stars,
-                                durationDays,
-                                template.submitRequirements(),
-                                template.killRequirements(),
-                                template.photoRequirements(),
-                                template.itemRewards(),
-                                template.coinReward(),
-                                template.npcFavorRewards());
+                entry = buildEntryFromTemplate(template, random, day, slot, null, null);
             }
 
             if (entry != null) {
@@ -511,6 +516,104 @@ public final class CommissionService {
             excludedTemplateIds.add(template.id());
         }
         return null;
+    }
+
+    /**
+     * 节日限定委托：限时对齐节日窗口（durationDays = 窗口剩余天数，节日结束即过期），
+     * 不参与星级递增过滤。stars 仍随机取值用于卡片难度展示。
+     */
+    private static CommissionEntry generateFestivalEntry(
+            RandomSource random,
+            long day,
+            int slot,
+            List<String> usedTemplateIds,
+            FestivalService.FestivalWindow window) {
+        CommissionTemplate template =
+                CommissionRegistry.pickFestivalTemplate(
+                        random, window.festival().id(), usedTemplateIds);
+        if (template == null) {
+            return null;
+        }
+        long durationDays = Math.max(1L, window.lengthInDays() - 1L - window.dayIndex());
+        return buildEntryFromTemplate(template, random, day, slot, template.festivalId(), durationDays);
+    }
+
+    private static CommissionEntry buildEntryFromTemplate(
+            CommissionTemplate template,
+            RandomSource random,
+            long day,
+            int slot,
+            @Nullable String festivalId,
+            @Nullable Long durationOverride) {
+        int stars =
+                template.minStars() == template.maxStars()
+                        ? template.minStars()
+                        : template.minStars()
+                                + random.nextInt(template.maxStars() - template.minStars() + 1);
+        long durationDays = durationOverride != null ? durationOverride : durationByStars(stars);
+        String id = "commission_" + template.id() + "_" + day + "_" + slot;
+        return new CommissionEntry(
+                id,
+                template.descriptionKey(),
+                stars,
+                durationDays,
+                template.submitRequirements(),
+                template.killRequirements(),
+                template.photoRequirements(),
+                template.itemRewards(),
+                template.coinReward(),
+                template.npcFavorRewards(),
+                festivalId);
+    }
+
+    /** 节日开始：对无有效接取的队伍强制刷新，保证节日限定委托立即上板并通知 */
+    public static boolean refreshBoardForFestivalStart(ServerLevel level, TeamData team) {
+        TeamCommissionData data = team.getCommissionData();
+        if (data.hasAccepted() && !data.isRewardClaimed()) {
+            return false;
+        }
+        refreshBoard(level, team, currentDay(level));
+        TeamManager.getInstance().syncTeam(team, level.getServer());
+        broadcastBoard(team, level, null);
+        TaskHudSnapshotSync.syncTeam(team, level);
+        notifyTeamFestivalCommissionAvailable(level, team);
+        return true;
+    }
+
+    /** 节日结束：仅当板上仍挂着未接取的节日限定委托时刷新回普通委托 */
+    public static boolean removeIdleFestivalEntries(ServerLevel level, TeamData team) {
+        TeamCommissionData data = team.getCommissionData();
+        if (data.hasAccepted() && !data.isRewardClaimed()) {
+            return false;
+        }
+        boolean hasFestivalEntry =
+                data.getBoardEntries().stream().anyMatch(entry -> entry.getFestivalId() != null);
+        if (!hasFestivalEntry) {
+            return false;
+        }
+        refreshBoard(level, team, currentDay(level));
+        TeamManager.getInstance().syncTeam(team, level.getServer());
+        broadcastBoard(team, level, null);
+        TaskHudSnapshotSync.syncTeam(team, level);
+        return true;
+    }
+
+    private static void notifyTeamFestivalCommissionAvailable(ServerLevel level, TeamData team) {
+        Component message =
+                Component.translatable("message.otherworldinn.commission.festival_available")
+                        .withStyle(style -> style.withColor(ModColors.INFO));
+        for (UUID memberId : team.getMembers()) {
+            ServerPlayer member = level.getServer().getPlayerList().getPlayer(memberId);
+            if (member != null) {
+                member.sendSystemMessage(message);
+            }
+        }
+    }
+
+    private static boolean isFestivalActive(ServerLevel level, String festivalId) {
+        return FestivalService.getActiveFestival(level)
+                .map(festival -> festival.id().equals(festivalId))
+                .orElse(false);
     }
 
     private static boolean shouldRestrictTemplatePool(long zeroBasedDay) {

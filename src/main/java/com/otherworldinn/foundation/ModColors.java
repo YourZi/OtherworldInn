@@ -31,6 +31,7 @@ public class ModColors {
     public static final int COMFORT = RED;
     public static final int LIGHT = YELLOW;
     public static final int HUMIDITY = BLUE;
+    public static final int FESTIVAL = 0xE91E63; // #E91E63
     public static final int INN_LODGING_BUFF = 0xED353D; // #ED353D
     public static final int INN_DINING_BUFF = 0xC4A90F; // #C4A90F
     public static final int INN_GUEST_ARRIVAL_BUFF = 0x0FB8C4; // #0FB8C4

@@ -16,6 +16,8 @@ import com.otherworldinn.world.event.TownStructurePlacer;
 import com.otherworldinn.world.event.listener.PlayerFatigueHandler;
 import com.otherworldinn.world.fatigue.FatigueCalculator;
 import com.otherworldinn.world.fatigue.FatigueData;
+import com.otherworldinn.world.festival.FestivalDefinition;
+import com.otherworldinn.world.festival.FestivalRegistry;
 import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
@@ -115,6 +117,27 @@ public class AdminCommands {
                                                                         .executes(
                                                                                 AdminCommands
                                                                                         ::setGlobalDiscount))))
+                        .then(
+                                Commands.literal("festival")
+                                        .executes(AdminCommands::getDebugFestival)
+                                        .then(
+                                                Commands.literal("set_active")
+                                                        .then(
+                                                                Commands.argument("id", StringArgumentType.word())
+                                                                        .suggests(
+                                                                                (context, builder) -> {
+                                                                                    for (FestivalDefinition festival :
+                                                                                            FestivalRegistry.getAll()) {
+                                                                                        builder.suggest(
+                                                                                                festival.id());
+                                                                                    }
+                                                                                    return builder.buildFuture();
+                                                                                })
+                                                                        .executes(
+                                                                                AdminCommands::setDebugFestival)))
+                                        .then(
+                                                Commands.literal("clear")
+                                                        .executes(AdminCommands::clearDebugFestival)))
                         .then(
                                 Commands.literal("guests")
                                         .then(
@@ -439,6 +462,58 @@ public class AdminCommands {
                                                 ? "已设置全局调试折扣: " + (int) (finalRate * 100) + "%"
                                                 : "已关闭全局调试折扣"),
                         false);
+        return 1;
+    }
+
+    /** 查看当前节日状态（调试强制激活的节日或季节驱动的真实节日） */
+    private static int getDebugFestival(CommandContext<CommandSourceStack> context) {
+        String debugId = FestivalService.getDebugActiveFestivalId();
+        if (debugId != null) {
+            context.getSource()
+                    .sendSuccess(() -> Component.literal("调试强制激活节日: " + debugId), false);
+            return 1;
+        }
+        ServerLevel townLevel =
+                context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        String active = FestivalService.getActiveFestival(townLevel)
+                .map(FestivalDefinition::id)
+                .orElse("无");
+        context.getSource().sendSuccess(() -> Component.literal("当前激活节日: " + active + "（季节驱动）"), false);
+        return 1;
+    }
+
+    /** 强制激活指定节日（调试：限定商品/限定委托/效果加成全部生效，立即广播开始事件） */
+    private static int setDebugFestival(CommandContext<CommandSourceStack> context) {
+        String id = StringArgumentType.getString(context, "id");
+        if (FestivalRegistry.get(id).isEmpty()) {
+            context.getSource().sendFailure(Component.literal("未知节日: " + id));
+            return 0;
+        }
+        ServerLevel townLevel =
+                context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+        FestivalService.setDebugActiveFestivalId(id, townLevel);
+        context.getSource()
+                .sendSuccess(
+                        () -> Component.literal("已强制激活节日: " + id + "（调试，不写入节日窗口记录）"),
+                        false);
+        return 1;
+    }
+
+    /** 清除调试强制节日，恢复季节驱动（立即广播结束事件） */
+    private static int clearDebugFestival(CommandContext<CommandSourceStack> context) {
+        ServerLevel townLevel =
+                context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel == null) {
+            context.getSource().sendFailure(Component.literal("城镇维度不可用"));
+            return 0;
+        }
+        FestivalService.setDebugActiveFestivalId(null, townLevel);
+        context.getSource()
+                .sendSuccess(() -> Component.literal("已清除强制节日，恢复季节驱动"), false);
         return 1;
     }
 

@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SAcceptCommissionPacket;
+import com.otherworldinn.world.festival.FestivalDefinition;
+import com.otherworldinn.world.festival.FestivalRegistry;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -45,6 +47,7 @@ public class CommissionBoardScreen extends AbstractContainerScreen<CommissionBoa
     private static final int COLOR_MUTED = 0xFF6A6A6A;
     private static final int COLOR_REQ = 0xFF6C6FA8;
     private static final int COLOR_REWARD = 0xFF4B8A58;
+    private static final int COLOR_FESTIVAL = 0xFFE91E63;
 
     private CompoundTag boardData;
 
@@ -280,6 +283,18 @@ public class CommissionBoardScreen extends AbstractContainerScreen<CommissionBoa
                 cardY + 24,
                 COLOR_SECONDARY,
                 false);
+
+        String festivalId = entry.getString("FestivalId");
+        if (!festivalId.isEmpty()) {
+            String festivalName =
+                    FestivalRegistry.get(festivalId)
+                            .map(FestivalDefinition::zhName)
+                            .orElse(festivalId);
+            Component festivalTag =
+                    Component.translatable("gui.otherworldinn.commission.festival_exclusive", festivalName);
+            int tagX = cardX + CARD_WIDTH - 8 - this.font.width(festivalTag);
+            guiGraphics.drawString(this.font, festivalTag, tagX, cardY + 10, COLOR_FESTIVAL, false);
+        }
 
         int lineY = drawDescription(guiGraphics, entry, cardX, cardY + 38, CARD_WIDTH, contentBottomY);
         lineY =
