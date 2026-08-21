@@ -57,7 +57,7 @@ import net.neoforged.neoforge.event.level.block.CropGrowEvent;
  * 城镇维度方块保护事件适配层。
  *
  * <p>区域语义、Create 接入、底层结构性写入总闸门与受控 bypass
- * 均由 {@link TownZonePolicyService} 统一提供，这里只负责把不同事件映射到新规则系统。
+ * 均由 {@link TownZonePolicyService} 统一提供，这里只负责把不同事件映射到规则系统。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class TownProtectionHandler {

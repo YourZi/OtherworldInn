@@ -72,9 +72,6 @@ public class MapPageManager {
         registerPoint(
                 1, -1, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "dock"));
 
-        //温室方向页
-        //registerPoint(0, 1, ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "greenhouse"));
-
         syncFacilityPointsToPages();
     }
 

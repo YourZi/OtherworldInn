@@ -55,7 +55,8 @@
     "MixinDeployToolPreviewColor",
     "MixinSchematicToolBasePreviewColor",
     "MixinXaeroHudRenderer",
-    "MixinXaeroWorldMapClientEvents"
+    "MixinXaeroWorldMapClientEvents",
+    "MixinExposureViewfinderOverlay"
   ],
   "injectors": {
     "defaultRequire": 1

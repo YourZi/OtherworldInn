@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * JEI 信息页插件
  *
- * <p>集中注册模组物品的 JEI Information 信息页说明，与商店类别插件相互独立。
+ * <p>集中注册模组物品的 JEI Information 信息页说明。
  * 文案见 {@link com.otherworldinn.datagen.ModLanguageProvider} 中的 jei.otherworldinn.* 翻译键。
  */
 @JeiPlugin

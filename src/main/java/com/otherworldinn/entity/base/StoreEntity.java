@@ -554,9 +554,7 @@ public abstract class StoreEntity extends PathfinderMob {
     }
 
     /**
-     * 增加消费累计（兼容旧调用）。
-     *
-     * <p>消费会转换为同等好感进度。
+     * 增加消费累计，转换为同等好感进度。
      */
     public void addSpentCoins(int spentCoins) {
         this.addFavorProgress(spentCoins);
@@ -1149,8 +1147,7 @@ public abstract class StoreEntity extends PathfinderMob {
     /**
      * 将商品目录写入商店库存（供运行时初始化使用）。
      *
-     * <p>根据条目属性路由到对应的添加方法，与原先各子类在
-     * {@code initDefaultStoreItems()} 中的调用顺序保持一致。
+     * <p>根据条目属性路由到对应的添加方法。
      * 节日限定条目不直接上架，仅登记到 {@link #festivalCatalogEntries}，
      * 由每日补货逻辑在节日期间动态上架/下架。
      */

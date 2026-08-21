@@ -2,6 +2,7 @@ package com.otherworldinn.compat.exposure.client;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.api.OtherworldInnHudSnapshotApi;
+import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.world.photo.PhotoObjective;
 import com.otherworldinn.world.photo.PhotoObjectiveEvaluator;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
@@ -13,6 +14,7 @@ import io.github.mortuusars.exposure.world.item.camera.CameraItem;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -25,12 +27,16 @@ import net.minecraft.world.item.ItemStack;
  * 取景器拍照任务目标提示（仅客户端）。
  *
  * <p>玩家通过 Exposure 取景器观察时，若画面满足当前激活拍照任务（剧情/委托）的目标条件，
- * 在 actionbar 显示"发现拍照任务目标"。判定复用 Exposure 拍照时的同一套算法
+ * 在准星下方渲染金色提示"发现拍照任务目标"。判定复用 Exposure 拍照时的同一套算法
  * （getPointOfView + getViewfinderFov + EntitiesInFrame），保证提示与最终完成判定口径一致；
  * 任务目标来自 HUD 快照，无专用网络包。
  *
- * <p>本类只应经 {@link PhotoTargetHintClientHandler} 在确认 Exposure 已加载后调用，
- * 避免软依赖下的类加载问题。
+ * <p>提示不走 actionbar/HUD 事件：Exposure 在 Gui.render 头部渲染取景器 overlay 并按
+ * 配置取消原版 HUD，RenderGuiEvent.Post 随之不触发；因此渲染由
+ * MixinExposureViewfinderOverlay 在 overlay 渲染尾部借其 GuiGraphics 调用
+ * {@link #renderHint}，投影与层级天然正确。tick 判定经
+ * {@link PhotoTargetHintClientHandler} 在确认 Exposure 已加载后调用；本类的所有调用方
+ * 均保证 Exposure 已加载（mixin 生效即隐含），无软依赖类加载风险。
  */
 public final class PhotoTargetHintService {
     private static final String KEY_TASKS = "Tasks";
@@ -38,7 +44,9 @@ public final class PhotoTargetHintService {
     private static final String TYPE_PHOTO = "photo";
     private static final String HINT_KEY = "message.otherworldinn.photo.hint.spotted";
     private static final int TICK_INTERVAL = 5;
-    private static final int SUSTAIN_REFRESH_TICKS = 40;
+    /** 准星下方偏移（GUI 缩放像素） */
+    private static final int CROSSHAIR_OFFSET_Y = 20;
+    private static final Component HINT_TEXT = Component.translatable(HINT_KEY);
 
     private enum State {
         INACTIVE,
@@ -48,7 +56,6 @@ public final class PhotoTargetHintService {
 
     private static State state = State.INACTIVE;
     private static int tickCounter;
-    private static int evaluationsSinceAnnounce;
     private static boolean disabled;
 
     private PhotoTargetHintService() {}
@@ -89,17 +96,24 @@ public final class PhotoTargetHintService {
         }
 
         if (evaluate(mc, objectives, camera, cameraItem, stack)) {
-            if (state != State.SPOTTED) {
-                state = State.SPOTTED;
-                evaluationsSinceAnnounce = 0;
-                announce(mc);
-            } else if (++evaluationsSinceAnnounce >= SUSTAIN_REFRESH_TICKS / TICK_INTERVAL) {
-                evaluationsSinceAnnounce = 0;
-                announce(mc);
-            }
+            state = State.SPOTTED;
         } else {
             state = State.AIMING;
         }
+    }
+
+    /** 每帧渲染：命中期间在准星下方持续显示金色提示（由 MixinExposureViewfinderOverlay 在取景器 overlay 尾部驱动） */
+    public static void renderHint(GuiGraphics guiGraphics) {
+        if (state != State.SPOTTED) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) {
+            return;
+        }
+        int x = (mc.getWindow().getGuiScaledWidth() - mc.font.width(HINT_TEXT)) / 2;
+        int y = mc.getWindow().getGuiScaledHeight() / 2 + CROSSHAIR_OFFSET_Y;
+        guiGraphics.drawString(mc.font, HINT_TEXT, x, y, ModColors.YELLOW, true);
     }
 
     private static boolean evaluate(
@@ -153,12 +167,7 @@ public final class PhotoTargetHintService {
         return objectives;
     }
 
-    private static void announce(Minecraft mc) {
-        mc.gui.setOverlayMessage(Component.translatable(HINT_KEY), false);
-    }
-
     private static void reset() {
         state = State.INACTIVE;
-        evaluationsSinceAnnounce = 0;
     }
 }

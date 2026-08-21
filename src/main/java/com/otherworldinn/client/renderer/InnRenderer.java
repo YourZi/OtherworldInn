@@ -12,7 +12,6 @@ import com.otherworldinn.client.control.CameraHandler;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.team.TeamData;
-import com.otherworldinn.world.team.service.TeamManager;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -36,11 +35,6 @@ public class InnRenderer {
         Player player = mc.player;
         if (player == null) return;
 
-        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
-        if (team == null) return;
-
-        List<TeamData.InnRegion> regions = team.getInnRegions();
-
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
 
@@ -48,10 +42,7 @@ public class InnRenderer {
         Vec3 cameraPos = event.getCamera().getPosition();
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-        // 暂时禁用地图视图下的旅社范围渲染
-        // InnData.InnState state = team.getInnData().getState();
-        // renderInnZones(poseStack, regions, state);
-
+        // TODO: 地图视图下的旅社范围渲染暂时禁用，renderInnZones 保留待启用
         poseStack.popPose();
     }
 

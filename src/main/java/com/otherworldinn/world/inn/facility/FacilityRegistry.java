@@ -269,7 +269,6 @@ public final class FacilityRegistry {
 
         // TODO 矿井：centerPos / facilityRange 为临时占位坐标，正式建筑与坐标待设计确定
         // TODO 结构 NBT：data/otherworldinn/structure/facility/mine/level_0..3.nbt 待补充
-        // TODO 地图图标：已绘入 point_icons_atlas.png 第 8 格（MapIconAtlas.SLOT_MINE）
         registerFacility(
                 "mine",
                 "Mine",

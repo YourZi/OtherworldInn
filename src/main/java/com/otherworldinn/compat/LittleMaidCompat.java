@@ -49,6 +49,5 @@ public class LittleMaidCompat implements ILittleMaid {
     public void addExtraMaidBrain(ExtraMaidBrainManager manager) {
         // 为 Brain 添加额外的内容
         // Add extra content to the Brain
-        //manager.addExtraMaidBrain(new CustomExtraMaidBrain());
     }
 }

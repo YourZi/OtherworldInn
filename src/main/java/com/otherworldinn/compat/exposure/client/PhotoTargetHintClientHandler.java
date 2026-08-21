@@ -8,7 +8,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 /**
- * 拍照任务取景提示的客户端调度器。
+ * 拍照任务取景提示的客户端调度器（仅 tick 判定，渲染由
+ * MixinExposureViewfinderOverlay 借取景器 overlay 的 GuiGraphics 完成）。
  *
  * <p>本类禁止引用任何 Exposure 类：Exposure 是软依赖，@EventBusSubscriber 自动注册的
  * 监听器在 Exposure 缺失时也会被类加载，所有 Exposure 调用必须隔离在

@@ -262,17 +262,17 @@ public final class FestivalService {
     private static void playCelebrationSound(ServerLevel townLevel) {
         MinecraftServer server = townLevel.getServer();
         int tick = server.getTickCount();
-        playToAll(server, SoundEvents.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0F, 1.0F);
+        playToAll(server, SoundEvents.FIREWORK_ROCKET_LAUNCH, 1.0F, 1.0F);
         server.tell(
                 new TickTask(
                         tick + 20,
                         () -> playToAll(
-                                server, SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.2F, 1.0F)));
+                                server, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, 1.2F, 1.0F)));
         server.tell(
                 new TickTask(
                         tick + 40,
                         () -> playToAll(
-                                server, SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.0F, 1.0F)));
+                                server, SoundEvents.FIREWORK_ROCKET_TWINKLE, 1.0F, 1.0F)));
     }
 
     private static void playToAll(MinecraftServer server, SoundEvent sound, float volume, float pitch) {

@@ -2186,7 +2186,7 @@ public class InnData {
         }
         tag.put("Rooms", roomsTag);
 
-        // 保存待办事项；TodoList 保留给旧版本和兜底显示读取。
+        // 保存待办事项；TodoList 供兜底显示读取。
         ListTag structuredTodosTag = new ListTag();
         ListTag legacyTodosTag = new ListTag();
         for (InnTodo todo : todoEntries) {

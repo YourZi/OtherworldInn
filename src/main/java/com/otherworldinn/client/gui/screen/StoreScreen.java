@@ -320,7 +320,7 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
     }
 
     /**
-     * 打折时构造「灰色删除线原价 + 绿色新价」价格文本，未打折返回 null（由调用方走原有显示）。
+     * 打折时构造「灰色删除线原价 + 绿色新价」价格文本，未打折返回 null（由调用方按原价显示）。
      *
      * @param unitPrice 单件原价（节日折扣前的价格）
      * @param quantity 数量
