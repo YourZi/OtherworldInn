@@ -133,6 +133,10 @@ public final class FacilityUpgradeService {
                 hand,
                 isRepair);
         team.getInnData().setFacilityLevel(context.facility().id(), next.level());
+        // 矿井结构已重新放置，重新定位一次木桶并刷新缓存
+        if ("mine".equals(context.facility().id())) {
+            MineService.refreshBarrelCache(serverLevel, context.facility());
+        }
         if (next.level() >= context.facility().maxLevel()) {
             if ("boiler_room".equals(context.facility().id())) {
                 AdvancementUtils.award(player, AdvancementUtils.BOILER_ROOM_MAX_LEVEL);

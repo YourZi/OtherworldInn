@@ -70,15 +70,18 @@ public class GrocerEntity extends StoreEntity {
         entries.add(new CatalogEntry(createStack("yuushya:oriental_lantern"), 24, 12, "midsummer_night"));
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:watermelon_platter"), 20, 8, "midsummer_night"));
 
+        // 节日限定（春祭）
+        entries.add(new CatalogEntry(createStack("otherworldinn:organic_fertilizer"), 12, 32, "spring_festival"));
+
         // 节日限定（秋收祭）
         entries.add(new CatalogEntry(createStack("minecraft:pumpkin_pie"), 12, 16, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:cake"), 30, 8, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:jack_o_lantern"), 16, 16, "harvest_festival"));
-        entries.add(new CatalogEntry(createStack("minecraft:golden_apple"), 80, 4, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:golden_apple"), 48, 4, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:brown_mushroom"), 4, 16, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:red_mushroom"), 4, 16, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:hay_block"), 12, 16, "harvest_festival"));
-        // 秋收祭跨模组商品（厨房丰收宴）
+        // 秋收祭跨模组商品
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:sticky_rice_cake"), 18, 12, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:fondant_pie"), 24, 12, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:stargazy_pie"), 28, 8, "harvest_festival"));
@@ -86,6 +89,7 @@ public class GrocerEntity extends StoreEntity {
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:apple_platter"), 16, 12, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:champagne"), 48, 8, "harvest_festival"));
         entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:sweet_berry_wine"), 26, 8, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("otherworldinn:organic_fertilizer"), 10, 32, "harvest_festival"));
 
         // 节日限定（隆冬节）
         entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:laba_congee"), 20, 12, "deep_winter_festival"));

@@ -269,7 +269,7 @@ public final class FacilityRegistry {
 
         // TODO 矿井：centerPos / facilityRange 为临时占位坐标，正式建筑与坐标待设计确定
         // TODO 结构 NBT：data/otherworldinn/structure/facility/mine/level_0..3.nbt 待补充
-        // TODO 地图图标：textures/gui/map/icon_mine.png 待补充（暂用默认图标）
+        // TODO 地图图标：已绘入 point_icons_atlas.png 第 8 格（MapIconAtlas.SLOT_MINE）
         registerFacility(
                 "mine",
                 "Mine",
@@ -294,7 +294,9 @@ public final class FacilityRegistry {
                                         new ItemStack(AllBlocks.MECHANICAL_SAW.asItem(), 2),
                                         new ItemStack(Items.REDSTONE, 16)),
                                 1200)),
-                null,
+                // 地图点与温室同页 (0, 1)；传送落点 (3, 70, 75)
+                new FacilityMapPointConfig(
+                        new Vec3(3, 70, 75), null, null, MapPoint.MapPointType.SHOP, 0, 1),
                 Map.of());
     }
 

@@ -10,6 +10,7 @@ import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
+import com.otherworldinn.item.OrganicFertilizerItem;
 import com.otherworldinn.item.PicnicBoxItem;
 import com.otherworldinn.item.RecallScrollItem;
 import com.otherworldinn.item.RoomKeyItem;
@@ -198,6 +199,17 @@ public class ModItems {
                             "Food cannot be inserted during Exploration",
                             "不能在探索期间放入食物");
     public static final DeferredItem<PicnicBoxItem> PICNIC_BOX = PICNIC_BOX_REG.register();
+
+    public static final ItemReg<OrganicFertilizerItem> ORGANIC_FERTILIZER_REG =
+            new ItemReg<>("organic_fertilizer", OrganicFertilizerItem::new)
+                    .rarity(Rarity.RARE)
+                    .stacksTo(64)
+                    .lang("Organic Fertilizer", "有机肥料")
+                    .tooltip(
+                            "Fertilizes more things",
+                            "可以催熟更多东西");
+    public static final DeferredItem<OrganicFertilizerItem> ORGANIC_FERTILIZER =
+            ORGANIC_FERTILIZER_REG.register();
     // --- 辅助方法 ---
 
     /**

@@ -21,6 +21,7 @@ public final class MapIconAtlas {
     public static final int SLOT_MAGICIAN_WORKSHOP = 5;
     public static final int SLOT_MARKET = 6;
     public static final int SLOT_DOCK = 7;
+    public static final int SLOT_MINE = 8; // 矿井：图标已绘于图集第 8 格
 
     public static final int STATE_NORMAL = 0;
     public static final int STATE_NORMAL_HOVER_OR_PRESSED = 1;
@@ -43,6 +44,7 @@ public final class MapIconAtlas {
             case "magician_workshop" -> SLOT_MAGICIAN_WORKSHOP;
             case "market" -> SLOT_MARKET;
             case "dock" -> SLOT_DOCK;
+            case "mine" -> SLOT_MINE;
             default -> SLOT_INN;
         };
     }

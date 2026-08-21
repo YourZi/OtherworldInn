@@ -12,6 +12,7 @@ import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.AllItems;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -37,6 +37,14 @@ public final class MineService {
 
     /** 矿井设施 ID */
     public static final String MINE_FACILITY_ID = "mine";
+
+    /** 矿井结构内预设木桶坐标：优先检查该坐标，不是木桶再遍历设施范围 */
+    // TODO 矿井结构 NBT 定稿后，将 MINE_BARREL_DESIGN_POS 校准为结构中木桶的实际坐标
+    private static final BlockPos MINE_BARREL_DESIGN_POS = new BlockPos(0, 0, 0);
+
+    /** 已定位的木桶坐标缓存：修复/升级时定位一次，日常产出直接复用，失效后重新定位 */
+    @Nullable
+    private static BlockPos cachedBarrelPos;
 
     /**
      * 保底产物池：每天必出，"达到该等级"即包含，高级别池包含低级别全部条目。
@@ -114,7 +122,7 @@ public final class MineService {
     /** 在设施范围内查找木桶并填充当日产物 */
     private static void fillBarrel(
             ServerLevel townLevel, FacilityDefinition facility, int facilityLevel) {
-        Container barrel = findBarrel(townLevel, facility);
+        Container barrel = getBarrel(townLevel, facility);
         if (barrel == null) {
             return;
         }
@@ -149,8 +157,32 @@ public final class MineService {
         return Math.max(count, (int) Math.round(count * (1.0D + boost)));
     }
 
-    /** 查找设施范围内唯一的木桶（设计上范围内只放置一个） */
-    private static Container findBarrel(ServerLevel townLevel, FacilityDefinition facility) {
+    /** 修复/升级矿井后刷新木桶坐标缓存（结构已重新放置，重新定位一次） */
+    public static void refreshBarrelCache(ServerLevel townLevel, FacilityDefinition facility) {
+        cachedBarrelPos = findBarrelPos(townLevel, facility);
+    }
+
+    /** 取当前木桶：缓存有效则直接复用，否则（首次/失效/缺失）重新定位并缓存 */
+    private static Container getBarrel(ServerLevel townLevel, FacilityDefinition facility) {
+        if (cachedBarrelPos != null && isBarrelContainer(townLevel, cachedBarrelPos)) {
+            return townLevel.getBlockEntity(cachedBarrelPos) instanceof Container container
+                    ? container
+                    : null;
+        }
+        refreshBarrelCache(townLevel, facility);
+        if (cachedBarrelPos == null) {
+            return null;
+        }
+        return townLevel.getBlockEntity(cachedBarrelPos) instanceof Container container
+                ? container
+                : null;
+    }
+
+    /** 定位木桶：先检查预设坐标，不是木桶再遍历设施范围（设计上范围内只放置一个） */
+    private static BlockPos findBarrelPos(ServerLevel townLevel, FacilityDefinition facility) {
+        if (isBarrelContainer(townLevel, MINE_BARREL_DESIGN_POS)) {
+            return MINE_BARREL_DESIGN_POS;
+        }
         FacilityRange range = facility.facilityRange().normalize();
         BlockPos from = range.from();
         BlockPos to = range.to();
@@ -158,15 +190,19 @@ public final class MineService {
             for (int y = from.getY(); y <= to.getY(); y++) {
                 for (int z = from.getZ(); z <= to.getZ(); z++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    BlockState state = townLevel.getBlockState(pos);
-                    if (state.is(Blocks.BARREL)
-                            && townLevel.getBlockEntity(pos) instanceof Container container) {
-                        return container;
+                    if (isBarrelContainer(townLevel, pos)) {
+                        return pos;
                     }
                 }
             }
         }
         return null;
+    }
+
+    /** 判断指定坐标是否为原版木桶容器 */
+    private static boolean isBarrelContainer(ServerLevel townLevel, BlockPos pos) {
+        return townLevel.getBlockState(pos).is(Blocks.BARREL)
+                && townLevel.getBlockEntity(pos) instanceof Container;
     }
 
     /** 向容器"新增"物品：先堆叠到已有的相同物品槽，再放入空槽；桶满则丢弃 */

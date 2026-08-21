@@ -625,6 +625,8 @@
   "item.otherworldinn.messy_bed_sheet": "Messy Bed Sheet",
   "item.otherworldinn.messy_bed_sheet.tooltip.0": "Use it in water to clean",
   "item.otherworldinn.nether_space_sphere": "Nether Space Sphere",
+  "item.otherworldinn.organic_fertilizer": "Organic Fertilizer",
+  "item.otherworldinn.organic_fertilizer.tooltip.0": "Fertilizes more things",
   "item.otherworldinn.picnic_box": "Picnic Box",
   "item.otherworldinn.picnic_box.hud.hint": "Eat the first food inside the picnic box",
   "item.otherworldinn.picnic_box.tooltip.0": "Only food eaten from the picnic box restores fatigue",
