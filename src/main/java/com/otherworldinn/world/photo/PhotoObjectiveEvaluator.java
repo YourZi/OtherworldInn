@@ -62,36 +62,50 @@ public final class PhotoObjectiveEvaluator {
         return objective.structureIds().isEmpty();
     }
 
+    /** 客户端取景提示的三态判定：区分"完全命中"与"实体命中但群系不符" */
+    public enum ClientViewMatch {
+        /** 实体条件未满足（或维度不符） */
+        NO_MATCH,
+        /** 实体在画面中，但群系条件未满足 */
+        WRONG_BIOME,
+        /** 全部条件满足 */
+        FULL
+    }
+
     /**
-     * 取景提示用：以相机位置与朝向近似还原拍照时刻的判定上下文。
+     * 取景提示用：以相机位置与朝向近似还原拍照时刻的判定上下文，
+     * 返回三态结果供提示区分"发现目标"与"生物对但群系错"。
      *
-     * <p>群系条件沿视线采样若干点（近似服务端从画面命中方块位置取群系的口径），
-     * 任一采样点命中即视为满足。
+     * <p>群系条件沿视线采样若干点（近似服务端从画面命中方块取群系的口径），
+     * 任一采样点命中即视为满足。语义按 matchMode=ALL 展开（现有目标均为 ALL）。
      */
-    public static boolean matchesClientView(
+    public static ClientViewMatch evaluateClientView(
             PhotoObjective objective,
             Level level,
             Vec3 cameraPos,
             Vec3 cameraDir,
             List<LivingEntity> entitiesInFrame) {
         if (objective == null || level == null) {
-            return false;
+            return ClientViewMatch.NO_MATCH;
         }
-        List<Boolean> results = new ArrayList<>();
+        if (objective.dimension() != null
+                && !matchesDimension(objective, level.dimension().location())) {
+            return ClientViewMatch.NO_MATCH;
+        }
         if (!objective.entityIds().isEmpty()) {
             List<ResourceLocation> entityTypeIds = new ArrayList<>(entitiesInFrame.size());
             for (LivingEntity entity : entitiesInFrame) {
                 entityTypeIds.add(EntityType.getKey(entity.getType()));
             }
-            results.add(matchesEntityTypeIds(objective, entityTypeIds));
+            if (!matchesEntityTypeIds(objective, entityTypeIds)) {
+                return ClientViewMatch.NO_MATCH;
+            }
         }
-        if (objective.dimension() != null) {
-            results.add(matchesDimension(objective, level.dimension().location()));
+        if (!objective.biomeIds().isEmpty()
+                && !matchesBiomeSampled(objective, level, cameraPos, cameraDir)) {
+            return ClientViewMatch.WRONG_BIOME;
         }
-        if (!objective.biomeIds().isEmpty()) {
-            results.add(matchesBiomeSampled(objective, level, cameraPos, cameraDir));
-        }
-        return combine(objective, results);
+        return ClientViewMatch.FULL;
     }
 
     private static boolean matchesBiomeSampled(PhotoObjective objective, Level level, Vec3 cameraPos, Vec3 cameraDir) {

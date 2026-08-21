@@ -33,6 +33,34 @@ public final class PhotoObjectiveRegistry {
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "ghast_snapshot");
     public static final ResourceLocation OCEAN_BIOME_SNAPSHOT_ID =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "ocean_biome_snapshot");
+    public static final ResourceLocation SEAHORSE_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "seahorse_snapshot");
+    public static final ResourceLocation HERRING_SCHOOL_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "herring_school");
+    public static final ResourceLocation SEA_COW_MEADOW_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "sea_cow_meadow");
+    public static final ResourceLocation DODO_ISLAND_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "dodo_island");
+    public static final ResourceLocation ANGLER_FISH_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "angler_fish_snapshot");
+    public static final ResourceLocation SNAIL_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "snail_snapshot");
+    public static final ResourceLocation HAMSTER_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "hamster_snapshot");
+    public static final ResourceLocation ANT_GARDEN_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "ant_garden");
+    public static final ResourceLocation OCTOPUS_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "octopus_snapshot");
+    public static final ResourceLocation STRANDED_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "stranded_snapshot");
+    public static final ResourceLocation FIREKEEPER_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "firekeeper_snapshot");
+    public static final ResourceLocation COASTAL_CRAB_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "coastal_crab_snapshot");
+    public static final ResourceLocation TUNA_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "tuna_snapshot");
+    public static final ResourceLocation SPIDER_CRAB_SNAPSHOT_ID =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "spider_crab_snapshot");
 
     private static final Map<ResourceLocation, PhotoObjective> OBJECTIVES = new LinkedHashMap<>();
 
@@ -185,6 +213,164 @@ public final class PhotoObjectiveRegistry {
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "warm_ocean"),
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "frozen_ocean"),
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "deep_frozen_ocean")),
+                        1,
+                        true));
+
+        // ── 生机遍布（spawn）联动目标：实体/群系 ID 均来自该模组，引用方委托用 requiresMod 门控 ──
+
+        register(
+                new PhotoObjective(
+                        SEAHORSE_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.seahorse_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "seahorse")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        HERRING_SCHOOL_ID,
+                        "photo_objective.otherworldinn.herring_school",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "herring")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        3,
+                        true));
+        register(
+                new PhotoObjective(
+                        SEA_COW_MEADOW_ID,
+                        "photo_objective.otherworldinn.sea_cow_meadow",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "sea_cow")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "seagrass_meadow")),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        DODO_ISLAND_ID,
+                        "photo_objective.otherworldinn.dodo_island",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "dodo")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "dodo_island")),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        ANGLER_FISH_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.angler_fish_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "angler_fish")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+
+        register(
+                new PhotoObjective(
+                        SNAIL_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.snail_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "snail")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        HAMSTER_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.hamster_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "hamster")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        ANT_GARDEN_ID,
+                        "photo_objective.otherworldinn.ant_garden",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "ant")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "ant_gardens")),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        OCTOPUS_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.octopus_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "octopus")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        STRANDED_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.stranded_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "stranded")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        FIREKEEPER_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.firekeeper_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "firekeeper")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "volcanic_island")),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        COASTAL_CRAB_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.coastal_crab_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "coastal_crab")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        TUNA_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.tuna_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "tuna")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
+                        1,
+                        true));
+        register(
+                new PhotoObjective(
+                        SPIDER_CRAB_SNAPSHOT_ID,
+                        "photo_objective.otherworldinn.spider_crab_snapshot",
+                        PhotoObjectiveMatchMode.ALL,
+                        List.of(ResourceLocation.fromNamespaceAndPath("spawn", "spider_crab")),
+                        List.of(),
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"),
+                        List.of(),
                         1,
                         true));
     }

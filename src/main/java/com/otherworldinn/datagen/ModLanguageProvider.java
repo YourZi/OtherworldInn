@@ -939,6 +939,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.photo.hint.spotted")
                 .zh("发现拍照任务目标")
                 .en("Photo task target discovered");
+        entry("message.otherworldinn.photo.hint.wrong_biome")
+                .zh("未处于正确目标群系")
+                .en("Not in the required target biome");
         entry("photo_objective.otherworldinn.plains_scene")
                 .zh("平原群系的景色")
                 .en("a plains biome scene");
@@ -975,6 +978,48 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("photo_objective.otherworldinn.ocean_biome_snapshot")
                 .zh("任意海洋类群系景色")
                 .en("any ocean biome scene");
+        entry("photo_objective.otherworldinn.seahorse_snapshot")
+                .zh("珊瑚礁里的一只海马")
+                .en("a seahorse in the reefs");
+        entry("photo_objective.otherworldinn.herring_school")
+                .zh("同框的三条鲱鱼")
+                .en("three herring in one frame");
+        entry("photo_objective.otherworldinn.sea_cow_meadow")
+                .zh("海草床里的海牛")
+                .en("a sea cow in a seagrass meadow");
+        entry("photo_objective.otherworldinn.dodo_island")
+                .zh("岛上的渡渡鸟")
+                .en("a dodo on its island");
+        entry("photo_objective.otherworldinn.angler_fish_snapshot")
+                .zh("深水中的鮟鱇鱼")
+                .en("an angler fish in the deep");
+        entry("photo_objective.otherworldinn.ant_garden")
+                .zh("蚂蚁之园的蚂蚁")
+                .en("ants in the ant gardens");
+        entry("photo_objective.otherworldinn.coastal_crab_snapshot")
+                .zh("海岸上的一只螃蟹")
+                .en("a coastal crab on the shore");
+        entry("photo_objective.otherworldinn.firekeeper_snapshot")
+                .zh("火山上的火焰守卫")
+                .en("a firekeeper on the volcano");
+        entry("photo_objective.otherworldinn.hamster_snapshot")
+                .zh("草地上的一只仓鼠")
+                .en("a hamster in the grass");
+        entry("photo_objective.otherworldinn.octopus_snapshot")
+                .zh("海里的一只章鱼")
+                .en("an octopus in the sea");
+        entry("photo_objective.otherworldinn.snail_snapshot")
+                .zh("森林里的一只蜗牛")
+                .en("a forest snail");
+        entry("photo_objective.otherworldinn.spider_crab_snapshot")
+                .zh("冷水中的蜘蛛蟹")
+                .en("a spider crab in cold waters");
+        entry("photo_objective.otherworldinn.stranded_snapshot")
+                .zh("一台滞儡")
+                .en("a stranded construct");
+        entry("photo_objective.otherworldinn.tuna_snapshot")
+                .zh("海里的一条金枪鱼")
+                .en("a tuna in the sea");
         entry("screen.otherworldinn.dialogue.title").zh("对话").en("Dialogue");
         entry("dialogue.otherworldinn.npc.unknown").zh("陌生人").en("Unknown");
         addDialogueTranslations();

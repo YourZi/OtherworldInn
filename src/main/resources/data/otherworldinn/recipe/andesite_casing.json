@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "tag": "c:stripped_logs"
+      },
+      {
+        "tag": "c:stripped_woods"
+      }
+    ],
+    {
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "result": {
+    "id": "create:andesite_casing",
+    "count": 1
+  }
+}

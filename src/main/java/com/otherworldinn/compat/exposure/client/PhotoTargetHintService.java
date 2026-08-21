@@ -5,6 +5,7 @@ import com.otherworldinn.api.OtherworldInnHudSnapshotApi;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.world.photo.PhotoObjective;
 import com.otherworldinn.world.photo.PhotoObjectiveEvaluator;
+import com.otherworldinn.world.photo.PhotoObjectiveEvaluator.ClientViewMatch;
 import com.otherworldinn.world.photo.PhotoObjectiveRegistry;
 import io.github.mortuusars.exposure.client.camera.CameraClient;
 import io.github.mortuusars.exposure.util.PointOfView;
@@ -43,14 +44,18 @@ public final class PhotoTargetHintService {
     private static final String KEY_REQUIREMENTS = "Requirements";
     private static final String TYPE_PHOTO = "photo";
     private static final String HINT_KEY = "message.otherworldinn.photo.hint.spotted";
+    private static final String HINT_WRONG_BIOME_KEY = "message.otherworldinn.photo.hint.wrong_biome";
     private static final int TICK_INTERVAL = 5;
     /** 准星下方偏移（GUI 缩放像素） */
     private static final int CROSSHAIR_OFFSET_Y = 20;
     private static final Component HINT_TEXT = Component.translatable(HINT_KEY);
+    private static final Component HINT_WRONG_BIOME_TEXT = Component.translatable(HINT_WRONG_BIOME_KEY);
 
     private enum State {
         INACTIVE,
         AIMING,
+        /** 实体在画面中，但目标群系不符：金色主提示下方追加红色群系警告 */
+        PARTIAL,
         SPOTTED
     }
 
@@ -95,28 +100,40 @@ public final class PhotoTargetHintService {
             return;
         }
 
-        if (evaluate(mc, objectives, camera, cameraItem, stack)) {
-            state = State.SPOTTED;
-        } else {
-            state = State.AIMING;
-        }
+        state = switch (evaluate(mc, objectives, camera, cameraItem, stack)) {
+            case FULL -> State.SPOTTED;
+            case WRONG_BIOME -> State.PARTIAL;
+            default -> State.AIMING;
+        };
     }
 
-    /** 每帧渲染：命中期间在准星下方持续显示金色提示（由 MixinExposureViewfinderOverlay 在取景器 overlay 尾部驱动） */
+    /** 每帧渲染：金色"发现拍照任务目标"；PARTIAL 态（生物对但群系错）在其下追加红色警告行 */
     public static void renderHint(GuiGraphics guiGraphics) {
-        if (state != State.SPOTTED) {
+        if (state != State.SPOTTED && state != State.PARTIAL) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) {
             return;
         }
-        int x = (mc.getWindow().getGuiScaledWidth() - mc.font.width(HINT_TEXT)) / 2;
+        int centerX = mc.getWindow().getGuiScaledWidth() / 2;
         int y = mc.getWindow().getGuiScaledHeight() / 2 + CROSSHAIR_OFFSET_Y;
-        guiGraphics.drawString(mc.font, HINT_TEXT, x, y, ModColors.YELLOW, true);
+        guiGraphics.drawString(
+                mc.font, HINT_TEXT, centerX - mc.font.width(HINT_TEXT) / 2, y, ModColors.YELLOW, true);
+        if (state == State.PARTIAL) {
+            int warnY = y + mc.font.lineHeight + 2;
+            guiGraphics.drawString(
+                    mc.font,
+                    HINT_WRONG_BIOME_TEXT,
+                    centerX - mc.font.width(HINT_WRONG_BIOME_TEXT) / 2,
+                    warnY,
+                    ModColors.ERROR,
+                    true);
+        }
     }
 
-    private static boolean evaluate(
+    /** 多目标中取最优结果：任一 FULL 即 FULL，否则任一 WRONG_BIOME 即 WRONG_BIOME */
+    private static ClientViewMatch evaluate(
             Minecraft mc,
             List<PhotoObjective> objectives,
             Camera camera,
@@ -127,20 +144,25 @@ public final class PhotoTargetHintService {
             PointOfView pov = cameraItem.getPointOfView(camera.getHolder(), stack);
             double fov = cameraItem.getViewfinderFov(mc.level, stack);
             List<LivingEntity> entitiesInFrame = EntitiesInFrame.get(camera.getHolder(), pov, fov);
+            ClientViewMatch best = ClientViewMatch.NO_MATCH;
             for (PhotoObjective objective : objectives) {
-                if (PhotoObjectiveEvaluator.matchesClientView(
-                        objective, mc.level, pov.pos(), pov.dir(), entitiesInFrame)) {
-                    return true;
+                ClientViewMatch match = PhotoObjectiveEvaluator.evaluateClientView(
+                        objective, mc.level, pov.pos(), pov.dir(), entitiesInFrame);
+                if (match == ClientViewMatch.FULL) {
+                    return ClientViewMatch.FULL;
+                }
+                if (match == ClientViewMatch.WRONG_BIOME) {
+                    best = ClientViewMatch.WRONG_BIOME;
                 }
             }
-            return false;
+            return best;
         } catch (Throwable t) {
             // EntitiesInFrame 名义上是服务端工具，出现未知 dist 问题时降级为本会话禁用
             OtherworldInn.LOGGER.warn(
                     "Failed to evaluate photo target hint, disabling for this session", t);
             disabled = true;
             reset();
-            return false;
+            return ClientViewMatch.NO_MATCH;
         }
     }
 

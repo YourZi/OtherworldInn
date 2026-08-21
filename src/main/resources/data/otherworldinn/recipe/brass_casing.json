@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "tag": "c:stripped_logs"
+      },
+      {
+        "tag": "c:stripped_woods"
+      }
+    ],
+    {
+      "tag": "c:ingots/brass"
+    }
+  ],
+  "result": {
+    "id": "create:brass_casing",
+    "count": 1
+  }
+}
