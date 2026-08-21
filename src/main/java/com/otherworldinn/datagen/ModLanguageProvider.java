@@ -71,6 +71,53 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("map_point.otherworldinn.dock").zh("码头").en("Dock");
         entry("map_point.otherworldinn.locked").zh("未解锁").en("Locked");
         entry("map_point.otherworldinn.cant_teleport").zh("无法传送至").en("Cannot teleport to");
+
+        // JEI 信息页
+        entry("jei.otherworldinn.recall_scroll.info")
+                .zh("玩家离开城镇自动获取一张，玩家长按右键蓄力 3 秒，传回城镇旅社。在城镇内不能使用；下界、末地等其他维度均可使用。")
+                .en("You get one automatically when leaving the Town. Hold right-click for 3 seconds to teleport back to the Town inn. Cannot be used while inside the Town; works from any other dimension, such as the Nether or the End.");
+        entry("jei.otherworldinn.room_register.info")
+                .zh("副手持右键点击房间一个角落，再点另一个对角，条件正确时（房间大小在允许范围内且至少有一张床和一扇门）自动创建房间。主手右键显示当前已有房间数量，并高亮房间轮廓。")
+                .en("Hold it in the off-hand and right-click one corner of a room, then the opposite corner. When conditions are met (size within limits and at least one bed and one door), the room is created automatically. Right-click with the main hand to show the current room count and highlight the room outline.");
+        entry("jei.otherworldinn.room_key.info")
+                .zh("右键房间内的方块，把钥匙绑定到此房间。右键交互一个等待入住的旅客将其安排进绑定的房间，每次入住消耗一把钥匙。房间满员、旅客已入住或已退房都会提示失败。左键点房间内方块解除与此房间的绑定。")
+                .en("Right-click a block inside a room to bind the key to that room. Right-click a waiting guest to check them into the bound room, consuming one key. It fails if the room is full or the guest has already checked in or out. Left-click a block inside the room to unbind the key.");
+        entry("jei.otherworldinn.bed_sheet.info")
+                .zh("右键脏乱的床更换床单，会消耗耐久。")
+                .en("Right-click a messy bed to replace its sheets, consuming durability.");
+        entry("jei.otherworldinn.messy_bed_sheet.info")
+                .zh("与水、含水方块或炼药锅长按交互清洗，炼药锅清洗有一半概率不消耗耐久。")
+                .en("Hold right-click while looking at water, a waterlogged block, or a cauldron to wash it clean. Washing in a cauldron has a 50% chance to not consume durability.");
+        entry("jei.otherworldinn.land_deed.info")
+                .zh("右键方块定第一个角落，右键第二次定对角，右键第三次确认扣款。价格按 2 金币/块计算，已在旅社范围内的部分不重复收费。可扩展面积受旅社评级限制，评级越高可扩范围越大。圈选超出允许区域会自动取消。")
+                .en("Right-click a block to set the first corner, right-click again to set the opposite corner, and a third time to confirm and pay. It costs 2 coins per block, and areas already inside the inn are not charged again. The expandable area is limited by the inn rating; a higher rating allows a larger expansion. The selection is cancelled automatically if it goes beyond the allowed region.");
+        entry("jei.otherworldinn.inn_key.info")
+                .zh("潜行右键点击旅社范围内的 Create 模组的呼唤铃，切换旅社开业/歇业状态。")
+                .en("Sneak + right-click a Create Desk Bell within the inn area to toggle the inn between open and closed.");
+        entry("jei.otherworldinn.inn_upgrade_voucher.info")
+                .zh("满足升星条件时，右键使用给旅社提升星级。")
+                .en("When the upgrade conditions are met, right-click to raise the inn's star rating.");
+        entry("jei.otherworldinn.facility_upgrade_template.info")
+                .zh("右键在设施范围内使用，用于消耗材料和金币维修或升级设施。")
+                .en("Right-click within a facility to repair or upgrade it, consuming materials and coins.");
+        entry("jei.otherworldinn.coin.info")
+                .zh("通用货币；潜行右键把金币物品存进队伍余额。")
+                .en("Universal currency. Sneak + right-click to deposit coin items into the team balance.");
+        entry("jei.otherworldinn.space_sphere.info")
+                .zh("使用后全队解锁地图点传送，可在城镇地图视图下直接点击地图标点传送至目的地。")
+                .en("Using it unlocks map-point teleportation for the whole team, letting you click map markers directly in the Town map view to teleport to the destination.");
+        entry("jei.otherworldinn.nether_space_sphere.info")
+                .zh("此物品本身没有使用功能，为合成链的中间材料。")
+                .en("This item has no use by itself; it is an intermediate material in a crafting chain.");
+        entry("jei.otherworldinn.end_space_sphere.info")
+                .zh("右键直接传送到末地主岛的黑曜石平台。")
+                .en("Right-click to teleport directly to the obsidian platform on the End main island.");
+        entry("jei.otherworldinn.picnic_box.info")
+                .zh("右键食用盒子里装的第一个食物，只有从野餐盒吃的食物才能恢复疲劳值。只能在城镇或魔法空间维度往盒子里放食物，探索途中无法补充食物。每次食用有 15 秒冷却。潜行左键点击可清空盒子，食物回到背包。")
+                .en("Right-click to eat the first food stored inside the box. Only food eaten from the picnic box restores fatigue. Food can only be inserted in the Town or Magic Space dimensions; you cannot refill it while exploring. Each use has a 15-second cooldown. Sneak + left-click to empty the box and return the food to your inventory.");
+        entry("jei.otherworldinn.organic_fertilizer.info")
+                .zh("右键触发目标方块的一次随机刻逻辑，因此可以催熟原版骨粉无法催熟的作物，例如甘蔗和仙人掌，也可以加速草方块蔓延。")
+                .en("Right-click to trigger one random tick on the target block, letting it fertilize crops that vanilla bone meal cannot, such as sugar cane and cactus, and also speed up grass spread.");
         entry("advancements.otherworldinn.root.title").zh("旅社物语").en("Otherworld Inn");
         entry("advancements.otherworldinn.root.description")
                 .zh("获得旅社钥匙，开启你的经营之旅")
