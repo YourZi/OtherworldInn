@@ -170,6 +170,16 @@ public class MagicianEntity extends StoreEntity {
         entries.add(new CatalogEntry(enchantedBook(Enchantments.SWIFT_SNEAK, 3), 256, 2, 6));
         entries.add(new CatalogEntry(new ItemStack(Items.EXPERIENCE_BOTTLE), 32, 16, 8));
         entries.add(new CatalogEntry(enchantedBook(Enchantments.WIND_BURST, 3), 256, 2, 8));
+
+        // 节日限定（仲夏夜）
+        entries.add(new CatalogEntry(new ItemStack(Items.GLOW_INK_SAC), 24, 16, "midsummer_night"));
+        entries.add(new CatalogEntry(new ItemStack(Items.GLOWSTONE), 40, 16, "midsummer_night"));
+        entries.add(new CatalogEntry(new ItemStack(Items.SEA_LANTERN), 64, 12, "midsummer_night"));
+        entries.add(new CatalogEntry(new ItemStack(Items.GLOW_BERRIES), 16, 16, "midsummer_night"));
+        // 仲夏夜跨模组商品（酒馆荧光酒）
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:glowflower_brew"), 36, 8, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:luminous_bride"), 44, 8, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:polaris_sweet_white"), 48, 8, "midsummer_night"));
         return entries;
     }
 

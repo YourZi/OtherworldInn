@@ -5,6 +5,8 @@ import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.init.ModEntities;
 import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.util.WorldDayUtils;
+import com.otherworldinn.world.festival.FestivalEffect;
+import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.team.TeamData;
@@ -348,6 +350,12 @@ public final class StoryGuestService {
                 continue;
             }
             int weight = Math.max(1, definition.spawnWeight());
+            double boost =
+                    FestivalService.queryValue(
+                            level, FestivalEffect.KEY_GUEST_SPAWN_BOOST, definition.id());
+            if (boost > 0.0D) {
+                weight = Math.max(1, (int) Math.ceil(weight * (1.0D + boost)));
+            }
             totalWeight += weight;
             candidates.add(new WeightedDefinition(definition, weight));
         }

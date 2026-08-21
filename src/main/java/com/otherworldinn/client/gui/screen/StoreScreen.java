@@ -1,6 +1,7 @@
 package com.otherworldinn.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.otherworldinn.client.ClientFestivalData;
 import com.otherworldinn.entity.base.StoreEntity;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.network.ModMessages;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -234,11 +236,11 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
             this.cart.set(
                     existingIndex,
                     new StoreEntity.StoreItem(
-                            cartItem.getItemStack(), this.getDisplayPrice(item), -1, newQuantity));
+                            cartItem.getItemStack(), item.getPrice(), -1, newQuantity));
         } else {
             this.cart.add(
                     new StoreEntity.StoreItem(
-                            item.getItemStack(), this.getDisplayPrice(item), -1, newQuantity));
+                            item.getItemStack(), item.getPrice(), -1, newQuantity));
         }
 
         this.updateButtons();
@@ -250,8 +252,13 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
         this.quantityEditBox.setEditable(hasSelection);
 
         int totalPrice = 0;
+        int totalDiscounted = 0;
         for (StoreEntity.StoreItem item : this.cart) {
-            totalPrice += item.getPrice() * item.getCurrentStock(); // 这里 currentStock 借用来存购买数量
+            // 这里 currentStock 借用来存购买数量；购物车存原价，结算先套当前好感折扣，再套节日折扣
+            totalPrice += item.getPrice() * item.getCurrentStock();
+            totalDiscounted +=
+                    this.getFestivalDiscountedPrice(this.getDisplayPrice(item))
+                            * item.getCurrentStock();
         }
 
         int playerBalance = 0;
@@ -262,10 +269,12 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
             }
         }
 
-        boolean canAfford = playerBalance >= totalPrice;
+        boolean canAfford = playerBalance >= totalDiscounted;
 
         Component priceText =
-                Component.translatable("gui.otherworldinn.store.purchase", totalPrice);
+                Component.translatable(
+                        "gui.otherworldinn.store.purchase",
+                        totalDiscounted < totalPrice ? totalDiscounted : totalPrice);
         if (!canAfford) {
             priceText = priceText.copy().withStyle(style -> style.withColor(ModColors.ERROR));
         }
@@ -293,6 +302,41 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
     private int getDisplayPrice(StoreEntity.StoreItem item) {
         return StoreEntity.getDiscountedPriceForFavorLevel(
                 item.getPrice(), this.getCurrentFavorLevel());
+    }
+
+    /** 商店类型标识（实体注册 ID 的 path，如 blacksmith），用于匹配节日折扣 */
+    private String getShopType() {
+        StoreEntity entity = this.menu.getStoreEntity();
+        return entity != null ? EntityType.getKey(entity.getType()).getPath() : "";
+    }
+
+    /** 节日折扣后的单件价格（叠加在好感折扣之上）；无折扣返回原价 */
+    private int getFestivalDiscountedPrice(int price) {
+        double discount = ClientFestivalData.getShopDiscount(this.getShopType());
+        if (discount <= 0.0D) {
+            return price;
+        }
+        return Math.max(1, (int) Math.floor(price * (1.0D - discount)));
+    }
+
+    /**
+     * 打折时构造「灰色删除线原价 + 绿色新价」价格文本，未打折返回 null（由调用方走原有显示）。
+     *
+     * @param unitPrice 单件原价（节日折扣前的价格）
+     * @param quantity 数量
+     */
+    @Nullable
+    private Component buildSalePriceText(int unitPrice, int quantity) {
+        int discounted = getFestivalDiscountedPrice(unitPrice);
+        if (discounted >= unitPrice) {
+            return null;
+        }
+        return Component.literal(
+                "§f\uE001§r§7§m"
+                        + unitPrice * quantity
+                        + "§r §f\uE001§r§a"
+                        + discounted * quantity
+                        + "§r");
     }
 
     private Component getSelectedDisplayName(StoreEntity.StoreItem item) {
@@ -521,7 +565,10 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     y + 5,
                     ModColors.WHITE);
             Component priceText =
-                    Component.literal("§f\uE001§r" + item.getPrice() * item.getCurrentStock());
+                    Component.literal(
+                            "§f\uE001§r"
+                                    + this.getFestivalDiscountedPrice(this.getDisplayPrice(item))
+                                            * item.getCurrentStock());
             guiGraphics.drawString(
                     this.font,
                     priceText,
@@ -909,10 +956,16 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 List<Component> tooltip = getTooltipFromItem(minecraft, item.getItemStack());
 
                 // 使用翻译键和自定义图标
-                tooltip.add(
-                        Component.translatable(
-                                        "gui.otherworldinn.store.price", this.getDisplayPrice(item))
-                                .withStyle(net.minecraft.ChatFormatting.YELLOW));
+                int displayPrice = this.getDisplayPrice(item);
+                Component saleText = this.buildSalePriceText(displayPrice, 1);
+                if (saleText != null) {
+                    tooltip.add(saleText);
+                } else {
+                    tooltip.add(
+                            Component.translatable(
+                                            "gui.otherworldinn.store.price", displayPrice)
+                                    .withStyle(net.minecraft.ChatFormatting.YELLOW));
+                }
 
                 if (item.getMaxStock() != -1) {
                     if (!item.isRestockable()) {
@@ -996,11 +1049,19 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 tooltip.add(
                         Component.literal("×" + cartItem.getCurrentStock())
                                 .withStyle(net.minecraft.ChatFormatting.GRAY));
-                tooltip.add(
-                        Component.translatable(
-                                        "gui.otherworldinn.store.price",
-                                        cartItem.getPrice() * cartItem.getCurrentStock())
-                                .withStyle(net.minecraft.ChatFormatting.YELLOW));
+                Component saleText =
+                        this.buildSalePriceText(
+                                this.getDisplayPrice(cartItem), cartItem.getCurrentStock());
+                if (saleText != null) {
+                    tooltip.add(saleText);
+                } else {
+                    tooltip.add(
+                            Component.translatable(
+                                            "gui.otherworldinn.store.price",
+                                            this.getDisplayPrice(cartItem)
+                                                    * cartItem.getCurrentStock())
+                                    .withStyle(net.minecraft.ChatFormatting.YELLOW));
+                }
                 guiGraphics.renderTooltip(
                         this.font,
                         tooltip,

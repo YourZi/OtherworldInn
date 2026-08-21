@@ -1,6 +1,7 @@
 package com.otherworldinn.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -15,6 +16,7 @@ import com.otherworldinn.world.event.TownStructurePlacer;
 import com.otherworldinn.world.event.listener.PlayerFatigueHandler;
 import com.otherworldinn.world.fatigue.FatigueCalculator;
 import com.otherworldinn.world.fatigue.FatigueData;
+import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestProgress;
@@ -97,7 +99,22 @@ public class AdminCommands {
                                 Commands.literal("store")
                                         .then(
                                                 Commands.literal("reset_all_npcs")
-                                                        .executes(AdminCommands::resetAllStoreNpcs)))
+                                                        .executes(
+                                                                AdminCommands::resetAllStoreNpcs))
+                                        .then(
+                                                Commands.literal("global_discount")
+                                                        .executes(
+                                                                AdminCommands::getGlobalDiscount)
+                                                        .then(
+                                                                Commands.argument(
+                                                                                "rate",
+                                                                                DoubleArgumentType
+                                                                                        .doubleArg(
+                                                                                                0.0D,
+                                                                                                0.9D))
+                                                                        .executes(
+                                                                                AdminCommands
+                                                                                        ::setGlobalDiscount))))
                         .then(
                                 Commands.literal("guests")
                                         .then(
@@ -386,6 +403,42 @@ public class AdminCommands {
                                         "command.otherworldinn.admin.store.reset_all.success",
                                         finalResetCount),
                         true);
+        return 1;
+    }
+
+    /** 查看当前全局调试折扣 */
+    private static int getGlobalDiscount(CommandContext<CommandSourceStack> context) {
+        double rate = FestivalService.getDebugGlobalDiscount();
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        rate > 0.0D
+                                                ? "全局调试折扣: " + (int) (rate * 100) + "%"
+                                                : "全局调试折扣: 关闭"),
+                        false);
+        return 1;
+    }
+
+    /** 设置全局调试折扣（0~0.9，0 关闭；覆盖节日折扣，对所有商店生效并同步给在线玩家） */
+    private static int setGlobalDiscount(CommandContext<CommandSourceStack> context) {
+        double rate = DoubleArgumentType.getDouble(context, "rate");
+        FestivalService.setDebugGlobalDiscount(rate);
+        rate = FestivalService.getDebugGlobalDiscount(); // 读取钳制后的实际值
+        ServerLevel townLevel =
+                context.getSource().getServer().getLevel(TownDimensions.TOWN_LEVEL);
+        if (townLevel != null) {
+            FestivalService.syncShopDiscounts(townLevel);
+        }
+        final double finalRate = rate;
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        finalRate > 0.0D
+                                                ? "已设置全局调试折扣: " + (int) (finalRate * 100) + "%"
+                                                : "已关闭全局调试折扣"),
+                        false);
         return 1;
     }
 

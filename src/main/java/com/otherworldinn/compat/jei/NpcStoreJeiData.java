@@ -66,7 +66,8 @@ final class NpcStoreJeiData {
                                 entry.maxStock(),
                                 entry.requiredFavorLevel(),
                                 entry.requiredAdvancementTitleKey(),
-                                false));
+                                false,
+                                entry.festivalId()));
             }
         }
         if (randomSupplier != null) {
@@ -84,7 +85,8 @@ final class NpcStoreJeiData {
                                 offer.maxStock(),
                                 offer.requiredFavorLevel(),
                                 null,
-                                true));
+                                true,
+                                null));
             }
         }
     }

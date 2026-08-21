@@ -1,6 +1,8 @@
 package com.otherworldinn.compat.jei;
 
 import com.otherworldinn.init.ModItems;
+import com.otherworldinn.world.festival.FestivalDefinition;
+import com.otherworldinn.world.festival.FestivalRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -122,6 +124,16 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
         if (recipe.randomOffer()) {
             segments.add(Component.translatable("jei.otherworldinn.npc_store.random"));
             colors.add(0x2E8B57);
+        }
+        if (recipe.festivalId() != null) {
+            String festivalName =
+                    FestivalRegistry.get(recipe.festivalId())
+                            .map(FestivalDefinition::zhName)
+                            .orElse(recipe.festivalId());
+            segments.add(
+                    Component.translatable(
+                            "jei.otherworldinn.npc_store.festival_exclusive", festivalName));
+            colors.add(0xE91E63);
         }
         if (!segments.isEmpty()) {
             int gap = 8;

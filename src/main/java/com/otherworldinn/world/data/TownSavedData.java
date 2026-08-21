@@ -32,6 +32,11 @@ public class TownSavedData extends SavedData {
     /** 矿井最近一次填充产出的世界日，-1 表示从未填充 */
     private long lastMineFillDay = -1;
 
+    // === 节日状态 ===
+    /** 最近一次广播的节日窗口标识（festivalId@窗口起始世界日），null 表示当前无激活节日 */
+    @Nullable
+    private String lastFestivalWindow = null;
+
     public static TownSavedData get(ServerLevel level) {
         return level.getDataStorage()
                 .computeIfAbsent(
@@ -52,6 +57,10 @@ public class TownSavedData extends SavedData {
         }
         data.lastMineFillDay =
                 tag.contains("lastMineFillDay") ? tag.getLong("lastMineFillDay") : -1;
+        data.lastFestivalWindow =
+                tag.contains("lastFestivalWindow")
+                        ? tag.getString("lastFestivalWindow")
+                        : null;
         return data;
     }
 
@@ -66,6 +75,9 @@ public class TownSavedData extends SavedData {
             tag.putUUID("traderEntityUuid", traderEntityUuid);
         }
         tag.putLong("lastMineFillDay", lastMineFillDay);
+        if (lastFestivalWindow != null) {
+            tag.putString("lastFestivalWindow", lastFestivalWindow);
+        }
         return tag;
     }
 
@@ -127,6 +139,18 @@ public class TownSavedData extends SavedData {
 
     public void setLastMineFillDay(long lastMineFillDay) {
         this.lastMineFillDay = lastMineFillDay;
+        this.setDirty();
+    }
+
+    // === 节日状态 ===
+
+    @Nullable
+    public String getLastFestivalWindow() {
+        return lastFestivalWindow;
+    }
+
+    public void setLastFestivalWindow(@Nullable String lastFestivalWindow) {
+        this.lastFestivalWindow = lastFestivalWindow;
         this.setDirty();
     }
 }

@@ -49,6 +49,51 @@ public class GrocerEntity extends StoreEntity {
         entries.add(new CatalogEntry(createStack("refinedstorage:4k_storage_part"), 64, 6, 4));
         entries.add(new CatalogEntry(createStack("refinedstorage:16k_storage_part"), 128, 4, 6));
         entries.add(new CatalogEntry(createStack("refinedstorage:64k_storage_part"), 256, 2, 8));
+        // 节日限定（隆冬节，原冬祭并入）
+        entries.add(new CatalogEntry(createStack("minecraft:snowball"), 8, 16, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:snow_block"), 16, 16, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:powder_snow_bucket"), 40, 8, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:ice"), 12, 16, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:packed_ice"), 32, 12, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:blue_ice"), 96, 6, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:spruce_sapling"), 20, 12, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:firework_rocket"), 36, 12, "deep_winter_festival"));
+
+        // 节日限定（仲夏夜）
+        entries.add(new CatalogEntry(createStack("minecraft:music_disc_cat"), 48, 4, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("minecraft:music_disc_13"), 48, 4, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("minecraft:music_disc_strad"), 48, 4, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("minecraft:lily_pad"), 6, 16, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("minecraft:melon_slice"), 3, 32, "midsummer_night"));
+        // 仲夏夜跨模组商品（灯会装饰/夏果）
+        entries.add(new CatalogEntry(createStack("mcwlights:white_paper_lamp"), 16, 12, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("yuushya:oriental_lantern"), 24, 12, "midsummer_night"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:watermelon_platter"), 20, 8, "midsummer_night"));
+
+        // 节日限定（秋收祭）
+        entries.add(new CatalogEntry(createStack("minecraft:pumpkin_pie"), 12, 16, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:cake"), 30, 8, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:jack_o_lantern"), 16, 16, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:golden_apple"), 80, 4, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:brown_mushroom"), 4, 16, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:red_mushroom"), 4, 16, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("minecraft:hay_block"), 12, 16, "harvest_festival"));
+        // 秋收祭跨模组商品（厨房丰收宴）
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:sticky_rice_cake"), 18, 12, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:fondant_pie"), 24, 12, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:stargazy_pie"), 28, 8, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:golden_salad"), 20, 12, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:apple_platter"), 16, 12, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:champagne"), 48, 8, "harvest_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:sweet_berry_wine"), 26, 8, "harvest_festival"));
+
+        // 节日限定（隆冬节）
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:laba_congee"), 20, 12, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:dongpo_pork"), 36, 8, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:dumpling"), 14, 16, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:mother_snow"), 42, 8, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:ice_wine"), 44, 8, "deep_winter_festival"));
+        entries.add(new CatalogEntry(createStack("mcwlights:festive_lantern"), 20, 12, "deep_winter_festival"));
         return entries;
     }
 
@@ -70,15 +115,6 @@ public class GrocerEntity extends StoreEntity {
                     "green_dye",
                     "red_dye",
                     "black_dye");
-
-    private static ItemStack createStack(String itemId) {
-        ResourceLocation id = ResourceLocation.tryParse(itemId);
-        if (id == null) {
-            return ItemStack.EMPTY;
-        }
-        Item item = BuiltInRegistries.ITEM.getOptional(id).orElse(Items.AIR);
-        return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
-    }
 
     @Override
     protected void applyCodeDefaultsAfterDebugReset() {

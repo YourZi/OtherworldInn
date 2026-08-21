@@ -3,6 +3,8 @@ package com.otherworldinn.entity.base;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.dialogue.DialogueService;
+import com.otherworldinn.world.festival.FestivalEffect;
+import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.inventory.StoreMenu;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,7 +34,9 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +54,18 @@ public abstract class StoreEntity extends PathfinderMob {
 
     public static int getMaxFavorLevelValue() {
         return MAX_FAVOR_LEVEL;
+    }
+
+    /**
+     * 按注册名解析物品，用于跨模组商品（例如节日限定）。未知 id 返回空栈，由调用方过滤。
+     */
+    protected static ItemStack createStack(String itemId) {
+        ResourceLocation id = ResourceLocation.tryParse(itemId);
+        if (id == null) {
+            return ItemStack.EMPTY;
+        }
+        Item item = BuiltInRegistries.ITEM.getOptional(id).orElse(Items.AIR);
+        return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
 
     public static int getCoinsPerFavorLevelValue() {
@@ -80,12 +97,14 @@ public abstract class StoreEntity extends PathfinderMob {
     /** 商品列表 (合并了固定商品和随机商品) */
     protected final List<StoreItem> storeItems = new ArrayList<>();
 
-    /**
-     * 固定商品起始索引
+    /** 固定商品起始索引
      *
      * <p>在刷新库存时，保留索引在此之前的商品，移除之后的随机商品并重新生成。
      */
     protected int fixedItemsCount = 0;
+
+    /** 节日限定商品目录（平时不上架，节日期间由每日补货动态上架） */
+    private final List<CatalogEntry> festivalCatalogEntries = new ArrayList<>();
 
     /** 上次进货的日期（世界日） */
     private long lastRestockDay = 0;
@@ -447,7 +466,28 @@ public abstract class StoreEntity extends PathfinderMob {
     }
 
     public boolean canPurchase(StoreItem item) {
+        if (!isFestivalItemAvailable(item)) {
+            return false;
+        }
         return item.getRequiredFavorLevel() <= this.favorLevel;
+    }
+
+    /** 节日限定商品是否处于可购买状态（服务端判定；非节日限定恒为 true） */
+    public boolean isFestivalItemAvailable(StoreItem item) {
+        String festivalId = item.getFestivalId();
+        if (festivalId == null) {
+            return true;
+        }
+        return isFestivalActive(festivalId);
+    }
+
+    private boolean isFestivalActive(String festivalId) {
+        if (this.level().isClientSide) {
+            return false;
+        }
+        return FestivalService.getActiveFestival((ServerLevel) this.level())
+                .map(f -> f.id().equals(festivalId))
+                .orElse(false);
     }
 
     public boolean canPurchase(Player player, StoreItem item) {
@@ -477,7 +517,21 @@ public abstract class StoreEntity extends PathfinderMob {
     }
 
     public int getPurchasePrice(StoreItem item) {
-        return getDiscountedPriceForFavorLevel(item.getPrice(), this.favorLevel);
+        int price = getDiscountedPriceForFavorLevel(item.getPrice(), this.favorLevel);
+        if (this.level() instanceof ServerLevel serverLevel) {
+            double discount =
+                    FestivalService.queryValue(
+                            serverLevel, FestivalEffect.KEY_SHOP_DISCOUNT, shopTypeKey());
+            if (discount > 0.0D) {
+                price = Math.max(1, (int) Math.floor(price * (1.0D - discount)));
+            }
+        }
+        return price;
+    }
+
+    /** 商店类型标识（实体注册 ID 的 path，如 blacksmith），用于节日折扣匹配 */
+    protected String shopTypeKey() {
+        return EntityType.getKey(this.getType()).getPath();
     }
 
     /**
@@ -717,6 +771,30 @@ public abstract class StoreEntity extends PathfinderMob {
             this.storeItems.get(i).restock();
         }
         this.refreshRandomItems();
+        this.refreshFestivalItems();
+    }
+
+    /**
+     * 刷新节日限定商品（每日补货时调用）。
+     *
+     * <p>平时不上架；对应节日激活时补全并重置库存，节日未激活时全部下架。
+     * 挂在 {@link #refreshRandomItems()} 之后，避免被随机商品清空逻辑误删。
+     */
+    protected void refreshFestivalItems() {
+        if (this.level().isClientSide || this.festivalCatalogEntries.isEmpty()) {
+            return;
+        }
+        this.storeItems.removeIf(item -> item.getFestivalId() != null);
+        for (CatalogEntry entry : this.festivalCatalogEntries) {
+            if (this.isFestivalActive(entry.festivalId())) {
+                this.storeItems.add(
+                        new StoreItem(
+                                entry.stack().copy(),
+                                entry.price(),
+                                entry.maxStock(),
+                                entry.festivalId()));
+            }
+        }
     }
 
     /**
@@ -1020,14 +1098,37 @@ public abstract class StoreEntity extends PathfinderMob {
             int maxStock,
             int requiredFavorLevel,
             @Nullable String requiredAdvancementId,
-            @Nullable String requiredAdvancementTitleKey) {
+            @Nullable String requiredAdvancementTitleKey,
+            @Nullable String festivalId) {
 
         public CatalogEntry(ItemStack stack, int price, int maxStock) {
-            this(stack, price, maxStock, 1, null, null);
+            this(stack, price, maxStock, 1, null, null, null);
         }
 
         public CatalogEntry(ItemStack stack, int price, int maxStock, int requiredFavorLevel) {
-            this(stack, price, maxStock, requiredFavorLevel, null, null);
+            this(stack, price, maxStock, requiredFavorLevel, null, null, null);
+        }
+
+        public CatalogEntry(
+                ItemStack stack,
+                int price,
+                int maxStock,
+                int requiredFavorLevel,
+                @Nullable String requiredAdvancementId,
+                @Nullable String requiredAdvancementTitleKey) {
+            this(
+                    stack,
+                    price,
+                    maxStock,
+                    requiredFavorLevel,
+                    requiredAdvancementId,
+                    requiredAdvancementTitleKey,
+                    null);
+        }
+
+        /** 节日限定商品：仅对应节日期间随每日补货上架（平时不出现） */
+        public CatalogEntry(ItemStack stack, int price, int maxStock, @Nullable String festivalId) {
+            this(stack, price, maxStock, 1, null, null, festivalId);
         }
     }
 
@@ -1050,13 +1151,18 @@ public abstract class StoreEntity extends PathfinderMob {
      *
      * <p>根据条目属性路由到对应的添加方法，与原先各子类在
      * {@code initDefaultStoreItems()} 中的调用顺序保持一致。
+     * 节日限定条目不直接上架，仅登记到 {@link #festivalCatalogEntries}，
+     * 由每日补货逻辑在节日期间动态上架/下架。
      */
     protected void applyCatalog(List<CatalogEntry> entries) {
+        this.festivalCatalogEntries.clear();
         for (CatalogEntry entry : entries) {
             if (entry.stack() == null || entry.stack().isEmpty()) {
                 continue;
             }
-            if (entry.requiredAdvancementId() != null && !entry.requiredAdvancementId().isBlank()) {
+            if (entry.festivalId() != null && !entry.festivalId().isBlank()) {
+                this.festivalCatalogEntries.add(entry);
+            } else if (entry.requiredAdvancementId() != null && !entry.requiredAdvancementId().isBlank()) {
                 ResourceLocation id = ResourceLocation.tryParse(entry.requiredAdvancementId());
                 if (id != null) {
                     this.addAchievementsStoreItem(
@@ -1089,6 +1195,7 @@ public abstract class StoreEntity extends PathfinderMob {
         @Nullable private final String requiredAdvancementId;
         @Nullable private final String requiredAdvancementTitleKey;
         private final boolean viewerLocked;
+        @Nullable private final String festivalId;
 
         public StoreItem(ItemStack itemStack, int price) {
             this(itemStack, price, -1, -1, 1, true, null, null, false);
@@ -1160,6 +1267,10 @@ public abstract class StoreEntity extends PathfinderMob {
                     false);
         }
 
+        public StoreItem(ItemStack itemStack, int price, int maxStock, @Nullable String festivalId) {
+            this(itemStack, price, maxStock, maxStock, 1, true, null, null, false, festivalId);
+        }
+
         public StoreItem(
                 ItemStack itemStack,
                 int price,
@@ -1170,6 +1281,30 @@ public abstract class StoreEntity extends PathfinderMob {
                 @Nullable String requiredAdvancementId,
                 @Nullable String requiredAdvancementTitleKey,
                 boolean viewerLocked) {
+            this(
+                    itemStack,
+                    price,
+                    maxStock,
+                    currentStock,
+                    requiredFavorLevel,
+                    restockable,
+                    requiredAdvancementId,
+                    requiredAdvancementTitleKey,
+                    viewerLocked,
+                    null);
+        }
+
+        public StoreItem(
+                ItemStack itemStack,
+                int price,
+                int maxStock,
+                int currentStock,
+                int requiredFavorLevel,
+                boolean restockable,
+                @Nullable String requiredAdvancementId,
+                @Nullable String requiredAdvancementTitleKey,
+                boolean viewerLocked,
+                @Nullable String festivalId) {
             this.itemStack = itemStack;
             this.price = price;
             this.maxStock = maxStock;
@@ -1185,6 +1320,8 @@ public abstract class StoreEntity extends PathfinderMob {
                             ? null
                             : requiredAdvancementTitleKey;
             this.viewerLocked = viewerLocked;
+            this.festivalId =
+                    festivalId == null || festivalId.isBlank() ? null : festivalId;
         }
 
         public ItemStack getItemStack() {
@@ -1231,6 +1368,12 @@ public abstract class StoreEntity extends PathfinderMob {
 
         public boolean isViewerLocked() {
             return this.viewerLocked;
+        }
+
+        /** 所属节日（节日限定商品），null 表示普通商品 */
+        @Nullable
+        public String getFestivalId() {
+            return this.festivalId;
         }
 
         /** 是否无限库存 */
@@ -1280,13 +1423,19 @@ public abstract class StoreEntity extends PathfinderMob {
             if (requiredAdvancementTitleKey != null) {
                 tag.putString("RequiredAdvancementTitleKey", requiredAdvancementTitleKey);
             }
+            if (festivalId != null) {
+                tag.putString("FestivalId", festivalId);
+            }
             return tag;
         }
 
         public CompoundTag saveForNetwork(
                 HolderLookup.Provider provider, ServerPlayer viewer, StoreEntity storeEntity) {
             CompoundTag tag = save(provider);
-            tag.putBoolean("ViewerLocked", !storeEntity.isProgressRequirementMet(viewer, this));
+            tag.putBoolean(
+                    "ViewerLocked",
+                    !storeEntity.isProgressRequirementMet(viewer, this)
+                            || !storeEntity.isFestivalItemAvailable(this));
             return tag;
         }
 
@@ -1310,6 +1459,8 @@ public abstract class StoreEntity extends PathfinderMob {
                             ? tag.getString("RequiredAdvancementTitleKey")
                             : null;
             boolean viewerLocked = tag.contains("ViewerLocked") && tag.getBoolean("ViewerLocked");
+            String festivalId =
+                    tag.contains("FestivalId", Tag.TAG_STRING) ? tag.getString("FestivalId") : null;
             return new StoreItem(
                     stack,
                     price,
@@ -1319,7 +1470,8 @@ public abstract class StoreEntity extends PathfinderMob {
                     restockable,
                     requiredAdvancementId,
                     requiredAdvancementTitleKey,
-                    viewerLocked);
+                    viewerLocked,
+                    festivalId);
         }
     }
 }

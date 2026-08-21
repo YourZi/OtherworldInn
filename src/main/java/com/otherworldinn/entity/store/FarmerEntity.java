@@ -46,6 +46,20 @@ public class FarmerEntity extends StoreEntity {
             TagKey.create(
                     Registries.ITEM,
                     ResourceLocation.fromNamespaceAndPath(SERENE_SEASONS_MOD_ID, "year_round_crops"));
+    private static final List<Item> SPRING_FLOWERS =
+            List.of(
+                    Items.DANDELION,
+                    Items.POPPY,
+                    Items.BLUE_ORCHID,
+                    Items.ALLIUM,
+                    Items.AZURE_BLUET,
+                    Items.RED_TULIP,
+                    Items.ORANGE_TULIP,
+                    Items.WHITE_TULIP,
+                    Items.PINK_TULIP,
+                    Items.OXEYE_DAISY,
+                    Items.CORNFLOWER,
+                    Items.LILY_OF_THE_VALLEY);
     private static final List<SeasonalProduct> SEASONAL_PRODUCTS =
             List.of(
                     new SeasonalProduct(() -> new ItemStack(Items.SUGAR_CANE), 2, 64),
@@ -96,6 +110,26 @@ public class FarmerEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(AllItems.TREE_FERTILIZER.get()), 6, 64, 4));
         entries.add(new CatalogEntry(new ItemStack(ModItems.SCARECROW.get()), 24, 8, 6));
         entries.add(new CatalogEntry(new ItemStack(Items.NETHERITE_HOE), 64, 1, 8));
+
+        // 节日限定（春祭）
+        entries.add(new CatalogEntry(new ItemStack(Items.CHERRY_SAPLING), 24, 16, "spring_festival"));
+        entries.add(new CatalogEntry(new ItemStack(Items.BONE_MEAL), 8, 4, "spring_festival"));
+        entries.add(new CatalogEntry(new ItemStack(Items.HONEYCOMB), 18, 16, "spring_festival"));
+        entries.add(new CatalogEntry(new ItemStack(Items.HONEY_BOTTLE), 12, 16, "spring_festival"));
+        for (Item flower : SPRING_FLOWERS) {
+            entries.add(new CatalogEntry(new ItemStack(flower), 4, 16, "spring_festival"));
+        }
+        entries.add(new CatalogEntry(new ItemStack(Items.FLOWER_POT), 6, 16, "spring_festival"));
+        entries.add(new CatalogEntry(new ItemStack(Items.RABBIT_HIDE), 10, 16, "spring_festival"));
+        // 春祭跨模组商品（厨房/酒馆/钓鱼）
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:qingtuan"), 18, 16, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:fried_spring_roll"), 16, 16, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:sakura_fubuki"), 24, 12, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:biluochun"), 20, 12, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_cookery:tieguanyin"), 22, 12, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:sakura_wine"), 40, 8, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("kaleidoscope_tavern:plum_wine"), 32, 8, "spring_festival"));
+        entries.add(new CatalogEntry(createStack("starcatcher:cherry_bait"), 8, 16, "spring_festival"));
         return entries;
     }
 

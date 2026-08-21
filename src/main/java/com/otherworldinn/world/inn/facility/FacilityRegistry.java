@@ -275,8 +275,8 @@ public final class FacilityRegistry {
                 "Mine",
                 "矿井",
                 3,
-                new BlockPos(0, 70, -60),
-                new FacilityRange(new BlockPos(-3, 68, -63), new BlockPos(3, 74, -57)),
+                new BlockPos(9, 71, 79),
+                new FacilityRange(new BlockPos(-17, 70, 66), new BlockPos(7, 81, 91)),
                 List.of(
                         new LevelUpgradeCost(
                                 List.of(

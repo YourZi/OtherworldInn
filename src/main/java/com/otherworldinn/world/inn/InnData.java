@@ -11,6 +11,9 @@ import com.otherworldinn.util.BlockEntitySearchUtils;
 import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.event.listener.TownZonePolicyService;
+import com.otherworldinn.world.festival.FestivalEffect;
+import com.otherworldinn.world.festival.FestivalService;
+import com.otherworldinn.world.festival.InnAttributeBoostEffect;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.inn.decoration.InnDecorationRegistry;
 import com.otherworldinn.world.inn.decoration.InnDecorationStats;
@@ -226,9 +229,12 @@ public class InnData {
      *
      * @param amount 增加的数值
      */
-    public void addReputation(int amount) {
+    public void addReputation(int amount, ServerLevel level) {
         if (amount > 0) {
             amount = applyPositiveBuff(amount, InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER);
+            amount =
+                    applyFestivalAttributeBoost(
+                            amount, InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, level);
         }
         this.reputation += amount;
         if (this.reputation < 0) {
@@ -265,12 +271,30 @@ public class InnData {
         return yesterdayLodgingIncome + yesterdayDiningIncome + yesterdayOtherIncome;
     }
 
-    public int calculateLodgingIncomeAmount(int baseAmount) {
-        return applyPositiveBuff(baseAmount, InnDecorationBuffType.LODGING_INCOME_MULTIPLIER);
+    public int calculateLodgingIncomeAmount(int baseAmount, ServerLevel level) {
+        int amount = applyPositiveBuff(baseAmount, InnDecorationBuffType.LODGING_INCOME_MULTIPLIER);
+        return applyFestivalAttributeBoost(
+                amount, InnAttributeBoostEffect.ATTR_LODGING_INCOME, level);
     }
 
-    public int calculateDiningIncomeAmount(int baseAmount) {
-        return applyPositiveBuff(baseAmount, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
+    public int calculateDiningIncomeAmount(int baseAmount, ServerLevel level) {
+        int amount = applyPositiveBuff(baseAmount, InnDecorationBuffType.DINING_INCOME_MULTIPLIER);
+        return applyFestivalAttributeBoost(
+                amount, InnAttributeBoostEffect.ATTR_DINING_INCOME, level);
+    }
+
+    /** 应用节日旅社属性加成（加成后不少于原值） */
+    private int applyFestivalAttributeBoost(int amount, String attribute, ServerLevel level) {
+        if (amount <= 0) {
+            return amount;
+        }
+        double boost =
+                FestivalService.queryValue(
+                        level, FestivalEffect.KEY_INN_ATTRIBUTE_BOOST, attribute);
+        if (boost <= 0.0D) {
+            return amount;
+        }
+        return Math.max(amount, (int) Math.round(amount * (1.0D + boost)));
     }
 
     public int calculateDiningDisplaySaleAmount(
@@ -279,7 +303,7 @@ public class InnData {
             return baseAmount;
         }
         if (!InnMenuDishRegistry.isMenuDish(soldStack)) {
-            return calculateDiningIncomeAmount(baseAmount);
+            return calculateDiningIncomeAmount(baseAmount, level);
         }
         return applyDiningDisplayBuffs(baseAmount, level, team);
     }
@@ -1776,7 +1800,8 @@ public class InnData {
 
         if (isAngry) {
             int reputationLoss = 2 + level.random.nextInt(5);
-            this.addReputation(scaleGuestReputationDelta(guestEntity, -reputationLoss));
+            this.addReputation(
+                    scaleGuestReputationDelta(guestEntity, -reputationLoss), level);
             if (entity != null) {
                 level.broadcastEntityEvent(entity, (byte) 13);
                 level.sendParticles(
@@ -1875,7 +1900,7 @@ public class InnData {
             }
             if (isNormalCheckout && team != null) {
                 int basePrice = targetRoom.getBedPrice(this.rating);
-                int finalPrice = calculateLodgingIncomeAmount(basePrice);
+                int finalPrice = calculateLodgingIncomeAmount(basePrice, level);
                 TeamManager.getInstance().addCoins(team, finalPrice, level.getServer());
                 this.recordLodgingIncome(finalPrice, level);
                 InnStatHelper.awardTeamMemberStat(team, level.getServer(), ModStats.GUESTS_CHECKED_OUT);
@@ -1885,15 +1910,18 @@ public class InnData {
                 int score = guest.getPreferenceScore();
                 int baseReputationGain = Math.max(2, Math.min(10, score));
                 if (!vipGuest) {
-                    this.addReputation(scaleGuestReputationDelta(guestEntity, baseReputationGain));
+                    this.addReputation(
+                            scaleGuestReputationDelta(guestEntity, baseReputationGain), level);
                 } else {
                     int mismatchCount = countPreferenceMismatch(guest, targetRoom);
                     if (mismatchCount == 0) {
                         int vipReputationGain = Math.max(1, Math.round(baseReputationGain * 1.7f));
-                        this.addReputation(scaleGuestReputationDelta(guestEntity, vipReputationGain));
+                        this.addReputation(
+                                scaleGuestReputationDelta(guestEntity, vipReputationGain), level);
                     } else if (mismatchCount >= 2) {
                         int vipReputationLoss = 2 + level.random.nextInt(5);
-                        this.addReputation(scaleGuestReputationDelta(guestEntity, -vipReputationLoss));
+                        this.addReputation(
+                                scaleGuestReputationDelta(guestEntity, -vipReputationLoss), level);
                     }
                 }
             }

@@ -12,7 +12,8 @@ public record NpcStoreJeiRecipe(
         int maxStock,
         int requiredFavorLevel,
         @Nullable String requiredAdvancementTitleKey,
-        boolean randomOffer) {
+        boolean randomOffer,
+        @Nullable String festivalId) {
 
     public NpcStoreJeiRecipe {
         minPrice = Math.max(1, minPrice);

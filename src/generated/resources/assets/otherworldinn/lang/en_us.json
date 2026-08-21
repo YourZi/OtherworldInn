@@ -658,6 +658,7 @@
   "itemGroup.otherworldinn": "Otherworld Inn",
   "jei.otherworldinn.npc_store.advancement": "Advancement Required: %s",
   "jei.otherworldinn.npc_store.favor": "Favor Required: Lv.%s",
+  "jei.otherworldinn.npc_store.festival_exclusive": "[%s] Limited",
   "jei.otherworldinn.npc_store.infinite": "Infinite",
   "jei.otherworldinn.npc_store.price": "Price: %s coins",
   "jei.otherworldinn.npc_store.random": "Daily Random Offer",

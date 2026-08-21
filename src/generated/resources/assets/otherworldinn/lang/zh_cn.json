@@ -658,6 +658,7 @@
   "itemGroup.otherworldinn": "旅社物语",
   "jei.otherworldinn.npc_store.advancement": "进度需求: %s",
   "jei.otherworldinn.npc_store.favor": "好感需求: Lv.%s",
+  "jei.otherworldinn.npc_store.festival_exclusive": "[%s]限定",
   "jei.otherworldinn.npc_store.infinite": "无限",
   "jei.otherworldinn.npc_store.price": "价格: %s 金币",
   "jei.otherworldinn.npc_store.random": "每日随机商品",

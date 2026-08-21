@@ -1062,6 +1062,7 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("jei.otherworldinn.npc_store.price").zh("价格: %s 金币").en("Price: %s coins");
         entry("jei.otherworldinn.npc_store.stock").zh("库存: %s").en("Stock: %s");
         entry("jei.otherworldinn.npc_store.favor").zh("好感需求: Lv.%s").en("Favor Required: Lv.%s");
+        entry("jei.otherworldinn.npc_store.festival_exclusive").zh("[%s]限定").en("[%s] Limited");
         entry("jei.otherworldinn.npc_store.advancement").zh("进度需求: %s").en("Advancement Required: %s");
         entry("jei.otherworldinn.npc_store.random").zh("每日随机商品").en("Daily Random Offer");
         entry("jei.otherworldinn.npc_store.infinite").zh("无限").en("Infinite");

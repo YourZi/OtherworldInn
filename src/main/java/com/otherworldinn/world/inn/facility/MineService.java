@@ -4,6 +4,8 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.data.TownSavedData;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.festival.FestivalEffect;
+import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.inn.facility.FacilityRegistry.FacilityDefinition;
 import com.otherworldinn.world.inn.facility.FacilityRegistry.FacilityRange;
 import com.otherworldinn.world.team.TeamData;
@@ -116,6 +118,9 @@ public final class MineService {
         if (barrel == null) {
             return;
         }
+        double boost =
+                FestivalService.queryValue(
+                        townLevel, FestivalEffect.KEY_FACILITY_YIELD_BOOST, facility.id());
         for (GuaranteedDrop drop : guaranteedDrops()) {
             if (drop.minLevel() > facilityLevel) {
                 continue;
@@ -123,7 +128,7 @@ public final class MineService {
             int count =
                     drop.minCount()
                             + townLevel.random.nextInt(drop.maxCount() - drop.minCount() + 1);
-            addToBarrel(barrel, new ItemStack(drop.item(), count));
+            addToBarrel(barrel, new ItemStack(drop.item(), applyYieldBoost(count, boost)));
         }
         for (RareDrop drop : rareDrops()) {
             if (drop.minLevel() > facilityLevel || townLevel.random.nextDouble() >= drop.chance()) {
@@ -132,8 +137,16 @@ public final class MineService {
             int count =
                     drop.minCount()
                             + townLevel.random.nextInt(drop.maxCount() - drop.minCount() + 1);
-            addToBarrel(barrel, new ItemStack(drop.item(), count));
+            addToBarrel(barrel, new ItemStack(drop.item(), applyYieldBoost(count, boost)));
         }
+    }
+
+    /** 应用节日产出加成（加成后不少于原数量） */
+    private static int applyYieldBoost(int count, double boost) {
+        if (boost <= 0.0D) {
+            return count;
+        }
+        return Math.max(count, (int) Math.round(count * (1.0D + boost)));
     }
 
     /** 查找设施范围内唯一的木桶（设计上范围内只放置一个） */
