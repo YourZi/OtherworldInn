@@ -6,6 +6,7 @@ import com.otherworldinn.entity.guest.StoryGuestEntity;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
+import com.otherworldinn.world.festival.FestivalDialogueRegistry;
 import com.otherworldinn.world.inn.InnTodo;
 import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.storyguest.StoryGuestTodoRegistry;
@@ -69,6 +70,8 @@ public final class DialogueService {
         if (definition == null) {
             return false;
         }
+        // 节日激活期间用节日问候版对话替换（仅换 root 文案，结构原样保留）
+        definition = FestivalDialogueRegistry.overrideIfFestivalActive(definition, entity);
         DialogueNodeDef root = definition.getNode(definition.rootNodeId());
         if (root == null) {
             return false;

@@ -13,6 +13,7 @@ import com.otherworldinn.world.dialogue.DialogueOptionDef;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
+import com.otherworldinn.world.festival.FestivalDialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
 import java.util.HashSet;
 import java.util.List;
@@ -1339,6 +1340,13 @@ public class ModLanguageProvider extends LanguageProvider {
                         entry(optionKey).zh(option.label().zh()).en(option.label().en());
                     }
                 }
+            }
+        }
+        // 节日版对话：克隆自基础对话，选项 key 已在上面注册过（seenOptionKeys 去重），
+        // 此处只需注册各节点的新 text key（root 为节日问候，其余与基础对话文案相同）
+        for (DialogueDefinition dialogue : FestivalDialogueRegistry.allFestivalDialogues()) {
+            for (DialogueNodeDef node : dialogue.nodes().values()) {
+                entry(dialogue.nodeTextKey(node.id())).zh(node.text().zh()).en(node.text().en());
             }
         }
     }
