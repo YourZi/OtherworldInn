@@ -268,13 +268,12 @@ public final class FacilityRegistry {
                         List.of(new FacilityRange(new BlockPos(-2, 71, 63), new BlockPos(-23, 75, 51)))));
 
         // TODO 矿井：centerPos / facilityRange 为临时占位坐标，正式建筑与坐标待设计确定
-        // TODO 结构 NBT：data/otherworldinn/structure/facility/mine/level_0..3.nbt 待补充
         registerFacility(
                 "mine",
                 "Mine",
                 "矿井",
                 3,
-                new BlockPos(9, 71, 79),
+                new BlockPos(-17, 70, 66),
                 new FacilityRange(new BlockPos(-17, 70, 66), new BlockPos(7, 81, 91)),
                 List.of(
                         new LevelUpgradeCost(

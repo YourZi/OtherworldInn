@@ -22,7 +22,8 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class TownStructurePlacer {
 
-    private static final int CENTER_CHUNK_RADIUS = 2;
+    /** 城镇中心常加载区块半径（结构贴图要求目标区块已加载，装饰区域选点须落在该范围内） */
+    public static final int CENTER_CHUNK_RADIUS = 2;
     public static final int NO_DROPS_REPLACE_FLAGS =
             Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS;
 
@@ -48,7 +49,7 @@ public class TownStructurePlacer {
                 level,
                 structureId,
                 origin,
-                2,
+                NO_DROPS_REPLACE_FLAGS,
                 TownZonePolicyService.ProtectionBypassReason.FACILITY_UPGRADE);
     }
 

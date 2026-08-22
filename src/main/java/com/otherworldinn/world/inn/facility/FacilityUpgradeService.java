@@ -63,13 +63,7 @@ public final class FacilityUpgradeService {
         }
         if (context.nextLevelDefinition() == null) {
             if (context.currentLevel() >= context.facility().maxLevel()) {
-                if ("boiler_room".equals(context.facility().id())) {
-                    AdvancementUtils.award(player, AdvancementUtils.BOILER_ROOM_MAX_LEVEL);
-                } else if ("greenhouse".equals(context.facility().id())) {
-                    AdvancementUtils.award(player, AdvancementUtils.GREENHOUSE_MAX_LEVEL);
-                } else if ("mine".equals(context.facility().id())) {
-                    AdvancementUtils.award(player, AdvancementUtils.MINE_MAX_LEVEL);
-                }
+                awardFacilityMaxLevel(player, context.facility().id());
                 if (isAllFacilitiesAtMaxLevel(context.team())) {
                     AdvancementUtils.award(player, AdvancementUtils.ALL_FACILITY_MAX_LEVEL);
                 }
@@ -138,11 +132,7 @@ public final class FacilityUpgradeService {
             MineService.refreshBarrelCache(serverLevel, context.facility());
         }
         if (next.level() >= context.facility().maxLevel()) {
-            if ("boiler_room".equals(context.facility().id())) {
-                AdvancementUtils.award(player, AdvancementUtils.BOILER_ROOM_MAX_LEVEL);
-            } else if ("greenhouse".equals(context.facility().id())) {
-                AdvancementUtils.award(player, AdvancementUtils.GREENHOUSE_MAX_LEVEL);
-            }
+            awardFacilityMaxLevel(player, context.facility().id());
         }
         if (isAllFacilitiesAtMaxLevel(team)) {
             AdvancementUtils.award(player, AdvancementUtils.ALL_FACILITY_MAX_LEVEL);
@@ -181,6 +171,16 @@ public final class FacilityUpgradeService {
             }
         }
         return true;
+    }
+
+    private static void awardFacilityMaxLevel(ServerPlayer player, String facilityId) {
+        if ("boiler_room".equals(facilityId)) {
+            AdvancementUtils.award(player, AdvancementUtils.BOILER_ROOM_MAX_LEVEL);
+        } else if ("greenhouse".equals(facilityId)) {
+            AdvancementUtils.award(player, AdvancementUtils.GREENHOUSE_MAX_LEVEL);
+        } else if ("mine".equals(facilityId)) {
+            AdvancementUtils.award(player, AdvancementUtils.MINE_MAX_LEVEL);
+        }
     }
 
     private static void applyToolCooldown(ServerPlayer player, ItemStack toolStack) {

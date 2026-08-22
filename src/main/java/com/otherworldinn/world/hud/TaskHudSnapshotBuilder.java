@@ -58,6 +58,7 @@ public final class TaskHudSnapshotBuilder {
         addCommissionTask(tasks, player, team, todos);
         addStoryGuestTasks(tasks, player.serverLevel(), player, team, todos);
         snapshot.put("Tasks", tasks);
+        snapshot.put("Festival", FestivalHudSnapshotBuilder.buildForPlayer(player));
         return snapshot;
     }
 

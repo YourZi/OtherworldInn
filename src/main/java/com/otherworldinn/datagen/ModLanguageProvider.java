@@ -40,8 +40,55 @@ public class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
+        addPonderTranslations();
         addManualTranslations();
         addGeneratedTranslations();
+    }
+
+    private void addPonderTranslations() {
+        entry("otherworldinn.ponder.tag.inn_system").zh("旅社系统").en("Inn Systems");
+        entry("otherworldinn.ponder.tag.inn_system.description")
+                .zh("《旅社物语》的设施、房间与营业教程")
+                .en("Tutorials for facilities, rooms, and inn management in Otherworld Inn");
+
+        ponderScene("depot")
+                .header("置物台作为餐台", "Depot as Buffet Counter")
+                .text(1, "置物台可以作为自助餐台", "Depots can be used as buffet counters")
+                .text(2, "旅客会购买放置在其上的餐品", "Guests will buy the dishes placed on top");
+
+        ponderScene("greenhouse")
+                .header("温室", "Greenhouse")
+                .text(1, "温室内种植的作物会加速生长", "Crops planted in the greenhouse grow faster")
+                .text(
+                        2,
+                        "加速倍率随温室等级而增长，满级时可以达到 3 倍速以上",
+                        "The growth multiplier increases with greenhouse level and can exceed 3x at max level")
+                .text(
+                        3,
+                        "温室内的方块可以自由更改，搭建你喜欢的布局吧",
+                        "Blocks inside the greenhouse can be changed freely, so build any layout you like");
+
+        ponderScene("inn_key")
+                .header("旅社钥匙", "Inn Key")
+                .text(1, "旅社钥匙可以用于管理旅社营业状态", "The inn key can be used to manage the inn's business status")
+                .text(
+                        2,
+                        "潜行右键旅社内的服务铃来切换营业状态",
+                        "Sneak-right-click the service bell inside the inn to toggle business status");
+
+        ponderScene("room_register")
+                .header("房间登记", "Room Register")
+                .text(1, "副手持有房间登记册时，右键选点", "Hold the room register in your offhand, then right-click two corners")
+                .text(2, "房间内至少要有一张床...", "Each room must contain at least one bed...")
+                .text(3, "...和一扇门", "...and one door");
+
+        ponderScene("room_binding")
+                .header("房间绑定", "Room Binding")
+                .text(1, "手持空的房间钥匙右键绑定房间", "Right-click a room while holding an empty room key to bind it");
+    }
+
+    private PonderSceneTranslationBuilder ponderScene(String sceneId) {
+        return new PonderSceneTranslationBuilder(sceneId);
     }
 
     private void addManualTranslations() {
@@ -1435,6 +1482,24 @@ public class ModLanguageProvider extends LanguageProvider {
             if (!"zh_cn".equals(locale)) {
                 add(key, value);
             }
+            return this;
+        }
+    }
+
+    private class PonderSceneTranslationBuilder {
+        private final String prefix;
+
+        private PonderSceneTranslationBuilder(String sceneId) {
+            this.prefix = OtherworldInn.MODID + ".ponder." + sceneId + ".";
+        }
+
+        public PonderSceneTranslationBuilder header(String zh, String en) {
+            entry(prefix + "header").zh(zh).en(en);
+            return this;
+        }
+
+        public PonderSceneTranslationBuilder text(int index, String zh, String en) {
+            entry(prefix + "text_" + index).zh(zh).en(en);
             return this;
         }
     }

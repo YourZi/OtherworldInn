@@ -39,7 +39,8 @@
     "MixinScarecrowEntity",
     "MixinWaystonesInternalMethodsCoinCost",
     "MixinSchematicItemToggle",
-    "MixinSchematicPlacePacketSurvivalPrint"
+    "MixinSchematicPlacePacketSurvivalPrint",
+    "MixinBlockPopResource"
   ],
   "client": [
     "MixinDeskBellRenderer",

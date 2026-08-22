@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import com.otherworldinn.compat.waystones.WaystonesClientCompat;
 import com.otherworldinn.client.gui.screen.StoreScreen;
 import com.otherworldinn.client.gui.screen.WanderingTraderRecycleScreen;
+import com.otherworldinn.client.ponder.OtherworldInnPonderPlugin;
 import com.otherworldinn.client.renderer.BlacksmithModel;
 import com.otherworldinn.client.renderer.BlacksmithRenderer;
 import com.otherworldinn.client.renderer.BuilderModel;
@@ -35,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.network.chat.Component;
+import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -78,6 +80,9 @@ public class ModClientEvents {
                             });
                     if (ModList.get().isLoaded("waystones")) {
                         WaystonesClientCompat.init();
+                    }
+                    if (ModList.get().isLoaded("ponder")) {
+                        PonderIndex.addPlugin(new OtherworldInnPonderPlugin());
                     }
 
                     // 半透明渲染

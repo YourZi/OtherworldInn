@@ -7,6 +7,7 @@ import com.otherworldinn.network.packet.S2CFestivalShopDiscountPacket;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.data.TownSavedData;
 import com.otherworldinn.world.dimension.TownDimensions;
+import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +56,9 @@ public final class FestivalService {
     @Nullable
     private static String debugActiveFestivalId;
 
+    /** 启动对账只执行一次的标志（服务器重启后装饰状态与激活节日强制对齐） */
+    private static boolean decorationReconciled;
+
     private FestivalService() {}
 
     public static double getDebugGlobalDiscount() {
@@ -98,14 +102,19 @@ public final class FestivalService {
         if (townLevel == null || !ModList.get().isLoaded(SERENE_SEASONS_MOD_ID)) {
             return;
         }
+        if (!decorationReconciled) {
+            decorationReconciled = true;
+            FestivalDecorationService.reconcile(townLevel);
+        }
         if (debugActiveFestivalId != null) {
             // 调试模式：挂起真实季节窗口处理，避免真实节日事件与调试状态混淆
             return;
         }
         ISeasonState state = SeasonHelper.getSeasonState(townLevel);
-        Optional<FestivalDefinition> active = findActiveFestival(state);
+        Optional<FestivalDefinition> active = findActiveFestival(state, townLevel);
         TownSavedData data = TownSavedData.get(townLevel);
         String lastWindow = data.getLastFestivalWindow();
+        long currentDay = WorldDayUtils.currentDay(townLevel);
 
         if (active.isPresent()) {
             FestivalDefinition festival = active.get();
@@ -117,9 +126,14 @@ public final class FestivalService {
                 broadcastStarted(townLevel, festival, state);
                 data.setLastFestivalWindow(windowKey);
             }
+            if (data.getLastFestivalHudSyncDay() != currentDay) {
+                TaskHudSnapshotSync.syncAllTeams(townLevel);
+                data.setLastFestivalHudSyncDay(currentDay);
+            }
         } else if (lastWindow != null) {
             broadcastEnded(townLevel, lastWindow);
             data.setLastFestivalWindow(null);
+            data.setLastFestivalHudSyncDay(-1);
         }
     }
 
@@ -134,7 +148,7 @@ public final class FestivalService {
         if (!ModList.get().isLoaded(SERENE_SEASONS_MOD_ID)) {
             return Optional.empty();
         }
-        return findActiveFestival(SeasonHelper.getSeasonState(townLevel));
+        return findActiveFestival(SeasonHelper.getSeasonState(townLevel), townLevel);
     }
 
     /** 激活节日窗口信息：dayIndex 为窗口内第几天（0 起），lengthInDays 为窗口总天数 */
@@ -222,8 +236,14 @@ public final class FestivalService {
         syncShopDiscountsTo(townLevel, player);
     }
 
-    private static Optional<FestivalDefinition> findActiveFestival(ISeasonState state) {
+    private static Optional<FestivalDefinition> findActiveFestival(
+            ISeasonState state, ServerLevel townLevel) {
+        long currentDay = WorldDayUtils.currentDay(townLevel);
+        int daysPerYear = Math.max(1, state.getCycleDuration() / Math.max(1, state.getDayDuration()));
         for (FestivalDefinition festival : FestivalRegistry.getAll()) {
+            if ("spring_festival".equals(festival.id()) && currentDay < daysPerYear) {
+                continue;
+            }
             if (festival.trigger().isActive(state)) {
                 return Optional.of(festival);
             }
@@ -256,6 +276,7 @@ public final class FestivalService {
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         playCelebrationSound(townLevel);
         syncShopDiscounts(townLevel);
+        TaskHudSnapshotSync.syncAllTeams(townLevel);
     }
 
     /** 节日开始音效：烟花升空 → 1 秒后爆裂 → 再 1 秒后闪烁余韵（分类与原版烟花实体一致） */
@@ -300,6 +321,7 @@ public final class FestivalService {
                         .append(" 结束了")
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         syncShopDiscounts(townLevel);
+        TaskHudSnapshotSync.syncAllTeams(townLevel);
     }
 
     /** 向所有在线玩家广播节日提示（节日为全局共享，任意维度玩家均可见） */

@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import sereneseasons.api.season.Season;
 
 /**
@@ -15,6 +17,17 @@ import sereneseasons.api.season.Season;
  * 覆盖全部效果类型的示例节日，可直接复制改造成正式节日。
  */
 public final class FestivalRegistry {
+    /** 节日装饰效果：通用喷泉（全部节日共用），快照对待导出至 structure/festival/common/ */
+    private static final FestivalDecorationEffect DECORATION_EFFECT =
+            new FestivalDecorationEffect(
+                    List.of(
+                            new FestivalDecorationService.DecorationRegion(
+                                    ResourceLocation.fromNamespaceAndPath(
+                                            OtherworldInn.MODID, "festival/common/fountain"),
+                                    ResourceLocation.fromNamespaceAndPath(
+                                            OtherworldInn.MODID, "festival/common/fountain_base"),
+                                    new BlockPos(-4, 70, -4))));
+
     private static final Map<String, FestivalDefinition> FESTIVALS = new LinkedHashMap<>();
 
     static {
@@ -36,7 +49,7 @@ public final class FestivalRegistry {
                 "Spring Festival",
                 "春祭",
                 new FestivalTrigger(Season.SPRING, 0, 3), // 早春 day 1-3
-                List.of(new ShopSaleEffect(Map.of("farmer", 0.2D))));
+                List.of(new ShopSaleEffect(Map.of("farmer", 0.2D)), DECORATION_EFFECT));
 
         // 仲夏夜：仲夏 day 5-7，故事客人刷新 +100%
         registerFestival(
@@ -44,7 +57,7 @@ public final class FestivalRegistry {
                 "Midsummer Night",
                 "仲夏夜",
                 new FestivalTrigger(Season.SUMMER, 12, 15), // 仲夏 day 5-7
-                List.of(new GuestSpawnBoostEffect(Map.of("", 1.0D))));
+                List.of(new GuestSpawnBoostEffect(Map.of("", 1.0D)), DECORATION_EFFECT));
 
         // 秋收祭：晚秋 day 1-4，餐饮收益 +30%、顾客好感度 +25%
         registerFestival(
@@ -56,7 +69,8 @@ public final class FestivalRegistry {
                         new InnAttributeBoostEffect(
                                 Map.of(
                                         InnAttributeBoostEffect.ATTR_DINING_INCOME, 0.3D,
-                                        InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, 0.25D))));
+                                        InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, 0.25D)),
+                        DECORATION_EFFECT));
 
         // 隆冬节：隆冬 day 1-3，入住费 +50%、矿井产出 +30%、商店全场 85 折
         registerFestival(
@@ -68,7 +82,8 @@ public final class FestivalRegistry {
                         new InnAttributeBoostEffect(
                                 Map.of(InnAttributeBoostEffect.ATTR_LODGING_INCOME, 0.5D)),
                         new FacilityYieldBoostEffect(Map.of("mine", 0.3D)),
-                        new ShopSaleEffect(Map.of("", 0.15D))));
+                        new ShopSaleEffect(Map.of("", 0.15D)),
+                        DECORATION_EFFECT));
     }
 
     /**

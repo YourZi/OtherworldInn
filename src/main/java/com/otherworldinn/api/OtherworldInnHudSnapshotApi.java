@@ -1,5 +1,6 @@
 package com.otherworldinn.api;
 
+import com.otherworldinn.world.hud.FestivalHudSnapshotBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
@@ -29,6 +30,7 @@ public final class OtherworldInnHudSnapshotApi {
         CompoundTag snapshot = new CompoundTag();
         snapshot.putInt("FormatVersion", 1);
         snapshot.put("Tasks", new ListTag());
+        snapshot.put("Festival", FestivalHudSnapshotBuilder.inactiveFestivalTag());
         return snapshot;
     }
 
@@ -40,6 +42,9 @@ public final class OtherworldInnHudSnapshotApi {
         normalized.putInt("FormatVersion", 1);
         if (!normalized.contains("Tasks")) {
             normalized.put("Tasks", new ListTag());
+        }
+        if (!normalized.contains("Festival")) {
+            normalized.put("Festival", FestivalHudSnapshotBuilder.inactiveFestivalTag());
         }
         return normalized;
     }

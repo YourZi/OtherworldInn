@@ -39,8 +39,7 @@ public final class MineService {
     public static final String MINE_FACILITY_ID = "mine";
 
     /** 矿井结构内预设木桶坐标：优先检查该坐标，不是木桶再遍历设施范围 */
-    // TODO 矿井结构 NBT 定稿后，将 MINE_BARREL_DESIGN_POS 校准为结构中木桶的实际坐标
-    private static final BlockPos MINE_BARREL_DESIGN_POS = new BlockPos(0, 0, 0);
+    private static final BlockPos MINE_BARREL_DESIGN_POS = new BlockPos(4, 72, 81);
 
     /** 已定位的木桶坐标缓存：修复/升级时定位一次，日常产出直接复用，失效后重新定位 */
     @Nullable

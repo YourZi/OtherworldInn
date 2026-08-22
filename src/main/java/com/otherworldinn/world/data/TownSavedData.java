@@ -36,6 +36,11 @@ public class TownSavedData extends SavedData {
     /** 最近一次广播的节日窗口标识（festivalId@窗口起始世界日），null 表示当前无激活节日 */
     @Nullable
     private String lastFestivalWindow = null;
+    /** 最近一次同步节日 HUD 剩余天数的世界日，-1 表示当前无已记录同步 */
+    private long lastFestivalHudSyncDay = -1;
+    /** 当前处于哪个节日的装饰态（装饰结构已贴入世界），null 表示无装饰 */
+    @Nullable
+    private String decoratedFestivalId = null;
 
     public static TownSavedData get(ServerLevel level) {
         return level.getDataStorage()
@@ -61,6 +66,12 @@ public class TownSavedData extends SavedData {
                 tag.contains("lastFestivalWindow")
                         ? tag.getString("lastFestivalWindow")
                         : null;
+        data.lastFestivalHudSyncDay =
+                tag.contains("lastFestivalHudSyncDay") ? tag.getLong("lastFestivalHudSyncDay") : -1;
+        data.decoratedFestivalId =
+                tag.contains("decoratedFestivalId")
+                        ? tag.getString("decoratedFestivalId")
+                        : null;
         return data;
     }
 
@@ -77,6 +88,10 @@ public class TownSavedData extends SavedData {
         tag.putLong("lastMineFillDay", lastMineFillDay);
         if (lastFestivalWindow != null) {
             tag.putString("lastFestivalWindow", lastFestivalWindow);
+        }
+        tag.putLong("lastFestivalHudSyncDay", lastFestivalHudSyncDay);
+        if (decoratedFestivalId != null) {
+            tag.putString("decoratedFestivalId", decoratedFestivalId);
         }
         return tag;
     }
@@ -151,6 +166,25 @@ public class TownSavedData extends SavedData {
 
     public void setLastFestivalWindow(@Nullable String lastFestivalWindow) {
         this.lastFestivalWindow = lastFestivalWindow;
+        this.setDirty();
+    }
+
+    public long getLastFestivalHudSyncDay() {
+        return lastFestivalHudSyncDay;
+    }
+
+    public void setLastFestivalHudSyncDay(long lastFestivalHudSyncDay) {
+        this.lastFestivalHudSyncDay = lastFestivalHudSyncDay;
+        this.setDirty();
+    }
+
+    @Nullable
+    public String getDecoratedFestivalId() {
+        return decoratedFestivalId;
+    }
+
+    public void setDecoratedFestivalId(@Nullable String decoratedFestivalId) {
+        this.decoratedFestivalId = decoratedFestivalId;
         this.setDirty();
     }
 }

@@ -64,7 +64,8 @@ public final class TownZonePolicyService {
         TRADER_SHIP_REBUILD,
         CHECKOUT_CLUTTER_SPAWN,
         ROOM_CLEAN_CLUTTER,
-        CREATIVE_PLAYER_ACTION
+        CREATIVE_PLAYER_ACTION,
+        FESTIVAL_DECORATION
     }
 
     public record MovePair(@Nullable BlockPos fromPos, @Nullable BlockPos toPos) {}
@@ -322,6 +323,11 @@ public final class TownZonePolicyService {
 
     private static boolean isProtectedCropChange(BlockState oldState, BlockState newState) {
         return isProtectedCropState(oldState) || isProtectedCropState(newState);
+    }
+
+    /** 保护旁路是否激活（仅在结构贴图等受控世界写入的 try-with-resources 窗口内为真） */
+    public static boolean isProtectionBypassActive() {
+        return !BYPASS_STACK.get().isEmpty();
     }
 
     public static ProtectionBypassScope beginProtectionBypass(
