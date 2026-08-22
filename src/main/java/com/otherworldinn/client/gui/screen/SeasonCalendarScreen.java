@@ -35,10 +35,8 @@ public class SeasonCalendarScreen extends Screen {
             texture("textures/gui/calendar/winter.png");
     private static final ResourceLocation HIGHLIGHT_TEXTURE =
             texture("textures/gui/calendar/day_highlight.png");
-    private static final ResourceLocation LEFT_ARROW_TEXTURE =
-            texture("textures/gui/calendar/arrow_left.png");
-    private static final ResourceLocation RIGHT_ARROW_TEXTURE =
-            texture("textures/gui/calendar/arrow_right.png");
+    private static final ResourceLocation ARROW_ATLAS_TEXTURE =
+            texture("textures/gui/calendar/arrows.png");
 
     private SeasonPage currentSeasonPage;
     private SeasonPage selectedSeasonPage;
@@ -66,12 +64,12 @@ public class SeasonCalendarScreen extends Screen {
         addRenderableWidget(new ArrowButton(
                 backgroundLeft - arrowSize - arrowGap,
                 arrowY,
-                LEFT_ARROW_TEXTURE,
+                true,
                 button -> this.selectedSeasonPage = this.selectedSeasonPage.previous()));
         addRenderableWidget(new ArrowButton(
                 backgroundLeft + backgroundWidth + arrowGap,
                 arrowY,
-                RIGHT_ARROW_TEXTURE,
+                false,
                 button -> this.selectedSeasonPage = this.selectedSeasonPage.next()));
     }
 
@@ -201,9 +199,9 @@ public class SeasonCalendarScreen extends Screen {
     }
 
     private static final class ArrowButton extends Button {
-        private final ResourceLocation texture;
+        private final boolean leftArrow;
 
-        private ArrowButton(int x, int y, ResourceLocation texture, OnPress onPress) {
+        private ArrowButton(int x, int y, boolean leftArrow, OnPress onPress) {
             super(
                     x,
                     y,
@@ -212,21 +210,23 @@ public class SeasonCalendarScreen extends Screen {
                     Component.empty(),
                     onPress,
                     DEFAULT_NARRATION);
-            this.texture = texture;
+            this.leftArrow = leftArrow;
         }
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            int texX = this.leftArrow ? 0 : ARROW_TEXTURE_SIZE;
+            int texY = this.isHoveredOrFocused() ? ARROW_TEXTURE_SIZE : 0;
             guiGraphics.blit(
-                    this.texture,
+                    ARROW_ATLAS_TEXTURE,
                     getX(),
                     getY(),
-                    0,
-                    0,
+                    texX,
+                    texY,
                     ARROW_TEXTURE_SIZE,
                     ARROW_TEXTURE_SIZE,
-                    ARROW_TEXTURE_SIZE,
-                    ARROW_TEXTURE_SIZE);
+                    ARROW_TEXTURE_SIZE * 2,
+                    ARROW_TEXTURE_SIZE * 2);
         }
     }
 }
