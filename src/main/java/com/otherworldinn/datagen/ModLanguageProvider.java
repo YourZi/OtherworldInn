@@ -10,11 +10,12 @@ import com.otherworldinn.world.commission.CommissionRegistry;
 import com.otherworldinn.world.dialogue.DialogueDefinition;
 import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
-import com.otherworldinn.world.storyguest.StoryGuestDefinition;
-import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
+import com.otherworldinn.world.festival.FestivalRegistry;
 import com.otherworldinn.world.festival.FestivalDialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
+import com.otherworldinn.world.storyguest.StoryGuestDefinition;
+import com.otherworldinn.world.storyguest.StoryGuestRegistry;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1452,6 +1453,10 @@ public class ModLanguageProvider extends LanguageProvider {
 
         for (FacilityRegistry.FacilityDefinition facility : FacilityRegistry.getAll()) {
             add(facility.translationKey(), isZh ? facility.zhName() : facility.enName());
+        }
+
+        for (var festival : FestivalRegistry.getAll()) {
+            add(festival.translationKey(), isZh ? festival.zhName() : festival.enName());
         }
 
     }

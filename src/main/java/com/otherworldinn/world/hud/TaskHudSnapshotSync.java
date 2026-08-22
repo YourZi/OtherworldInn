@@ -53,6 +53,16 @@ public final class TaskHudSnapshotSync {
         }
     }
 
+    public static void syncAllPlayers(ServerLevel level) {
+        if (level == null) {
+            return;
+        }
+        MinecraftServer server = level.getServer();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            syncPlayer(player);
+        }
+    }
+
     private static void sendSnapshot(ServerPlayer player, CompoundTag snapshot) {
         ModMessages.sendToPlayer(new S2CTaskHudSnapshotPacket(snapshot.copy()), player);
     }

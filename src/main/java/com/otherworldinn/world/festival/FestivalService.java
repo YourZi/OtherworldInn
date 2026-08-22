@@ -93,6 +93,7 @@ public final class FestivalService {
                     .ifPresent(festival -> fireStarted(townLevel, festival, 0));
         } else {
             syncShopDiscounts(townLevel);
+            TaskHudSnapshotSync.syncAllPlayers(townLevel);
         }
     }
 
@@ -127,7 +128,7 @@ public final class FestivalService {
                 data.setLastFestivalWindow(windowKey);
             }
             if (data.getLastFestivalHudSyncDay() != currentDay) {
-                TaskHudSnapshotSync.syncAllTeams(townLevel);
+                TaskHudSnapshotSync.syncAllPlayers(townLevel);
                 data.setLastFestivalHudSyncDay(currentDay);
             }
         } else if (lastWindow != null) {
@@ -276,7 +277,7 @@ public final class FestivalService {
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         playCelebrationSound(townLevel);
         syncShopDiscounts(townLevel);
-        TaskHudSnapshotSync.syncAllTeams(townLevel);
+        TaskHudSnapshotSync.syncAllPlayers(townLevel);
     }
 
     /** 节日开始音效：烟花升空 → 1 秒后爆裂 → 再 1 秒后闪烁余韵（分类与原版烟花实体一致） */
@@ -321,7 +322,7 @@ public final class FestivalService {
                         .append(" 结束了")
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         syncShopDiscounts(townLevel);
-        TaskHudSnapshotSync.syncAllTeams(townLevel);
+        TaskHudSnapshotSync.syncAllPlayers(townLevel);
     }
 
     /** 向所有在线玩家广播节日提示（节日为全局共享，任意维度玩家均可见） */
