@@ -72,12 +72,12 @@ public final class FestivalRegistry {
                                         InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, 0.25D)),
                         DECORATION_EFFECT));
 
-        // 隆冬节：隆冬 day 1-3，入住费 +50%、矿井产出 +30%、商店全场 85 折
+        // 隆冬节：仲冬 day 7-9，入住费 +50%、矿井产出 +30%、商店全场 85 折
         registerFestival(
                 "deep_winter_festival",
                 "Deep Winter Festival",
                 "隆冬节",
-                new FestivalTrigger(Season.WINTER, 16, 19), // 隆冬 day 1-3
+                new FestivalTrigger(Season.WINTER, 14, 17), // 仲冬 day 7-9
                 List.of(
                         new InnAttributeBoostEffect(
                                 Map.of(InnAttributeBoostEffect.ATTR_LODGING_INCOME, 0.5D)),
