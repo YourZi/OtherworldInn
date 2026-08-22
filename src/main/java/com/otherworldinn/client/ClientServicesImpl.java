@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.commission.CommissionClientManager;
 import com.otherworldinn.client.dialogue.DialogueClientManager;
+import com.otherworldinn.client.gui.screen.SeasonCalendarScreen;
 import com.otherworldinn.client.renderer.RoomOutlineRenderer;
 import com.otherworldinn.client.util.TextureUtils;
 import com.otherworldinn.util.ClientServices;
@@ -102,6 +103,15 @@ public final class ClientServicesImpl implements ClientServices.Hooks {
     @Override
     public void handleCommissionBoard(CompoundTag data, boolean openScreen) {
         CommissionClientManager.handleBoardData(data, openScreen);
+    }
+
+    @Override
+    public void openSeasonCalendar() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null || minecraft.player == null || minecraft.level == null) {
+            return;
+        }
+        minecraft.setScreen(new SeasonCalendarScreen());
     }
 
     private static String fetchMojangSkinUrl(String playerName) {

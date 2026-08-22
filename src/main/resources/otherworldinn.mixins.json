@@ -19,6 +19,7 @@
     "MixinFTBUltimineServerConfig",
     "MixinFTBUltimineCropHarvesting",
     "MixinSeasonalCropGrowthHandler",
+    "MixinSereneSeasonsCalendarItem",
     "MixinServerLevel",
     "MixinLevelStructuralWrite",
     "MixinLittleMaidFarmMoveTask",

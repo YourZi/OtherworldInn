@@ -56,6 +56,10 @@ public final class ClientServices {
         HOOKS.handleCommissionBoard(data, openScreen);
     }
 
+    public static void openSeasonCalendar() {
+        HOOKS.openSeasonCalendar();
+    }
+
     private static Hooks createHooks() {
         if (FMLEnvironment.dist != Dist.CLIENT) {
             return NoopHooks.INSTANCE;
@@ -99,6 +103,8 @@ public final class ClientServices {
         default void handleDialogueClose() {}
 
         default void handleCommissionBoard(CompoundTag data, boolean openScreen) {}
+
+        default void openSeasonCalendar() {}
     }
 
     private enum NoopHooks implements Hooks {
