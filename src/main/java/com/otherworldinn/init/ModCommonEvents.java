@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.command.AdminCommands;
+import com.otherworldinn.command.QuestCommands;
 import com.otherworldinn.command.TeamCommands;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -15,5 +16,6 @@ public class ModCommonEvents {
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         TeamCommands.register(event.getDispatcher());
         AdminCommands.register(event.getDispatcher());
+        QuestCommands.register(event.getDispatcher());
     }
 }

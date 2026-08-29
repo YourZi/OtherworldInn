@@ -5,8 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import sereneseasons.api.season.ISeasonState;
@@ -65,12 +67,12 @@ public class SeasonCalendarScreen extends Screen {
                 backgroundLeft - arrowSize - arrowGap,
                 arrowY,
                 true,
-                button -> this.selectedSeasonPage = this.selectedSeasonPage.previous()));
+                button -> this.turnPage(true)));
         addRenderableWidget(new ArrowButton(
                 backgroundLeft + backgroundWidth + arrowGap,
                 arrowY,
                 false,
-                button -> this.selectedSeasonPage = this.selectedSeasonPage.next()));
+                button -> this.turnPage(false)));
     }
 
     @Override
@@ -129,6 +131,16 @@ public class SeasonCalendarScreen extends Screen {
 
     private static ResourceLocation texture(String path) {
         return ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, path);
+    }
+
+    private void turnPage(boolean previous) {
+        this.selectedSeasonPage = previous
+                ? this.selectedSeasonPage.previous()
+                : this.selectedSeasonPage.next();
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft != null) {
+            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
+        }
     }
 
     private void refreshCurrentSeasonView() {
@@ -216,7 +228,7 @@ public class SeasonCalendarScreen extends Screen {
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             int texX = this.leftArrow ? 0 : ARROW_TEXTURE_SIZE;
-            int texY = this.isHoveredOrFocused() ? ARROW_TEXTURE_SIZE : 0;
+            int texY = this.isMouseOver(mouseX, mouseY) ? ARROW_TEXTURE_SIZE : 0;
             guiGraphics.blit(
                     ARROW_ATLAS_TEXTURE,
                     getX(),

@@ -114,6 +114,11 @@ public final class ClientServicesImpl implements ClientServices.Hooks {
         minecraft.setScreen(new SeasonCalendarScreen());
     }
 
+    @Override
+    public void updateQuestHudSnapshot(CompoundTag snapshot) {
+        com.otherworldinn.client.quest.QuestHudState.updateFromSnapshot(snapshot);
+    }
+
     private static String fetchMojangSkinUrl(String playerName) {
         try {
             // Step 1: Resolve player name to UUID

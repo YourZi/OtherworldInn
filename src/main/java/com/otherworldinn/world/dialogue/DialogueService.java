@@ -313,7 +313,21 @@ public final class DialogueService {
                     entity instanceof StoryGuestEntity storyGuest
                             && applyNextVisitRange(
                                     storyGuest, level, effect.minDays(), effect.maxDays());
+            case ACCEPT_QUEST -> acceptQuest(player, effect.questId());
         };
+    }
+
+    /** 点选对话选项接取任务；startQuest 幂等，重复点选/已完成均静默成功，避免触发"选项不可用"提示。 */
+    private static boolean acceptQuest(ServerPlayer player, @Nullable String questId) {
+        if (questId == null || questId.isBlank()) {
+            return false;
+        }
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (team == null) {
+            return false;
+        }
+        com.otherworldinn.world.quest.QuestService.startQuest(team, questId, player.server);
+        return true;
     }
 
     private static boolean giveCoins(ServerPlayer player, int amount) {

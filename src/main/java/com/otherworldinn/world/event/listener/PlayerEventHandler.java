@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModItems;
+import com.otherworldinn.world.hud.TaskHudSnapshotBuilder;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.team.TeamData;
@@ -209,6 +210,11 @@ public class PlayerEventHandler {
         }
         if (player.tickCount % 20 != 0) {
             return;
+        }
+
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        if (TaskHudSnapshotBuilder.hasInventoryTrackedTasks(player, team)) {
+            TaskHudSnapshotSync.syncPlayer(player);
         }
 
         // 魔法空间虚空坠落保护

@@ -49,6 +49,8 @@
     "MixinDepotRenderer",
     "MixinReskillableSkillButton",
     "MixinReskillableSkillScreen",
+    "MixinWorldOpenFlowsExperimentalWarning",
+    "MixinGameRendererAccessor",
     "MixinPlayerRendererMapModeHidden",
     "MixinEntityRenderDispatcherMapMode",
     "MixinToolTypeSurvivalPrint",

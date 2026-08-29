@@ -1,0 +1,20 @@
+{
+  "quest": "main_first_steps",
+  "parent": "otherworldinn:main/first_steps/get_inn_key",
+  "label": {
+    "zh": "与铁匠对话",
+    "en": "Talk to the blacksmith"
+  },
+  "marker": [0, 70, 0],
+  "relative": false,
+  "objectives": [
+    {
+      "type": "interact_entity",
+      "entityType": "otherworldinn:blacksmith",
+      "label": {
+        "zh": "右键与铁匠对话",
+        "en": "Right-click the blacksmith to talk"
+      }
+    }
+  ]
+}

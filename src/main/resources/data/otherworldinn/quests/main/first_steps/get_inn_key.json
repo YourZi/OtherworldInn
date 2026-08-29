@@ -1,0 +1,27 @@
+{
+  "quest": "main_first_steps",
+  "category": "main",
+  "name": {
+    "zh": "落脚小镇",
+    "en": "First Steps in Town"
+  },
+  "desc": {
+    "zh": "在镇上站稳脚跟。",
+    "en": "Settle into the town."
+  },
+  "label": {
+    "zh": "拿到旅社钥匙",
+    "en": "Get the inn key"
+  },
+  "objectives": [
+    {
+      "type": "has_item",
+      "itemId": "otherworldinn:inn_key",
+      "count": 1,
+      "label": {
+        "zh": "背包里有一把旅社钥匙",
+        "en": "Have an inn key in your inventory"
+      }
+    }
+  ]
+}

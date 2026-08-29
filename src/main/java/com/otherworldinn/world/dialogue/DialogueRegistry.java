@@ -36,11 +36,19 @@ public final class DialogueRegistry {
                     null,
                     LocalizedText.of("关于锅炉房", "About the Boiler Room"),
                     null,
+                    "fix_boiler_room",
+                    null,
                     null,
                     LocalizedText.of("地下那座锅炉房好久没人修理了，不知道还能不能用", 
                                      "No one has repaired the boiler room downstairs for a long time. I don't even know if it still works."),
                     LocalizedText.of("你把它修好了？太好了，我们的机器可以用了",
                                      "You repaired it? That's great."),
+                    LocalizedText.of("关于矿井", "About the Mine"),
+                    LocalizedText.of("那边的矿井前段时间坏了，要是修好的话就能很方便地搞到矿物了。",
+                                     "The mine over there broke down a while back. If it were fixed, getting ores would be a lot easier."),
+                    LocalizedText.of("有了那座矿井，能及时拿到很多材料，真是省了我很多事。",
+                                     "With that mine working, we get materials on time. It's saved me a lot of trouble."),
+                    "fix_mine",
                     LocalizedText.of("它在什么位置？", "Where is it?"),
                     LocalizedText.of(
                             "在前面右转，穿过集市再右转的小通道里。",
@@ -58,10 +66,16 @@ public final class DialogueRegistry {
                         "Seeds, produce, and farming goods. Take your time."),
                     LocalizedText.of("关于温室", "About the Greenhouse"),
                     null,
+                    "fix_greenhouse",
+                    null,
                     LocalizedText.of("对面那座温室废弃很久了...以前可好用了",
                                      "That greenhouse across the way has been abandoned for ages... it used to be so useful."),
                     LocalizedText.of("你居然真的把它修好了，感谢你的付出，现在种地更方便了", 
                                      "You actually got it repaired. Thank you for putting in the work."),
+                    null,
+                    null,
+                    null,
+                    null,
                     null,
                     null,
                     null,
@@ -626,10 +640,16 @@ public final class DialogueRegistry {
             LocalizedText askGoodsText,
             @Nullable LocalizedText aboutGreenhouseLabel,
             @Nullable LocalizedText aboutBoilerRoomLabel,
+            @Nullable String greenhouseQuestId,
+            @Nullable String boilerRoomQuestId,
             @Nullable LocalizedText greenhouseUnrepairedText,
             @Nullable LocalizedText greenhouseRepairedText,
             @Nullable LocalizedText boilerRoomUnrepairedText,
             @Nullable LocalizedText boilerRoomRepairedText,
+            @Nullable LocalizedText aboutMineLabel,
+            @Nullable LocalizedText mineText,
+            @Nullable LocalizedText mineRepairedText,
+            @Nullable String mineQuestId,
             @Nullable LocalizedText boilerRoomLocationLabel,
             @Nullable LocalizedText boilerRoomLocationText,
             @Nullable LocalizedText extraFunctionLabel,
@@ -639,6 +659,7 @@ public final class DialogueRegistry {
         String greenhouseTopic = "topic_greenhouse";
         String boilerTopic = "topic_boiler_room";
         String boilerLocationTopic = "topic_boiler_room_location";
+        String mineTopic = "topic_mine";
         boolean hasGreenhouseTopic =
                 aboutGreenhouseLabel != null
                         && greenhouseUnrepairedText != null
@@ -647,6 +668,8 @@ public final class DialogueRegistry {
                 aboutBoilerRoomLabel != null
                         && boilerRoomUnrepairedText != null
                         && boilerRoomRepairedText != null;
+        boolean hasMineTopic =
+                aboutMineLabel != null && mineText != null && mineRepairedText != null;
         Map<String, DialogueNodeDef> nodes = new LinkedHashMap<>();
 
         List<DialogueOptionDef> rootOptions = new ArrayList<>();
@@ -674,22 +697,43 @@ public final class DialogueRegistry {
                         askGoods,
                         null));
         if (hasGreenhouseTopic) {
-            rootOptions.add(
+            DialogueOptionDef aboutGreenhouseOption =
                     new DialogueOptionDef(
                             "about_greenhouse",
                             aboutGreenhouseLabel,
                             DialogueOptionType.BRANCH,
                             greenhouseTopic,
-                            null));
+                            null);
+            if (greenhouseQuestId != null && !greenhouseQuestId.isBlank()) {
+                aboutGreenhouseOption = aboutGreenhouseOption.withEffects(DialogueEffectDef.acceptQuest(greenhouseQuestId));
+            }
+            rootOptions.add(aboutGreenhouseOption);
         }
         if (hasBoilerTopic) {
-            rootOptions.add(
+            DialogueOptionDef aboutBoilerRoomOption =
                     new DialogueOptionDef(
                             "about_boiler_room",
                             aboutBoilerRoomLabel,
                             DialogueOptionType.BRANCH,
                             boilerTopic,
-                            null));
+                            null);
+            if (boilerRoomQuestId != null && !boilerRoomQuestId.isBlank()) {
+                aboutBoilerRoomOption = aboutBoilerRoomOption.withEffects(DialogueEffectDef.acceptQuest(boilerRoomQuestId));
+            }
+            rootOptions.add(aboutBoilerRoomOption);
+            if (hasMineTopic) {
+                DialogueOptionDef aboutMineOption =
+                        new DialogueOptionDef(
+                                "about_mine",
+                                aboutMineLabel,
+                                DialogueOptionType.BRANCH,
+                                mineTopic,
+                                null);
+                if (mineQuestId != null && !mineQuestId.isBlank()) {
+                    aboutMineOption = aboutMineOption.withEffects(DialogueEffectDef.acceptQuest(mineQuestId));
+                }
+                rootOptions.add(aboutMineOption);
+            }
         }
         rootOptions.add(
                 new DialogueOptionDef(
@@ -718,22 +762,43 @@ public final class DialogueRegistry {
                             extraFunctionId));
         }
         if (hasGreenhouseTopic) {
-            askGoodsOptions.add(
+            DialogueOptionDef aboutGreenhouseOption =
                     new DialogueOptionDef(
                             "about_greenhouse",
                             aboutGreenhouseLabel,
                             DialogueOptionType.BRANCH,
                             greenhouseTopic,
-                            null));
+                            null);
+            if (greenhouseQuestId != null && !greenhouseQuestId.isBlank()) {
+                aboutGreenhouseOption = aboutGreenhouseOption.withEffects(DialogueEffectDef.acceptQuest(greenhouseQuestId));
+            }
+            askGoodsOptions.add(aboutGreenhouseOption);
         }
         if (hasBoilerTopic) {
-            askGoodsOptions.add(
+            DialogueOptionDef aboutBoilerRoomOption =
                     new DialogueOptionDef(
                             "about_boiler_room",
                             aboutBoilerRoomLabel,
                             DialogueOptionType.BRANCH,
                             boilerTopic,
-                            null));
+                            null);
+            if (boilerRoomQuestId != null && !boilerRoomQuestId.isBlank()) {
+                aboutBoilerRoomOption = aboutBoilerRoomOption.withEffects(DialogueEffectDef.acceptQuest(boilerRoomQuestId));
+            }
+            askGoodsOptions.add(aboutBoilerRoomOption);
+            if (hasMineTopic) {
+                DialogueOptionDef aboutMineOption =
+                        new DialogueOptionDef(
+                                "about_mine",
+                                aboutMineLabel,
+                                DialogueOptionType.BRANCH,
+                                mineTopic,
+                                null);
+                if (mineQuestId != null && !mineQuestId.isBlank()) {
+                    aboutMineOption = aboutMineOption.withEffects(DialogueEffectDef.acceptQuest(mineQuestId));
+                }
+                askGoodsOptions.add(aboutMineOption);
+            }
         }
         askGoodsOptions.add(
                 new DialogueOptionDef(
@@ -852,6 +917,39 @@ public final class DialogueRegistry {
                                 boilerRoomLocationText,
                                 List.copyOf(boilerLocationOptions)));
             }
+        }
+        if (hasMineTopic) {
+            List<DialogueOptionDef> mineOptions = new ArrayList<>();
+            mineOptions.add(
+                    new DialogueOptionDef(
+                            "open_store",
+                            LocalizedText.of("打开商店", "Open Shop"),
+                            DialogueOptionType.FUNCTION,
+                            null,
+                            FUNCTION_OPEN_STORE));
+            if (extraFunctionLabel != null && extraFunctionId != null && !extraFunctionId.isBlank()) {
+                mineOptions.add(
+                        new DialogueOptionDef(
+                                "extra_function",
+                                extraFunctionLabel,
+                                DialogueOptionType.FUNCTION,
+                                null,
+                                extraFunctionId));
+            }
+            mineOptions.add(
+                    new DialogueOptionDef(
+                            "leave",
+                            LocalizedText.of("先告辞", "Leave"),
+                            DialogueOptionType.BRANCH,
+                            null,
+                            null));
+            nodes.put(
+                    mineTopic,
+                    new DialogueNodeDef(
+                            mineTopic,
+                            mineText,
+                            List.copyOf(mineOptions),
+                            new DialogueNodeConditionalText("mine", mineText, mineRepairedText)));
         }
         return new DialogueDefinition(npcId, root, nodes);
     }

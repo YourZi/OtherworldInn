@@ -195,6 +195,18 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.repair_greenhouse.description")
                 .zh("成功修复温室设施")
                 .en("Successfully repair the greenhouse facility");
+        entry("advancements.otherworldinn.repair_mine.title")
+                .zh("修复矿井")
+                .en("Repair Mine");
+        entry("advancements.otherworldinn.repair_mine.description")
+                .zh("成功修复矿井设施")
+                .en("Successfully repair the mine facility");
+        entry("advancements.otherworldinn.repair_mine.title")
+                .zh("修复矿井")
+                .en("Repair Mine");
+        entry("advancements.otherworldinn.repair_mine.description")
+                .zh("成功修复矿井设施")
+                .en("Successfully repair the mine facility");
         entry("advancements.otherworldinn.inn_rating_1.title").zh("新的开端").en("A New Beginning");
         entry("advancements.otherworldinn.inn_rating_1.description")
                 .zh("将旅社星级提升至 1 级")

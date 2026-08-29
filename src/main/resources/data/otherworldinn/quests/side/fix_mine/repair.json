@@ -1,0 +1,29 @@
+{
+  "quest": "fix_mine",
+  "category": "side",
+  "name": {
+    "zh": "修复矿井",
+    "en": "Fix the Mine"
+  },
+  "desc": {
+    "zh": "铁匠说矿井坏了很久，修好它就能方便地搞到矿物。",
+    "en": "The blacksmith says the mine has been broken for ages. Fixing it would make getting ores easy."
+  },
+  "label": {
+    "zh": "修复矿井",
+    "en": "Repair the mine"
+  },
+  "objectives": [
+    {
+      "type": "advancement",
+      "advancementId": "otherworldinn:repair_mine",
+      "label": {
+        "zh": "修复矿井",
+        "en": "Repair the mine"
+      }
+    }
+  ],
+  "rewards": [
+    { "type": "coins", "count": 80 }
+  ]
+}

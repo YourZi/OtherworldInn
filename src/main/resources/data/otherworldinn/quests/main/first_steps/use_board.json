@@ -1,0 +1,24 @@
+{
+  "quest": "main_first_steps",
+  "parent": "otherworldinn:main/first_steps/talk_blacksmith",
+  "label": {
+    "zh": "查看委托板",
+    "en": "Check the commission board"
+  },
+  "objectives": [
+    {
+      "type": "interact_block",
+      "block": "otherworldinn:commission_board",
+      "label": {
+        "zh": "右键委托板",
+        "en": "Right-click the commission board"
+      }
+    }
+  ],
+  "rewards": [
+    {
+      "type": "coins",
+      "count": 100
+    }
+  ]
+}

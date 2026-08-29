@@ -66,7 +66,7 @@ public final class TaskHudSnapshotBuilder {
             ListTag tasks, ServerPlayer player, TeamData team, List<InnTodo> todos) {
         TeamCommissionData data = team.getCommissionData();
         CommissionEntry active = data.getAcceptedEntry();
-        if (active == null) {
+        if (active == null || data.isRewardClaimed()) {
             return;
         }
 
@@ -78,6 +78,7 @@ public final class TaskHudSnapshotBuilder {
                 active.hasSubmitRequirement(),
                 data.isRewardClaimed(),
                 commissionAcceptedAt(data, todos));
+        task.putString("Category", "side");
 
         ListTag requirements = new ListTag();
         for (CommissionEntry.ItemRequirement requirement : active.getSubmitRequirements()) {
@@ -166,6 +167,7 @@ public final class TaskHudSnapshotBuilder {
                     !entry.isPhotoTask(),
                     complete,
                     acceptedAt);
+            task.putString("Category", "side");
 
             ListTag requirements = new ListTag();
             if (entry.isPhotoTask()) {
@@ -212,6 +214,59 @@ public final class TaskHudSnapshotBuilder {
                         null));
             }
         }
+    }
+
+    public static boolean hasInventoryTrackedTasks(ServerPlayer player, TeamData team) {
+        if (player == null || team == null) {
+            return false;
+        }
+
+        TeamCommissionData commissionData = team.getCommissionData();
+        CommissionEntry activeCommission = commissionData.getAcceptedEntry();
+        if (activeCommission != null && !commissionData.isRewardClaimed() && activeCommission.hasSubmitRequirement()) {
+            return true;
+        }
+
+        List<InnTodo> todos = team.getInnData().getTodos();
+        if (todos.isEmpty()) {
+            return false;
+        }
+
+        ServerLevel level = player.serverLevel();
+        for (StoryGuestTodoRegistry.TodoEntry entry : StoryGuestTodoRegistry.allTodos()) {
+            if (entry.isPhotoTask()) {
+                continue;
+            }
+            if (todoAcceptedAt(todos, entry.toTodo()) == Long.MAX_VALUE) {
+                continue;
+            }
+            if (!isStoryTodoRelevant(level, entry)) {
+                continue;
+            }
+            if (storyTodoHasItemRequirement(entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean storyTodoHasItemRequirement(StoryGuestTodoRegistry.TodoEntry entry) {
+        String completionOptionId = entry.completionOptionId();
+        if (completionOptionId == null || completionOptionId.isBlank()) {
+            return false;
+        }
+        StoryGuestDefinition definition = StoryGuestService.getDefinition(entry.storyGuestId());
+        if (definition == null) {
+            return false;
+        }
+        for (DialogueOptionDef option : findOptions(definition, completionOptionId)) {
+            for (DialogueRequirementDef requirement : option.requirements()) {
+                if (requirement.type() == DialogueRequirementType.HAS_ITEM && requirement.itemId() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static List<DialogueOptionDef> findOptions(
@@ -265,7 +320,7 @@ public final class TaskHudSnapshotBuilder {
         return false;
     }
 
-    private static CompoundTag createTask(
+    static CompoundTag createTask(
             String id,
             String kind,
             String titleKey,
@@ -296,7 +351,7 @@ public final class TaskHudSnapshotBuilder {
                 null);
     }
 
-    private static CompoundTag createRequirement(
+    static CompoundTag createRequirement(
             String type,
             String targetId,
             String displayKey,
@@ -318,7 +373,7 @@ public final class TaskHudSnapshotBuilder {
         return requirement;
     }
 
-    private static CompoundTag createReward(
+    static CompoundTag createReward(
             String type, String targetId, String displayKey, String displayText, int count) {
         CompoundTag reward = new CompoundTag();
         reward.putString("Type", type);
@@ -350,7 +405,7 @@ public final class TaskHudSnapshotBuilder {
         return Long.MAX_VALUE;
     }
 
-    private static int countMatchingItems(
+    static int countMatchingItems(
             ServerPlayer player, String itemId, @Nullable CompoundTag requiredNbt) {
         ResourceLocation id = ResourceLocation.tryParse(itemId);
         if (id == null) {
@@ -422,7 +477,7 @@ public final class TaskHudSnapshotBuilder {
         return actual.equals(required);
     }
 
-    private static String itemDisplayKey(String itemId) {
+    static String itemDisplayKey(String itemId) {
         ResourceLocation id = ResourceLocation.tryParse(itemId);
         if (id == null) {
             return "";
@@ -431,12 +486,12 @@ public final class TaskHudSnapshotBuilder {
         return item == null ? "" : item.getDescriptionId();
     }
 
-    private static String itemDisplayText(String itemId) {
+    static String itemDisplayText(String itemId) {
         String key = itemDisplayKey(itemId);
         return resolveText(key, itemId);
     }
 
-    private static String entityDisplayKey(String entityTypeId) {
+    static String entityDisplayKey(String entityTypeId) {
         ResourceLocation id = ResourceLocation.tryParse(entityTypeId);
         if (id == null) {
             return "";
@@ -445,7 +500,7 @@ public final class TaskHudSnapshotBuilder {
         return type == null ? "" : type.getDescriptionId();
     }
 
-    private static String entityDisplayText(String entityTypeId) {
+    static String entityDisplayText(String entityTypeId) {
         String key = entityDisplayKey(entityTypeId);
         return resolveText(key, entityTypeId);
     }

@@ -144,6 +144,8 @@ public final class FacilityUpgradeService {
                 AdvancementUtils.award(player, AdvancementUtils.REPAIR_BOILER_ROOM);
             } else if ("greenhouse".equals(context.facility().id())) {
                 AdvancementUtils.award(player, AdvancementUtils.REPAIR_GREENHOUSE);
+            } else if ("mine".equals(context.facility().id())) {
+                AdvancementUtils.award(player, AdvancementUtils.REPAIR_MINE);
             }
         }
         TeamManager.getInstance().syncTeam(team, player.getServer());

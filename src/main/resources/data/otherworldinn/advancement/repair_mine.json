@@ -1,0 +1,23 @@
+{
+  "parent": "otherworldinn:inn_rating_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:barrel"
+    },
+    "title": {
+      "translate": "advancements.otherworldinn.repair_mine.title"
+    },
+    "description": {
+      "translate": "advancements.otherworldinn.repair_mine.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

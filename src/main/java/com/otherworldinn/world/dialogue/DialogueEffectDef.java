@@ -10,7 +10,8 @@ public record DialogueEffectDef(
         @Nullable String storyFlag,
         int stageValue,
         int minDays,
-        int maxDays) {
+        int maxDays,
+        @Nullable String questId) {
     public static DialogueEffectDef takeItem(ResourceLocation itemId, int count) {
         return new DialogueEffectDef(
                 DialogueEffectType.TAKE_ITEM,
@@ -19,7 +20,8 @@ public record DialogueEffectDef(
                 null,
                 0,
                 0,
-                0);
+                0,
+                null);
     }
 
     public static DialogueEffectDef giveItem(ResourceLocation itemId, int count) {
@@ -30,7 +32,8 @@ public record DialogueEffectDef(
                 null,
                 0,
                 0,
-                0);
+                0,
+                null);
     }
 
     public static DialogueEffectDef giveCoins(int count) {
@@ -41,17 +44,18 @@ public record DialogueEffectDef(
                 null,
                 0,
                 0,
-                0);
+                0,
+                null);
     }
 
     public static DialogueEffectDef setStoryFlag(String storyFlag) {
         return new DialogueEffectDef(
-                DialogueEffectType.SET_STORY_FLAG, null, 0, storyFlag, 0, 0, 0);
+                DialogueEffectType.SET_STORY_FLAG, null, 0, storyFlag, 0, 0, 0, null);
     }
 
     public static DialogueEffectDef advanceStoryStage(int stageValue) {
         return new DialogueEffectDef(
-                DialogueEffectType.ADVANCE_STORY_STAGE, null, 0, null, stageValue, 0, 0);
+                DialogueEffectType.ADVANCE_STORY_STAGE, null, 0, null, stageValue, 0, 0, null);
     }
 
     public static DialogueEffectDef setNextVisitRange(int minDays, int maxDays) {
@@ -62,6 +66,13 @@ public record DialogueEffectDef(
                 null,
                 0,
                 Math.max(0, minDays),
-                Math.max(0, maxDays));
+                Math.max(0, maxDays),
+                null);
+    }
+
+    /** 点选该对话选项即接取任务（幂等：已接取/已完成的任务不会重复接取）。 */
+    public static DialogueEffectDef acceptQuest(String questId) {
+        return new DialogueEffectDef(
+                DialogueEffectType.ACCEPT_QUEST, null, 0, null, 0, 0, 0, questId);
     }
 }

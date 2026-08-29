@@ -21,6 +21,8 @@ public final class TaskHudSnapshotSync {
             return;
         }
         TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        // 主 mod 自渲染任务 HUD 沿用同一触发点（数据由 QuestHudSync 独立构建）
+        QuestHudSync.syncPlayer(player);
         if (team == null) {
             sendSnapshot(player, OtherworldInnHudSnapshotApi.createEmptySnapshot());
             return;
@@ -41,6 +43,7 @@ public final class TaskHudSnapshotSync {
                 sendSnapshot(member, TaskHudSnapshotBuilder.buildForPlayer(member, team));
             }
         }
+        QuestHudSync.syncTeam(team, level);
     }
 
     public static void syncAllTeams(ServerLevel level) {

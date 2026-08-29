@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,6 +33,7 @@ public class NpcDialogueScreen extends Screen {
     private static final int OPTION_TEXT_LEFT_PADDING = 8;
     private static final int OPTION_TEXT_RIGHT_PADDING = 8;
     private static final int OPTION_MIN_WIDTH = 120;
+    private static final int REVEAL_CHARS_PER_SECOND = 20;
     private static final ResourceLocation DIALOGUE_BOX_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(
                     OtherworldInn.MODID, "textures/gui/dialogue/dialogue_box.png");
@@ -43,6 +45,9 @@ public class NpcDialogueScreen extends Screen {
                     ResourceLocation.withDefaultNamespace("widget/button_highlighted"));
 
     private DialogueNodeView view;
+    private DialogueNodeView animatedView;
+    private long revealStartMillis;
+    private boolean revealAll;
     private final List<Button> optionButtons = new ArrayList<>();
 
     public NpcDialogueScreen(DialogueNodeView view) {
@@ -179,16 +184,68 @@ public class NpcDialogueScreen extends Screen {
                 .withStyle(style -> style.withColor(0xF0F0F0).withItalic(false));
         List<FormattedCharSequence> lines =
                 this.font.split(dialogueComponent, Math.max(60, boxWidth - 20));
+        if (this.view != this.animatedView) {
+            this.animatedView = this.view;
+            this.revealStartMillis = Util.getMillis();
+            this.revealAll = false;
+        }
+        int totalChars = 0;
+        for (FormattedCharSequence line : lines) {
+            totalChars += countChars(line);
+        }
+        int visibleChars = totalChars;
+        if (!this.revealAll) {
+            long elapsed = Util.getMillis() - this.revealStartMillis;
+            visibleChars = (int) (elapsed * REVEAL_CHARS_PER_SECOND / 1000L);
+            if (visibleChars >= totalChars) {
+                visibleChars = totalChars;
+                this.revealAll = true;
+            }
+        }
+        int[] budget = {visibleChars};
         int y = boxY + 30;
         for (FormattedCharSequence line : lines) {
-            int lineX = boxX + (boxWidth - this.font.width(line)) / 2;
+            if (budget[0] <= 0) {
+                break;
+            }
+            FormattedCharSequence visible = limit(line, budget);
+            int lineX = boxX + (boxWidth - this.font.width(visible)) / 2;
             // 使用 0xFFFFFFFF 避免覆盖文本中 § 格式码定义的颜色
-            guiGraphics.drawString(this.font, line, lineX, y, 0xFFFFFFFF, false);
+            guiGraphics.drawString(this.font, visible, lineX, y, 0xFFFFFFFF, false);
             y += this.font.lineHeight + 2;
             if (y > boxY + DIALOG_BOX_HEIGHT - 14) {
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!this.revealAll) {
+            this.revealAll = true;
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private static int countChars(FormattedCharSequence sequence) {
+        int[] count = {0};
+        sequence.accept((index, style, codePoint) -> {
+            count[0]++;
+            return true;
+        });
+        return count[0];
+    }
+
+    private static FormattedCharSequence limit(FormattedCharSequence sequence, int[] budget) {
+        return out ->
+                sequence.accept((index, style, codePoint) -> {
+                    if (budget[0] <= 0) {
+                        return false;
+                    }
+                    budget[0]--;
+                    return out.accept(index, style, codePoint);
+                });
     }
 
     private Component getNpcName() {

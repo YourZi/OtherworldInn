@@ -1,0 +1,29 @@
+{
+  "quest": "fix_greenhouse",
+  "category": "side",
+  "name": {
+    "zh": "修复温室",
+    "en": "Fix the Greenhouse"
+  },
+  "desc": {
+    "zh": "农夫怀念那座废弃已久的温室。",
+    "en": "The farmer misses the long-abandoned greenhouse."
+  },
+  "label": {
+    "zh": "修复温室",
+    "en": "Repair the greenhouse"
+  },
+  "objectives": [
+    {
+      "type": "advancement",
+      "advancementId": "otherworldinn:repair_greenhouse",
+      "label": {
+        "zh": "修复温室",
+        "en": "Repair the greenhouse"
+      }
+    }
+  ],
+  "rewards": [
+    { "type": "coins", "count": 80 }
+  ]
+}

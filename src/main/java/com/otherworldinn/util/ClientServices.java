@@ -60,6 +60,11 @@ public final class ClientServices {
         HOOKS.openSeasonCalendar();
     }
 
+    /** 客户端任务 HUD：接收服务端任务快照并缓存（主 mod 自渲染，与 OtherworldInnHud 无关）。 */
+    public static void updateQuestHudSnapshot(CompoundTag snapshot) {
+        HOOKS.updateQuestHudSnapshot(snapshot);
+    }
+
     private static Hooks createHooks() {
         if (FMLEnvironment.dist != Dist.CLIENT) {
             return NoopHooks.INSTANCE;
@@ -105,6 +110,8 @@ public final class ClientServices {
         default void handleCommissionBoard(CompoundTag data, boolean openScreen) {}
 
         default void openSeasonCalendar() {}
+
+        default void updateQuestHudSnapshot(CompoundTag snapshot) {}
     }
 
     private enum NoopHooks implements Hooks {

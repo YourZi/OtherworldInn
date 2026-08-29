@@ -1,0 +1,29 @@
+{
+  "quest": "fix_boiler_room",
+  "category": "side",
+  "name": {
+    "zh": "修复锅炉房",
+    "en": "Fix the Boiler Room"
+  },
+  "desc": {
+    "zh": "铁匠需要使用地下那座锅炉房。",
+    "en": "The blacksmith needs to use the boiler room downstairs."
+  },
+  "label": {
+    "zh": "修复锅炉房",
+    "en": "Repair the boiler room"
+  },
+  "objectives": [
+    {
+      "type": "advancement",
+      "advancementId": "otherworldinn:repair_boiler_room",
+      "label": {
+        "zh": "修复锅炉房",
+        "en": "Repair the boiler room"
+      }
+    }
+  ],
+  "rewards": [
+    { "type": "coins", "count": 80 }
+  ]
+}

@@ -102,6 +102,12 @@ public class TeamData {
 
     private final InnData innData = new InnData(); // 旅社数据管理系统
     private final TeamCommissionData commissionData = new TeamCommissionData(); // 队伍委托数据
+    private final com.otherworldinn.world.quest.TeamQuestData questData =
+            new com.otherworldinn.world.quest.TeamQuestData(); // 队伍任务进度
+
+    public com.otherworldinn.world.quest.TeamQuestData getQuestData() {
+        return questData;
+    }
 
     public TeamData(UUID teamId) {
         this.teamId = teamId;
@@ -474,6 +480,7 @@ public class TeamData {
         // 旅社数据 (包含 EditMode)
         tag.put("InnData", innData.save(new CompoundTag()));
         tag.put("CommissionData", commissionData.save());
+        tag.put("QuestData", questData.save());
 
         // 旅社区域
         ListTag regionsTag = new ListTag();
@@ -532,6 +539,9 @@ public class TeamData {
         }
         if (tag.contains("CommissionData")) {
             commissionData.load(tag.getCompound("CommissionData"));
+        }
+        if (tag.contains("QuestData")) {
+            questData.load(tag.getCompound("QuestData"));
         }
 
         // 加载区域
