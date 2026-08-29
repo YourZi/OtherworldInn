@@ -11,13 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-/**
- * 物品注册构建器
- *
- * <p>用于链式配置物品的属性、DataGen信息等
- *
- * @param <T> 物品类型
- */
+/** 物品注册构建器，链式配置属性与 DataGen 信息。 */
 public class ItemReg<T extends Item> {
     private final String name;
     private final Function<Item.Properties, T> itemFactory;
@@ -108,11 +102,7 @@ public class ItemReg<T extends Item> {
         return this;
     }
 
-    /**
-     * 注册物品
-     *
-     * <p>必须调用此方法以完成注册
-     */
+    /** 注册物品，必须调用此方法以完成注册。 */
     public DeferredItem<T> register() {
         Supplier<T> itemSupplier = () -> this.itemFactory.apply(this.properties);
         DeferredItem<T> item = ModItems.ITEMS.register(name, itemSupplier);

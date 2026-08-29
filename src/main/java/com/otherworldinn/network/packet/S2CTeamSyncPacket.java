@@ -15,11 +15,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/**
- * 服务端 -> 客户端 数据包
- *
- * <p>用于同步队伍数据到客户端。 包含队伍ID、名称、队长ID、成员列表、解锁点列表、传送功能状态、金币数、旅社数据。
- */
+/** 服务端 -> 客户端队伍数据同步包（成员、解锁点、金币、旅社数据等）。 */
 public record S2CTeamSyncPacket(
         UUID teamId,
         String teamName,
@@ -53,7 +49,6 @@ public record S2CTeamSyncPacket(
                                 .encode(buf, new ArrayList<>(packet.innRegions()));
                     },
                     buf ->
-                            // 按相同字段顺序恢复队伍快照
                             new S2CTeamSyncPacket(
                                     UUIDUtil.STREAM_CODEC.decode(buf),
                                     ByteBufCodecs.STRING_UTF8.decode(buf),
@@ -75,11 +70,6 @@ public record S2CTeamSyncPacket(
         return TYPE;
     }
 
-    /**
-     * 处理数据包
-     *
-     * @param context 数据包上下文
-     */
     public void handle(IPayloadContext context) {
         context.enqueueWork(
                 () -> {

@@ -34,7 +34,6 @@ public class InnKeyOverlay {
         Player player = mc.player;
         if (player == null) return false;
 
-        // 检查玩家是否持有旅社钥匙
         ItemStack mainHand = player.getItemInHand(InteractionHand.MAIN_HAND);
         ItemStack offHand = player.getItemInHand(InteractionHand.OFF_HAND);
 
@@ -42,7 +41,7 @@ public class InnKeyOverlay {
             return true;
         }
 
-        // 检查玩家是否手持工具 (仅主手)
+        // 仅主手可触发工具判定
         return isTool(mainHand);
     }
 
@@ -58,7 +57,6 @@ public class InnKeyOverlay {
         Minecraft mc = Minecraft.getInstance();
         HitResult hitResult = mc.hitResult;
 
-        // 仅当准星对准 DeskBell 时显示
         if (hitResult instanceof BlockHitResult blockHitResult) {
             BlockEntity be = mc.level.getBlockEntity(blockHitResult.getBlockPos());
             if (be instanceof DeskBellBlockEntity) {

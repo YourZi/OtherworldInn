@@ -12,10 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
- * 服务端 -> 客户端 节日商店折扣同步包。
- *
- * <p>内容为当前激活节日的商店折扣表（shopType → 折扣率 0~1），节日开始/结束及玩家登录时发送，
- * 供客户端商店界面展示折扣价。
+ * 服务端 -> 客户端节日商店折扣同步包（shopType → 折扣率 0~1），
+ * 在节日开始/结束及玩家登录时发送。
  */
 public record S2CFestivalShopDiscountPacket(Map<String, Double> shopDiscounts)
         implements CustomPacketPayload {

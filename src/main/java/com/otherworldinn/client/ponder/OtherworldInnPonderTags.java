@@ -28,9 +28,13 @@ public final class OtherworldInnPonderTags {
 
         itemHelper.addToTag(INN_SYSTEM)
                 .add(createItem())
+                .add(createWrench())
                 .add(Items.WOODEN_HOE)
                 .add(Items.STONE_HOE)
                 .add(Items.IRON_HOE)
+                .add(Items.WOODEN_PICKAXE)
+                .add(Items.STONE_PICKAXE)
+                .add(Items.IRON_PICKAXE)
                 .add(ModItems.INN_KEY.get())
                 .add(ModItems.ROOM_REGISTER.get())
                 .add(ModItems.ROOM_KEY.get());
@@ -38,5 +42,9 @@ public final class OtherworldInnPonderTags {
 
     private static Item createItem() {
         return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "depot"));
+    }
+
+    private static Item createWrench() {
+        return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "wrench"));
     }
 }

@@ -52,6 +52,11 @@ public final class InnDecorationRegistry {
         return ID_STATS.get(id);
     }
 
+    /** 所有按方块直接注册的装饰属性（JEI"家具属性"类目等展示用；标签/关键词规则无法枚举，不包含）。 */
+    public static Map<Block, InnDecorationStats> getAllBlockStats() {
+        return Map.copyOf(BLOCK_STATS);
+    }
+
     private static Optional<InnDecorationStats> getBaseStats(Block block) {
         if (BLOCK_STATS.containsKey(block)) {
             return Optional.of(BLOCK_STATS.get(block));

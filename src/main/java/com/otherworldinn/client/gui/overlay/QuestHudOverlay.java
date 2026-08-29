@@ -33,14 +33,8 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 /**
- * 任务系统 HUD（主 mod 自渲染，不依赖 OtherworldInnHud）：
- * 常驻显示在屏幕左侧垂直居中、左对齐；无内容时不占位。
- *
- * <p>布局动画为槽位制：每个任务占一个稳定槽位。淡出中的块仍占据槽位——
- * 其下方任务位置不动，待其完全淡出后槽位回收，下方任务平滑上移；
- * 新任务（如主线接取）在快照顺序对应的位置（主线即置顶）淡入滑入，
- * 其下方任务平滑下移让位。标题带 [主线]/[支线] 彩色前缀。
- * 节点推进（活跃节点集合变化）在原槽位做旧内容淡出、新内容淡入的交叉淡变。
+ * 任务系统 HUD（主 mod 自渲染，不依赖 OtherworldInnHud），常驻屏幕左侧垂直居中。
+ * 布局为槽位制：淡出中的块仍占槽位，槽位回收后其余块平滑移动；节点推进在同槽位交叉淡变。
  */
 @EventBusSubscriber(
         modid = OtherworldInn.MODID,

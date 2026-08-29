@@ -52,11 +52,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import com.otherworldinn.client.render.SlotIconRenderer;
 
-/**
- * 模组客户端事件处理器
- *
- * <p>处理仅限客户端的事件，例如按键绑定注册。
- */
+/** 模组客户端事件处理器。 */
 @EventBusSubscriber(
         modid = OtherworldInn.MODID,
         value = Dist.CLIENT,
@@ -85,7 +81,6 @@ public class ModClientEvents {
                         PonderIndex.addPlugin(new OtherworldInnPonderPlugin());
                     }
 
-                    // 半透明渲染
                     var translucent = RenderType.translucent();
                     ItemBlockRenderTypes.setRenderLayer(ModBlocks.INFRASTRUCTURE_TROPHY.get(), translucent);
                     ItemBlockRenderTypes.setRenderLayer(ModBlocks.SOCIAL_TROPHY.get(), translucent);

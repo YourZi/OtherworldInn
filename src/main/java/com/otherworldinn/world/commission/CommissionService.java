@@ -518,10 +518,7 @@ public final class CommissionService {
         return null;
     }
 
-    /**
-     * 节日限定委托：限时对齐节日窗口（durationDays = 窗口剩余天数，节日结束即过期），
-     * 不参与星级递增过滤。stars 仍随机取值用于卡片难度展示。
-     */
+    /** 节日限定委托：时限对齐节日窗口剩余天数、豁免星级递增过滤，stars 仅随机取值用于卡片难度展示 */
     private static CommissionEntry generateFestivalEntry(
             RandomSource random,
             long day,

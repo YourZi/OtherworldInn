@@ -59,7 +59,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
         context.enqueueWork(
                 () -> {
                     if (context.player() instanceof ServerPlayer player) {
-                        // 校验实体与菜单上下文
                         Entity entity = player.level().getEntity(packet.entityId);
                         if (entity instanceof StoreEntity storeEntity) {
                             if (!(player.containerMenu instanceof StoreMenu storeMenu)) {
@@ -76,7 +75,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                     || packet.items.size() > MAX_REQUEST_ITEMS) {
                                 return;
                             }
-                            // 读取队伍数据用于扣费与同步
                             TeamManager manager = TeamManager.getInstance();
                             TeamData team = manager.getPlayerTeam(player);
 
@@ -92,7 +90,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                             Map<StoreEntity.StoreItem, Integer> requestedByStock =
                                     new IdentityHashMap<>();
 
-                            // 逐项校验并计算总价
                             for (PurchaseItem request : packet.items) {
                                 if (request == null
                                         || request.stack == null
@@ -102,7 +99,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                 if (request.quantity <= 0) {
                                     return;
                                 }
-                                // 在商店库存中查找匹配项
                                 boolean found = false;
                                 for (StoreEntity.StoreItem stockItem :
                                         storeEntity.getStoreItems()) {
@@ -117,11 +113,10 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                         if (aggregatedQuantity <= 0) {
                                             return;
                                         }
-                                        // 检查库存
+                                        // 库存不足时直接判定交易失败，不支持部分购买
                                         if (stockItem.getMaxStock() != -1
                                                 && stockItem.getCurrentStock()
                                                         < aggregatedQuantity) {
-                                            // 库存不足，交易失败 (或者只买部分？这里简单处理为失败)
                                             return;
                                         }
                                         requestedByStock.put(stockItem, aggregatedQuantity);
@@ -153,17 +148,14 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                     }
                                 }
                                 if (!found) {
-                                    // 请求了商店没有的物品，直接拒绝本次交易
                                     return;
                                 }
                             }
 
-                            // 检查余额
                             if (totalPrice <= 0) {
                                 return;
                             }
                             if (team.getCoins() >= totalPrice) {
-                                // 提交交易：扣费、扣库存、发货
                                 manager.removeCoins(team, totalPrice, player.getServer());
                                 storeEntity.addSpentCoins(totalPrice);
                                 if (storeEntity.level() instanceof ServerLevel serverLevel) {
@@ -171,7 +163,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                             player, storeEntity, serverLevel);
                                 }
 
-                                // 扣除库存
                                 for (int i = 0; i < toDeductStock.size(); i++) {
                                     StoreEntity.StoreItem stockItem = toDeductStock.get(i);
                                     int quantity = deductQuantities.get(i);
@@ -181,7 +172,6 @@ public record C2SStorePurchasePacket(int entityId, List<PurchaseItem> items)
                                     }
                                 }
 
-                                // 发货
                                 for (ItemStack stack : toGive) {
                                     if (!player.getInventory().add(stack)) {
                                         player.drop(stack, false);

@@ -1602,11 +1602,7 @@ public final class CommissionRegistry {
             return this;
         }
 
-        /**
-         * 模组门控：仅当指定 modid 已加载时，模板才有机会被刷出到委托板。
-         * 用于需求/奖励引用其它模组内容（物品、实体、拍照目标等）的联动委托，
-         * 模组缺失时模板整体不出池，避免刷出无法完成的委托。
-         */
+        /** 模组门控：modid 未加载时模板整体不出池，避免联动委托因缺少其它模组内容而无法完成 */
         public Builder requiresMod(String modId) {
             this.requiredModId = modId == null || modId.isBlank() ? null : modId;
             return this;

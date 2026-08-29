@@ -59,15 +59,56 @@ public class ModLanguageProvider extends LanguageProvider {
 
         ponderScene("greenhouse")
                 .header("温室", "Greenhouse")
-                .text(1, "温室内种植的作物会加速生长", "Crops planted in the greenhouse grow faster")
+                .text(
+                        1,
+                        "正常来说，作物在不合适的季节无法生长...",
+                        "Normally, crops cannot grow during the wrong season...")
                 .text(
                         2,
-                        "加速倍率随温室等级而增长，满级时可以达到 3 倍速以上",
-                        "The growth multiplier increases with greenhouse level and can exceed 3x at max level")
+                        "...但是通过修复城镇内的温室设施，可以在其中种植跨季作物，只是生长速度稍慢",
+                        "...but after repairing the town greenhouse, you can grow off-season crops inside, though a bit slower")
                 .text(
                         3,
-                        "温室内的方块可以自由更改，搭建你喜欢的布局吧",
-                        "Blocks inside the greenhouse can be changed freely, so build any layout you like");
+                        "温室同时还能加速作物生长，加速效果随温室等级提升",
+                        "The greenhouse also accelerates crop growth, and the effect improves with facility level")
+                .text(
+                        4,
+                        "温室内的方块可以自由更改，搭建你喜欢的布局吧！",
+                        "Blocks inside the greenhouse can be changed freely, so build any layout you like!");
+
+        ponderScene("boiler_room")
+                .header("锅炉房", "Boiler Room")
+                .text(
+                        1,
+                        "修复后的锅炉房可以为机械提供远程应力",
+                        "The repaired boiler room can provide remote stress to machinery")
+                .text(
+                        2,
+                        "可以使用这里的虚空马达远程连接另一个虚空马达",
+                        "Use the void motor here to connect remotely to another void motor")
+                .text(
+                        3,
+                        "...记得调整为正确的频率",
+                        "...and make sure the frequency is set correctly")
+                .text(
+                        4,
+                        "设施等级越高，提供的应力越多",
+                        "Higher facility levels provide more stress");
+
+        ponderScene("mine")
+                .header("矿井", "Mine")
+                .text(
+                        1,
+                        "修复矿井后，设施内的木桶会每天产出矿物",
+                        "After the mine is repaired, the barrel inside will produce ores every day")
+                .text(
+                        2,
+                        "矿井等级越高，产出的矿物种类和数量越好",
+                        "Higher mine levels improve both the variety and amount of ores")
+                .text(
+                        3,
+                        "记得定期回来查看木桶，把当天的矿物取走",
+                        "Remember to come back and collect the day's output from the barrel");
 
         ponderScene("inn_key")
                 .header("旅社钥匙", "Inn Key")
@@ -122,6 +163,10 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("map_point.otherworldinn.cant_teleport").zh("无法传送至").en("Cannot teleport to");
 
         // JEI 信息页
+        // JEI 家具属性类目
+        entry("jei.otherworldinn.furniture_attribute.title")
+                .zh("家具属性")
+                .en("Furniture Attributes");
         entry("jei.otherworldinn.recall_scroll.info")
                 .zh("玩家离开城镇自动获取一张，玩家长按右键蓄力3秒，传回城镇旅社。在城镇内不能使用；下界、末地等其他维度均可使用。")
                 .en("You get one automatically when leaving the Town. Hold right-click for 3 seconds to teleport back to the Town inn. Cannot be used while inside the Town; works from any other dimension, such as the Nether or the End.");
@@ -195,12 +240,6 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.repair_greenhouse.description")
                 .zh("成功修复温室设施")
                 .en("Successfully repair the greenhouse facility");
-        entry("advancements.otherworldinn.repair_mine.title")
-                .zh("修复矿井")
-                .en("Repair Mine");
-        entry("advancements.otherworldinn.repair_mine.description")
-                .zh("成功修复矿井设施")
-                .en("Successfully repair the mine facility");
         entry("advancements.otherworldinn.repair_mine.title")
                 .zh("修复矿井")
                 .en("Repair Mine");

@@ -3,11 +3,8 @@ package com.otherworldinn.util;
 import net.minecraft.world.level.Level;
 
 /**
- * 世界日期工具：项目中所有"按天计算"的逻辑统一基于世界时间（DayTime）。
- *
- * <p>DayTime 为昼夜时间（未取模长整型），受玩家睡眠跳时、/time set 等修改世界时间的手段影响；
- * 因此基于它计算的"日期"会随这些手段同步前进，保证餐饮计划、商店补货、游商周期、
- * 故事访客回访等每日逻辑使用同一时间源，不再与 GameTime 混用。
+ * 世界日期工具：每日逻辑统一基于 DayTime（受睡眠跳时、/time set 影响），
+ * 保证餐饮计划、商店补货、游商周期等使用同一时间源。
  */
 public final class WorldDayUtils {
 

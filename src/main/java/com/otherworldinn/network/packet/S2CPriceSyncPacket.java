@@ -11,9 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/**
- * S鈫扖锛氬悓姝ユ湇鍔＄璁＄畻鍚庣殑鍏ㄩ噺娴姩鍚庝环鏍艰〃
- */
+/** 服务端 -> 客户端：同步服务端计算后的全量浮动价格表。 */
 public record S2CPriceSyncPacket(Map<String, Integer> prices) implements CustomPacketPayload {
     public static final Type<S2CPriceSyncPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "price_sync"));

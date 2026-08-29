@@ -10,11 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/**
- * 服务端 -> 客户端 疲劳值同步包。
- *
- * <p>每秒从服务端推送到客户端，供 GUI/HUD 读取当前疲劳状态。
- */
+/** 服务端 -> 客户端疲劳值同步包，每秒推送，供 GUI/HUD 读取。 */
 public record S2CFatigueSyncPacket(
         double fatigue,
         int stage,

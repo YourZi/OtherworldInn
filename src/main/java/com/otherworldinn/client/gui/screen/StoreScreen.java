@@ -55,25 +55,21 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
 
     private final ResourceLocation backgroundTexture;
 
-    // 选中状态
     @Nullable private StoreEntity.StoreItem selectedItem = null;
     private int purchaseQuantity = 1;
 
-    // 控件
     private EditBox quantityEditBox;
     private Button confirmButton;
     private Button purchaseButton;
     private final List<StoreEntity.StoreItem> cart = new ArrayList<>();
     @Nullable private LivingEntity previewStoreEntity;
 
-    // 购物车滚动相关
     private float scrollOffs = 0.0F;
     private boolean isScrolling = false;
     private static final int CART_ITEM_HEIGHT = 20;
-    private static final int CART_DISPLAY_ROWS = 5; // 显示行数
-    private static final int SCROLL_BAR_WIDTH = 4; // 滚动条宽度
+    private static final int CART_DISPLAY_ROWS = 5;
+    private static final int SCROLL_BAR_WIDTH = 4;
 
-    // 商品列表滚动相关
     private float goodsScrollOffs = 0.0F;
 
     public StoreScreen(StoreMenu menu, Inventory playerInventory, Component title) {
@@ -81,11 +77,9 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
         this.imageWidth = 256; // 宽屏界面
         this.imageHeight = 166;
 
-        // 获取背景纹理
         if (menu.getStoreEntity() != null) {
             this.backgroundTexture = menu.getStoreEntity().getStoreBackground();
         } else {
-            // 默认背景 (Fallback)
             this.backgroundTexture =
                     ResourceLocation.fromNamespaceAndPath(
                             "otherworldinn", "textures/gui/store.png");
@@ -98,7 +92,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
 
-        // 数量输入框
         this.quantityEditBox =
                 new EditBox(
                         this.font,
@@ -120,7 +113,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 });
         this.addRenderableWidget(this.quantityEditBox);
 
-        // 减少按钮
         this.addRenderableWidget(
                 Button.builder(
                                 Component.literal("-"),
@@ -136,7 +128,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                         .bounds(this.leftPos + 20, this.topPos + 110, 16, 16)
                         .build());
 
-        // 增加按钮
         this.addRenderableWidget(
                 Button.builder(
                                 Component.literal("+"),
@@ -149,7 +140,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                         .bounds(this.leftPos + 85, this.topPos + 110, 16, 16)
                         .build());
 
-        // 确定按钮
         this.confirmButton =
                 Button.builder(
                                 Component.translatable("gui.otherworldinn.store.confirm"),
@@ -162,14 +152,12 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                         .build();
         this.addRenderableWidget(this.confirmButton);
 
-        // 购买按钮 (右侧)
         this.purchaseButton =
                 Button.builder(
                                 Component.empty(),
                                 (btn) -> {
                                     if (this.menu.getStoreEntity() != null
                                             && !this.cart.isEmpty()) {
-                                        // 构建购买列表
                                         List<C2SStorePurchasePacket.PurchaseItem> purchaseItems =
                                                 new ArrayList<>();
                                         for (StoreEntity.StoreItem cartItem : this.cart) {
@@ -179,13 +167,11 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                                                             cartItem.getCurrentStock()));
                                         }
 
-                                        // 发送数据包
                                         ModMessages.sendToServer(
                                                 new C2SStorePurchasePacket(
                                                         this.menu.getStoreEntity().getId(),
                                                         purchaseItems));
 
-                                        // 清空购物车并关闭界面 (或者只清空)
                                         this.cart.clear();
                                         this.updateButtons();
                                         this.onClose(); // 购买成功后关闭界面，体验较好
@@ -205,7 +191,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
     }
 
     private void addToCart(StoreEntity.StoreItem item, int quantity) {
-        // 计算当前购物车中已有的该商品数量
         int existingQuantity = 0;
         int existingIndex = -1;
 
@@ -220,14 +205,12 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
 
         int newQuantity = existingQuantity + quantity;
 
-        // 检查库存限制 (如果 maxStock 不是 -1)
+        // maxStock 为 -1 表示无库存上限
         if (item.getMaxStock() != -1 && newQuantity > item.getCurrentStock()) {
-            // 如果超过库存，则只添加到剩余库存量
             newQuantity = item.getCurrentStock();
 
-            // 如果购物车里已经满了库存，不再添加
             if (existingQuantity >= item.getCurrentStock()) {
-                return; // 已达上限
+                return;
             }
         }
 
@@ -492,18 +475,15 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
         }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 
-        // 渲染购物车列表 (右侧)
         int listX = this.getRightPanelStartX();
         int listY = this.getPanelStartY();
         int listWidth = this.getGoodsAreaWidth();
 
-        // 滚动条相关参数
         int scrollBarX = listX + listWidth + 2;
         int scrollBarY = listY;
         int scrollBarHeight = this.getCartAreaHeight();
         boolean canScroll = this.cart.size() > CART_DISPLAY_ROWS;
 
-        // 渲染滚动条背景
         guiGraphics.fill(
                 scrollBarX,
                 scrollBarY,
@@ -511,7 +491,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 scrollBarY + scrollBarHeight,
                 ModColors.BLACK_DARK_32);
 
-        // 渲染滚动滑块
         if (canScroll) {
             int sliderHeight =
                     (int)
@@ -533,7 +512,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     sliderY + sliderHeight - 1,
                     ModColors.GRAY_LIGHT);
         } else {
-            // 禁用状态滑块
             guiGraphics.fill(
                     scrollBarX,
                     scrollBarY,
@@ -542,13 +520,11 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     ModColors.BLACK_DARK_64);
         }
 
-        // 计算可见区域
         int startIndex = 0;
         if (canScroll) {
             startIndex = (int) (this.scrollOffs * (this.cart.size() - CART_DISPLAY_ROWS));
         }
 
-        // 启用剪裁以限制列表显示区域
         guiGraphics.enableScissor(listX, listY, listX + listWidth, listY + scrollBarHeight);
 
         for (int i = startIndex; i < this.cart.size() && i < startIndex + CART_DISPLAY_ROWS; i++) {
@@ -582,7 +558,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // 渲染玩家余额 (居中)
         int playerBalance = 0;
         if (this.minecraft != null && this.minecraft.level != null) {
             TeamData teamData = TeamManager.getInstance().getClientTeamCache();
@@ -606,7 +581,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        // 渲染背景
         guiGraphics.blit(
                 this.backgroundTexture,
                 this.leftPos,
@@ -618,7 +592,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 this.imageWidth,
                 this.imageHeight);
 
-        // 渲染商品网格
         int startX = this.getLeftPanelStartX();
         int startY = this.getPanelStartY();
         int goodsAreaWidth = this.getGoodsAreaWidth();
@@ -685,10 +658,8 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
             int x = startX + col * (SLOT_SIZE + SLOT_SPACING);
             int y = startY + row * (SLOT_SIZE + SLOT_SPACING);
 
-            // 绘制槽位背景
             guiGraphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, ModColors.BLACK_ALPHA_20);
 
-            // 绘制物品
             StoreEntity.StoreItem storeItem = items.get(i);
             boolean isFavorLocked = this.isFavorLocked(storeItem);
             boolean isProgressLocked = this.isProgressLocked(storeItem);
@@ -696,17 +667,14 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     storeItem.getMaxStock() != -1 && storeItem.getCurrentStock() <= 0;
 
             if (isOutOfStock || isFavorLocked || isProgressLocked) {
-                // 绘制灰色遮罩
                 guiGraphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, ModColors.BLACK_ALPHA_62);
             }
 
             guiGraphics.renderItem(storeItem.getItemStack(), x + 1, y + 1);
             guiGraphics.renderItemDecorations(this.font, storeItem.getItemStack(), x + 1, y + 1);
 
-            // 渲染库存数量 (右下角)
             int stock = storeItem.getCurrentStock();
 
-            // 减去购物车中已有的数量
             for (StoreEntity.StoreItem cartItem : this.cart) {
                 if (ItemStack.isSameItemSameComponents(
                         cartItem.getItemStack(), storeItem.getItemStack())) {
@@ -724,7 +692,7 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 if (stock == 0) {
                     color = ModColors.ERROR;
                 } else if (stock < storeItem.getCurrentStock()) {
-                    // 如果购物车中有此商品，且当前显示的库存不是原始库存（即被减少了），显示为黄色
+                    // 购物车已占用部分库存时显示黄色
                     color = ModColors.YELLOW;
                 }
             }
@@ -732,7 +700,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 color = ModColors.ERROR;
             }
 
-            // 渲染带阴影的文字，类似于物品数量
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0, 0, 200); // 确保在物品上方
             guiGraphics.drawString(
@@ -744,7 +711,7 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     true);
             guiGraphics.pose().popPose();
 
-            // 选中高亮 (最后绘制以覆盖在物品上方，确保可见)
+            // 选中高亮：最后绘制以覆盖在物品上方
             if (items.get(i) == this.selectedItem) {
                 color = ModColors.WHITE_GHOST;
                 int shadowColor = ModColors.GRAY_ALPHA_LIGHT;
@@ -756,13 +723,11 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
         }
         guiGraphics.disableScissor();
 
-        // 渲染选中物品名称
         if (this.selectedItem != null) {
             Component name = this.getSelectedDisplayName(this.selectedItem);
             int nameWidth = this.font.width(name);
             int areaWidth = GRID_COLS * (SLOT_SIZE + SLOT_SPACING) - SLOT_SPACING;
             startX = this.getLeftPanelStartX();
-            // 计算居中位置
             int x = startX + (areaWidth - nameWidth) / 2;
             guiGraphics.drawString(this.font, name, x, this.topPos + 100, ModColors.WHITE);
         }
@@ -818,7 +783,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // 检查点击商品
         int startX = this.getLeftPanelStartX();
         int startY = this.getPanelStartY();
         List<StoreEntity.StoreItem> items = this.menu.getStoreItems();
@@ -842,7 +806,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 if (this.isLocked(items.get(i))) {
                     return false;
                 }
-                // 如果没有库存，不允许选择
                 if (items.get(i).getMaxStock() != -1 && items.get(i).getCurrentStock() <= 0) {
                     return false;
                 }
@@ -850,7 +813,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 boolean clickedSelectedItem = this.selectedItem == items.get(i);
                 if (!clickedSelectedItem) {
                     this.selectedItem = items.get(i);
-                    // 重置购买数量为 1
                     this.purchaseQuantity = 1;
                     this.quantityEditBox.setValue("1");
                     this.updateButtons();
@@ -858,17 +820,15 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                     this.addToCart(this.selectedItem, this.purchaseQuantity);
                 }
 
-                // Shift + 点击：快速添加 64 个 (或剩余库存)
+                // Shift+点击：快速添加 64 个（或剩余库存）
                 if (hasShiftDown()) {
                     int addAmount = 64;
                     if (this.selectedItem.getMaxStock() != -1) {
-                        // 考虑剩余库存
                         addAmount = Math.min(addAmount, this.selectedItem.getCurrentStock());
                     }
                     this.addToCart(this.selectedItem, addAmount);
                 }
 
-                // 播放点击音效
                 Minecraft.getInstance()
                         .getSoundManager()
                         .play(
@@ -931,7 +891,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
             return;
         }
 
-        // 渲染商品 Tooltip
         int startX = this.leftPos + 20;
         int startY = this.topPos + 20;
         List<StoreEntity.StoreItem> items = this.menu.getStoreItems();
@@ -955,7 +914,6 @@ public class StoreScreen extends AbstractContainerScreen<StoreMenu> {
                 StoreEntity.StoreItem item = items.get(i);
                 List<Component> tooltip = getTooltipFromItem(minecraft, item.getItemStack());
 
-                // 使用翻译键和自定义图标
                 int displayPrice = this.getDisplayPrice(item);
                 Component saleText = this.buildSalePriceText(displayPrice, 1);
                 if (saleText != null) {

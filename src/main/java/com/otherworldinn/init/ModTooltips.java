@@ -32,11 +32,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-/**
- * 客户端工具提示处理器
- *
- * <p>自动为注册的物品和方块添加工具提示
- */
+/** 客户端工具提示处理器，自动为注册的物品和方块添加工具提示。 */
 @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
 public class ModTooltips {
     private static final ResourceLocation CREATE_CLIPBOARD_ID =
@@ -51,7 +47,6 @@ public class ModTooltips {
         Level level = Minecraft.getInstance().level;
         TeamData clientTeam = TeamManager.getInstance().getClientPlayerTeam();
 
-        // 显示出售价格
         int sellPrice = ItemSellPriceManager.getPrice(itemStack);
         if (sellPrice > 0 && clientTeam != null) {
             sellPrice =
@@ -94,7 +89,6 @@ public class ModTooltips {
                                     .withStyle(style -> style.withColor(ModColors.INFO)));
         }
 
-        // 检查是否在城镇维度且物品被禁用
         if (level != null) {
             boolean inTown = level.dimension() == TownDimensions.TOWN_LEVEL;
 
@@ -103,13 +97,11 @@ public class ModTooltips {
                         .add(Component.translatable("tooltip.otherworldinn.banned_in_town"));
             }
 
-            // 检查是否在非城镇维度且物品仅限城镇使用
             if (!inTown && itemStack.is(OtherworldInn.ONLY_IN_TOWN)) {
                 event.getToolTip()
                         .add(Component.translatable("tooltip.otherworldinn.only_in_town"));
             }
 
-            // 为旅社钥匙添加状态提示
             if (itemStack.is(ModItems.INN_KEY.get())) {
                 if (clientTeam != null) {
                     InnData.InnState state = clientTeam.getInnData().getState();
@@ -142,7 +134,6 @@ public class ModTooltips {
             }
         }
 
-        // 检查物品注册表
         for (Map.Entry<DeferredItem<?>, ItemDataGenInfo> entry : ModItems.ITEM_INFOS.entrySet()) {
             if (entry.getKey().get() == item) {
                 int count = entry.getValue().enTooltips().size();
@@ -157,7 +148,6 @@ public class ModTooltips {
             }
         }
 
-        // 检查方块物品注册表
         if (item instanceof BlockItem blockItem) {
             Block block = blockItem.getBlock();
 

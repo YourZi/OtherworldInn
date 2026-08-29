@@ -31,7 +31,7 @@ public class LandDeedOverlay {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        // 注册到 HUD 管理器，优先级 20 (较高，优先于房间登记册)
+        // 优先级 20，需高于房间登记册
         ItemHudOverlay.register(20, (unused) -> shouldShow(), LandDeedOverlay::render);
     }
 
@@ -40,7 +40,6 @@ public class LandDeedOverlay {
         Player player = mc.player;
         if (player == null) return false;
 
-        // 检查玩家是否主手或副手持有地契
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean holding = stack.is(ModItems.LAND_DEED.get());
         if (!holding) {
@@ -61,8 +60,7 @@ public class LandDeedOverlay {
             stack = player.getItemInHand(InteractionHand.OFF_HAND);
         }
 
-        // 根据状态显示提示
-        // 状态：Pos1 未定 -> Pos2 未定 -> 确认
+        // 状态机：Pos1 未定 -> Pos2 未定 -> 确认
         CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         CompoundTag tag = customData.copyTag();
 

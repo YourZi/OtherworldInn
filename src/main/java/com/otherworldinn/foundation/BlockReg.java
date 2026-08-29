@@ -15,13 +15,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-/**
- * 方块注册构建器
- *
- * <p>用于链式配置方块的属性、物品、DataGen信息等
- *
- * @param <T> 方块类型
- */
+/** 方块注册构建器，链式配置属性、物品与 DataGen 信息。 */
 public class BlockReg<T extends Block> {
     private final String name;
     private final Function<BlockBehaviour.Properties, T> blockFactory;
@@ -262,13 +256,8 @@ public class BlockReg<T extends Block> {
         return this;
     }
 
-    /**
-     * 注册方块
-     *
-     * <p>必须调用此方法以完成注册
-     */
+    /** 注册方块，必须调用此方法以完成注册。 */
     public DeferredBlock<T> register() {
-        // 使用配置的属性创建方块
         Supplier<T> blockSupplier = () -> this.blockFactory.apply(this.properties);
 
         DeferredBlock<T> block = ModBlocks.BLOCKS.register(name, blockSupplier);

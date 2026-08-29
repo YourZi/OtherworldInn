@@ -21,11 +21,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/**
- * 客户端 -> 服务端 地图模式同步包。
- *
- * <p>负责在服务端执行地图模式相关的玩家传送与可见状态切换。
- */
+/** 客户端 -> 服务端地图模式同步包，在服务端执行传送与可见状态切换。 */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public record C2SMapModeSyncPacket(int action, double x, double y, double z, float yaw, float pitch)
         implements CustomPacketPayload {
@@ -101,13 +97,8 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
     }
 
     /**
-     * 退出地图模式。
-     *
-     * <p>供同包内的传送处理调用：传送成功后立即清除地图模式状态，
-     * 避免 {@link #maintainMapHover} 在客户端关闭动画期间把玩家拉回地图虚拟位置。
-     *
-     * @param player 玩家
-     * @param restorePosition 是否恢复到进入地图模式前的位置
+     * 传送成功后须立即退出地图模式，避免 {@link #maintainMapHover}
+     * 在客户端关闭动画期间把玩家拉回地图虚拟位置。
      */
     static void exitMapMode(ServerPlayer player, boolean restorePosition) {
         PlayerMapModeState state = ACTIVE_STATES.remove(player.getUUID());

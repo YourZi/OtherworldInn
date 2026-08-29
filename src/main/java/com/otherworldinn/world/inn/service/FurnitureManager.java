@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.util.tooltip.FurnitureSetTooltipHelper;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -195,6 +197,39 @@ public class FurnitureManager {
      * @param humidity 湿度 (-20 ~ 20)
      */
     public record FurnitureStats(int comfort, int light, int humidity) {}
+
+    /** 一个家具方块及其属性（展示用）。 */
+    public record BlockFurniture(Block block, FurnitureStats stats) {}
+
+    /**
+     * 遍历方块注册表，收集所有配置了家具属性的方块（JEI"家具属性"类目等展示用）。
+     *
+     * <p>直接注册、标签、关键词规则三种来源统一覆盖（关键词规则无法直接枚举，只能全表匹配）；
+     * 含"仅发光"的方块（光照属性来自方块发光等级）。不经过光照缓存，避免污染。
+     * 一次性调用，不要在 tick 内频繁使用。
+     */
+    public static List<BlockFurniture> getAllFurniture() {
+        List<BlockFurniture> result = new ArrayList<>();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            Optional<FurnitureStats> base = getBaseStats(block);
+            int light = 0;
+            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+                light = Math.max(light, state.getLightEmission());
+            }
+            if (base.isEmpty() && light <= 0) {
+                continue;
+            }
+            FurnitureStats stats = base.orElse(new FurnitureStats(0, 0, 0));
+            if (light > 0) {
+                stats = new FurnitureStats(stats.comfort(), light, stats.humidity());
+            }
+            if (stats.comfort() == 0 && stats.light() == 0 && stats.humidity() == 0) {
+                continue;
+            }
+            result.add(new BlockFurniture(block, stats));
+        }
+        return result;
+    }
 
     private record KeywordRule(String keyword, FurnitureStats stats) {}
 

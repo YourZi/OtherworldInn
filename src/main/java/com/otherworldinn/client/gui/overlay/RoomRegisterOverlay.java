@@ -21,7 +21,7 @@ public class RoomRegisterOverlay {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        // 注册到 HUD 管理器，优先级 10 (较低)
+        // 优先级 10，低于其他手持物品 HUD
         ItemHudOverlay.register(10, (unused) -> shouldShow(), RoomRegisterOverlay::render);
     }
 

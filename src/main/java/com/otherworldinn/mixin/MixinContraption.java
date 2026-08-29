@@ -21,14 +21,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Mixin 类，用于修改 Contraption 的行为。
- *
- * <p>
- * 主要功能：
- * <ol>
- *   <li>捕获当前的 StructureBlockInfo，用于在 customBlockPlacement 中判断是否在合法区域。
- *   <li>拦截 customBlockPlacement 方法，在城镇维度且不在任何旅社范围内时，禁止放置。
- * </ol>
+ * Contraption Mixin：捕获当前 StructureBlockInfo，并在城镇维度的非法区域拦截
+ * customBlockPlacement，使其掉落方块与内容物。
  */
 @Mixin(Contraption.class)
 public class MixinContraption {
@@ -40,17 +34,17 @@ public class MixinContraption {
         return false;
     }
 
-    // 1. 捕获当前的 StructureBlockInfo
+    // 捕获当前的 StructureBlockInfo
     @ModifyVariable(
             method = "addBlocksToWorld",
-            at = @At("LOAD"), // 在加载 block 变量时捕获
+            at = @At("LOAD"),
             ordinal = 0)
     private StructureBlockInfo captureCurrentBlock(StructureBlockInfo block) {
         currentBlockInfo.set(block);
         return block;
     }
 
-    // 2. 拦截 customBlockPlacement
+    // 拦截 customBlockPlacement
     @Redirect(
             method = "addBlocksToWorld",
             at =
@@ -89,7 +83,6 @@ public class MixinContraption {
             }
         }
 
-        // 合法区域，执行默认逻辑
         boolean placed = this.customBlockPlacement(worldAccessor, pos, state);
         if (placed && worldAccessor instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             InnEventHandler.markInnBlockChanged(serverLevel, pos);

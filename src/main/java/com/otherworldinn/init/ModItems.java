@@ -32,11 +32,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/**
- * 物品注册中心
- *
- * <p>负责注册模组中的所有物品。
- */
+/** 物品注册中心，注册模组中的所有物品。 */
 public class ModItems {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(OtherworldInn.MODID);
@@ -212,25 +208,13 @@ public class ModItems {
             ORGANIC_FERTILIZER_REG.register();
     // --- 辅助方法 ---
 
-    /**
-     * 开始一个物品的链式注册 (自定义物品类)
-     *
-     * @param name 物品注册名
-     * @param factory 物品工厂方法 (例如 CustomItem::new)
-     * @param <T> 物品类型
-     * @return ItemReg 构建器
-     */
+    /** 开始一个自定义物品类的链式注册。 */
     public static <T extends Item> ItemReg<T> register(
             String name, Function<Item.Properties, T> factory) {
         return new ItemReg<>(name, factory);
     }
 
-    /**
-     * 开始一个普通物品的链式注册 (使用默认 Item 类)
-     *
-     * @param name 物品注册名
-     * @return ItemReg 构建器
-     */
+    /** 开始一个默认 Item 的链式注册。 */
     public static ItemReg<Item> register(String name) {
         return new ItemReg<>(name, Item::new);
     }

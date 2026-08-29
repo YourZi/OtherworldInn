@@ -22,11 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * 床方块 Mixin
- *
- * <p>为床添加“是否脏乱”(messy) 属性。
- */
+/** 床方块 Mixin，为床添加“是否脏乱”(messy) 属性。 */
 @Mixin(BedBlock.class)
 public abstract class MixinBedBlock extends HorizontalDirectionalBlock {
 
@@ -34,33 +30,21 @@ public abstract class MixinBedBlock extends HorizontalDirectionalBlock {
         super(properties);
     }
 
-    /**
-     * 注入 createBlockStateDefinition 方法
-     *
-     * <p>将 MESSY 属性注册到 BlockState 定义中。
-     */
+    /** 将 MESSY 属性注册到 BlockState 定义。 */
     @Inject(method = "createBlockStateDefinition", at = @At("TAIL"))
     protected void injectCreateBlockStateDefinition(
             StateDefinition.Builder<Block, BlockState> builder, CallbackInfo ci) {
         builder.add(ModBlockProperties.MESSY);
     }
 
-    /**
-     * 注入构造函数
-     *
-     * <p>设置默认状态时，将 MESSY 设为 false。
-     */
+    /** 设置默认状态时将 MESSY 设为 false。 */
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectConstructor(DyeColor color, Properties properties, CallbackInfo ci) {
         this.registerDefaultState(
                 this.defaultBlockState().setValue(ModBlockProperties.MESSY, false));
     }
 
-    /**
-     * 拦截右键交互
-     *
-     * <p>床处于脏乱状态且玩家手持床单时，拦截睡觉与重生点设置。
-     */
+    /** 床处于脏乱状态且玩家手持床单时，拦截睡觉与重生点设置。 */
     @Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
     public void injectUseWithoutItem(
             BlockState state,
@@ -70,22 +54,16 @@ public abstract class MixinBedBlock extends HorizontalDirectionalBlock {
             BlockHitResult hitResult,
             CallbackInfoReturnable<InteractionResult> cir) {
         if (state.getValue(ModBlockProperties.MESSY)) {
-            // 检查玩家是否手持床单或脏乱的床单
             if (player.getMainHandItem().getItem() instanceof BedSheetItem
                     || player.getOffhandItem().getItem() instanceof BedSheetItem
                     || player.getMainHandItem().getItem() instanceof MessyBedSheetItem
                     || player.getOffhandItem().getItem() instanceof MessyBedSheetItem) {
-                // 阻止默认交互 (睡觉)
                 cir.setReturnValue(InteractionResult.PASS);
             }
         }
     }
 
-    /**
-     * 客户端粒子效果
-     *
-     * <p>如果床是脏乱的，随机生成灰尘粒子。
-     */
+    /** 脏乱的床在客户端随机生成灰尘粒子。 */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(ModBlockProperties.MESSY)) {

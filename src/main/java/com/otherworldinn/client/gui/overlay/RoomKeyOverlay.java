@@ -25,7 +25,7 @@ public class RoomKeyOverlay {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        // 注册到 HUD 管理器，优先级 15 (介于房间登记册和地契之间)
+        // 优先级 15，介于房间登记册和地契之间
         ItemHudOverlay.register(15, (unused) -> shouldShow(), RoomKeyOverlay::render);
     }
 

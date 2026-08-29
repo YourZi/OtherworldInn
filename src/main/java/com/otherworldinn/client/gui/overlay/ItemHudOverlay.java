@@ -20,11 +20,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
-/**
- * 物品 HUD 管理器
- *
- * <p>统一管理物品手持时的 HUD 提示，并支持优先级控制。
- */
+/** 物品 HUD 管理器，统一管理手持物品时的 HUD 提示，按优先级只显示最高的一个。 */
 @EventBusSubscriber(
         modid = OtherworldInn.MODID,
         value = Dist.CLIENT,
@@ -38,7 +34,6 @@ public class ItemHudOverlay {
             Predicate<Void> condition,
             BiConsumer<GuiGraphics, DeltaTracker> renderer) {}
 
-    // 鼠标操作提示记录
     public enum MouseButton {
         LEFT,
         RIGHT
@@ -50,19 +45,12 @@ public class ItemHudOverlay {
         }
     }
 
-    /**
-     * 注册一个新的 HUD 层
-     *
-     * @param priority 优先级（越高越优先显示）
-     * @param condition 显示条件（返回 true 时尝试显示）
-     * @param renderer 渲染逻辑
-     */
+    /** 注册一个新的 HUD 层，priority 越高越优先显示。 */
     public static void register(
             int priority,
             Predicate<Void> condition,
             BiConsumer<GuiGraphics, DeltaTracker> renderer) {
         overlays.add(new OverlayEntry(priority, condition, renderer));
-        // 按优先级降序排序
         overlays.sort(Comparator.comparingInt(OverlayEntry::priority).reversed());
     }
 
@@ -81,14 +69,7 @@ public class ItemHudOverlay {
                 });
     }
 
-    /**
-     * 渲染通用的鼠标操作提示
-     *
-     * <p>支持多个操作并排显示。
-     *
-     * @param guiGraphics GuiGraphics
-     * @param actions 操作列表
-     */
+    /** 渲染通用的鼠标操作提示，支持多个操作并排显示。 */
     public static void renderMouseActions(GuiGraphics guiGraphics, MouseAction... actions) {
         if (actions == null || actions.length == 0) return;
 
@@ -100,7 +81,6 @@ public class ItemHudOverlay {
         int iconSize = 16;
         int padding = 4;
 
-        // 计算总宽度
         int totalWidth = 0;
         for (int i = 0; i < actions.length; i++) {
             int textWidth = font.width(actions[i].text);
@@ -112,16 +92,13 @@ public class ItemHudOverlay {
 
         int currentX = centerX - totalWidth / 2;
 
-        // 渲染每个操作
         for (MouseAction action : actions) {
-            // 图标
             if (action.button == MouseButton.RIGHT) {
                 AllIcons.I_RMB.render(guiGraphics, currentX, startY);
             } else {
                 AllIcons.I_LMB.render(guiGraphics, currentX, startY);
             }
 
-            // 文本
             guiGraphics.drawString(
                     font,
                     action.text,
@@ -130,7 +107,6 @@ public class ItemHudOverlay {
                     action.color,
                     true);
 
-            // 更新 X 坐标
             int textWidth = font.width(action.text);
             currentX += iconSize + padding + textWidth + padding * 3;
         }

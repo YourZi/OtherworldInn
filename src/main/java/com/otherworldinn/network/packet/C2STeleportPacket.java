@@ -24,11 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-/**
- * 客户端 -> 服务端 数据包
- *
- * <p>请求传送到指定的地图点。 包含目标点的 ResourceLocation ID。
- */
+/** 客户端 -> 服务端传送请求包，携带目标地图点的 ResourceLocation ID。 */
 public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacketPayload {
     private static final ResourceLocation TOWN_GATE_POINT_ID =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_gate");
@@ -55,16 +51,10 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
         return TYPE;
     }
 
-    /**
-     * 处理数据包
-     *
-     * @param context 数据包上下文
-     */
     public void handle(IPayloadContext context) {
         context.enqueueWork(
                 () -> {
                     if (context.player() instanceof ServerPlayer player) {
-                        // 校验玩家队伍
                         TeamData team = TeamManager.getInstance().getPlayerTeam(player);
                         if (team == null) {
                             return;
@@ -75,12 +65,10 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                             return;
                         }
 
-                        // 校验目标点解锁状态
                         if (!team.isMapPointUnlocked(pointId)) {
                             return;
                         }
 
-                        // 查找目标点并执行传送
                         Optional<MapPoint> pointOpt = TownDataProvider.getPoint(pointId);
                         if (pointOpt.isPresent()) {
                             // 先退出地图模式（保留当前位置，不恢复到进入前的位置），
@@ -88,7 +76,6 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                             C2SMapModeSyncPacket.exitMapMode(player, false);
 
                             Vec3 target = pointOpt.get().worldPosition();
-                            // 传送到目标位置
                             player.teleportTo(
                                     player.serverLevel(),
                                     target.x,
@@ -97,7 +84,6 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                                     player.getYRot(),
                                     player.getXRot());
 
-                            // 播放末影人传送音效
                             player.serverLevel()
                                     .playSound(
                                             null,
@@ -109,7 +95,6 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                                             8.0F,
                                             1.0F);
 
-                            // 生成传送粒子效果
                             player.serverLevel()
                                     .sendParticles(
                                             ParticleTypes.PORTAL,

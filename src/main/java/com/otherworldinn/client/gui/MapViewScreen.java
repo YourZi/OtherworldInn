@@ -33,11 +33,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * 地图视图屏幕
- *
- * <p>提供全屏地图浏览功能，支持平滑缩放、页面切换和地图点传送。
- */
+/** 全屏地图视图屏幕，支持平滑缩放、页面切换和地图点传送。 */
 public class MapViewScreen extends Screen {
 
     /** 纹理基础尺寸 (16x16) */
@@ -45,18 +41,15 @@ public class MapViewScreen extends Screen {
 
     /** 动画持续时间 (毫秒) */
     private static final long ANIMATION_DURATION = 300;
-    /** 边框贴图尺寸（3x3 图集，96x96） */
+    /** 边框贴图图集尺寸（3x3，96x96） */
     private static final int BORDER_ATLAS_SIZE = 96;
     /** 边框源单元尺寸（图集中每格 32x32） */
     private static final int BORDER_TILE_SIZE = 32;
-    /** 边框渲染尺寸（保持现有屏幕大小不变） */
     private static final int BORDER_RENDER_TILE_SIZE = BORDER_TILE_SIZE;
-    /** 地图边框图集（96x96，3x3） */
     private static final ResourceLocation MAP_BORDER_ATLAS =
             ResourceLocation.fromNamespaceAndPath(
                     "otherworldinn", "textures/gui/map/map_border_atlas.png");
 
-    // 控件列表
     private final List<MapPointButton> pointButtons = new ArrayList<>();
     private final List<MapNavigationButton> navButtons = new ArrayList<>();
     private final List<MapNavigationButton> prevNavButtons = new ArrayList<>(); // 用于页面切换时的淡出动画
@@ -117,18 +110,12 @@ public class MapViewScreen extends Screen {
             }
         }
 
-        // 初始化分页导航按钮
         initNavigationButtons();
 
-        // 初始化按钮位置
         updateButtonPositionsForFrame(0.0f, 1.0f);
     }
 
-    /**
-     * 切换页面时刷新界面控件
-     *
-     * <p>重新加载当前页和上一页的地图点，并设置导航按钮的淡入淡出状态。
-     */
+    /** 页面切换时刷新控件：重新加载当前页和上一页的地图点，并设置导航按钮的淡入淡出。 */
     public void refreshForPageSwitch() {
         this.switchStartTime = System.currentTimeMillis();
         this.isSwitchingPage = true;
@@ -171,14 +158,10 @@ public class MapViewScreen extends Screen {
             }
         }
 
-        // 初始化新页面的导航按钮
         initNavigationButtons();
-
-        // 立即更新一次位置
         updateButtonPositionsForFrame(0.0f, 1.0f);
     }
 
-    /** 初始化按钮 */
     private void refreshCurrentPageButtons() {
         this.clearWidgets();
         pointButtons.clear();
@@ -226,7 +209,7 @@ public class MapViewScreen extends Screen {
         long now = System.currentTimeMillis();
         float visibility;
 
-        // 计算屏幕开关动画的可见度 (0.0 - 1.0)
+        // 屏幕开关动画的可见度 (0.0 - 1.0)
         if (isClosing) {
             float t = (now - closeStartTime) / (float) ANIMATION_DURATION;
             visibility = 1.0f - Mth.clamp(t, 0.0f, 1.0f);
@@ -240,10 +223,8 @@ public class MapViewScreen extends Screen {
             visibility = Mth.clamp(t, 0.0f, 1.0f);
         }
 
-        // 更新每一帧的按钮位置和透明度
         updateButtonPositionsForFrame(partialTick, visibility);
 
-        // 计算全局淡入淡出位移
         float yOffset = calculateFadeOffset(visibility);
 
         RenderSystem.enableBlend();
@@ -264,12 +245,8 @@ public class MapViewScreen extends Screen {
     }
 
     /**
-     * 渲染可平铺边框（32px 宽度）
-     *
-     * <p>图集布局（96x96）：
-     * [TL][T][TR]
-     * [L ][C][R ]
-     * [BL][B][BR]
+     * 渲染可平铺边框（32px 宽度），图集为 96x96 的 3x3 布局：
+     * [TL][T][TR] / [L ][C][R ] / [BL][B][BR]
      */
     private void renderMapBorder(final GuiGraphics guiGraphics) {
         final int w = this.width;
@@ -280,13 +257,12 @@ public class MapViewScreen extends Screen {
             return;
         }
 
-        // Corners
         blitBorder(guiGraphics, 0, 0, 0, 0, t, t); // TL
         blitBorder(guiGraphics, w - t, 0, 64, 0, t, t); // TR
         blitBorder(guiGraphics, 0, h - t, 0, 64, t, t); // BL
         blitBorder(guiGraphics, w - t, h - t, 64, 64, t, t); // BR
 
-        // Top / Bottom edges (tile from x = 32)
+        // 上下边从 u=32 起平铺
         int x = t;
         while (x < w - t) {
             final int segment = Math.min(t, (w - t) - x);
@@ -295,7 +271,7 @@ public class MapViewScreen extends Screen {
             x += segment;
         }
 
-        // Left / Right edges (tile from y = 32)
+        // 左右边从 v=32 起平铺
         int y = t;
         while (y < h - t) {
             final int segment = Math.min(t, (h - t) - y);
@@ -327,12 +303,7 @@ public class MapViewScreen extends Screen {
                 BORDER_ATLAS_SIZE);
     }
 
-    /**
-     * 计算淡入淡出动画的垂直位移
-     *
-     * @param visibility 可见度 (0.0 - 1.0)
-     * @return Y轴像素偏移量
-     */
+    /** 计算淡入淡出动画的垂直位移 */
     private float calculateFadeOffset(float visibility) {
         // Cubic ease out
         float eased = 1.0f - (1.0f - visibility) * (1.0f - visibility) * (1.0f - visibility);
@@ -350,12 +321,7 @@ public class MapViewScreen extends Screen {
         return Math.max(8, (int) (8 * guiScale));
     }
 
-    /**
-     * 每帧更新按钮位置
-     *
-     * @param partialTick 渲染部分刻
-     * @param globalVisibility 全局可见度 (用于控制整体透明度)
-     */
+    /** 每帧更新按钮位置和透明度 */
     private void updateButtonPositionsForFrame(float partialTick, float globalVisibility) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
@@ -364,7 +330,7 @@ public class MapViewScreen extends Screen {
         double baseY = ClientConfig.INSTANCE.cameraY.get();
         double baseZ = ClientConfig.INSTANCE.cameraZ.get();
 
-        // 计算页面切换动画进度 (基于时间)
+        // 页面切换动画进度 (基于时间)
         float smoothProgress = 0.0f;
         if (isSwitchingPage) {
             long now = System.currentTimeMillis();
@@ -378,14 +344,14 @@ public class MapViewScreen extends Screen {
             }
         }
 
-        // 计算插值因子 (Cubic Ease Out)
+        // 插值因子 (Cubic Ease Out)
         float transitionT = 0.0f;
         if (isSwitchingPage) {
             float f = 1.0f - smoothProgress;
             transitionT = 1.0f - f * f * f;
         }
 
-        // 计算当前相机的插值位置
+        // 当前相机的插值位置
         Vec3 camPos;
         if (isSwitchingPage) {
             double startX = baseX + CameraHandler.getPrevGridX() * MapPageManager.PAGE_SPACING;
@@ -414,7 +380,7 @@ public class MapViewScreen extends Screen {
         double pixelsPerBlock = height / (orthoSize * 2.0);
         int iconSize = getIconSize();
 
-        // 准备集合以判断点属于哪个页面
+        // 判断每个点属于当前页还是上一页
         MapPageManager manager = MapPageManager.getInstance();
         int curGridX = CameraHandler.getCurrentGridX();
         int curGridZ = CameraHandler.getCurrentGridZ();
@@ -481,7 +447,7 @@ public class MapViewScreen extends Screen {
                     button.setHeight(iconSize);
                     button.setPosition((int) screenX - iconSize / 2, (int) screenY - iconSize / 2);
 
-                    // 设置透明度并跳过后续常规更新
+                    // 设置透明度后跳过后续常规更新
                     button.setAlpha(alpha * globalVisibility);
                     button.active = (alpha * globalVisibility) > 0.05f;
                     button.visible = (alpha * globalVisibility) > 0.01f;

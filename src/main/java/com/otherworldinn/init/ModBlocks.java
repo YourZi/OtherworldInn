@@ -22,11 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/**
- * 方块注册中心
- *
- * <p>负责注册模组中的所有方块。 同时注册对应的方块物品（如果启用）。
- */
+/** 方块注册中心，注册所有方块及对应方块物品。 */
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS =
             DeferredRegister.createBlocks(OtherworldInn.MODID);
@@ -115,14 +111,7 @@ public class ModBlocks {
 
     // --- 辅助方法 ---
 
-    /**
-     * 开始一个方块的链式注册
-     *
-     * @param name 方块注册名
-     * @param factory 方块工厂方法 (例如 Block::new)
-     * @param <T> 方块类型
-     * @return BlockReg 构建器
-     */
+    /** 开始一个方块的链式注册。 */
     public static <T extends Block> BlockReg<T> register(
             String name, Function<BlockBehaviour.Properties, T> factory) {
         return new BlockReg<>(name, factory);

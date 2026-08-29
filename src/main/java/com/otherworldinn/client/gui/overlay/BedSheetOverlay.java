@@ -39,7 +39,6 @@ public class BedSheetOverlay {
         Player player = mc.player;
         if (player == null) return false;
 
-        // 检查玩家是否持有床单或脏乱的床单
         ItemStack mainHand = player.getItemInHand(InteractionHand.MAIN_HAND);
         ItemStack offHand = player.getItemInHand(InteractionHand.OFF_HAND);
 
@@ -62,7 +61,6 @@ public class BedSheetOverlay {
         BlockState state = mc.level.getBlockState(pos);
 
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        // 优先处理主手，如果主手不是相关物品，则检查副手
         if (!isRelevantItem(stack)) {
             stack = player.getItemInHand(InteractionHand.OFF_HAND);
         }
