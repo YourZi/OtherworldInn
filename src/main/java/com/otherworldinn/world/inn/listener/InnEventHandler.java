@@ -57,11 +57,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/**
- * 旅社事件处理器
- *
- * <p>处理与旅社运营相关的事件，例如方块更新触发的房间检查。
- */
+/** 处理旅社运营相关事件（方块变更触发的房间检查等）。 */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class InnEventHandler {
 
@@ -84,11 +80,7 @@ public class InnEventHandler {
         }
     }
 
-    /**
-     * 监听方块更新事件 (NeighborNotifyEvent)
-     *
-     * <p>当方块发生更新（放置、破坏、状态改变）时触发。 如果更新发生在旅社区域内，则标记该队伍在 tick 结束时进行房间检查。
-     */
+    /** 方块更新时标记所在队伍在 tick 结束时检查房间。 */
     @SubscribeEvent
     public static void onBlockUpdate(BlockEvent.NeighborNotifyEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -96,11 +88,7 @@ public class InnEventHandler {
         markInnBlockChanged(level, event.getPos());
     }
 
-    /**
-     * 监听方块放置事件
-     *
-     * <p>NeighborNotifyEvent 可能不覆盖所有情况（如直接放置），补充监听 PlaceEvent。 同时也负责检测剪贴板的放置，同步缓存的待办事项。
-     */
+    /** 补充监听方块放置（NeighborNotifyEvent 可能不覆盖），并检测剪贴板放置以同步待办。 */
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -114,10 +102,8 @@ public class InnEventHandler {
             markInnBlockChanged(level, pos);
             team.getInnData().markDiningDisplayDirty(pos);
 
-            // 检查是否放置了剪贴板
             BlockState state = event.getState();
             if (AllBlocks.CLIPBOARD.has(state)) {
-                // 如果是剪贴板，尝试同步缓存的待办事项
                 // 扫描范围只需包含该方块即可，syncTodosToClipboard 会调用 modifyClipboards，后者会检查 BlockEntity
                 AABB area = new AABB(pos);
                 team.getInnData().syncTodosToClipboard(level, area);
@@ -263,12 +249,7 @@ public class InnEventHandler {
         return data.copyTag().getBoolean(MESSY_BED_ITEM_KEY);
     }
 
-    /**
-     * 在 Level Tick 结束时处理待定检查
-     *
-     * <p>根据记录的变更位置，找出受影响的房间并逐一进行合法性判定与属性更新。
-     * 确保每个 tick 每个队伍最多只执行检查一次。
-     */
+    /** Level Tick 结束时处理待定检查，确保每 tick 每队伍最多检查一次。 */
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -322,23 +303,17 @@ public class InnEventHandler {
         }
     }
 
-    /**
-     * 监听装备变更事件 (服务器端)
-     *
-     * <p>当房间登记册进入副手时，播放翻页音效。 这通常发生在玩家将物品从主手切换到副手时。
-     */
+    /** 房间登记册进入副手时播放翻页音效。 */
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
         if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
             // 避免登录时触发
             if (player.tickCount < 10) return;
 
-            // 仅关注副手变化
             if (event.getSlot() == EquipmentSlot.OFFHAND) {
                 ItemStack to = event.getTo();
                 ItemStack from = event.getFrom();
 
-                // 检查是否切换到了房间登记册，且之前不是房间登记册
                 if (to.is(ModItems.ROOM_REGISTER.get()) && !from.is(ModItems.ROOM_REGISTER.get())) {
                     // 使用 null 作为 player 参数，确保包括触发者在内的所有附近玩家都能听到声音
                     player.level()
@@ -354,18 +329,13 @@ public class InnEventHandler {
         }
     }
 
-    /**
-     * 处理玩家左键点击方块事件 (服务器端)
-     *
-     * <p>1. 地契：清除选定范围 2. 房间登记册：删除房间（并阻止方块破坏）
-     */
+    /** 左键方块：地契清除选区、房间钥匙解绑、登记册删除房间（并阻止破坏）。 */
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
         Level level = event.getLevel();
         BlockPos relativePos = event.getPos().relative(event.getFace());
 
-        // 1. 处理地契逻辑 (主手)
         ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (mainHandItem.is(ModItems.LAND_DEED.get())) {
             CustomData customData =
@@ -383,12 +353,11 @@ public class InnEventHandler {
                                     .withStyle(style -> style.withColor(ModColors.INFO)),
                             true);
                 }
-                event.setCanceled(true); // 取消方块破坏
+                event.setCanceled(true);
                 return;
             }
         }
 
-        // 2. 处理房间钥匙逻辑 (主手)
         if (mainHandItem.is(ModItems.ROOM_KEY.get())) {
             Optional<Integer> roomId = RoomKeyItem.getBoundRoomId(mainHandItem);
             if (roomId.isPresent()) {
@@ -399,15 +368,13 @@ public class InnEventHandler {
                                     .withStyle(style -> style.withColor(ModColors.INFO)),
                             true);
                 }
-                event.setCanceled(true); // 取消方块破坏
+                event.setCanceled(true);
                 return;
             }
         }
 
-        // 3. 处理房间登记册逻辑 (副手)
         ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
         if (offhandItem.is(ModItems.ROOM_REGISTER.get())) {
-            // 只要副手持有房间登记册，就取消方块破坏，尝试执行删除房间逻辑
             event.setCanceled(true);
             handleLeftClick(player, relativePos, level);
         }
@@ -425,7 +392,6 @@ public class InnEventHandler {
         Player player = event.getEntity();
         ItemStack held = player.getItemInHand(event.getHand());
 
-        // 命名牌重命名房间
         if (held.is(Items.NAME_TAG) && held.has(DataComponents.CUSTOM_NAME)) {
             if (level instanceof ServerLevel serverLevel
                     && level.dimension() == TownDimensions.TOWN_LEVEL) {
@@ -573,15 +539,6 @@ public class InnEventHandler {
         return uuid.toString().substring(0, 8);
     }
 
-    /**
-     * 处理左键点击方块的公共逻辑
-     *
-     * <p>检查玩家副手是否持有房间登记册。 如果条件满足，则删除点击位置所在的房间。
-     *
-     * @param player 玩家实体
-     * @param pos 点击的方块坐标
-     * @param level 世界实例
-     */
     private static void handleLeftClick(Player player, BlockPos pos, Level level) {
         if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) {
             return;

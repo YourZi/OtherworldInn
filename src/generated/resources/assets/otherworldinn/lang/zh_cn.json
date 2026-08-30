@@ -43,6 +43,8 @@
   "advancements.otherworldinn.maimai_hidden.title": "这不是洗衣机",
   "advancements.otherworldinn.mine_max_level.description": "将矿井设施升级至满级",
   "advancements.otherworldinn.mine_max_level.title": "矿脉富饶",
+  "advancements.otherworldinn.open_first_inn.description": "让你的旅社第一次开始营业",
+  "advancements.otherworldinn.open_first_inn.title": "正式开业",
   "advancements.otherworldinn.repair_boiler_room.description": "成功修复锅炉房设施",
   "advancements.otherworldinn.repair_boiler_room.title": "修复锅炉房",
   "advancements.otherworldinn.repair_greenhouse.description": "成功修复温室设施",
@@ -1153,12 +1155,12 @@
   "tooltip.otherworldinn.room_key.theme": "房间主题：%s",
   "tooltip.otherworldinn.schematic.survival_print": "生存模式可使用打印工具",
   "tooltip.otherworldinn.sell_price": "售价: §f§r%s",
-  "tooltip.otherworldinn.story_alchemist_potion": "她把旅途中付出的心血，封进了这一瓶里。",
-  "tooltip.otherworldinn.story_archaeologist_brush": "有些痕迹需要耐心，有些历史需要你自己去刷开。",
+  "tooltip.otherworldinn.story_alchemist_potion": "她把旅途中付出的心血，封进了这一瓶药剂里。",
+  "tooltip.otherworldinn.story_archaeologist_brush": "老教授的旧刷，有些痕迹需要耐心，有些历史需要你自己去刷开。",
   "tooltip.otherworldinn.story_cartographer_compass": "凝聚了这位制图师的心血",
   "tooltip.otherworldinn.story_chef_lunch_bag": "他把最拿手的便携手艺，留给了认同的人。",
   "tooltip.otherworldinn.story_gem_merchant_star": "她从不把真正压箱底的货摆上柜台。",
   "tooltip.otherworldinn.story_minstrel_disc": "她把还没唱完的那一段，留给了愿意听的人。",
   "tooltip.otherworldinn.story_noble_clock": "它早已不再象征权势，却还勉强替主人保住了体面。",
-  "tooltip.otherworldinn.story_old_knight_shield": "有些旧誓言不会说话，却仍愿意替人挡下一记风浪。"
+  "tooltip.otherworldinn.story_old_knight_shield": "有些旧朋友不会说话，却仍然愿意替人挡下一记风浪。"
 }

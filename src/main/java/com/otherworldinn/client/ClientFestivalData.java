@@ -9,11 +9,17 @@ public final class ClientFestivalData {
 
     /** shopType → 折扣率（0~1）；"" 键表示全局折扣 */
     private static Map<String, Double> shopDiscounts = Map.of();
+    /** innAttribute → 节日加成（0~1） */
+    private static Map<String, Double> innAttributeBoosts = Map.of();
 
     private ClientFestivalData() {}
 
     public static void setShopDiscounts(Map<String, Double> discounts) {
         shopDiscounts = Map.copyOf(discounts);
+    }
+
+    public static void setInnAttributeBoosts(Map<String, Double> boosts) {
+        innAttributeBoosts = Map.copyOf(boosts);
     }
 
     /** 指定商店类型的节日折扣率（0 = 无折扣）；未匹配具体类型时回退全局折扣（"" 键） */
@@ -23,5 +29,9 @@ public final class ClientFestivalData {
             return specific;
         }
         return shopDiscounts.getOrDefault("", 0.0D);
+    }
+
+    public static double getInnAttributeBoost(String attribute) {
+        return innAttributeBoosts.getOrDefault(attribute, 0.0D);
     }
 }

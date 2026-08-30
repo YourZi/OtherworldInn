@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.S2CFestivalShopDiscountPacket;
+import com.otherworldinn.network.packet.S2CFestivalInnAttributeBoostPacket;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.world.data.TownSavedData;
 import com.otherworldinn.world.dimension.TownDimensions;
@@ -30,14 +31,8 @@ import sereneseasons.api.season.ISeasonState;
 import sereneseasons.api.season.SeasonHelper;
 
 /**
- * 节日服务
- *
- * <p>全局共享：整个城镇维度同步过节。每日判定当前激活的节日窗口，窗口变化时广播
- * {@link FestivalStartedEvent} / {@link FestivalEndedEvent} 并触发效果生命周期钩子。
- * 窗口为纯时间函数（季节绑定），只持久化"上次广播的窗口标识"用于事件去重。
- *
- * <p>查询入口（getActiveFestival / queryValue）供商店、客人、设施、旅社等系统在运行时
- * 主动查询节日加成，Serene Seasons 未安装时全部返回空/0。
+ * 节日服务：整个城镇维度全局共享过节，每日判定激活窗口，窗口变化时广播开始/结束事件并触发效果生命周期钩子。
+ * 窗口为纯时间函数（季节绑定），只持久化"上次广播的窗口标识"用于事件去重；查询入口供商店、客人、设施等系统运行时主动查询加成，Serene Seasons 未安装时全部返回空/0。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class FestivalService {
@@ -48,10 +43,8 @@ public final class FestivalService {
 
     /**
      * 调试用强制激活节日 id（null = 关闭）。
-     *
-     * <p>非空时 {@link #getActiveFestival} 无视季节直接返回该节日（限定商品、限定委托、
-     * 效果加成全部生效），切换时立即广播开始/结束事件，但不写入 lastFestivalWindow
-     * 去重记录，避免调试吞掉真实季节窗口的事件。
+     * 非空时无视季节直接返回该节日（限定商品、限定委托、效果加成全部生效），切换时立即广播开始/结束事件，
+     * 但不写入 lastFestivalWindow 去重记录，避免调试吞掉真实季节窗口的事件。
      */
     @Nullable
     private static String debugActiveFestivalId;
@@ -75,10 +68,7 @@ public final class FestivalService {
         return debugActiveFestivalId;
     }
 
-    /**
-     * 设置调试用强制激活节日：切换时立即广播结束/开始事件（含效果钩子、聊天提示、
-     * 折扣同步），不写入 lastFestivalWindow。传 null 表示关闭并恢复季节驱动。
-     */
+    /** 设置调试用强制激活节日：切换时立即广播结束/开始事件（含效果钩子、聊天提示、折扣同步），不写入 lastFestivalWindow；传 null 恢复季节驱动。 */
     public static void setDebugActiveFestivalId(@Nullable String festivalId, ServerLevel townLevel) {
         if (festivalId != null && FestivalRegistry.get(festivalId).isEmpty()) {
             return;
@@ -93,6 +83,7 @@ public final class FestivalService {
                     .ifPresent(festival -> fireStarted(townLevel, festival, 0));
         } else {
             syncShopDiscounts(townLevel);
+            syncInnAttributeBoosts(townLevel);
             TaskHudSnapshotSync.syncAllPlayers(townLevel);
         }
     }
@@ -210,6 +201,35 @@ public final class FestivalService {
         return merged;
     }
 
+    public static Map<String, Double> getInnAttributeBoosts(ServerLevel townLevel) {
+        double lodging =
+                queryValue(
+                        townLevel,
+                        FestivalEffect.KEY_INN_ATTRIBUTE_BOOST,
+                        InnAttributeBoostEffect.ATTR_LODGING_INCOME);
+        double dining =
+                queryValue(
+                        townLevel,
+                        FestivalEffect.KEY_INN_ATTRIBUTE_BOOST,
+                        InnAttributeBoostEffect.ATTR_DINING_INCOME);
+        double reputation =
+                queryValue(
+                        townLevel,
+                        FestivalEffect.KEY_INN_ATTRIBUTE_BOOST,
+                        InnAttributeBoostEffect.ATTR_REPUTATION_GAIN);
+        Map<String, Double> boosts = new HashMap<>();
+        if (lodging > 0.0D) {
+            boosts.put(InnAttributeBoostEffect.ATTR_LODGING_INCOME, lodging);
+        }
+        if (dining > 0.0D) {
+            boosts.put(InnAttributeBoostEffect.ATTR_DINING_INCOME, dining);
+        }
+        if (reputation > 0.0D) {
+            boosts.put(InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, reputation);
+        }
+        return boosts;
+    }
+
     /** 将当前节日商店折扣同步给所有在线玩家（节日开始/结束、跨窗口切换时调用） */
     public static void syncShopDiscounts(ServerLevel townLevel) {
         Map<String, Double> discounts = getShopDiscounts(townLevel);
@@ -224,6 +244,18 @@ public final class FestivalService {
                 new S2CFestivalShopDiscountPacket(getShopDiscounts(townLevel)), player);
     }
 
+    public static void syncInnAttributeBoosts(ServerLevel townLevel) {
+        Map<String, Double> boosts = getInnAttributeBoosts(townLevel);
+        for (ServerPlayer player : townLevel.getServer().getPlayerList().getPlayers()) {
+            ModMessages.sendToPlayer(new S2CFestivalInnAttributeBoostPacket(boosts), player);
+        }
+    }
+
+    public static void syncInnAttributeBoostsTo(ServerLevel townLevel, ServerPlayer player) {
+        ModMessages.sendToPlayer(
+                new S2CFestivalInnAttributeBoostPacket(getInnAttributeBoosts(townLevel)), player);
+    }
+
     /** 玩家登录时同步当前节日商店折扣，保证客户端展示与结算一致 */
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
@@ -235,6 +267,7 @@ public final class FestivalService {
             return;
         }
         syncShopDiscountsTo(townLevel, player);
+        syncInnAttributeBoostsTo(townLevel, player);
     }
 
     private static Optional<FestivalDefinition> findActiveFestival(
@@ -277,6 +310,7 @@ public final class FestivalService {
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         playCelebrationSound(townLevel);
         syncShopDiscounts(townLevel);
+        syncInnAttributeBoosts(townLevel);
         TaskHudSnapshotSync.syncAllPlayers(townLevel);
     }
 
@@ -322,6 +356,7 @@ public final class FestivalService {
                         .append(" 结束了")
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         syncShopDiscounts(townLevel);
+        syncInnAttributeBoosts(townLevel);
         TaskHudSnapshotSync.syncAllPlayers(townLevel);
     }
 

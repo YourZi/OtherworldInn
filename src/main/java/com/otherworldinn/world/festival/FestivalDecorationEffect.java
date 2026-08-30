@@ -4,12 +4,7 @@ import com.otherworldinn.world.festival.FestivalDecorationService.DecorationRegi
 import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 
-/**
- * 节日装饰效果：开始时贴节日版结构快照，结束时贴还原版。
- *
- * <p>区域列表为空时无操作（首版四节日均未配置区域，后续在 {@code FestivalRegistry}
- * 构造处填入 {@link DecorationRegion} 即生效，无需其他改动）。
- */
+/** 节日装饰效果：开始时贴节日版结构快照，结束时贴还原版。 */
 public class FestivalDecorationEffect implements FestivalEffect {
     private final List<DecorationRegion> regions;
 

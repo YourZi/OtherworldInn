@@ -11,10 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import sereneseasons.api.season.Season;
 
 /**
- * 节日注册表
- *
- * <p>代码内联注册节日定义（仿 FacilityRegistry）。{{@link #registerDefaults()} 内含一个
- * 覆盖全部效果类型的示例节日，可直接复制改造成正式节日。
+ * 节日注册表：代码内联注册节日定义（仿 FacilityRegistry）。
+ * {@link #registerDefaults()} 内含一个覆盖全部效果类型的示例节日，可直接复制改造成正式节日。
  */
 public final class FestivalRegistry {
     /** 节日装饰效果：通用喷泉（全部节日共用），快照对待导出至 structure/festival/common/ */
@@ -48,7 +46,7 @@ public final class FestivalRegistry {
                 "spring_festival",
                 "Spring Festival",
                 "春祭",
-                new FestivalTrigger(Season.SPRING, 0, 3), // 早春 day 1-3
+                new FestivalTrigger(Season.SPRING, 0, 3),
                 List.of(new ShopSaleEffect(Map.of("farmer", 0.2D)), DECORATION_EFFECT));
 
         // 仲夏夜：仲夏 day 5-7，故事客人刷新 +100%
@@ -56,7 +54,7 @@ public final class FestivalRegistry {
                 "midsummer_night",
                 "Midsummer Night",
                 "仲夏夜",
-                new FestivalTrigger(Season.SUMMER, 12, 15), // 仲夏 day 5-7
+                new FestivalTrigger(Season.SUMMER, 12, 15),
                 List.of(new GuestSpawnBoostEffect(Map.of("", 1.0D)), DECORATION_EFFECT));
 
         // 秋收祭：晚秋 day 1-4，餐饮收益 +30%、顾客好感度 +25%
@@ -64,7 +62,7 @@ public final class FestivalRegistry {
                 "harvest_festival",
                 "Harvest Festival",
                 "秋收祭",
-                new FestivalTrigger(Season.AUTUMN, 16, 20), // 晚秋 day 1-4
+                new FestivalTrigger(Season.AUTUMN, 16, 20),
                 List.of(
                         new InnAttributeBoostEffect(
                                 Map.of(
@@ -77,7 +75,7 @@ public final class FestivalRegistry {
                 "deep_winter_festival",
                 "Deep Winter Festival",
                 "隆冬节",
-                new FestivalTrigger(Season.WINTER, 14, 17), // 仲冬 day 7-9
+                new FestivalTrigger(Season.WINTER, 14, 17),
                 List.of(
                         new InnAttributeBoostEffect(
                                 Map.of(InnAttributeBoostEffect.ATTR_LODGING_INCOME, 0.5D)),

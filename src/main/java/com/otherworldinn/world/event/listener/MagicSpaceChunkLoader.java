@@ -7,9 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
-/**
- * 魔法空间常加载区块管理器
- */
+/** 魔法空间常加载区块管理器。 */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class MagicSpaceChunkLoader {
 

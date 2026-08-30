@@ -183,12 +183,7 @@ public final class ItemRecyclePriceCalculator {
         return ResourceLocation.tryParse(id);
     }
 
-    /**
-     * 计算任意物品的回收价。
-     *
-     * @param stack 要回收的物品
-     * @return 回收单价（0 表示不可回收或价值低于 1）
-     */
+    /** 计算任意物品的回收单价（0 表示不可回收或价值低于 1）。 */
     public static int getRecyclePrice(ItemStack stack) {
         if (stack.isEmpty()) return 0;
 
@@ -233,11 +228,7 @@ public final class ItemRecyclePriceCalculator {
         return Math.clamp(base, 0, MAX_RECYCLE_PRICE);
     }
 
-    /**
-     * 按稀有度兜底计算基础价值。
-     *
-     * <p>COMMON→1, UNCOMMON→3, RARE→6, EPIC→10
-     */
+    /** 按稀有度兜底计算基础价值。 */
     private static int rarityBase(Rarity rarity) {
         return switch (rarity) {
             case COMMON -> 1;

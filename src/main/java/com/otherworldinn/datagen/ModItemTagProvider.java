@@ -13,11 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 物品标签生成器
- *
- * <p>负责生成 tags/item JSON 文件。
- */
+/** 物品标签生成器：生成 tags/item JSON 文件 */
 public class ModItemTagProvider extends ItemTagsProvider {
     public ModItemTagProvider(
             PackOutput output,

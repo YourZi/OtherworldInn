@@ -34,7 +34,6 @@ public class BuilderEntity extends StoreEntity {
 
     public static List<CatalogEntry> createCatalog() {
         List<CatalogEntry> entries = new ArrayList<>();
-        // 木板
         entries.add(new CatalogEntry(new ItemStack(Items.OAK_PLANKS), 2, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.SPRUCE_PLANKS), 2, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.BIRCH_PLANKS), 2, 64));
@@ -46,7 +45,6 @@ public class BuilderEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(Items.BAMBOO_PLANKS), 3, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.CRIMSON_PLANKS), 3, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.WARPED_PLANKS), 3, 64));
-        // 石质方块
         entries.add(new CatalogEntry(new ItemStack(Items.COBBLESTONE), 2, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.STONE), 2, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.GRANITE), 2, 64));
@@ -59,7 +57,6 @@ public class BuilderEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(Items.BLACKSTONE), 4, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.BASALT), 4, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.DRIPSTONE_BLOCK), 4, 64));
-        // 其他建筑材料
         entries.add(new CatalogEntry(new ItemStack(Items.WHITE_WOOL), 4, 32));
         entries.add(new CatalogEntry(new ItemStack(Items.GLASS), 3, 64));
         entries.add(new CatalogEntry(new ItemStack(Items.GLASS_PANE), 2, 64));
@@ -77,7 +74,7 @@ public class BuilderEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(Items.DARK_PRISMARINE), 12, 32));
         entries.add(new CatalogEntry(new ItemStack(Items.SEA_LANTERN), 12, 32));
         entries.add(new CatalogEntry(new ItemStack(Items.QUARTZ_BLOCK), 10, 48));
-        // 好感度物品
+        // 好感度解锁商品（末位参数为所需好感等级）
         entries.add(new CatalogEntry(new ItemStack(Items.GLOWSTONE), 8, 32, 2));
         entries.add(new CatalogEntry(new ItemStack(Items.OBSIDIAN), 20, 16, 4));
         entries.add(new CatalogEntry(new ItemStack(Items.PURPUR_BLOCK), 16, 48, 6));

@@ -27,9 +27,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 /**
- * 语言文件生成器
- *
- * <p>负责生成 en_us.json 和 zh_cn.json 语言文件。 根据传入的 locale 参数决定生成哪种语言。
+ * 语言文件生成器：根据 locale 参数生成 en_us.json / zh_cn.json
  */
 public class ModLanguageProvider extends LanguageProvider {
     private final String locale;
@@ -278,6 +276,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.create_first_room.description")
                 .zh("使用房间登记册创建你的第一间客房")
                 .en("Use the Room Register to create your first guest room");
+        entry("advancements.otherworldinn.open_first_inn.title")
+                .zh("正式开业")
+                .en("Open for Business");
+        entry("advancements.otherworldinn.open_first_inn.description")
+                .zh("让你的旅社第一次开始营业")
+                .en("Open your inn for business for the first time");
         entry("advancements.otherworldinn.serve_first_guest.title")
                 .zh("欢迎光临！")
                 .en("Welcome!");
@@ -1013,13 +1017,13 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("米蕾雅的恒火药剂")
                 .en("Mireya's Everflame Draught");
         entry("tooltip.otherworldinn.story_alchemist_potion")
-                .zh("她把旅途中付出的心血，封进了这一瓶里。")
+                .zh("她把旅途中付出的心血，封进了这一瓶药剂里。")
                 .en("She sealed the steadiest flame of a perilous journey into this single bottle.");
         entry("item.otherworldinn.story_archaeologist_brush")
                 .zh("索恩教授的旧刷")
                 .en("Professor Thorne's Old Brush");
         entry("tooltip.otherworldinn.story_archaeologist_brush")
-                .zh("有些痕迹需要耐心，有些历史需要你自己去刷开。")
+                .zh("老教授的旧刷，有些痕迹需要耐心，有些历史需要你自己去刷开。")
                 .en("Some traces require patience, and some histories must be brushed free by your own hand.");
         entry("item.otherworldinn.story_gem_merchant_star")
                 .zh("杰玛的藏品星核")
@@ -1031,7 +1035,7 @@ public class ModLanguageProvider extends LanguageProvider {
                 .zh("奥德里克的旧徽盾")
                 .en("Aldric's Old Crested Shield");
         entry("tooltip.otherworldinn.story_old_knight_shield")
-                .zh("有些旧誓言不会说话，却仍愿意替人挡下一记风浪。")
+                .zh("有些旧朋友不会说话，却仍然愿意替人挡下一记风浪。")
                 .en("Some old vows do not speak, but they still rise to take the blow.");
         entry("message.otherworldinn.story.photo_recorded")
                 .zh("你已经替%s记录下目标照片：%s")

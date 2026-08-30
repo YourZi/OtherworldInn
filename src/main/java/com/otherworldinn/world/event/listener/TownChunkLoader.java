@@ -8,9 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /**
- * 城镇常加载区块管理器
- *
- * <p>保持以 (0,0) 为中心、半径 3 范围内的区块常加载，使女仆等实体在玩家离开城镇后仍能继续工作。
+ * 城镇常加载区块管理器：保持以 (0,0) 为中心、半径 3 的区块常加载，使女仆等实体在玩家离开城镇后仍能继续工作。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class TownChunkLoader {

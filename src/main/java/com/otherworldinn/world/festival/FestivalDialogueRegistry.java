@@ -14,12 +14,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 /**
- * 节日限定 NPC 对话注册表。
- *
- * <p>每个注册项克隆对应的基础商店对话并替换 root 节点问候文案，其余节点（如设施话题）
- * 与选项结构原样保留，选项 id 全局共享、翻译自动复用。对话选择在
- * {@link com.otherworldinn.world.dialogue.DialogueService#tryStartDialogue} 打开时实时判定
- * 当前激活节日（含调试开关），节日结束或未注册组合时回落基础对话。
+ * 节日限定 NPC 对话注册表：克隆基础商店对话并替换 root 节点问候文案，其余节点与选项结构原样保留（选项 id 全局共享、翻译自动复用）。
+ * 对话打开时实时判定当前激活节日（含调试开关），节日结束或未注册组合时回落基础对话。
  */
 public final class FestivalDialogueRegistry {
     /** 基础对话 id → (节日 id → 节日版对话) */

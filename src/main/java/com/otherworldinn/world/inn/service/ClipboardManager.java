@@ -23,14 +23,7 @@ import net.minecraft.world.phys.AABB;
 
 public class ClipboardManager {
 
-    /**
-     * 在指定范围内所有的墙面剪贴板上添加一条待办事项
-     *
-     * @param level 世界
-     * @param area 扫描范围
-     * @param text 待办事项文本
-     * @return 是否成功添加（至少修改了一个剪贴板）
-     */
+    /** 在范围内所有墙面剪贴板添加一条待办事项，返回是否至少修改了一个剪贴板。 */
     public static boolean addTodo(Level level, AABB area, String text) {
         return addTodo(level, area, Component.literal(text));
     }
@@ -49,13 +42,11 @@ public class ClipboardManager {
                         }
                     }
 
-                    // 如果所有页面都满了，创建新页面
                     if (targetPage == null) {
                         targetPage = new ArrayList<>();
                         pages.add(targetPage);
                     }
 
-                    // 添加新的未勾选条目
                     targetPage.add(new ClipboardEntry(false, text.copy()));
                 });
     }
@@ -73,16 +64,10 @@ public class ClipboardManager {
                     for (List<ClipboardEntry> page : pages) {
                         page.removeIf(entry -> matches(entry, todo));
                     }
-                    // 移除空页面
                     pages.removeIf(List::isEmpty);
                 });
     }
 
-    /**
-     * 修改指定待办事项的勾选状态
-     *
-     * @param checked true为勾选，false为取消勾选
-     */
     public static void setTodoStatus(Level level, AABB area, String text, boolean checked) {
         modifyClipboards(
                 level,

@@ -50,7 +50,6 @@ public class InnRenderer {
             PoseStack poseStack, List<TeamData.InnRegion> regions, InnData.InnState state) {
         Tesselator tesselator = Tesselator.getInstance();
 
-        // 渲染设置
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -61,7 +60,6 @@ public class InnRenderer {
 
         float y = 71.01f; // 假设地面在 70
 
-        // 颜色设置
         float red, green, blue;
         if (state == InnData.InnState.CLOSED) {
             red = 1.0f;
@@ -96,7 +94,6 @@ public class InnRenderer {
 
             BufferUploader.drawWithShader(buffer.buildOrThrow());
         } catch (Exception e) {
-            // 忽略可能的异常 (API 变动)
         }
 
         // 2. 绘制边框 (仅绘制外轮廓)
@@ -104,7 +101,6 @@ public class InnRenderer {
         alpha = 0.8f;
 
         try {
-            // 使用 DEBUG_LINES 模式绘制所有线段
             BufferBuilder lineBuffer =
                     tesselator.begin(
                             VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
@@ -181,7 +177,6 @@ public class InnRenderer {
 
             BufferUploader.drawWithShader(lineBuffer.buildOrThrow());
         } catch (Exception e) {
-            // 忽略
         }
 
         RenderSystem.enableDepthTest();
@@ -237,18 +232,15 @@ public class InnRenderer {
             java.util.List<Interval> current, Interval remove) {
         java.util.List<Interval> result = new java.util.ArrayList<>();
         for (Interval i : current) {
-            // No intersection
             if (!i.intersects(remove)) {
                 result.add(i);
                 continue;
             }
 
-            // Left part
             if (i.start < remove.start) {
                 result.add(new Interval(i.start, remove.start));
             }
 
-            // Right part
             if (i.end > remove.end) {
                 result.add(new Interval(remove.end, i.end));
             }

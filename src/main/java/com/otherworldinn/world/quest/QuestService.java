@@ -23,13 +23,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 /**
- * 任务服务（服务端权威状态机）。
- *
- * <p>判定模型：状态驱动——激活时 + 相关事件后 + 低频兜底轮询统一走 {@link #reevaluateTeam}；
- * 交互类目标不可轮询，由事件直接标记完成后触发重算。树推进写成"任意变化后重算整棵树"，
- * 不假设节点先后顺序；完成状态写入为幂等依据，防并发重复推进。
+ * 任务服务（服务端权威状态机）：任意变化后重算整棵树、不假设节点先后顺序，完成状态写入为幂等依据，防并发重复推进。
  */
 public final class QuestService {
+    private static final long QUEST_ACCEPT_DETECTION_DELAY_TICKS = 60L;
+
     private QuestService() {}
 
     /** 接取任务（幂等：已接取/已完成返回 false）。 */
@@ -99,9 +97,13 @@ public final class QuestService {
     /** 重算一支队伍的全部任务状态；有任何推进则标记存档脏。 */
     public static void reevaluateTeam(TeamData team, MinecraftServer server) {
         boolean anyChange = false;
+        long currentGameTime = server.overworld().getGameTime();
         for (QuestDefinition quest : QuestRegistry.all()) {
             TeamQuestData.QuestProgress progress = team.getQuestData().getProgress(quest.id());
             if (progress == null || progress.isCompleted()) {
+                continue;
+            }
+            if (isInAcceptDelay(progress, currentGameTime)) {
                 continue;
             }
             if (reevaluateQuest(quest, team, server, progress)) {
@@ -134,7 +136,7 @@ public final class QuestService {
         if (!progress.isCompleted()
                 && quest.getLeafNodeIds().stream().allMatch(progress.getCompletedNodeIds()::contains)) {
             progress.markCompleted(server.overworld().getGameTime());
-            // 奖励已在各节点完成时发放；完成提示交给 HUD 淡出动效，不发聊天消息（委托系统原有提示不受影响）
+            // 奖励已在各节点完成时发放；完成提示由 HUD 淡出动效呈现，不发聊天消息
             anyChange = true;
         }
         return anyChange;
@@ -217,9 +219,13 @@ public final class QuestService {
             return;
         }
         boolean changed = false;
+        long currentGameTime = player.serverLevel().getGameTime();
         for (QuestDefinition quest : QuestRegistry.all()) {
             TeamQuestData.QuestProgress progress = team.getQuestData().getProgress(quest.id());
             if (progress == null || progress.isCompleted()) {
+                continue;
+            }
+            if (isInAcceptDelay(progress, currentGameTime)) {
                 continue;
             }
             for (String nodeId : progress.getActiveNodeIds()) {
@@ -238,6 +244,14 @@ public final class QuestService {
         if (changed) {
             reevaluateTeam(team, player.server);
         }
+    }
+
+    private static boolean isInAcceptDelay(TeamQuestData.QuestProgress progress, long currentGameTime) {
+        long acceptedAt = progress.getAcceptedAt();
+        if (acceptedAt == Long.MAX_VALUE) {
+            return false;
+        }
+        return currentGameTime - acceptedAt < QUEST_ACCEPT_DETECTION_DELAY_TICKS;
     }
 
     // ---------- 奖励与反馈 ----------

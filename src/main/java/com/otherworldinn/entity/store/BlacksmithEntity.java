@@ -24,14 +24,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
-/**
- * 铁匠实体
- *
- * <p>出售粗矿和矿锭 也会随机刷新一些带有损耗或附魔的铁制工具。
- */
+/** 铁匠实体：出售原矿/粗矿/矿锭，随机刷新带损耗或附魔的铁制工具。 */
 public class BlacksmithEntity extends StoreEntity {
 
-    // 随机工具池
     private final List<RandomItemData> toolPool = new ArrayList<>();
     private static final List<ResourceKey<Enchantment>> ARMOR_PRIMARY_ENCHANTMENTS =
             List.of(
@@ -79,11 +74,9 @@ public class BlacksmithEntity extends StoreEntity {
         this.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.COPPER_INGOT));
         this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         this.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
-        // 初始化商品列表
         if (!level.isClientSide) {
             this.initDefaultStoreItems();
 
-            // 初始化工具池 (如果为空)
             if (this.toolPool.isEmpty()) {
                 initToolPool();
             }
@@ -161,7 +154,6 @@ public class BlacksmithEntity extends StoreEntity {
         if (this.toolPool.isEmpty()) {
             initToolPool();
         }
-        // 随机抽取商品
         this.generateRandomItems(this.toolPool, 2, 4);
     }
 
@@ -171,31 +163,27 @@ public class BlacksmithEntity extends StoreEntity {
 
     public static List<CatalogEntry> createCatalog() {
         List<CatalogEntry> entries = new ArrayList<>();
-        // 原矿
         entries.add(new CatalogEntry(new ItemStack(Items.IRON_ORE), 8, 16));
         entries.add(new CatalogEntry(new ItemStack(AllBlocks.ZINC_ORE.get()), 6, 16));
         entries.add(new CatalogEntry(new ItemStack(Items.COPPER_ORE), 6, 16));
         entries.add(new CatalogEntry(new ItemStack(Items.GOLD_ORE), 12, 8));
 
-        // 粗矿
         entries.add(new CatalogEntry(new ItemStack(Items.RAW_IRON), 8, 16));
         entries.add(new CatalogEntry(new ItemStack(AllItems.RAW_ZINC.get()), 6, 16));
         entries.add(new CatalogEntry(new ItemStack(Items.RAW_COPPER), 5, 16));
         entries.add(new CatalogEntry(new ItemStack(Items.RAW_GOLD), 12, 8));
 
-        // 粉碎矿
         entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_IRON.get()), 8, 8));
         entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_ZINC.get()), 6, 8));
         entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_COPPER.get()), 5, 8));
         entries.add(new CatalogEntry(new ItemStack(AllItems.CRUSHED_GOLD.get()), 12, 4));
 
-        // 矿锭
         entries.add(new CatalogEntry(new ItemStack(Items.IRON_INGOT), 10, 32));
         entries.add(new CatalogEntry(new ItemStack(AllItems.ZINC_INGOT.get()), 8, 32));
         entries.add(new CatalogEntry(new ItemStack(Items.COPPER_INGOT), 6, 32));
         entries.add(new CatalogEntry(new ItemStack(Items.GOLD_INGOT), 15, 16));
 
-        // 好感度物品
+        // 好感度解锁商品（末位参数为所需好感等级）
         entries.add(new CatalogEntry(new ItemStack(AllItems.ANDESITE_ALLOY.get()), 4, 32, 2));
         entries.add(new CatalogEntry(new ItemStack(AllItems.BRASS_INGOT.get()), 10, 32, 4));
         entries.add(new CatalogEntry(new ItemStack(AllItems.POLISHED_ROSE_QUARTZ.get()), 12, 32, 6));

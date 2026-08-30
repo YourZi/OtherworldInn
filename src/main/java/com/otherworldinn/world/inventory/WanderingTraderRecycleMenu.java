@@ -79,7 +79,6 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
         this.initialRecycleCoinGained = Math.max(0, initialRecycleCoinGained);
         this.initialRecycledCounts = new HashMap<>(initialRecycledCounts);
 
-        // 回收物品槽位（3行）
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
                 int index = row * COLS + col;
@@ -145,7 +144,6 @@ public class WanderingTraderRecycleMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
 
-        // 清除游商的占用状态
         Entity entity = player.level().getEntity(traderEntityId);
         if (entity instanceof WanderingTraderEntity trader) {
             if (trader.getCurrentRecyclePlayer() == player) {

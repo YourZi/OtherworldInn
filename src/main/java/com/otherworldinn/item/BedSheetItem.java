@@ -22,11 +22,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 
-/**
- * 床单物品
- *
- * <p>用于清理脏乱的床。 右键点击脏乱的床时，消耗耐久并将床变干净，同时给予玩家一个脏乱的床单物品。
- */
+/** 床单物品：右键清理脏乱的床，消耗耐久并获得脏床单。 */
 public class BedSheetItem extends Item {
 
     public BedSheetItem(Properties properties) {
@@ -41,7 +37,6 @@ public class BedSheetItem extends Item {
         Player player = context.getPlayer();
         ItemStack stack = context.getItemInHand();
 
-        // 检查目标是否为脏乱的床
         if (state.getBlock() instanceof BedBlock
                 && state.hasProperty(ModBlockProperties.MESSY)
                 && state.getValue(ModBlockProperties.MESSY)) {
@@ -59,7 +54,6 @@ public class BedSheetItem extends Item {
                     }
                 }
             } else {
-                // 客户端效果
                 level.playSound(
                         player, pos, SoundEvents.WOOL_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
                 for (int i = 0; i < 5; i++) {

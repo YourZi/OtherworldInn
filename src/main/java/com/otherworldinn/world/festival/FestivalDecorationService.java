@@ -12,14 +12,9 @@ import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 节日装饰服务：成对结构快照的世界写入与状态对账。
- *
- * <p>每个装饰区域由两个全量快照（含空气）组成：节日版与还原版，贴图即全量覆盖，天然幂等。
- * 开始时贴节日版，结束时贴还原版；还原版覆盖会抹掉装饰期间区域内的一切变化（城镇保护
- * 下公共区域不可被玩家改动，可接受）。装饰结构不携带实体。
- *
- * <p>状态持久化于 {@link TownSavedData#getDecoratedFestivalId()}，服务器启动后首个有效 tick
- * 执行一次 {@link #reconcile} 对账：激活节日与记录态不一致时强制到目标态（崩溃/中断自愈）。
+ * 节日装饰服务：成对结构快照（节日版/还原版，含空气全量覆盖、天然幂等）的世界写入与状态对账。
+ * 还原版会抹掉装饰期间区域内的一切变化（城镇保护下公共区域不可被玩家改动，可接受）；装饰结构不携带实体。
+ * 状态持久化于 {@link TownSavedData#getDecoratedFestivalId()}，服务器启动后首个有效 tick 执行 {@link #reconcile} 强制到目标态（崩溃/中断自愈）。
  */
 public final class FestivalDecorationService {
     private FestivalDecorationService() {}

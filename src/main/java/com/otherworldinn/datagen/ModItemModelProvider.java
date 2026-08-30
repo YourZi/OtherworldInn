@@ -11,9 +11,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 /**
- * 物品模型生成器
- *
- * <p>负责生成 items 的 JSON 模型文件。 大多数方块物品的模型由 BlockStateProvider 处理，此处主要处理独立物品。
+ * 物品模型生成器：主要处理独立物品，方块物品模型由 BlockStateProvider 生成
  */
 public class ModItemModelProvider extends ItemModelProvider {
     public ModItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -22,10 +20,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        // 大多数方块物品的模型由 ModBlockStateProvider.simpleBlockWithItem 处理
-        // 此处主要处理独立物品
 
-        // 注册 ModItems 中的物品
         for (Map.Entry<DeferredItem<?>, ItemDataGenInfo> entry : ModItems.ITEM_INFOS.entrySet()) {
             DeferredItem<?> item = entry.getKey();
             ItemDataGenInfo info = entry.getValue();

@@ -10,7 +10,6 @@ import net.minecraft.world.level.dimension.LevelStem;
 
 /** 维度定义 */
 public class TownDimensions {
-    // 城镇维度定义
     public static final ResourceKey<LevelStem> TOWN_LEVEL_STEM =
             ResourceKey.create(
                     Registries.LEVEL_STEM,
@@ -24,7 +23,6 @@ public class TownDimensions {
                     Registries.DIMENSION_TYPE,
                     ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_type"));
 
-    // 魔法空间维度
     public static final ResourceKey<LevelStem> MAGIC_SPACE_STEM =
             ResourceKey.create(
                     Registries.LEVEL_STEM,

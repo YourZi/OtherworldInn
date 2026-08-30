@@ -96,7 +96,6 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
         drawNpcBackground(guiGraphics);
         Font font = Minecraft.getInstance().font;
 
-        // 店主图标
         drawStoreIcon(guiGraphics, recipe);
 
         // 店主名：始终绘制，与店主图标水平中心线居中对齐
@@ -104,7 +103,6 @@ final class NpcStoreJeiCategory implements IRecipeCategory<NpcStoreJeiRecipe> {
         int iconCenterX = WIDTH - ICON_SIZE - ICON_MARGIN + ICON_SIZE / 2;
         guiGraphics.drawString(font, name, iconCenterX - font.width(name) / 2, 4, 0x404040, false);
 
-        // 底部：需求/提示
         int bottomY = 56;
         List<Component> segments = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();

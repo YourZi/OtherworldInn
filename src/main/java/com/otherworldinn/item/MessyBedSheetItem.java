@@ -20,11 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-/**
- * 脏乱的床单物品
- *
- * <p>通过清理脏床获得。 对着水源或含水方块长按右键可清洗回干净的床单，消耗耐久。
- */
+/** 脏乱的床单：对水源或含水方块长按右键清洗回干净床单，消耗耐久。 */
 public class MessyBedSheetItem extends Item {
 
     public MessyBedSheetItem(Properties properties) {
@@ -36,7 +32,6 @@ public class MessyBedSheetItem extends Item {
             Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // 获取视线目标
         BlockHitResult hitResult =
                 getPlayerPOVHitResult(
                         level, player, net.minecraft.world.level.ClipContext.Fluid.ANY);
@@ -56,7 +51,6 @@ public class MessyBedSheetItem extends Item {
     public void onUseTick(
             Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         if (livingEntity instanceof Player player && level.isClientSide) {
-            // 播放洗刷刷的粒子效果
             if (level.getGameTime() % 5 == 0) {
                 BlockHitResult hitResult =
                         getPlayerPOVHitResult(
@@ -75,7 +69,6 @@ public class MessyBedSheetItem extends Item {
                     }
                 }
             }
-            // 播放音效
             if (level.getGameTime() % 10 == 0) {
                 level.playSound(
                         player,
@@ -184,6 +177,6 @@ public class MessyBedSheetItem extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BRUSH; // 刷子动画
+        return UseAnim.BRUSH;
     }
 }

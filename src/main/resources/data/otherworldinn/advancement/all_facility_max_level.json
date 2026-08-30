@@ -19,5 +19,10 @@
     "unlock": {
       "trigger": "minecraft:impossible"
     }
+  },
+  "rewards": {
+    "loot": [
+      "otherworldinn:advancement_rewards/infrastructure_trophy"
+    ]
   }
 }

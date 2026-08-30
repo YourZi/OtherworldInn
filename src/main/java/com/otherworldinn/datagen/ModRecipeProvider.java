@@ -33,6 +33,13 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(recipeOutput);
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.ROOM_REGISTER.get(), 1)
+                .requires(ModItems.ROOM_KEY.get())
+                .requires(Items.BOOK)
+                .unlockedBy("has_room_key", has(ModItems.ROOM_KEY.get()))
+                .unlockedBy("has_book", has(Items.BOOK))
+                .save(recipeOutput);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.INN_KEY.get(), 1)
                 .pattern("G ")
                 .pattern(" G")

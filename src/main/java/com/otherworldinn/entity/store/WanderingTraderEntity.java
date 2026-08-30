@@ -90,12 +90,7 @@ public class WanderingTraderEntity extends StoreEntity {
         this.refreshRandomItems();
     }
 
-    /**
-     * 游商可售商品范围（供 JEI 展示）。
-     *
-     * <p>游商本身完全动态：每日从注册表中随机抽取 16 种物品，外加 8 种固定价格的特殊原版物品。
-     * JEI 展示这 8 种特殊原版物品
-     */
+    /** 游商可售商品范围（供 JEI 展示）：游商每日随机上架，JEI 仅展示 8 种固定价格的特殊原版物品。 */
     public static List<RandomOffer> createRandomOffers() {
         List<RandomOffer> offers = new ArrayList<>();
         for (Map.Entry<ResourceLocation, SpecialVanillaOffer> entry : SPECIAL_VANILLA_OFFERS.entrySet()) {

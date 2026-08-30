@@ -25,19 +25,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 取景器拍照任务目标提示（仅客户端）。
+ * 取景器拍照任务目标提示（仅客户端）：画面满足激活拍照任务目标时在准星下方渲染提示，
+ * 判定复用 Exposure 拍照同一套算法，保证提示与最终完成判定口径一致。
  *
- * <p>玩家通过 Exposure 取景器观察时，若画面满足当前激活拍照任务（剧情/委托）的目标条件，
- * 在准星下方渲染金色提示"发现拍照任务目标"。判定复用 Exposure 拍照时的同一套算法
- * （getPointOfView + getViewfinderFov + EntitiesInFrame），保证提示与最终完成判定口径一致；
- * 任务目标来自 HUD 快照，无专用网络包。
- *
- * <p>提示不走 actionbar/HUD 事件：Exposure 在 Gui.render 头部渲染取景器 overlay 并按
- * 配置取消原版 HUD，RenderGuiEvent.Post 随之不触发；因此渲染由
- * MixinExposureViewfinderOverlay 在 overlay 渲染尾部借其 GuiGraphics 调用
- * {@link #renderHint}，投影与层级天然正确。tick 判定经
- * {@link PhotoTargetHintClientHandler} 在确认 Exposure 已加载后调用；本类的所有调用方
- * 均保证 Exposure 已加载（mixin 生效即隐含），无软依赖类加载风险。
+ * <p>提示不走 RenderGuiEvent.Post：Exposure 在 Gui.render 头部渲染取景器 overlay 并按配置
+ * 取消原版 HUD，Post 事件不会触发；渲染由 MixinExposureViewfinderOverlay 在 overlay 尾部
+ * 借其 GuiGraphics 调用 {@link #renderHint}。tick 判定经 {@link PhotoTargetHintClientHandler}
+ * 在确认 Exposure 已加载后调用，无软依赖类加载风险。
  */
 public final class PhotoTargetHintService {
     private static final String KEY_TASKS = "Tasks";

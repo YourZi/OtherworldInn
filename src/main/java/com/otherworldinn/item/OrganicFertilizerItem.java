@@ -14,12 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
-/**
- * 有机肥料
- *
- * <p>右键随机刻方块时消耗一个并强力催熟：带 age 属性的方块直接推到最高生长阶段，
- * 其余方块触发一次随机刻。粒子和音效类似骨粉。
- */
+/** 有机肥料：对随机刻方块强力催熟，带 age 属性的直接推到最高生长阶段，其余触发一次随机刻。 */
 public class OrganicFertilizerItem extends Item {
     public OrganicFertilizerItem(Properties properties) {
         super(properties);

@@ -18,7 +18,6 @@ public final class MaidEfficiencyHelper {
 
     /**
      * 获取女仆当前的工作效率倍率 [0.4, 1.0]。
-     * 满好感 = 1.0，最低 = 0.4。
      */
     public static float getEfficiency(EntityMaid maid) {
         int favor = getFavorability(maid);
@@ -27,16 +26,14 @@ public final class MaidEfficiencyHelper {
     }
 
     /**
-     * 根据效率调整工作冷却/延迟时间。
-     * 效率越低间隔越长。
+     * 效率越低，工作冷却/延迟越长。
      */
     public static long adjustCooldown(long baseCooldown, float efficiency) {
         return Math.max(1, Math.round(baseCooldown / Math.max(0.4F, efficiency)));
     }
 
     /**
-     * 根据效率调整移动速度。
-     * 效率越低速度越慢。
+     * 效率越低，移动速度越慢。
      */
     public static float adjustMoveSpeed(float baseSpeed, float efficiency) {
         return Math.max(0.32F, baseSpeed * Math.max(0.4F, efficiency));

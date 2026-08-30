@@ -70,7 +70,6 @@ public class RoomCleanTask implements IMaidTask{
         float efficiency = MaidEfficiencyHelper.getEfficiency(maid);
         float moveSpeed = MaidEfficiencyHelper.adjustMoveSpeed(0.8F, efficiency);
         return Lists.newArrayList(
-                // 背包里有脏床单就去洗
                 Pair.of(
                         5,
                         new MaidMoveToPredicateBlockTask(
@@ -79,7 +78,6 @@ public class RoomCleanTask implements IMaidTask{
                                 RoomCleanTask::shouldWashDirtySheets,
                                 RoomCleanTask::isWashTarget)),
                 Pair.of(6, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)),
-                // 寻找脏床并换床单
                 Pair.of(
                         7,
                         new MaidMoveToPredicateBlockTask(
@@ -88,7 +86,6 @@ public class RoomCleanTask implements IMaidTask{
                                 RoomCleanTask::shouldCleanBeds,
                                 RoomCleanTask::isMessyBed)),
                 Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanMessyBedAt)),
-                // 清理杂物垃圾
                 Pair.of(
                         9,
                         new MaidMoveToPredicateBlockTask(

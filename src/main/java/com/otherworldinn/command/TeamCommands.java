@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -20,8 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 /*
  * 队伍命令
  *
- * <p>
- * /innteam create <name> - 创建队伍 
+ * /innteam create <name> - 创建队伍
  * /innteam invite <player> - 邀请玩家（简化：直接加入） 
  * /innteam join <player_in_team> - 加入某玩家所在的队伍 
  * /innteam leave - 离开队伍 
@@ -69,7 +69,7 @@ public class TeamCommands {
                         .then(Commands.literal("info").executes(TeamCommands::teamInfo))
                         .then(
                                 Commands.literal("teleport")
-                                        .requires(s -> s.hasPermission(2)) // 需要管理员权限
+                                        .requires(s -> s.hasPermission(2))
                                         .then(
                                                 Commands.argument(
                                                                 "enabled", BoolArgumentType.bool())
@@ -459,7 +459,11 @@ public class TeamCommands {
 
             try {
                 InnData.InnState newState = InnData.InnState.valueOf(stateStr.toUpperCase());
+                InnData.InnState currentState = team.getInnData().getState();
                 if (team.getInnData().setState(newState)) {
+                    if (currentState != InnData.InnState.OPEN && newState == InnData.InnState.OPEN) {
+                        AdvancementUtils.award(player, AdvancementUtils.OPEN_FIRST_INN);
+                    }
                     context.getSource()
                             .sendSuccess(
                                     () ->
@@ -599,7 +603,6 @@ public class TeamCommands {
                 return 0;
             }
 
-            // 简化逻辑：直接加入，无需同意
             manager.joinTeam(player, targetTeam.getTeamId());
             context.getSource()
                     .sendSuccess(

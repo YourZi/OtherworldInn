@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_book": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:book"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_room_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": "otherworldinn:room_key"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "otherworldinn:room_register"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_room_key",
+      "has_book"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "otherworldinn:room_register"
+    ]
+  }
+}

@@ -10,11 +10,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
-/**
- * 队伍保存数据
- *
- * <p>负责将所有队伍数据持久化到 World SavedData。 数据存储在 Overworld 级别。
- */
+/** 所有队伍数据的持久化（存于 Overworld SavedData）。 */
 public class TeamSavedData extends SavedData {
     private static final String DATA_NAME = "otherworldinn_teams";
 
@@ -110,7 +106,6 @@ public class TeamSavedData extends SavedData {
         }
     }
 
-    // 标记数据为脏，需要保存
     public void markDirty() {
         setDirty();
     }

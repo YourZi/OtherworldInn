@@ -41,12 +41,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 商店实体抽象父类
- *
- * <p>特性： 1. 右键打开商店界面 (子类实现) 2. 原地不动，无 AI 3. 不受重力影响 4. 仅允许创造模式攻击和虚空伤害生效 5. 无受伤变红效果 6.
- * 持续播放循环动画 (客户端逻辑) 7. 存储商品列表 (物品、数量、售价)
- */
+/** 商店实体抽象父类：右键开店、原地不动、无重力、仅创造/虚空伤害可伤、持续待机动画。 */
 public abstract class StoreEntity extends PathfinderMob {
     private static final int MAX_FAVOR_LEVEL = 10;
     private static final int COINS_PER_FAVOR_LEVEL = 200;
@@ -90,17 +85,14 @@ public abstract class StoreEntity extends PathfinderMob {
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 16.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.0D) // 不动
+                .add(Attributes.MOVEMENT_SPEED, 0.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 25565.0D); // 抗击退
     }
 
     /** 商品列表 (合并了固定商品和随机商品) */
     protected final List<StoreItem> storeItems = new ArrayList<>();
 
-    /** 固定商品起始索引
-     *
-     * <p>在刷新库存时，保留索引在此之前的商品，移除之后的随机商品并重新生成。
-     */
+    /** 固定商品起始索引：补货时保留此前的商品，之后的随机商品重新生成。 */
     protected int fixedItemsCount = 0;
 
     /** 节日限定商品目录（平时不上架，节日期间由每日补货动态上架） */
@@ -120,17 +112,14 @@ public abstract class StoreEntity extends PathfinderMob {
     private double lockedY;
     private double lockedZ;
 
-    /**
-     * 待机/循环动画状态
-     *
-     * <p>子类模型需要使用此状态来播放动画。
-     */
+    /** 待机/循环动画状态，子类模型需用它播放动画。 */
     public final AnimationState idleAnimationState = new AnimationState();
 
     protected StoreEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
-        this.setNoAi(true); // 无 AI (虽然 setNoAi 已经处理了大部分逻辑，但 PathfinderMob 还是会有寻路相关的初始化)
-        this.setNoGravity(true); // 无重力
+        // 无 AI；setNoAi 之外仍需拦截 PathfinderMob 的寻路相关初始化
+        this.setNoAi(true);
+        this.setNoGravity(true);
         this.setPersistenceRequired(); // 防止自然消失
     }
 
@@ -142,7 +131,6 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        // 无论玩家距离多远都不允许自动卸载
         return false;
     }
 
@@ -154,9 +142,7 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     public void tick() {
-        // 客户端动画逻辑
         if (this.level().isClientSide) {
-            // 确保持续播放待机动画
             this.idleAnimationState.startIfStopped(this.tickCount);
         } else {
             this.enforceLockedPosition();
@@ -191,13 +177,7 @@ public abstract class StoreEntity extends PathfinderMob {
         return InteractionResult.PASS;
     }
 
-    /**
-     * 打开商店界面
-     *
-     * <p>默认实现尝试打开 MenuProvider。 子类可以覆盖此方法以自定义打开逻辑。
-     *
-     * @param player 交互的玩家
-     */
+    /** 打开商店界面，默认打开 MenuProvider，子类可覆盖。 */
     protected void openStoreScreen(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             MenuProvider menuProvider =
@@ -214,7 +194,6 @@ public abstract class StoreEntity extends PathfinderMob {
                         buf.writeInt(this.totalSpentCoins);
                         buf.writeInt(this.getCoinsPerFavorLevel());
 
-                        // 序列化商品列表
                         buf.writeInt(this.storeItems.size());
                         for (StoreItem item : this.storeItems) {
                             buf.writeNbt(item.saveForNetwork(this.registryAccess(), serverPlayer, this));
@@ -244,13 +223,7 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 获取商店背景纹理
-     *
-     * <p>子类可以覆盖此方法以自定义背景。 默认为 "textures/gui/store.png"
-     *
-     * @return 背景纹理 ResourceLocation
-     */
+    /** 商店背景纹理，默认 "textures/gui/store.png"，子类可覆盖。 */
     public ResourceLocation getStoreBackground() {
         return ResourceLocation.fromNamespaceAndPath("otherworldinn", "textures/gui/store.png");
     }
@@ -264,7 +237,7 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     public boolean isPushable() {
-        return false; // 不可被推动
+        return false;
     }
 
     @Override
@@ -348,18 +321,12 @@ public abstract class StoreEntity extends PathfinderMob {
 
     @Override
     protected @Nullable net.minecraft.sounds.SoundEvent getDeathSound() {
-        return null; // 无死亡音效
+        return null;
     }
 
     // --- 商品管理 ---
 
-    /**
-     * 添加固定商品 (通过 ResourceLocation)
-     *
-     * @param itemId 物品 ID (例如 "minecraft:apple" 或 "create:zinc_ingot")
-     * @param price 价格
-     * @param maxStock 最大库存
-     */
+    /** 添加固定商品（通过物品 ID，如 "minecraft:apple"）。 */
     public void addStoreItem(String itemId, int price, int maxStock) {
         ResourceLocation rl = ResourceLocation.tryParse(itemId);
         if (rl != null) {
@@ -369,14 +336,7 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 添加固定商品 (通过 ResourceLocation, 带修改器)
-     *
-     * @param itemId 物品 ID
-     * @param price 价格
-     * @param maxStock 最大库存
-     * @param modifier 修改器
-     */
+    /** 添加固定商品（通过物品 ID，带修改器）。 */
     public void addStoreItem(String itemId, int price, int maxStock, Consumer<ItemStack> modifier) {
         ResourceLocation rl = ResourceLocation.tryParse(itemId);
         if (rl != null) {
@@ -389,18 +349,10 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 添加固定商品
-     *
-     * <p>这些商品在刷新时不会被移除，只会补充库存。
-     *
-     * @param item 物品
-     * @param price 价格
-     * @param maxStock 最大库存 (-1 表示无限)
-     */
+    /** 添加固定商品：刷新时保留并补库存，maxStock 为 -1 表示无限。 */
     public void addStoreItem(ItemStack item, int price, int maxStock) {
         this.storeItems.add(new StoreItem(item, price, maxStock));
-        this.fixedItemsCount = this.storeItems.size(); // 更新固定商品数量
+        this.fixedItemsCount = this.storeItems.size();
     }
 
     public void addLimitedStoreItem(String itemId, int price, int maxStock) {
@@ -440,14 +392,7 @@ public abstract class StoreEntity extends PathfinderMob {
         this.addLimitedStoreItem(copy, price, maxStock);
     }
 
-    /**
-     * 添加固定商品 (带自定义设置)
-     *
-     * @param item 物品
-     * @param price 价格
-     * @param maxStock 最大库存
-     * @param modifier 对物品栈的自定义修改操作 (例如设置耐久、附魔等)
-     */
+    /** 添加固定商品（带自定义修改器，如设置耐久、附魔）。 */
     public void addStoreItem(
             ItemStack item, int price, int maxStock, Consumer<ItemStack> modifier) {
         ItemStack copy = item.copy();
@@ -534,13 +479,7 @@ public abstract class StoreEntity extends PathfinderMob {
         return EntityType.getKey(this.getType()).getPath();
     }
 
-    /**
-     * 增加商店好感进度（公共入口，可由外部系统调用）。
-     *
-     * <p>当前好感进度与历史消费共享同一计量单位，因此该方法会同步累加 totalSpentCoins。
-     *
-     * @param favorProgress 要增加的进度值，<= 0 时忽略
-     */
+    /** 增加商店好感进度（公共入口）；好感与历史消费同单位，会同步累加 totalSpentCoins。 */
     public void addFavorProgress(int favorProgress) {
         if (favorProgress <= 0) {
             return;
@@ -553,9 +492,7 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 增加消费累计，转换为同等好感进度。
-     */
+    /** 增加消费累计，转换为同等好感进度。 */
     public void addSpentCoins(int spentCoins) {
         this.addFavorProgress(spentCoins);
     }
@@ -772,12 +709,7 @@ public abstract class StoreEntity extends PathfinderMob {
         this.refreshFestivalItems();
     }
 
-    /**
-     * 刷新节日限定商品（每日补货时调用）。
-     *
-     * <p>平时不上架；对应节日激活时补全并重置库存，节日未激活时全部下架。
-     * 挂在 {@link #refreshRandomItems()} 之后，避免被随机商品清空逻辑误删。
-     */
+    /** 刷新节日限定商品（每日补货时调用）；须挂在 {@link #refreshRandomItems()} 之后，否则会被其清空。 */
     protected void refreshFestivalItems() {
         if (this.level().isClientSide || this.festivalCatalogEntries.isEmpty()) {
             return;
@@ -795,23 +727,14 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 刷新随机商品
-     *
-     * <p>默认实现移除所有随机商品。子类覆盖此方法以生成新的随机商品。
-     */
+    /** 刷新随机商品；默认移除所有非固定商品，子类覆盖以生成新随机商品。 */
     protected void refreshRandomItems() {
-        // 移除所有非固定商品
         if (this.storeItems.size() > this.fixedItemsCount) {
             this.storeItems.subList(this.fixedItemsCount, this.storeItems.size()).clear();
         }
     }
 
-    /**
-     * 调试用：重置商店 NPC 的可持久化状态，并按代码默认配置重建数据。
-     *
-     * <p>会清空历史存档中残留的商品/好感等状态，随后调用子类重新写入默认装备与商品配置。
-     */
+    /** 调试用：重置商店 NPC 的可持久化状态，并按代码默认配置重建数据。 */
     public final void debugResetToCodeDefaults() {
         if (this.level().isClientSide) {
             return;
@@ -844,26 +767,18 @@ public abstract class StoreEntity extends PathfinderMob {
         this.setDropChance(EquipmentSlot.FEET, 0.0F);
     }
 
-    /**
-     * 生成随机商品
-     *
-     * @param pool 商品池
-     * @param minTypes 最少抽取的商品种类数量
-     * @param maxTypes 最多抽取的商品种类数量
-     */
+    /** 按权重从商品池随机抽取 minTypes~maxTypes 种生成随机商品。 */
     protected void generateRandomItems(List<RandomItemData> pool, int minTypes, int maxTypes) {
         if (pool == null || pool.isEmpty()) return;
 
         net.minecraft.util.RandomSource random = this.getRandom();
 
-        // 随机选择 minTypes 到 maxTypes 种商品
         int count = minTypes + random.nextInt(Math.max(1, maxTypes - minTypes + 1));
         List<RandomItemData> poolCopy = new ArrayList<>(pool);
 
         for (int i = 0; i < count; i++) {
             if (poolCopy.isEmpty()) break;
 
-            // 按权重随机选择
             int totalWeight = poolCopy.stream().mapToInt(e -> e.weight).sum();
             int roll = random.nextInt(totalWeight);
             int current = 0;
@@ -878,7 +793,7 @@ public abstract class StoreEntity extends PathfinderMob {
             }
 
             if (selected != null) {
-                poolCopy.remove(selected); // 避免重复
+                poolCopy.remove(selected);
                 this.addRandomStoreItem(
                         new ItemStack(selected.item),
                         selected.minPrice,
@@ -890,30 +805,13 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 添加随机商品 (带范围随机)
-     *
-     * @param item 物品
-     * @param minPrice 最小价格
-     * @param maxPrice 最大价格
-     * @param minStock 最小库存
-     * @param maxStock 最大库存
-     */
+    /** 添加随机商品，价格与库存在给定范围内随机。 */
     protected void addRandomStoreItem(
             ItemStack item, int minPrice, int maxPrice, int minStock, int maxStock) {
         this.addRandomStoreItem(item, minPrice, maxPrice, minStock, maxStock, null);
     }
 
-    /**
-     * 添加随机商品 (带范围随机和修改器)
-     *
-     * @param item 物品
-     * @param minPrice 最小价格
-     * @param maxPrice 最大价格
-     * @param minStock 最小库存
-     * @param maxStock 最大库存
-     * @param modifier 修改器
-     */
+    /** 添加随机商品（带修改器），价格与库存在给定范围内随机。 */
     protected void addRandomStoreItem(
             ItemStack item,
             int minPrice,
@@ -1082,13 +980,8 @@ public abstract class StoreEntity extends PathfinderMob {
             int requiredFavorLevel, ItemStack itemStack, int price, int maxStock) {}
 
     /**
-     * 商品目录条目（固定/好感/成就解锁商品）。
-     *
-     * <p>由子类以静态方式定义，作为游戏内商品与 JEI 展示的同一数据来源：
-     * 运行时经 {@link #applyCatalog(List)} 写入商店库存，JEI 直接读取生成配方。
-     *
-     * @param requiredFavorLevel >= 2 表示好感度解锁商品
-     * @param requiredAdvancementId 非空表示成就解锁商品
+     * 商品目录条目（固定/好感/成就/节日商品），由子类静态定义；
+     * 运行时经 {@link #applyCatalog(List)} 写入商店库存，JEI 也读取同一数据生成展示。
      */
     public record CatalogEntry(
             ItemStack stack,
@@ -1144,13 +1037,7 @@ public abstract class StoreEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 将商品目录写入商店库存（供运行时初始化使用）。
-     *
-     * <p>根据条目属性路由到对应的添加方法。
-     * 节日限定条目不直接上架，仅登记到 {@link #festivalCatalogEntries}，
-     * 由每日补货逻辑在节日期间动态上架/下架。
-     */
+    /** 将商品目录写入商店库存；节日条目仅登记到 {@link #festivalCatalogEntries}，由每日补货动态上架/下架。 */
     protected void applyCatalog(List<CatalogEntry> entries) {
         this.festivalCatalogEntries.clear();
         for (CatalogEntry entry : entries) {
@@ -1383,11 +1270,7 @@ public abstract class StoreEntity extends PathfinderMob {
             return !isInfinite() && currentStock <= 0;
         }
 
-        /**
-         * 尝试购买（扣减库存）
-         *
-         * @return true 如果购买成功（有库存），false 如果售罄
-         */
+        /** 尝试购买并扣减库存，售罄返回 false。 */
         public boolean tryPurchase() {
             if (isInfinite()) return true;
             if (currentStock > 0) {

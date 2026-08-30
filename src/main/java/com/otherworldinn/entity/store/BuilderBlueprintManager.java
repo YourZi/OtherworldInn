@@ -21,10 +21,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import com.simibubi.create.foundation.utility.CreatePaths;
 
-/**
- * 为建筑工商店生成带不同结构数据和生存打印标记的 Create 蓝图商品。
- * 每日随机选取 4 个不重复的蓝图。
- */
+/** 为建筑工商店生成带生存打印标记的 Create 蓝图商品，每日随机选取不重复蓝图。 */
 public final class BuilderBlueprintManager {
     private static final String BUILDER_BLUEPRINT_ID_KEY = "otherworldinn:builder_blueprint_id";
     private static final String BUILDER_BLUEPRINT_DISPLAY_KEY = "otherworldinn:builder_blueprint_display";

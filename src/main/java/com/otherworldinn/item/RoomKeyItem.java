@@ -34,11 +34,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-/**
- * 房间钥匙
- *
- * <p>用于绑定特定房间。 右键房间内方块绑定，左键点击取消绑定。 右键旅客可将其分配到绑定房间（需消耗钥匙）。
- */
+/** 房间钥匙：右键方块绑定/左键解绑房间，右键旅客为其办理入住并消耗钥匙。 */
 public class RoomKeyItem extends Item {
 
     public RoomKeyItem(Properties properties) {
@@ -65,7 +61,6 @@ public class RoomKeyItem extends Item {
             int roomId = roomIdOpt.get();
             GuestData guestData = guestEntity.getGuestData();
 
-            // 检查旅客是否能入住
             GuestData.GuestState state = guestData.getState();
             if (guestData.getRoomId() != -1 && state != GuestData.GuestState.WAITING) {
                 player.displayClientMessage(
@@ -76,7 +71,6 @@ public class RoomKeyItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 检查是否已退房
             if (guestData.isCheckedOut()) {
                 player.displayClientMessage(
                         Component.translatable(
@@ -90,7 +84,7 @@ public class RoomKeyItem extends Item {
                     TeamManager.getInstance()
                             .getTeamAt(interactionTarget.blockPosition(), serverPlayer.getServer());
 
-            // 如果不在旅社范围内，且旅客处于等待状态，尝试在所有队伍中寻找匹配的房间
+            // 不在旅社范围且旅客在等待时，跨队伍寻找匹配房间
             if (team == null && state == GuestData.GuestState.WAITING) {
                 TeamSavedData teamData =
                         TeamManager.getInstance().getData(serverPlayer.getServer());
@@ -100,14 +94,13 @@ public class RoomKeyItem extends Item {
                     for (TeamData t : teamData.getTeams().values()) {
                         RoomData potentialRoom = t.getInnData().getRoom(roomId);
                         if (potentialRoom != null) {
-                            // 如果绑定了UUID，必须匹配
                             if (boundUuidOpt.isPresent()) {
                                 if (boundUuidOpt.get().equals(potentialRoom.getUuid())) {
                                     team = t;
                                     break;
                                 }
                             } else {
-                                // 如果没有UUID绑定（旧数据？），直接匹配ID（可能不准确，但在单人/少队伍情况下通常没问题）
+                                // 旧存档可能只有ID绑定：按ID匹配，多队伍时可能不准
                                 team = t;
                                 break;
                             }
@@ -128,7 +121,6 @@ public class RoomKeyItem extends Item {
             InnData innData = team.getInnData();
             RoomData room = innData.getRoom(roomId);
 
-            // 检查房间是否存在
             if (room == null) {
                 player.displayClientMessage(
                         Component.translatable(
@@ -138,7 +130,7 @@ public class RoomKeyItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 校验房间UUID（防止 ID 复用导致的错误）
+            // 房间ID可能被复用，须用UUID确认是绑定时的那个房间
             Optional<UUID> boundUuidOpt = getBoundRoomUUID(stack);
             if (boundUuidOpt.isPresent() && !boundUuidOpt.get().equals(room.getUuid())) {
                 player.displayClientMessage(
@@ -149,7 +141,6 @@ public class RoomKeyItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 检查房间是否有空床位
             if (room.getCurrentGuests().size() >= room.getMaxGuests()) {
                 player.displayClientMessage(
                         Component.translatable("message.otherworldinn.room_key.checkin_fail_full")
@@ -158,15 +149,12 @@ public class RoomKeyItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // 执行入住
             if (innData.checkIn(guestData.getUuid(), roomId, serverPlayer.serverLevel())) {
                 if (innData.getTotalCheckInCount() >= 1) {
                     AdvancementUtils.award(serverPlayer, AdvancementUtils.SERVE_FIRST_GUEST);
                 }
-                // 消耗钥匙
                 stack.shrink(1);
 
-                // 播放音效
                 player.level()
                         .playSound(
                                 null,
@@ -203,11 +191,13 @@ public class RoomKeyItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
             if (team != null) {
-                // 获取点击位置的房间
                 RoomData room = team.getInnData().getRoomAt(pos);
                 if (room != null) {
-                    // 绑定到该房间
                     bindRoom(stack, room.getId(), room.getUuid());
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        AdvancementUtils.award(
+                                serverPlayer, AdvancementUtils.BIND_FIRST_ROOM_HIDDEN);
+                    }
                     player.displayClientMessage(
                             Component.translatable(
                                             "message.otherworldinn.room_key.bound",
@@ -215,7 +205,6 @@ public class RoomKeyItem extends Item {
                                     .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                             true);
 
-                    // 播放音效 (音符盒叮声)
                     level.playSound(
                             null,
                             pos,
@@ -242,7 +231,6 @@ public class RoomKeyItem extends Item {
         Optional<Integer> roomId = getBoundRoomId(stack);
         if (roomId.isPresent()) {
             int id = roomId.get();
-            // 尝试获取房间显示名称
             TeamData clientTeam = TeamManager.getInstance().getClientPlayerTeam();
             String roomDisplay = null;
             if (clientTeam != null) {
@@ -252,7 +240,7 @@ public class RoomKeyItem extends Item {
                 }
             }
             if (roomDisplay == null) {
-                roomDisplay = id + ""; // 回退到数字ID
+                roomDisplay = id + "";
             }
             if (isBoundRoomFull(stack)) {
                 return Component.translatable("item.otherworldinn.room_key.bound_full", roomDisplay);
@@ -289,19 +277,16 @@ public class RoomKeyItem extends Item {
         getBoundRoomId(stack)
                 .ifPresent(
                         roomId -> {
-                            // 从客户端缓存获取房间信息
                             TeamData team = TeamManager.getInstance().getClientPlayerTeam();
                             if (team != null) {
                                 RoomData room = team.getInnData().getRoom(roomId);
                                 if (room != null) {
-                                    // 房间编号
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.room_key.room_id",
                                                             roomId)
                                                     .withStyle(ChatFormatting.GOLD));
 
-                                    // 位置
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.room_key.pos",
@@ -309,7 +294,6 @@ public class RoomKeyItem extends Item {
                                                             room.getMaxPos().toShortString())
                                                     .withStyle(ChatFormatting.GRAY));
 
-                                    // 价格
                                     int rating = team.getInnData().getRating();
                                     int price =
                                             team.getInnData()
@@ -323,7 +307,6 @@ public class RoomKeyItem extends Item {
                                                             price)
                                                     .withStyle(ChatFormatting.YELLOW));
 
-                                    // 床位数
                                     int maxGuests = room.getMaxGuests();
                                     int currentGuests = room.getCurrentGuests().size();
                                     tooltipComponents.add(
@@ -333,7 +316,6 @@ public class RoomKeyItem extends Item {
                                                             maxGuests)
                                                     .withStyle(ChatFormatting.BLUE));
 
-                                    // 房间属性
                                     tooltipComponents.add(
                                             Component.translatable(
                                                             "tooltip.otherworldinn.furniture.comfort",

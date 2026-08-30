@@ -16,9 +16,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
- * maimai 彩蛋的服务端逻辑
- *
- * <p>客户端处理器在专用服务器上不会注册，因此状态持久化、金币扣除与进度发放必须放在独立的服务端监听中。
+ * maimai 彩蛋的服务端逻辑。
+ * 客户端处理器在专用服务器上不会注册，因此状态持久化与金币扣除必须放在独立的服务端监听中。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class EasterEggServerHandler {

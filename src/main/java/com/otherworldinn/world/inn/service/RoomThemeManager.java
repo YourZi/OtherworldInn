@@ -74,16 +74,7 @@ public class RoomThemeManager {
         public static final StatModifiers NONE = new StatModifiers(0, 0, 0);
     }
 
-    /**
-     * 主题定义。
-     *
-     * <p>外壳需求组（shellGroups）：检查六面外壳方块（地板、天花板、四面墙壁），
-     * 不包含房间内部。组内 OR，组间 AND。
-     * <p>内部需求组（interiorGroups）：检查房间内部方块，不包含外壳。
-     * 组内 OR，组间 AND。
-     * <p>外壳和内部必须同时满足。
-     * <p>statModifiers：主题对房间三维属性（舒适度、光照、潮湿度）的加成值。
-     */
+    /** 主题定义：外壳组与内部组均按"组内 OR、组间 AND"判定，两者需同时满足；statModifiers 为属性加成。 */
     public record RoomTheme(
             String id,
             String zhName,
@@ -100,7 +91,6 @@ public class RoomThemeManager {
 
     private static void initDefaultThemes() {
         // ── 末地主题 ──
-        // 外壳组
         List<List<BlockMatcher>> endShell = List.of(List.of(
                 BlockMatcher.byIdKeyword("end_stone"),
                 BlockMatcher.byIdKeyword("purpur")));
@@ -113,7 +103,6 @@ public class RoomThemeManager {
         register(new RoomTheme("end", "末地", "End", endShell, endInterior, new StatModifiers(10, 0, 0)));
 
         // ── 下界主题 ──
-        // 外壳组:
         List<List<BlockMatcher>> netherShell = List.of(List.of(
                 BlockMatcher.byExactId("minecraft:netherrack"),
                 BlockMatcher.byExactId("minecraft:obsidian"),
@@ -123,7 +112,6 @@ public class RoomThemeManager {
                 BlockMatcher.byIdKeyword("nether_brick"),
                 BlockMatcher.byIdKeyword("blackstone"),
                 BlockMatcher.byIdKeyword("basalt")));
-        // 内部组:
         List<List<BlockMatcher>> netherInterior = List.of(List.of(
                 BlockMatcher.byExactId("minecraft:soul_torch"),
                 BlockMatcher.byExactId("minecraft:soul_lantern"),
@@ -132,10 +120,8 @@ public class RoomThemeManager {
         register(new RoomTheme("nether", "下界", "Nether", netherShell, netherInterior, new StatModifiers(0, 10, -20)));
 
         // ── 海洋主题 ──
-        // 外壳组:
         List<List<BlockMatcher>> oceanShell = List.of(List.of(
                 BlockMatcher.byIdKeyword("prismarine")));
-        // 内部组: 有海晶灯/潮涌核心/珊瑚
         List<List<BlockMatcher>> oceanInterior = List.of(List.of(
                 BlockMatcher.byExactId("minecraft:sea_lantern"),
                 BlockMatcher.byExactId("minecraft:conduit"),

@@ -23,11 +23,9 @@ import org.apache.logging.log4j.Logger;
 public class DeskBellIconRenderer {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    // 记录每个 DeskBell 的渲染状态，用于同步动画
-    // 动画开始的时间 (GameTime)
+    // 每个 DeskBell 动画开始的 GameTime，用于同步动画
     private static final Map<BlockPos, Long> ANIMATION_START_TICKS = new HashMap<>();
 
-    // 触发动画
     public static void triggerAnimation(BlockPos pos, long gameTime) {
         ANIMATION_START_TICKS.put(pos, gameTime);
     }
@@ -45,10 +43,8 @@ public class DeskBellIconRenderer {
 
         BlockPos pos = blockEntity.getBlockPos();
 
-        // 检查动画状态
         long gameTime = level.getGameTime();
         long startTime = ANIMATION_START_TICKS.getOrDefault(pos, -100L);
-        // 如果动画未开始或已结束 (超过 20 ticks)，则不渲染
         if (gameTime - startTime > 20 || gameTime < startTime) {
             return;
         }
@@ -56,7 +52,6 @@ public class DeskBellIconRenderer {
         TeamData team = TeamManager.getInstance().getClientPlayerTeam();
         if (team == null) return;
 
-        // 检查是否在旅社区域内
         List<TeamData.InnRegion> regions = team.getInnRegions();
         boolean inside = false;
         for (TeamData.InnRegion region : regions) {
@@ -67,10 +62,8 @@ public class DeskBellIconRenderer {
         }
         if (!inside) return;
 
-        // 获取旅社状态
         InnData.InnState state = team.getInnData().getState();
 
-        // 确定图标和颜色
         AllIcons icon;
         int color;
 
@@ -87,7 +80,6 @@ public class DeskBellIconRenderer {
                 return;
         }
 
-        // 渲染图标
         renderIcon(poseStack, bufferSource, pos, icon, color, level, partialTicks);
     }
 
@@ -106,7 +98,6 @@ public class DeskBellIconRenderer {
 
         // 动画计算: 总周期 1.0s (20 ticks)
         float cycleTicks = 20.0f;
-        // 计算当前动画经过的时间 (从 startTime 开始)
         float timePassed = (gameTime - startTime) + partialTicks;
         float t = Mth.clamp(timePassed / cycleTicks, 0.0f, 1.0f);
 
@@ -134,7 +125,6 @@ public class DeskBellIconRenderer {
         float yaw = mc.gameRenderer.getMainCamera().getYRot();
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
 
-        // 缩放
         float scale = 0.5f;
         poseStack.scale(scale, scale, scale);
 
@@ -144,14 +134,12 @@ public class DeskBellIconRenderer {
         // 居中
         poseStack.translate(-0.5, -0.5, 0);
 
-        // 渲染
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
         int a = (int) (alpha * 255);
         int finalColor = (a << 24) | (r << 16) | (g << 8) | b;
 
-        // 开启混合模式
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 

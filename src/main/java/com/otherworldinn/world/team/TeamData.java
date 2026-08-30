@@ -23,11 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 
-/**
- * 队伍数据
- *
- * <p>存储队伍的成员、解锁状态（地图点、功能）等信息。
- */
+/** 队伍数据：成员、解锁状态与旅社区域等。 */
 @Data
 public class TeamData {
 
@@ -95,15 +91,14 @@ public class TeamData {
     private boolean teleportUnlocked = false;
 
     @Setter(AccessLevel.NONE)
-    private int coins = 0; // 队伍金币
+    private int coins = 0;
 
-    // 旅社区域列表
     private final List<InnRegion> innRegions = new ArrayList<>();
 
-    private final InnData innData = new InnData(); // 旅社数据管理系统
-    private final TeamCommissionData commissionData = new TeamCommissionData(); // 队伍委托数据
+    private final InnData innData = new InnData();
+    private final TeamCommissionData commissionData = new TeamCommissionData();
     private final com.otherworldinn.world.quest.TeamQuestData questData =
-            new com.otherworldinn.world.quest.TeamQuestData(); // 队伍任务进度
+            new com.otherworldinn.world.quest.TeamQuestData();
 
     public com.otherworldinn.world.quest.TeamQuestData getQuestData() {
         return questData;
@@ -112,7 +107,6 @@ public class TeamData {
     public TeamData(UUID teamId) {
         this.teamId = teamId;
         this.name = "Team-" + teamId.toString().substring(0, 8);
-        // 初始化默认区域，与 DEFAULT_INN_REGION 对齐
         addRegion(DEFAULT_INN_REGION);
     }
 
@@ -126,7 +120,6 @@ public class TeamData {
     public void removeMember(UUID playerId) {
         members.remove(playerId);
         if (playerId.equals(leaderId) && !members.isEmpty()) {
-            // 如果移除的是队长，且队伍还有人，则转移给第一顺位
             leaderId = members.iterator().next();
         } else if (members.isEmpty()) {
             leaderId = null;
@@ -140,12 +133,10 @@ public class TeamData {
     // --- 解锁状态 ---
 
     public boolean isMapPointUnlocked(ResourceLocation pointId) {
-        // 1. 如果在已解锁列表中，则解锁
         if (unlockedMapPoints.contains(pointId)) {
             return true;
         }
 
-        // 2. 检查默认解锁条件 (null condition)
         Optional<MapPoint> pointOpt = TownDataProvider.getPoint(pointId);
         if (pointOpt.isPresent()) {
             MapPoint point = pointOpt.get();
@@ -233,7 +224,6 @@ public class TeamData {
     }
 
     public void addRegion(InnRegion region) {
-        // 确保 min <= max
         int minX = Math.min(region.minX, region.maxX);
         int maxX = Math.max(region.minX, region.maxX);
         int minZ = Math.min(region.minZ, region.maxZ);
@@ -244,10 +234,7 @@ public class TeamData {
         List<InnRegion> toAdd = new ArrayList<>();
         toAdd.add(normalized);
 
-        // 用现有的所有区域去切割新区域，确保存储的区域互不重叠
-        // 这样做的好处是：
-        // 1. 避免重叠区域在渲染时出现颜色叠加加深的问题
-        // 2. 保持数据结构的整洁性
+        // 用现有区域切割新区域，确保互不重叠（避免渲染时颜色叠加加深）
         for (InnRegion existing : innRegions) {
             List<InnRegion> nextPass = new ArrayList<>();
             for (InnRegion candidate : toAdd) {
@@ -267,18 +254,15 @@ public class TeamData {
     private List<InnRegion> subtract(InnRegion a, InnRegion b) {
         List<InnRegion> result = new ArrayList<>();
 
-        // 如果不相交，直接返回 A
         if (!a.intersects(b)) {
             result.add(a);
             return result;
         }
 
-        // 如果 A 被 B 完全包含，返回空
         if (b.contains(a)) {
             return result;
         }
 
-        // 如果有重叠，我们需要将 A 切割
         // 切割策略：上下左右四个方向
 
         int ax1 = a.minX, ax2 = a.maxX, az1 = a.minZ, az2 = a.maxZ;
@@ -287,19 +271,16 @@ public class TeamData {
         // 1. Top (Z < bz1)
         if (az1 < bz1) {
             result.add(new InnRegion(ax1, az1, ax2, bz1 - 1));
-            // 剩下的部分继续处理 (更新 az1)
             az1 = bz1;
         }
 
         // 2. Bottom (Z > bz2)
         if (az2 > bz2) {
             result.add(new InnRegion(ax1, bz2 + 1, ax2, az2));
-            // 剩下的部分继续处理 (更新 az2)
             az2 = bz2;
         }
 
         // 现在 Z 范围已经被限制在 B 的 Z 范围内 (或 A 原本的 Z 范围内)
-        // 处理 X 方向
 
         // 3. Left (X < bx1)
         if (ax1 < bx1) {
@@ -315,7 +296,6 @@ public class TeamData {
     }
 
     public void removeRegion(InnRegion region) {
-        // 确保 min <= max
         int minX = Math.min(region.minX, region.maxX);
         int maxX = Math.max(region.minX, region.maxX);
         int minZ = Math.min(region.minZ, region.maxZ);
@@ -325,7 +305,6 @@ public class TeamData {
 
         List<InnRegion> nextRegions = new ArrayList<>();
 
-        // 遍历现有区域，减去要移除的部分
         for (InnRegion existing : innRegions) {
             nextRegions.addAll(subtract(existing, normalized));
         }
@@ -359,23 +338,17 @@ public class TeamData {
     }
 
     private InnRegion tryMerge(InnRegion r1, InnRegion r2) {
-        // 包含关系
         if (r1.contains(r2)) return r1;
         if (r2.contains(r1)) return r2;
 
-        // 水平拼接 (Z 范围相同，X 相邻或重叠)
         if (r1.minZ == r2.minZ && r1.maxZ == r2.maxZ) {
-            // 检查 X 是否连续或重叠
-            // 连续条件: r1.minX <= r2.maxX + 1 && r2.minX <= r1.maxX + 1
             if (r1.minX <= r2.maxX + 1 && r2.minX <= r1.maxX + 1) {
                 return new InnRegion(
                         Math.min(r1.minX, r2.minX), r1.minZ, Math.max(r1.maxX, r2.maxX), r1.maxZ);
             }
         }
 
-        // 垂直拼接 (X 范围相同，Z 相邻或重叠)
         if (r1.minX == r2.minX && r1.maxX == r2.maxX) {
-            // 检查 Z 是否连续或重叠
             if (r1.minZ <= r2.maxZ + 1 && r2.minZ <= r1.maxZ + 1) {
                 return new InnRegion(
                         r1.minX, Math.min(r1.minZ, r2.minZ), r1.maxX, Math.max(r1.maxZ, r2.maxZ));
@@ -432,12 +405,7 @@ public class TeamData {
         return uncovered.isEmpty();
     }
 
-    /**
-     * 检查坐标是否在全局最大旅社范围内（整个大地块边界）
-     *
-     * <p>与 {@link #isInInnZone} 不同，此方法使用硬编码的最大范围，
-     * 不依赖队伍当前购买的地皮。用于建造保护等场景。
-     */
+    /** 使用硬编码的大地块最大范围判断（不依赖已购地皮），用于建造保护等场景。 */
     public static boolean isInGlobalMaxInnZone(BlockPos pos) {
         int x = pos.getX();
         int z = pos.getZ();
@@ -447,12 +415,6 @@ public class TeamData {
 
     // --- NBT 序列化 ---
 
-    /**
-     * 将队伍数据保存到 NBT
-     *
-     * @param tag 目标 NBT 标签
-     * @return 包含数据的 NBT 标签
-     */
     public CompoundTag save(CompoundTag tag) {
         tag.putUUID("TeamId", teamId);
         tag.putString("Name", name != null ? name : "");
@@ -477,12 +439,10 @@ public class TeamData {
         tag.putBoolean("TeleportUnlocked", teleportUnlocked);
         tag.putInt("Coins", coins);
 
-        // 旅社数据 (包含 EditMode)
         tag.put("InnData", innData.save(new CompoundTag()));
         tag.put("CommissionData", commissionData.save());
         tag.put("QuestData", questData.save());
 
-        // 旅社区域
         ListTag regionsTag = new ListTag();
         for (InnRegion region : innRegions) {
             CompoundTag regionTag = region.save();
@@ -493,11 +453,6 @@ public class TeamData {
         return tag;
     }
 
-    /**
-     * 从 NBT 加载队伍数据
-     *
-     * @param tag 源 NBT 标签
-     */
     public void load(CompoundTag tag) {
         if (tag.contains("TeamId")) {}
 
@@ -544,7 +499,6 @@ public class TeamData {
             questData.load(tag.getCompound("QuestData"));
         }
 
-        // 加载区域
         innRegions.clear();
         if (tag.contains("InnRegions")) {
             ListTag regionsTag = tag.getList("InnRegions", Tag.TAG_COMPOUND);

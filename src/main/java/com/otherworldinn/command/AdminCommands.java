@@ -525,14 +525,12 @@ public class AdminCommands {
             return 0;
         }
 
-        // 1. 杀死所有旅客实体
         List<GuestEntity> guests = townLevel.getEntitiesOfClass(
                 GuestEntity.class, new AABB(-1024, -64, -1024, 1024, 384, 1024));
         for (GuestEntity guest : guests) {
             guest.kill();
         }
 
-        // 2. 清除所有队伍的旅客数据和待办事项
         TeamManager manager = TeamManager.getInstance();
         int teamCount = 0;
         for (TeamData team : manager.getAllTeams(context.getSource().getServer())) {

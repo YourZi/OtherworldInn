@@ -23,11 +23,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
-/**
- * 家具管理器
- *
- * <p>管理所有家具的属性配置，包括舒适度、光照度和湿度。 支持为特定方块或方块标签配置属性。
- */
+/** 管理家具属性配置（舒适度/光照/湿度），支持方块、标签与关键词匹配。 */
 public class FurnitureManager {
 
     private static final Map<Block, FurnitureStats> BLOCK_STATS = new HashMap<>();
@@ -105,34 +101,15 @@ public class FurnitureManager {
         registerBlock(Blocks.SCULK_SHRIEKER, uncomfortableStats);
     }
 
-    /**
-     * 为指定方块注册家具属性
-     *
-     * @param block 目标方块
-     * @param stats 家具属性
-     */
     public static void registerBlock(Block block, FurnitureStats stats) {
         BLOCK_STATS.put(block, stats);
     }
 
-    /**
-     * 为指定方块标签注册家具属性
-     *
-     * @param tag 目标方块标签
-     * @param stats 家具属性
-     */
     public static void registerTag(TagKey<Block> tag, FurnitureStats stats) {
         TAG_STATS.put(tag, stats);
     }
 
-    /**
-     * 获取指定方块的家具属性
-     *
-     * <p>优先匹配方块本身的配置，其次匹配标签配置。
-     *
-     * @param block 目标方块
-     * @return 对应的家具属性，如果未配置则返回空
-     */
+    /** 获取家具属性，优先方块配置其次标签；无配置但有发光时按发光等级生成光照属性。 */
     public static Optional<FurnitureStats> getStats(Block block) {
         Optional<FurnitureStats> baseStats = getBaseStats(block);
         int lightLevel = getMaxLightLevel(block);
@@ -151,9 +128,7 @@ public class FurnitureManager {
             return Optional.of(BLOCK_STATS.get(block));
         }
 
-        // 检查标签匹配
-        // 注意：这里需要遍历所有已注册的标签，可能会有性能影响
-        // 对于服务端频繁查询，建议后续增加缓存机制
+        // 需遍历所有已注册标签，频繁查询可能有性能影响
         var state = block.defaultBlockState();
         for (var entry : TAG_STATS.entrySet()) {
             if (state.is(entry.getKey())) {
@@ -187,27 +162,13 @@ public class FurnitureManager {
         return max;
     }
 
-    /**
-     * 家具属性记录类
-     *
-     * <p>包含舒适度、光照度和湿度三个维度的数值。
-     *
-     * @param comfort 舒适度 (-20 ~ 20)
-     * @param light 光照度 (-20 ~ 20)
-     * @param humidity 湿度 (-20 ~ 20)
-     */
+    /** 家具属性（舒适度/光照/湿度，各 -20 ~ 20）。 */
     public record FurnitureStats(int comfort, int light, int humidity) {}
 
     /** 一个家具方块及其属性（展示用）。 */
     public record BlockFurniture(Block block, FurnitureStats stats) {}
 
-    /**
-     * 遍历方块注册表，收集所有配置了家具属性的方块（JEI"家具属性"类目等展示用）。
-     *
-     * <p>直接注册、标签、关键词规则三种来源统一覆盖（关键词规则无法直接枚举，只能全表匹配）；
-     * 含"仅发光"的方块（光照属性来自方块发光等级）。不经过光照缓存，避免污染。
-     * 一次性调用，不要在 tick 内频繁使用。
-     */
+    /** 遍历方块注册表收集家具方块（JEI 展示用）；一次性调用，勿在 tick 内频繁使用。 */
     public static List<BlockFurniture> getAllFurniture() {
         List<BlockFurniture> result = new ArrayList<>();
         for (Block block : BuiltInRegistries.BLOCK) {
@@ -236,11 +197,6 @@ public class FurnitureManager {
     /** 客户端事件处理器 */
     @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
     public static class ClientHandler {
-        /**
-         * 处理物品提示框事件，显示家具属性
-         *
-         * @param event 物品提示框事件
-         */
         @SubscribeEvent
         public static void onItemTooltip(ItemTooltipEvent event) {
             ItemStack stack = event.getItemStack();

@@ -7,11 +7,6 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * 铁匠渲染器
- *
- * <p>暂时使用玩家模型作为占位符。
- */
 public class BlacksmithRenderer extends MobRenderer<BlacksmithEntity, BlacksmithModel> {
 
     private static final ResourceLocation TEXTURE =

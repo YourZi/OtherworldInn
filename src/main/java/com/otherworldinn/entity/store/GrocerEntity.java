@@ -49,7 +49,7 @@ public class GrocerEntity extends StoreEntity {
         entries.add(new CatalogEntry(createStack("refinedstorage:4k_storage_part"), 64, 6, 4));
         entries.add(new CatalogEntry(createStack("refinedstorage:16k_storage_part"), 128, 4, 6));
         entries.add(new CatalogEntry(createStack("refinedstorage:64k_storage_part"), 256, 2, 8));
-        // 节日限定（隆冬节，原冬祭并入）
+        // 节日限定（隆冬节）
         entries.add(new CatalogEntry(createStack("minecraft:snowball"), 8, 16, "deep_winter_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:snow_block"), 16, 16, "deep_winter_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:powder_snow_bucket"), 40, 8, "deep_winter_festival"));

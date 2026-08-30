@@ -3,12 +3,7 @@ package com.otherworldinn.client.quest;
 import net.minecraft.util.Mth;
 
 /**
- * 把相机局部空间中的目标位置映射为 HUD 上的 2D 锚点。
- *
- * <p>设计目标：
- * 1. 只服务于 2D HUD 标点，不依赖渲染投影矩阵；
- * 2. 屏内按真实位置显示；
- * 3. 屏外/身后吸附到边缘，并给出箭头旋转角。
+ * 把相机局部空间中的目标位置映射为 HUD 上的 2D 锚点；不依赖渲染投影矩阵，屏外或身后的目标吸附到屏幕边缘并给出箭头角度。
  */
 public final class QuestMarkerProjector {
     private static final double EPSILON = 1.0E-4D;

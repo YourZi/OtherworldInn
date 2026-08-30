@@ -10,13 +10,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
 public class TextureUtils {
     public static List<ResourceLocation> findTexturesInFolder(String namespace, String path) {
         List<ResourceLocation> textures = new ArrayList<>();
-        // 获取 ResourceManager
         Minecraft mc = Minecraft.getInstance();
         if (mc == null) return textures;
 
         ResourceManager manager = mc.getResourceManager();
 
-        // 扫描指定路径下的所有 png 文件
         Map<ResourceLocation, ?> resources =
                 manager.listResources(
                         path,

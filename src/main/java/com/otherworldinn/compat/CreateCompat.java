@@ -29,10 +29,9 @@ public class CreateCompat {
         if (level.dimension() == TownDimensions.TOWN_LEVEL) {
             // 物理逻辑主要由服务端决定
             if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
-                // 检查该位置是否属于某个队伍的旅社区域
                 TeamData team = TeamManager.getInstance().getTeamAt(pos, serverLevel.getServer());
 
-                // 如果不在任何队伍的旅社范围内，或者该旅社未开启装修模式，则禁止移动
+                // 不属于任何队伍的旅社区域则禁止 Create 移动
                 if (team == null) {
                     return CheckResult.FAIL;
                 }

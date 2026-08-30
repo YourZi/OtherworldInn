@@ -22,11 +22,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-/**
- * 地契物品
- *
- * <p>用于扩展旅社区域。
- */
+/** 地契物品：圈选并购买区域以扩展旅社范围。 */
 public class LandDeedItem extends Item {
 
     public static final int MAX_REGION_MIN_X = 30;
@@ -111,11 +107,7 @@ public class LandDeedItem extends Item {
         return RATING_ICON.repeat(clampedRating);
     }
 
-    /**
-     * 计算地契扩展区域的价格
-     *
-     * <p>价格 = 有效面积 * 单价（PRICE_PER_BLOCK） 有效面积 = 圈选面积 - 已有旅社区域覆盖的面积
-     */
+    /** 价格 = 有效面积（圈选面积减去已被旅社区域覆盖的部分）× 单价 PRICE_PER_BLOCK。 */
     public static int calculatePrice(TeamData team, BlockPos pos1, BlockPos pos2) {
         int minX = Math.min(pos1.getX(), pos2.getX());
         int minZ = Math.min(pos1.getZ(), pos2.getZ());
@@ -173,7 +165,6 @@ public class LandDeedItem extends Item {
                     stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
             CompoundTag tag = customData.copyTag();
 
-            // 标记坐标
             if (!tag.contains("Pos1")) {
                 tag.putLong("Pos1", pos.asLong());
                 stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -184,7 +175,7 @@ public class LandDeedItem extends Item {
                                 .withStyle(style -> style.withColor(ModColors.INFO)),
                         true);
             } else if (!tag.contains("Pos2")) {
-                // 设置 Pos2 (预览状态)
+                // 记录 Pos2 并预览价格
                 tag.putLong("Pos2", pos.asLong());
                 stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
@@ -196,7 +187,7 @@ public class LandDeedItem extends Item {
                                             "message.otherworldinn.land_deed.fail_out_of_bounds")
                                     .withStyle(style -> style.withColor(ModColors.ERROR)),
                             true);
-                    // 清除 Pos2 标记，让用户可以重新选择
+                    // 清除 Pos2，允许重新圈选
                     tag.remove("Pos2");
                     stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
                     return InteractionResult.SUCCESS;
@@ -241,7 +232,7 @@ public class LandDeedItem extends Item {
                                             "message.otherworldinn.land_deed.fail_out_of_bounds")
                                     .withStyle(style -> style.withColor(ModColors.ERROR)),
                             true);
-                    // 清除标记，允许重新选择
+                    // 清除标记，允许重新圈选
                     tag.remove("Pos1");
                     tag.remove("Pos2");
                     stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -269,10 +260,8 @@ public class LandDeedItem extends Item {
                 if (TeamManager.getInstance().removeCoins(team, price, serverPlayer.getServer())) {
                     TeamData.InnRegion newRegion = new TeamData.InnRegion(minX, minZ, maxX, maxZ);
 
-                    // 添加区域
                     team.addRegion(newRegion);
 
-                    // 立即同步队伍数据
                     TeamManager.getInstance().syncTeam(team, serverPlayer.getServer());
 
                     player.displayClientMessage(
@@ -280,7 +269,6 @@ public class LandDeedItem extends Item {
                                     .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                             true);
 
-                    // 播放音效
                     level.playSound(
                             null,
                             pos,
@@ -289,12 +277,10 @@ public class LandDeedItem extends Item {
                             1.0F,
                             1.0F);
 
-                    // 清除标记
                     tag.remove("Pos1");
                     tag.remove("Pos2");
                     stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
-                    // 消耗物品 (如果是生存模式且价格大于0)
                     if (!player.getAbilities().instabuild && price > 0) {
                         stack.shrink(1);
                     }

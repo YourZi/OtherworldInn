@@ -14,10 +14,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 /**
  * 任务系统 HUD 同步（主 mod 自有管线，S2CQuestHudPacket → QuestHudState → QuestHudOverlay）。
- *
- * <p>条目 = 任务（quest）+ 城镇委托 + 故事委托（后两者复用 {@link TaskHudSnapshotBuilder}
- * 的归一化输出），统一外显。委托/故事委托的刷新沿用既有触发点——
- * {@link TaskHudSnapshotSync} 的各 sync 入口会联动调用本类。
+ * 条目 = 任务（quest）+ 城镇委托 + 故事委托（后两者复用 {@link TaskHudSnapshotBuilder} 的归一化输出）；
+ * 委托/故事委托的刷新沿用既有触发点，{@link TaskHudSnapshotSync} 的各 sync 入口会联动调用本类。
  */
 public final class QuestHudSync {
     private QuestHudSync() {}

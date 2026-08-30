@@ -14,6 +14,7 @@ import com.otherworldinn.network.packet.S2CDeathExploreAnchorSyncPacket;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
 import com.otherworldinn.network.packet.S2CFatigueSyncPacket;
+import com.otherworldinn.network.packet.S2CFestivalInnAttributeBoostPacket;
 import com.otherworldinn.network.packet.S2CFestivalShopDiscountPacket;
 import com.otherworldinn.network.packet.S2CPicnicBoxSyncPacket;
 import com.otherworldinn.network.packet.S2CPriceSyncPacket;
@@ -62,6 +63,10 @@ public class ModMessages {
                 S2CFatigueSyncPacket.TYPE,
                 S2CFatigueSyncPacket.STREAM_CODEC,
                 S2CFatigueSyncPacket::handle);
+        registrar.playToClient(
+                S2CFestivalInnAttributeBoostPacket.TYPE,
+                S2CFestivalInnAttributeBoostPacket.STREAM_CODEC,
+                S2CFestivalInnAttributeBoostPacket::handle);
         registrar.playToClient(
                 S2CFestivalShopDiscountPacket.TYPE,
                 S2CFestivalShopDiscountPacket.STREAM_CODEC,

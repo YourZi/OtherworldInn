@@ -33,7 +33,6 @@ public class ModBlockTagProvider extends BlockTagsProvider {
             DeferredBlock<?> block = entry.getKey();
             BlockDataGenInfo info = entry.getValue();
 
-            // 挖掘工具标签
             switch (info.toolType()) {
                 case PICKAXE -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(block.get());
                 case AXE -> tag(BlockTags.MINEABLE_WITH_AXE).add(block.get());
@@ -41,7 +40,6 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 case HOE -> tag(BlockTags.MINEABLE_WITH_HOE).add(block.get());
             }
 
-            // 挖掘等级标签
             switch (info.miningLevel()) {
                 case STONE -> tag(BlockTags.NEEDS_STONE_TOOL).add(block.get());
                 case IRON -> tag(BlockTags.NEEDS_IRON_TOOL).add(block.get());

@@ -1,5 +1,5 @@
 {
-  "parent": "otherworldinn:create_first_room",
+  "parent": "otherworldinn:open_first_inn",
   "display": {
     "icon": {
       "id": "minecraft:emerald"

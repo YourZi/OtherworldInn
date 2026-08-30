@@ -54,10 +54,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 
 /**
- * 城镇维度方块保护事件适配层。
- *
- * <p>区域语义、Create 接入、底层结构性写入总闸门与受控 bypass
- * 均由 {@link TownZonePolicyService} 统一提供，这里只负责把不同事件映射到规则系统。
+ * 城镇维度方块保护事件适配层：规则均由 {@link TownZonePolicyService} 统一提供，这里只负责把事件映射到规则系统。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class TownProtectionHandler {
@@ -286,22 +283,13 @@ public class TownProtectionHandler {
 
     // ── 右键方块 ──────────────────────────────────────────
 
-    /**
-     * 右键方块拦截流程：
-     * <ol>
-     *   <li>非城镇维度 + only_in_town 物品 → 拒绝</li>
-     *   <li>城镇维度 + banned_in_town 物品 → 拒绝</li>
-     *   <li>自由修改区 → 正常放行</li>
-     *   <li>保护区：容器/方块实体交互放行；手持方块/锄头拒绝</li>
-     * </ol>
-     */
+    /** 右键方块拦截：先按物品标签拒绝，再区分自由修改区与保护区放行/拒绝。 */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Level level = event.getLevel();
         Player player = event.getEntity();
         ItemStack stack = event.getItemStack();
 
-        // 1. 维度外限制：仅限城镇物品在其他维度使用
         if (!isTownDimension(level)) {
             if (stack.is(OtherworldInn.ONLY_IN_TOWN)) {
                 denyRightClickBlock(event, player);
@@ -313,7 +301,6 @@ public class TownProtectionHandler {
             return;
         }
 
-        // 2. 城镇维度 + 禁用物品
         if (stack.is(OtherworldInn.BANNED_IN_TOWN)) {
             denyRightClickBlock(event, player);
             if (player instanceof ServerPlayer sp)
@@ -326,7 +313,7 @@ public class TownProtectionHandler {
         BlockState clickedState = level.getBlockState(event.getPos());
         BlockPos placePos = event.getPos().relative(event.getFace());
 
-        // 3. 始终放行：Depot 展示块
+        // Depot 展示块始终放行
         if (isDepotDisplayBlock(clickedState)) return;
 
         if (!TownZonePolicyService.canPlayerHarvestCropAt(level, event.getPos(), clickedState, player)) {
@@ -335,9 +322,7 @@ public class TownProtectionHandler {
             return;
         }
 
-        // 4. 保护区内：
-        //    a) 方块实体交互 (容器、工作台等) → 放行
-        //       （自由修改区内直接放行，保护区内允许容器交互）
+        //    a) 保护区内的方块实体交互 (容器、工作台等) → 放行（刻意放行的例外）
         if (clickedState.hasBlockEntity()
                 && !(clickedState.getBlock() instanceof net.minecraft.world.level.block.DecoratedPotBlock)) {
             if (TownZonePolicyService.isFreeEditZone(level, event.getPos())) return;
@@ -534,9 +519,7 @@ public class TownProtectionHandler {
 
     // ── 客户端预处理 ───────────────────────────────────────
 
-    /**
-     * 客户端侧预先拦截 banned_in_town 物品，避免客户端预测放行后又被服务端拒绝造成闪烁。
-     */
+    /** 客户端侧预先拦截 banned_in_town 物品，避免客户端预测放行后又被服务端拒绝造成闪烁。 */
     @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
     public static class ClientHandler {
         @SubscribeEvent(priority = EventPriority.HIGHEST)

@@ -14,11 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-/**
- * 实体消失管理器
- *
- * <p>处理实体的延迟移除任务。
- */
+/** 实体消失管理器：处理实体的延迟移除任务。 */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public class DisappearManager {
 
@@ -27,12 +23,7 @@ public class DisappearManager {
     private static final List<DisappearTask> tasks = new ArrayList<>();
     private static final List<DisappearTask> pendingTasks = new ArrayList<>();
 
-    /**
-     * 安排实体消失任务
-     *
-     * @param entity 目标实体
-     * @param delayTicks 延迟 tick 数
-     */
+    /** 安排实体消失任务。 */
     public static void schedule(Entity entity, int delayTicks) {
         if (entity == null || entity.level().isClientSide) return;
         // 使用临时列表避免并发修改异常
@@ -45,7 +36,6 @@ public class DisappearManager {
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        // 合并新任务
         if (!pendingTasks.isEmpty()) {
             tasks.addAll(pendingTasks);
             pendingTasks.clear();
@@ -57,20 +47,15 @@ public class DisappearManager {
         while (iterator.hasNext()) {
             DisappearTask task = iterator.next();
 
-            // 获取对应的 ServerLevel
             ServerLevel level = event.getServer().getLevel(task.levelKey);
             if (level == null) {
-                // 如果维度未加载或不存在，移除任务
                 iterator.remove();
                 continue;
             }
 
-            // 检查时间是否到达
             if (level.getGameTime() >= task.targetTime) {
                 Entity entity = level.getEntity(task.uuid);
                 if (entity != null) {
-                    // 生成死亡粒子效果 (POOF)
-                    // count=20, speed=0.1
                     level.sendParticles(
                             ParticleTypes.POOF,
                             entity.getX(),
@@ -82,7 +67,7 @@ public class DisappearManager {
                             0.5,
                             0.1);
 
-                    // 移除实体 (使用 discard 而不是 kill，避免触发死亡掉落等逻辑)
+                    // 用 discard 而非 kill，避免触发死亡掉落等逻辑
                     entity.discard();
                 }
                 // 无论实体是否存在（可能已被移除），任务都算完成

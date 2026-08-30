@@ -1,0 +1,23 @@
+{
+  "parent": "otherworldinn:create_first_room",
+  "display": {
+    "icon": {
+      "id": "otherworldinn:inn_key"
+    },
+    "title": {
+      "translate": "advancements.otherworldinn.open_first_inn.title"
+    },
+    "description": {
+      "translate": "advancements.otherworldinn.open_first_inn.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

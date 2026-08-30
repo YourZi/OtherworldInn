@@ -25,11 +25,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
-/**
- * 房间登记册物品
- *
- * <p>用于在装修模式下创建和删除房间。
- */
+/** 房间登记册：用于在装修模式下创建和删除房间。 */
 public class RoomRegisterItem extends Item {
 
     public RoomRegisterItem(Properties properties) {
@@ -62,7 +58,6 @@ public class RoomRegisterItem extends Item {
                     stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
             CompoundTag tag = customData.copyTag();
 
-            // 标记坐标
             if (!tag.contains("Pos1")) {
                 tag.putLong("Pos1", pos.asLong());
                 stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -75,7 +70,6 @@ public class RoomRegisterItem extends Item {
             } else {
                 BlockPos pos1 = BlockPos.of(tag.getLong("Pos1"));
 
-                // 计算最小最大坐标
                 BlockPos minPos =
                         new BlockPos(
                                 Math.min(pos1.getX(), pos.getX()),
@@ -87,7 +81,6 @@ public class RoomRegisterItem extends Item {
                                 Math.max(pos1.getY(), pos.getY()),
                                 Math.max(pos1.getZ(), pos.getZ()));
 
-                // 判定是否有效
                 RoomData.ValidationResult result =
                         RoomData.validate(minPos, maxPos, level, team, null);
                 if (result.isSuccess()) {
@@ -117,11 +110,9 @@ public class RoomRegisterItem extends Item {
                                     .withStyle(style -> style.withColor(ModColors.SUCCESS)),
                             true);
 
-                    // 播放翻书页声音
                     level.playSound(
                             null, pos, SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F);
 
-                    // 清除标记
                     tag.remove("Pos1");
                     stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
                 } else {

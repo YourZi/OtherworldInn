@@ -13,9 +13,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * 城镇地图数据提供者
- *
- * <p>负责管理城镇中的所有地图点（POI）。 当前使用静态数据
+ * 城镇地图数据提供者：管理城镇全部地图点（POI），当前为静态数据。
  */
 public class TownDataProvider {
 
@@ -23,10 +21,8 @@ public class TownDataProvider {
     private static final Map<ResourceLocation, MapPoint> POINT_INDEX = new LinkedHashMap<>();
 
     static {
-        // 初始化城镇关键点
-        // 坐标和屏幕偏移为当前配置值
+        // 坐标与屏幕偏移为手工配置值
 
-        // 旅社 (Inn)
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "inn"),
@@ -39,7 +35,6 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 铁匠铺 (Blacksmith)
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "blacksmith"),
@@ -52,7 +47,7 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 魔女工坊 (Magician Workshop)
+        // 魔女工坊
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "magician_workshop"),
@@ -65,7 +60,7 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 集市 (Market)
+        // 集市
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "market"),
@@ -78,7 +73,7 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 城镇大门 (Town Gate)
+        // 城镇大门
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "town_gate"),
@@ -91,7 +86,7 @@ public class TownDataProvider {
                         null // 默认解锁
                         ));
 
-        // 码头 (Dock)
+        // 码头
         registerPoint(
                 new MapPoint(
                         ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "dock"),
@@ -137,22 +132,13 @@ public class TownDataProvider {
         }
     }
 
-    /**
-     * 获取所有地图点
-     *
-     * @return 地图点列表
-     */
+    /** 获取所有地图点 */
     public static List<MapPoint> getPoints() {
         syncFacilityPoints();
         return POINTS;
     }
 
-    /**
-     * 根据 ID 获取地图点
-     *
-     * @param id 地图点 ID
-     * @return Optional 地图点
-     */
+    /** 根据 ID 获取地图点 */
     public static Optional<MapPoint> getPoint(ResourceLocation id) {
         syncFacilityPoints();
         return Optional.ofNullable(POINT_INDEX.get(id));

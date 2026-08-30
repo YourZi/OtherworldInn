@@ -4,10 +4,8 @@ import sereneseasons.api.season.ISeasonState;
 import sereneseasons.api.season.Season;
 
 /**
- * 节日触发窗口
- *
- * <p>季节绑定：指定主季节（春/夏/秋/冬）内的日期区间 [startDayInSeason, endDayInSeason)，
- * 每年同季同期重复触发。窗口为纯时间函数，可重入计算。
+ * 节日触发窗口：指定主季节内的日期区间 [startDayInSeason, endDayInSeason)，每年同季同期重复触发。
+ * 窗口为纯时间函数，可重入计算。
  */
 public record FestivalTrigger(Season season, int startDayInSeason, int endDayInSeason) {
 

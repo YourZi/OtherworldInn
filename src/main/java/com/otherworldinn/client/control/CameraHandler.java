@@ -58,11 +58,6 @@ public class CameraHandler {
     private static boolean restorePlayerPositionOnExit = true;
     private static ResourceKey<Level> lastClientDimension = null;
 
-    /**
-     * 处理按键输入事件
-     *
-     * @param event 按键事件
-     */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft mc = Minecraft.getInstance();
@@ -83,7 +78,6 @@ public class CameraHandler {
         }
     }
 
-    /** 打开地图 */
     public static void enableMapMode() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
@@ -131,12 +125,6 @@ public class CameraHandler {
         isMapMode = true;
     }
 
-    /**
-     * 移动到指定页面
-     *
-     * @param gridX 页面网格 X
-     * @param gridZ 页面网格 Z
-     */
     public static void moveToPage(int gridX, int gridZ) {
         if (!isMapMode) return;
 
@@ -153,7 +141,7 @@ public class CameraHandler {
         if (dummyCameraEntity != null) {
             startPos = dummyCameraEntity.position();
         } else {
-            startPos = getCurrentPageTargetPos(); // Fallback
+            startPos = getCurrentPageTargetPos();
         }
 
         targetPos = getCurrentPageTargetPos();
@@ -164,7 +152,6 @@ public class CameraHandler {
         sendMapModeSync(C2SMapModeSyncPacket.ACTION_MOVE, targetPos, targetYaw, targetPitch);
     }
 
-    /** 关闭地图 */
     public static void disableMapMode() {
         disableMapMode(true);
     }
@@ -189,7 +176,6 @@ public class CameraHandler {
         // MapViewScreen 会自行执行淡出并在动画结束后关闭界面
     }
 
-    /** 获取当前页面中心目标位置 */
     private static Vec3 getCurrentPageTargetPos() {
         double baseX = ClientConfig.INSTANCE.cameraX.get();
         double baseY = ClientConfig.INSTANCE.cameraY.get();
@@ -221,11 +207,6 @@ public class CameraHandler {
         return transitionProgress;
     }
 
-    /**
-     * 获取平滑插值的过渡进度
-     *
-     * @param partialTick 渲染部分刻
-     */
     public static float getSmoothTransitionProgress(float partialTick) {
         if (!isTransitioning) return isMapMode ? 1.0f : 0.0f;
         return Mth.lerp(partialTick, prevTransitionProgress, transitionProgress);
@@ -235,18 +216,10 @@ public class CameraHandler {
         return isTransitioning;
     }
 
-    /** 检查是否处于地图模式 */
     public static boolean isMapMode() {
         return isMapMode;
     }
 
-    /**
-     * 更新虚拟摄像机实体的位置和旋转
-     *
-     * @param pos 位置
-     * @param yaw 偏航角
-     * @param pitch 俯仰角
-     */
     private static void updateDummyEntity(Vec3 pos, float yaw, float pitch) {
         if (dummyCameraEntity == null) return;
         dummyCameraEntity.setPos(pos.x, pos.y, pos.z);
@@ -270,11 +243,7 @@ public class CameraHandler {
         }
     }
 
-    /**
-     * 应用正交投影矩阵
-     *
-     * <p>在 {@link RenderLevelStageEvent.Stage#AFTER_SKY} 阶段修改投影矩阵，
-     */
+    /** 应用正交投影矩阵 */
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY && isMapMode) {
@@ -308,7 +277,6 @@ public class CameraHandler {
         }
     }
 
-    /** 客户端每刻更新 */
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
@@ -405,26 +373,19 @@ public class CameraHandler {
         originalCameraEntity = null;
     }
 
-    /**
-     * 获取虚拟摄像机实体的当前位置
-     *
-     * @return 位置，如果虚拟实体不存在则返回 null
-     */
+    /** 虚拟摄像机实体的当前位置；实体不存在时返回 null */
     public static Vec3 getDummyCameraPos() {
         return dummyCameraEntity != null ? dummyCameraEntity.position() : null;
     }
 
-    /** 获取目标偏航角 */
     public static float getTargetYaw() {
         return targetYaw;
     }
 
-    /** 获取目标俯仰角 */
     public static float getTargetPitch() {
         return targetPitch;
     }
 
-    /** 完成退出地图视角 */
     private static void finishDisableMapMode() {
         Minecraft mc = Minecraft.getInstance();
         isMapMode = false;

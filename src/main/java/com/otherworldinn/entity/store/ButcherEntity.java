@@ -42,7 +42,6 @@ public class ButcherEntity extends StoreEntity {
 
     public static List<CatalogEntry> createCatalog() {
         List<CatalogEntry> entries = new ArrayList<>();
-        // 生肉
         entries.add(new CatalogEntry(new ItemStack(Items.BEEF), 4, 8));
         entries.add(new CatalogEntry(new ItemStack(Items.PORKCHOP), 4, 8));
         entries.add(new CatalogEntry(new ItemStack(Items.CHICKEN), 3, 8));

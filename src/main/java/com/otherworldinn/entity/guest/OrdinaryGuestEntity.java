@@ -16,11 +16,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
-/**
- * 普通旅客实体
- *
- * <p>使用 Alex (slim) 模型。 支持多种皮肤变体。
- */
+/** 普通旅客实体：Alex (slim) 模型，支持多种皮肤变体。 */
 public class OrdinaryGuestEntity extends GuestEntity {
 
     private static final ResourceLocation DEFAULT_TEXTURE =
@@ -46,20 +42,11 @@ public class OrdinaryGuestEntity extends GuestEntity {
                 1.0D);
     }
 
-    /*
-    @Override
-    protected void initRewardItems() {
-        ResourceLocation reward = this.getRandom().nextBoolean() ? IRON_INGOT_ID : GOLD_INGOT_ID;
-        this.getGuestData().addRewardItem(reward, 1, 2);
-    }
-    */
-
     @Override
     public ResourceLocation getSkinTexture() {
         // 懒加载纹理列表 (仅限客户端)
         if (!texturesLoaded && this.level().isClientSide) {
             try {
-                // 使用反射或直接调用客户端工具类加载纹理
                 List<ResourceLocation> found =
                         ClientServices.findTexturesInFolder(
                                 OtherworldInn.MODID, "textures/entity/guest/ordinary_guest");
@@ -77,7 +64,6 @@ public class OrdinaryGuestEntity extends GuestEntity {
             return DEFAULT_TEXTURE;
         }
 
-        // 使用取模运算确保索引有效
         return TEXTURES.get(Math.abs(this.getSkinVariant()) % TEXTURES.size());
     }
 

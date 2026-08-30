@@ -24,12 +24,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 城镇区块生成器
- *
- * <p>生成一个虚空世界，并预留接口生成固定的城镇结构。
+ * 城镇区块生成器：虚空世界（地形/洞穴/地表/生物/结构均不生成），预留接口生成固定的城镇结构。
  */
 public class TownChunkGenerator extends ChunkGenerator {
-    // 编解码器
     public static final MapCodec<TownChunkGenerator> CODEC =
             RecordCodecBuilder.mapCodec(
                     instance ->
@@ -57,7 +54,6 @@ public class TownChunkGenerator extends ChunkGenerator {
             @NotNull StructureManager structureManager,
             @NotNull ChunkAccess chunk,
             GenerationStep.@NotNull Carving step) {
-        // 不生成洞穴
     }
 
     @Override
@@ -66,12 +62,10 @@ public class TownChunkGenerator extends ChunkGenerator {
             @NotNull StructureManager structureManager,
             @NotNull RandomState random,
             @NotNull ChunkAccess chunk) {
-        // 虚空世界，不生成地表
     }
 
     @Override
     public void spawnOriginalMobs(@NotNull WorldGenRegion region) {
-        // 不自然生成生物
     }
 
     @Override
@@ -85,7 +79,6 @@ public class TownChunkGenerator extends ChunkGenerator {
             @NotNull RandomState state,
             @NotNull StructureManager manager,
             @NotNull ChunkAccess chunk) {
-        // 虚空世界，什么都不生成
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -96,7 +89,6 @@ public class TownChunkGenerator extends ChunkGenerator {
             @NotNull StructureManager structureManager,
             @NotNull ChunkAccess chunkAccess,
             @NotNull StructureTemplateManager structureTemplateManager) {
-        // 不生成任何结构
     }
 
     @Override

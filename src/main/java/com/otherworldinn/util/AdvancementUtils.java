@@ -35,6 +35,10 @@ public final class AdvancementUtils {
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "serve_one_vip");
     public static final ResourceLocation CREATE_FIRST_ROOM =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "create_first_room");
+    public static final ResourceLocation BIND_FIRST_ROOM_HIDDEN =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "bind_first_room_hidden");
+    public static final ResourceLocation OPEN_FIRST_INN =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "open_first_inn");
     public static final ResourceLocation SERVE_FIRST_GUEST =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "serve_first_guest");
     public static final ResourceLocation COMPLETE_1_COMMISSION =

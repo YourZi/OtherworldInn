@@ -17,10 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
- * maimai 彩蛋的客户端效果（音效与图集切换）
- *
- * <p>状态持久化、金币扣除与进度发放由服务端的 {@link
- * com.otherworldinn.world.event.listener.EasterEggServerHandler} 处理。
+ * maimai 彩蛋的客户端效果（音效与图集切换）；状态持久化与奖励发放由服务端处理。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
 public class EasterEggClientHandler {

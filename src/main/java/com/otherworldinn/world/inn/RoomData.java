@@ -21,15 +21,11 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
-/**
- * 房间数据
- *
- * <p>存储旅社中单个房间的信息，包括空间范围、编号和属性。
- */
+/** 旅社中单个房间的信息（范围、编号、属性）。 */
 @Data
 public class RoomData {
     private final int id;
-    private final UUID uuid; // 房间唯一标识符
+    private final UUID uuid;
     private final BlockPos minPos;
     private final BlockPos maxPos;
 
@@ -48,7 +44,6 @@ public class RoomData {
     @Setter(AccessLevel.NONE)
     private int cleanliness = 100;
 
-    // 旅客信息
     @Setter(AccessLevel.NONE)
     private int maxGuests = 1;
 
@@ -63,13 +58,6 @@ public class RoomData {
 
     private final Set<UUID> currentGuests = new HashSet<>();
 
-    /**
-     * 创建一个新的房间数据
-     *
-     * @param id 房间编号
-     * @param minPos 最小坐标
-     * @param maxPos 最大坐标
-     */
     public RoomData(int id, BlockPos minPos, BlockPos maxPos) {
         this.id = id;
         this.uuid = UUID.randomUUID();
@@ -125,12 +113,7 @@ public class RoomData {
         this.name = name == null ? "" : name;
     }
 
-    /**
-     * 获取房间的显示名称。如果有自定义名称则返回该名称，否则返回"X号房间"。
-     *
-     * @param room 房间数据（可为 null，返回 "?"）
-     * @return 房间显示名称
-     */
+    /** 房间显示名称：优先自定义名，否则为"X号房间"。 */
     public static String getDisplayName(RoomData room) {
         if (room == null) return "?";
         if (room.name != null && !room.name.isEmpty()) return room.name;
@@ -152,17 +135,7 @@ public class RoomData {
         return currentGuests.contains(guestId);
     }
 
-    /**
-     * 计算床位价格
-     *
-     * <p>先计算“单床基准价”（根据旅社星级和房间水平面积，最低 8 金币，最高 96 金币，权重：星级 60%，面积 40%）。
-     * 然后按床位数做分段衰减：
-     *
-     * <p>1) 1~4 床：单床价线性下降，4 床时降到单床基准价的 1/3。 2) 5~6 床：单床价快速线性下降，6 床时降到 1。 3) 大于 6 床：单床价固定为 1。
-     *
-     * @param innRating 旅社评级 (0-5)
-     * @return 单个床位的价格
-     */
+    /** 床位价格：单床基准价 8~96（星级 60% + 面积 40%），床位数增多时单床价分段衰减，6 床以上固定 1。 */
     public int getBedPrice(int innRating) {
         int area = (maxPos.getX() - minPos.getX() + 1) * (maxPos.getZ() - minPos.getZ() + 1);
         int maxEffectiveArea = 48; // 约 7x7 大小作为满分面积基准
@@ -235,13 +208,7 @@ public class RoomData {
         return validate(minPos, maxPos, level, team, null);
     }
 
-    /**
-     * 统计床位数量，并计算整洁度。
-     *
-     * <p>只有干净的床位 (MESSY=false) 计入有效床位。 整洁度 = (干净床位 / 总床位) * 100 如果没有床，整洁度默认为 100。
-     *
-     * @return [有效床位数, 整洁度, 物理床位总数]
-     */
+    /** 统计床位：返回 [有效床位, 整洁度, 总床位]，仅干净床计入有效，无床时整洁度为 100。 */
     public static int[] calculateBedStats(BlockPos minPos, BlockPos maxPos, Level level) {
         int cleanBedCount = 0;
         int totalBedCount = 0;
@@ -255,7 +222,6 @@ public class RoomData {
 
                     totalBedCount++;
 
-                    // 检查是否脏乱
                     boolean isMessy = false;
                     Property<?> messyProp =
                             state.getProperties().stream()
@@ -300,29 +266,14 @@ public class RoomData {
         return calculateBedStats(minPos, maxPos, level)[0];
     }
 
-    /**
-     * 判定区域是否能作为房间
-     *
-     * <p>检查逻辑： 1. 房间的整个水平投影必须在旅社区域内。 2. 底面（最低点再低一格）所有方块必须有完整的、可站立的上表面。 3.
-     * 顶面（最高点再高一格）所有方块不能为无碰撞体积的方块。 4. 侧面（四个侧面）外层方块中，至少 3/4 的方块必须有碰撞体积。 5. 所有侧面的最外层方块中，至少包含一扇门。 6.
-     * 房间内部必须至少包含一张床。 7. 房间不能与已有房间重叠。 8. 房间内必须至少包含一个 2x2x2 的无碰撞箱空间。
-     *
-     * @param minPos 房间最小坐标
-     * @param maxPos 房间最大坐标
-     * @param level 世界实例
-     * @param team 所属队伍（用于检查区域范围）
-     * @param ignoreRoomId 需要忽略的房间ID（用于自身检查时避免重叠误判），可为 null
-     */
+    /** 判定区域是否能作为房间：依次检查尺寸、地面、天花板、墙体、门、床位、2x2x2 空间与重叠。 */
     public static ValidationResult validate(
             BlockPos minPos, BlockPos maxPos, Level level, TeamData team, Integer ignoreRoomId) {
-        // 0. 检查是否在旅社区域内
         if (team != null) {
-            // 检查房间整个水平投影是否都在旅社区域内
             if (!team.isAreaInInnZone(minPos, maxPos)) {
                 return ValidationResult.OUT_OF_BOUNDS;
             }
 
-            // 0.1 检查是否与现有房间重叠
             InnData innData = team.getInnData();
             for (RoomData existingRoom : innData.getRooms().values()) {
                 // 如果是自身检查，跳过
@@ -330,7 +281,6 @@ public class RoomData {
                     continue;
                 }
 
-                // 简单的 AABB 重叠检查
                 if (Math.max(minPos.getX(), existingRoom.getMinPos().getX())
                                 <= Math.min(maxPos.getX(), existingRoom.getMaxPos().getX())
                         && Math.max(minPos.getY(), existingRoom.getMinPos().getY())
@@ -354,31 +304,26 @@ public class RoomData {
             return ValidationResult.TOO_SMALL;
         }
 
-        // 1. 检查底面 (minY - 1)
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 BlockPos floorPos = new BlockPos(x, minY - 1, z);
                 BlockState state = level.getBlockState(floorPos);
-                // 检查是否有完整上表面支持站立 (isFaceSturdy with UP)
                 if (!state.isFaceSturdy(level, floorPos, Direction.UP)) {
                     return ValidationResult.HOLE_IN_FLOOR;
                 }
             }
         }
 
-        // 2. 检查顶面 (maxY + 1)
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 BlockPos ceilingPos = new BlockPos(x, maxY + 1, z);
                 BlockState state = level.getBlockState(ceilingPos);
-                // 检查是否有碰撞体积 (getCollisionShape not empty)
                 if (state.getCollisionShape(level, ceilingPos).isEmpty()) {
                     return ValidationResult.HOLE_IN_CEILING;
                 }
             }
         }
 
-        // 3. 检查侧面
         boolean hasDoor = false;
 
         int northTotal = 0, northSolid = 0;
@@ -388,9 +333,7 @@ public class RoomData {
 
         BlockPos.MutableBlockPos mPos = new BlockPos.MutableBlockPos();
 
-        // 遍历墙壁
         for (int y = minY; y <= maxY; y++) {
-            // 北墙 (minZ - 1) 和 南墙 (maxZ + 1)
             for (int x = minX; x <= maxX; x++) {
                 mPos.set(x, y, minZ - 1);
                 if (checkWallBlock(level, mPos)) northSolid++;
@@ -422,18 +365,14 @@ public class RoomData {
         if ((double) westSolid / westTotal < 0.75) return ValidationResult.HOLE_IN_WALL;
         if ((double) eastSolid / eastTotal < 0.75) return ValidationResult.HOLE_IN_WALL;
 
-        // 必须包含至少一扇门
         if (!hasDoor) {
             return ValidationResult.MISSING_DOOR;
         }
 
-        // 4. 内部检查：统计床位数量 + 检查是否存在 2x2x2 的空闲空间
         // 合并遍历以优化性能
         int bedCount = 0;
         boolean hasSpace = false;
 
-        // 如果当前点是空的，尝试以此为起点的 2x2x2。
-        // 为了减少重复检查，只有当 hasSpace 为 false 时才进行检查。
 
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
@@ -441,12 +380,10 @@ public class RoomData {
                     mPos.set(x, y, z);
                     BlockState state = level.getBlockState(mPos);
 
-                    // 统计床位
                     if (state.is(BlockTags.BEDS)) {
                         if (state.hasProperty(BedBlock.PART)
                                 && state.getValue(BedBlock.PART) == BedPart.HEAD) {
 
-                            // 检查是否脏乱
                             boolean isMessy = false;
                             net.minecraft.world.level.block.state.properties.Property<?> messyProp =
                                     state.getProperties().stream()
@@ -471,8 +408,6 @@ public class RoomData {
                         }
                     }
 
-                    // 检查 2x2x2 空间 (如果尚未找到)
-                    // 只有当 x, y, z 都在允许作为 2x2x2 起点的范围内时才检查
                     // 优化：2x2x2 空间必须位于最低处 (y == minY)
                     if (!hasSpace && y == minY && x < maxX && z < maxZ) {
                         // 快速预检：如果当前方块有碰撞箱，则以其为起点的 2x2x2 肯定无效
@@ -503,7 +438,6 @@ public class RoomData {
         for (int dx = 0; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {
                 for (int dz = 0; dz <= 1; dz++) {
-                    // 起点已经检查过了，可以跳过 (dx=0, dy=0, dz=0)
                     if (dx == 0 && dy == 0 && dz == 0) continue;
 
                     mPos.set(startX + dx, startY + dy, startZ + dz);
@@ -529,12 +463,6 @@ public class RoomData {
         return state.getBlock() instanceof DoorBlock || state.is(BlockTags.DOORS);
     }
 
-    /**
-     * 将房间数据保存到 NBT
-     *
-     * @param tag 目标 NBT 标签
-     * @return 包含数据的 NBT 标签
-     */
     public CompoundTag save(CompoundTag tag) {
         tag.putInt("Id", id);
         tag.putUUID("UUID", uuid);
@@ -562,12 +490,6 @@ public class RoomData {
         return tag;
     }
 
-    /**
-     * 从 NBT 加载房间数据
-     *
-     * @param tag 源 NBT 标签
-     * @return 加载的房间数据
-     */
     public static RoomData load(CompoundTag tag) {
         int id = tag.getInt("Id");
         UUID uuid = tag.contains("UUID") ? tag.getUUID("UUID") : UUID.randomUUID(); // 兼容旧数据

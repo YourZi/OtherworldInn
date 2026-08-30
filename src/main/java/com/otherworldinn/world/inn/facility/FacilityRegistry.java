@@ -267,7 +267,6 @@ public final class FacilityRegistry {
                         3,
                         List.of(new FacilityRange(new BlockPos(-2, 71, 63), new BlockPos(-23, 75, 51)))));
 
-        // TODO 矿井：centerPos / facilityRange 为临时占位坐标，正式建筑与坐标待设计确定
         registerFacility(
                 "mine",
                 "Mine",

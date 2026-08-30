@@ -23,33 +23,27 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * 旅客数据
- *
- * <p>存储旅社中单个旅客的信息。
- */
+/** 旅社中单个旅客的信息。 */
 @Data
 public class GuestData {
     private final UUID uuid;
     private long checkoutTime; // 预计退房时间 (DayTime)
 
-    // 旅客状态
     public enum GuestState {
-        IDLE, // 空闲
-        WAITING, // 等待入住
-        CHECKED_IN, // 已入住
-        CHECKED_OUT // 已退房
+        IDLE,
+        WAITING,
+        CHECKED_IN,
+        CHECKED_OUT
     }
 
     private GuestState state = GuestState.IDLE;
     private long waitingSince = 0; // 开始等待的时间 (DayTime)
 
-    // 房间属性偏好 (区间)
+    // 属性偏好区间
     private IntRange comfortPreference = new IntRange(0, 100);
     private IntRange lightPreference = new IntRange(0, 100);
     private IntRange humidityPreference = new IntRange(0, 100);
 
-    // 房间 ID
     private int roomId = -1;
     @Nullable private BlockPos assignedBedPos = null;
 
@@ -96,19 +90,9 @@ public class GuestData {
     @Setter(AccessLevel.NONE)
     private int preferenceScore = 0;
 
-    /**
-     * 奖励物品列表
-     *
-     * <p>旅客退房时可能给予的奖励物品。
-     */
+    /** 旅客退房时可能给予的奖励物品。 */
     private final List<RewardItem> rewardItems = new ArrayList<>();
 
-    /**
-     * 构造一个新的旅客数据
-     *
-     * @param uuid 旅客UUID
-     * @param checkoutTime 预计退房时间 (DayTime)
-     */
     public GuestData(UUID uuid, long checkoutTime) {
         this.uuid = uuid;
         this.checkoutTime = checkoutTime;
@@ -130,14 +114,7 @@ public class GuestData {
         this.preferenceScore = Math.max(0, Math.min(10, preferenceScore));
     }
 
-    /**
-     * 根据房间属性更新偏好分数
-     *
-     * <p>计算逻辑： 1. 基础分 10 分。 2. 对每个属性（舒适度、光照、湿度），计算房间属性值与偏好范围中位数的差距。 3. 差距越大，扣分越多。 - 差距 <=
-     * 范围半径：不扣分（即在偏好范围内）。 - 差距 > 范围半径：每超出 5 点扣 1 分。
-     *
-     * @param room 房间数据
-     */
+    /** 偏好分以 10 分为基础，房间属性每超出偏好范围 5 点扣 1 分。 */
     public void updatePreferenceScore(RoomData room) {
         if (room == null) {
             this.preferenceScore = 0;
@@ -158,12 +135,10 @@ public class GuestData {
         double radius = (preference.max - preference.min) / 2.0;
         double diff = Math.abs(actualValue - median);
 
-        // 如果在范围内（差距小于等于半径），不扣分
         if (diff <= radius) {
             return 0;
         }
 
-        // 超出范围的部分
         double excess = diff - radius;
 
         // 每超出 5 点扣 1 分
@@ -176,23 +151,12 @@ public class GuestData {
         this.rewardItems.add(new RewardItem(item, new IntRange(min, max)));
     }
 
-    /**
-     * 在指定位置掉落奖励物品并清空列表
-     *
-     * @param level 服务器等级
-     * @param pos 掉落位置
-     */
+    /** 在指定位置掉落奖励物品并清空列表。 */
     public void dropRewards(ServerLevel level, BlockPos pos) {
         dropRewards(level, pos, null);
     }
 
-    /**
-     * 在指定位置掉落奖励物品，优先放入附近的容器
-     *
-     * @param level 服务器等级
-     * @param pos 掉落位置
-     * @param bedPos 床位位置（用于搜索附近容器）
-     */
+    /** 掉落奖励物品，优先放入床位或掉落点附近的容器。 */
     public void dropRewards(ServerLevel level, BlockPos pos, @Nullable BlockPos bedPos) {
         RandomSource random = level.getRandom();
 
@@ -290,12 +254,6 @@ public class GuestData {
 
     // --- NBT 序列化 ---
 
-    /**
-     * 保存数据到 NBT
-     *
-     * @param tag 目标标签
-     * @return 写入数据的标签
-     */
     public CompoundTag save(CompoundTag tag) {
         tag.putUUID("UUID", uuid);
         tag.putLong("CheckoutTime", checkoutTime);
@@ -320,12 +278,6 @@ public class GuestData {
         return tag;
     }
 
-    /**
-     * 从 NBT 加载数据
-     *
-     * @param tag 源标签
-     * @return 加载的旅客数据
-     */
     public static GuestData load(CompoundTag tag) {
         UUID uuid = tag.getUUID("UUID");
         long checkoutTime = tag.getLong("CheckoutTime");
@@ -383,12 +335,10 @@ public class GuestData {
 
         // 归一化状态字段，防止 NBT 中存在不一致的数据
         if (guest.state == GuestState.CHECKED_IN && guest.roomId == -1) {
-            // 已入住但无房间：降级为空闲
             guest.state = GuestState.IDLE;
             guest.assignedBedPos = null;
         }
         if (guest.state != GuestState.CHECKED_IN) {
-            // 非入住状态不允许持有房间/床位
             guest.roomId = -1;
             guest.assignedBedPos = null;
         }
@@ -415,18 +365,8 @@ public class GuestData {
         }
     }
 
-    /**
-     * 整数区间记录类
-     *
-     * <p>用于存储属性偏好范围 (min, max)。
-     */
+    /** 整数区间，用于属性偏好范围。 */
     public record IntRange(int min, int max) {
-        /**
-         * 检查值是否在区间内
-         *
-         * @param value 待检查值
-         * @return 是否包含
-         */
         public boolean contains(int value) {
             return value >= min && value <= max;
         }

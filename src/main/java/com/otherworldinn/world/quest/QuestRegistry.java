@@ -27,15 +27,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
 /**
- * 任务注册表（参照原版进度的文件组织）：一个节点一个 JSON 文件，
- * 位于 {@code data/<命名空间>/quests/} 下，文件路径即节点 id（如
- * {@code otherworldinn:main/first_steps/get_inn_key}）。
- *
- * <p>节点字段：{@code quest}（归属任务 id，必填）、{@code parent}（父节点 id，
- * 省略即为根节点）、{@code label}、{@code objectives}、{@code rewards}；
- * 根节点额外承担任务元数据 {@code name}（必填）、{@code desc}、{@code category}（默认 side）。
- *
- * <p>解析失败或校验失败（单根、parent 存在且同任务、无环、全可达）只记日志并跳过该文件/任务。
+ * 任务注册表（参照原版进度的文件组织）：一个节点一个 JSON 文件，位于 {@code data/<命名空间>/quests/} 下，文件路径即节点 id。
+ * 根节点额外承担任务元数据（{@code name} 必填、{@code desc}、{@code category} 默认 side）。
+ * 解析或校验失败（单根、parent 存在且同任务、无环、全可达）只记日志并跳过该文件/任务。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class QuestRegistry {

@@ -75,7 +75,6 @@ final class FurnitureAttributeJeiCategory implements IRecipeCategory<FurnitureAt
             double mouseY) {
         Font font = Minecraft.getInstance().font;
 
-        // 背景：有纹理用纹理（1:1），缺失时保持空白背景
         if (Minecraft.getInstance().getResourceManager().getResource(BACKGROUND_TEXTURE).isPresent()) {
             guiGraphics.blit(BACKGROUND_TEXTURE, 0, 0, 0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT);
         }

@@ -61,11 +61,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 
-/**
- * 旅社数据
- *
- * <p>存储旅社的运营状态、旅客列表等信息。
- */
+/** 旅社运营数据（房间、旅客、收支等）。 */
 @Data
 public class InnData {
     private String name = "My Inn";
@@ -115,7 +111,7 @@ public class InnData {
     private int lastChartDistributionWeek = -1;
 
     @Setter(AccessLevel.NONE)
-    private InnState state = InnState.CLOSED; // 默认为歇业
+    private InnState state = InnState.CLOSED;
 
     public enum InnState {
         CLOSED,
@@ -132,7 +128,6 @@ public class InnData {
     private final Set<BlockPos> knownDiningDisplayPositions = new HashSet<>();
     private final Set<BlockPos> dirtyDiningDisplayPositions = new HashSet<>();
 
-    // 待办事项缓存列表
     private final List<InnTodo> todoEntries = new ArrayList<>();
 
     // 下一次生成旅客的时间 (GameTime)
@@ -201,14 +196,7 @@ public class InnData {
         this.reputation = Math.max(0, reputation);
     }
 
-    /**
-     * 获取当前等级升级所需的最大声望值
-     *
-     * <p>类似于 Minecraft 的经验值系统。 公式：100 * (rating + 1)
-     *
-     * @param rating 当前星级
-     * @return 升级所需声望
-     */
+    /** 各星级升级所需的声望门槛。 */
     public int getMaxReputation(int rating) {
         int clamped = Math.max(0, Math.min(5, rating));
         return REPUTATION_REQUIREMENTS_BY_RATING[clamped];
@@ -224,11 +212,6 @@ public class InnData {
         return TOTAL_INCOME_REQUIREMENTS_BY_RATING[clamped];
     }
 
-    /**
-     * 增加声望
-     *
-     * @param amount 增加的数值
-     */
     public void addReputation(int amount, ServerLevel level) {
         if (amount > 0) {
             amount = applyPositiveBuff(amount, InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER);
@@ -587,11 +570,7 @@ public class InnData {
         return true;
     }
 
-    /**
-     * 尝试开启装修模式
-     *
-     * @return 如果成功开启返回 true，否则返回 false (例如正在营业或有客人)
-     */
+    /** 切换营业状态，开启时触发开业逻辑。 */
     public boolean setState(InnState newState) {
         if (this.state == newState) {
             return true;
@@ -619,14 +598,6 @@ public class InnData {
         this.guestIds.add(guestId);
     }
 
-    /**
-     * 添加旅客（进入旅社范围）
-     *
-     * @param guest 旅客实体
-     * @param team 队伍数据
-     * @param level 世界
-     * @return 是否新增了等待旅客
-     */
     public boolean addGuest(GuestEntity guest, TeamData team, ServerLevel level) {
         if (guestIds.contains(guest.getUUID())) {
             return false;
@@ -634,11 +605,9 @@ public class InnData {
 
         addGuest(guest.getUUID());
 
-        // 设置状态为等待
         GuestData data = guest.getGuestData();
         data.setWaiting(true, level.getDayTime());
 
-        // 添加待办事项
         addTodo(level, team, guestWaitingTodo(guest));
         return true;
     }
@@ -659,15 +628,6 @@ public class InnData {
         guestIds.clear();
     }
 
-    /**
-     * 获取旅客数据
-     *
-     * <p>通过 UUID 在服务器等级中查找实体并获取数据。
-     *
-     * @param uuid 旅客 UUID
-     * @param level 服务器等级
-     * @return 旅客数据，如果找不到实体则返回 null
-     */
     public GuestData getGuestData(UUID uuid, ServerLevel level) {
         if (!guestIds.contains(uuid)) {
             return null;
@@ -702,7 +662,6 @@ public class InnData {
             }
         }
 
-        // 通知队伍所有成员
         if (level != null && team != null && removed != null) {
             String roomDisplay = RoomData.getDisplayName(removed);
             team.getMembers()
@@ -757,15 +716,7 @@ public class InnData {
         return null;
     }
 
-    /**
-     * 计算并更新房间属性
-     *
-     * <p>遍历房间内的所有方块，查找已注册的家具，累加其属性值。
-     * 每种方块最多计入两个，防止大量放置同一方块刷属性。
-     *
-     * @param roomId 房间ID
-     * @param level 服务器等级 (用于获取方块状态)
-     */
+    /** 计算房间属性：累加房间内家具属性，每种方块最多计入两个以防刷属性。 */
     public void calculateRoomStats(int roomId, Level level) {
         RoomData room = rooms.get(roomId);
         if (room == null) {
@@ -814,15 +765,9 @@ public class InnData {
         room.setHumidity(stats[2]);
     }
 
-    /**
-     * 更新所有房间的属性数据
-     *
-     * @param level 服务器等级
-     */
     public void updateAllRoomsStats(Level level) {
         for (Integer roomId : rooms.keySet()) {
             calculateRoomStats(roomId, level);
-            // 更新房间内所有旅客的偏好分数
             RoomData room = rooms.get(roomId);
             if (room != null && level instanceof ServerLevel serverLevel) {
                 // 更新房间整洁度（虽然不用于平均计算，但可能用于其他逻辑）
@@ -842,20 +787,11 @@ public class InnData {
         }
     }
 
-    /**
-     * 获取总房间数量
-     *
-     * @return 房间总数
-     */
     public int getRoomCount() {
         return rooms.size();
     }
 
-    /**
-     * 获取旅社平均舒适度
-     *
-     * @return 平均舒适度 (0-100)，如果没有房间则返回 0
-     */
+    /** 平均舒适度 (0-100)，无房间时为 0。 */
     public int getAverageComfort() {
         if (rooms.isEmpty()) {
             return 0;
@@ -978,15 +914,7 @@ public class InnData {
                 });
     }
 
-    /**
-     * 检查所有房间的合法性
-     *
-     * <p>遍历所有房间，如果不符合合法性规则，则将其删除。
-     *
-     * @param level 服务器等级
-     * @param team 所属队伍 (用于范围检查)
-     * @return 被删除的房间ID列表
-     */
+    /** 检查所有房间合法性，不合规的自动删除并返回被删房间 ID。 */
     public List<Integer> checkAllRoomsValidity(Level level, TeamData team) {
         List<Integer> removedRooms = new ArrayList<>();
         // 收集需要删除的房间ID和原因，避免在遍历时修改集合
@@ -1006,7 +934,6 @@ public class InnData {
                 removedRooms.add(room.getId());
                 failureReasons.put(room.getId(), result);
             } else {
-                // 如果验证通过，更新床的数量和整洁度
                 int[] bedStats =
                         RoomData.calculateBedStats(room.getMinPos(), room.getMaxPos(), level);
                 room.setMaxGuests(bedStats[0]);
@@ -1015,7 +942,6 @@ public class InnData {
             }
         }
 
-        // 删除无效房间
         for (Integer roomId : removedRooms) {
             RoomData.ValidationResult reason = failureReasons.get(roomId);
             removeRoom(roomId, level, team, Component.translatable(reason.getTranslationKey()));
@@ -1024,12 +950,7 @@ public class InnData {
         return removedRooms;
     }
 
-    /**
-     * 判断一个位置是否处于房间的范围内或其六面外壳上。
-     *
-     * <p>六面外壳包括：房间内部、地板（底面下方一层）、天花板（顶面上方一层）、
-     * 以及四面外侧墙壁（东西南北各向外偏移一格）。
-     */
+    /** 判断位置是否在房间范围内或其六面外壳（地板/天花板/四周外墙各外扩一格）。 */
     public static boolean isPosAffectingRoom(BlockPos pos, RoomData room) {
         int x = pos.getX();
         int y = pos.getY();
@@ -1063,11 +984,7 @@ public class InnData {
         return false;
     }
 
-    /**
-     * 查找该位置受影响的房间（包含内部和六面外壳）。
-     *
-     * @return 受该位置影响的房间，没有则返回 null
-     */
+    /** 查找受该位置影响的房间（含六面外壳），没有则返回 null。 */
     public RoomData getRoomAffectedBy(BlockPos pos) {
         for (RoomData room : rooms.values()) {
             if (isPosAffectingRoom(pos, room)) {
@@ -1092,13 +1009,7 @@ public class InnData {
         return affected;
     }
 
-    /**
-     * 对单个房间进行合法性判定与属性更新。
-     *
-     * <p>如果房间不合法，则自动删除该房间。
-     *
-     * @return 房间是否被保留
-     */
+    /** 校验单个房间，不合法则自动删除；返回房间是否被保留。 */
     public boolean checkAndUpdateRoom(int roomId, Level level, TeamData team) {
         RoomData room = rooms.get(roomId);
         if (room == null) {
@@ -1189,16 +1100,7 @@ public class InnData {
 
     // --- 入住/退房 ---
 
-    /**
-     * 旅客入住
-     *
-     * <p>将旅客分配到指定房间。如果房间已满或不存在，返回 false。 如果旅客已在其他房间，会自动先执行退房。
-     *
-     * @param guestId 旅客 UUID
-     * @param roomId 目标房间ID
-     * @param level 服务器等级
-     * @return 是否成功入住
-     */
+    /** 将旅客分配到指定房间并认领床位。 */
     public boolean checkIn(UUID guestId, int roomId, ServerLevel level) {
         if (this.state != InnState.OPEN) {
             return false; // 旅社未营业
@@ -1209,7 +1111,6 @@ public class InnData {
             return false; // 房间不存在
         }
 
-        // 检查房间是否已满
         if (room.getCurrentGuests().size() >= room.getMaxGuests()) {
             return false;
         }
@@ -1219,12 +1120,10 @@ public class InnData {
             return false; // 找不到旅客实体
         }
 
-        // 检查旅客是否已在其他房间
         if (guest.getRoomId() != -1) {
             return false;
         }
 
-        // 执行入住逻辑
         if (room.addGuest(guestId)) {
             guest.setRoomId(roomId);
             BlockPos assignedBedPos = claimUnassignedBedForGuest(room, guestId, level);
@@ -1238,14 +1137,12 @@ public class InnData {
             guest.updatePreferenceScore(room);
             this.addGuest(guestId);
 
-            // 让实体寻路到房间
             Entity entity = level.getEntity(guestId);
             if (entity instanceof GuestEntity guestEntity) {
                 BlockPos targetPos =
                         findBestRoomNavigationTarget(level, guestEntity, room, assignedBedPos);
                 guestEntity.setNavigationTarget(targetPos);
 
-                // 获取当前队伍并移除 TODO
                 TeamData team =
                         TeamManager.getInstance().getTeamAt(room.getMinPos(), level.getServer());
                 if (team != null) {
@@ -1444,41 +1341,29 @@ public class InnData {
 
     // --- 旅客生成 ---
 
-    /**
-     * 尝试生成新旅客
-     *
-     * @param level 服务器等级
-     * @return 是否更新了旅客生成状态
-     */
     private boolean trySpawnGuest(ServerLevel level) {
         long currentTime = level.getDayTime();
 
-        // 1. 检查是否到达生成时间
         if (currentTime < nextGuestSpawnTime) {
             return false;
         }
 
-        // 2. 检查旅社是否开业
         if (this.state != InnState.OPEN) {
             return false;
         }
 
-        // 3. 检查是否有可用床位
         if (!hasAvailableBed(level)) {
             return false;
         }
 
-        // 4. 检查当前世界中等待入住的旅客数量
         if (getWaitingGuestCount(level) >= 3) {
             // 如果等待人数过多，推迟生成
             scheduleNextSpawn(level.getRandom(), currentTime);
             return true;
         }
 
-        // 5. 生成旅客
         spawnGuest(level);
 
-        // 6. 安排下一次生成
         scheduleNextSpawn(level.getRandom(), currentTime);
         return true;
     }
@@ -1498,14 +1383,9 @@ public class InnData {
         return false;
     }
 
-    /**
-     * 获取当前世界中正在等待入住的旅客数量
-     *
-     * <p>统计所有处于 IDLE 或 WAITING 状态的旅客实体。
-     */
+    /** 当前世界中等待入住的旅客数量。 */
     private int getWaitingGuestCount(ServerLevel level) {
         int count = 0;
-        // 遍历所有加载的实体，筛选出 GuestEntity
         for (Entity entity : level.getAllEntities()) {
             if (entity instanceof GuestEntity guest) {
                 GuestData.GuestState state = guest.getGuestData().getState();
@@ -1517,7 +1397,6 @@ public class InnData {
         return count;
     }
 
-    /** 生成旅客实体 */
     private void spawnGuest(ServerLevel level) {
         // 随机坐标范围：(20, 71, 2) ~ (5, 71, -2)
         // X: 5 ~ 20
@@ -1527,7 +1406,6 @@ public class InnData {
         double z = -2 + level.random.nextDouble() * (2 - (-2));
         double y = 71;
 
-        // 检查该位置所在的区块是否加载
         if (!level.isLoaded(BlockPos.containing(x, y, z))) {
             return;
         }
@@ -1551,7 +1429,6 @@ public class InnData {
         }
     }
 
-    // 修改 scheduleNextSpawn 为返回 delay
     private int calculateNextSpawnDelay(RandomSource random) {
         int clampedRating = Math.max(0, Math.min(5, this.rating));
         double progress = clampedRating / 5.0D;
@@ -1572,25 +1449,13 @@ public class InnData {
         return Math.min(MAX_GUEST_WAITING_TIMEOUT, timeout);
     }
 
-    /**
-     * 辅助方法：安排下一次生成
-     *
-     * @param random 随机源
-     * @param currentTime 当前游戏时间
-     */
     private void scheduleNextSpawn(RandomSource random, long currentTime) {
         this.nextGuestSpawnTime = currentTime + calculateNextSpawnDelay(random);
     }
 
     // --- 辅助方法 ---
 
-    /**
-     * 将房间内的一张干净的床设置为脏乱状态
-     *
-     * @param roomId 房间ID
-     * @param level 服务器等级
-     * @return 是否成功弄乱了一张床
-     */
+    /** 将房间内一张干净的床（优先指定床位）设为脏乱。 */
     private boolean setRoomBedMessy(int roomId, ServerLevel level, BlockPos preferredBedHeadPos) {
         RoomData room = rooms.get(roomId);
         if (room == null) return false;
@@ -1699,20 +1564,12 @@ public class InnData {
                 belowState.getCollisionShape(level, belowPos), Direction.UP);
     }
 
-    /**
-     * 每 tick 更新
-     *
-     * <p>检查等待超时的旅客。
-     *
-     * @param level 世界
-     * @param team 队伍数据
-     * @return 是否修改了需要同步保存的旅社数据
-     */
+    /** 每 tick 更新：处理自动歇业、旅客生成、等待超时与退房；返回数据是否变化。 */
     public boolean tick(ServerLevel level, TeamData team) {
         long currentTime = level.getDayTime();
         boolean changed = false;
 
-        // 自动歇业：世界中没有在线玩家时自动歇业
+        // 无在线玩家时自动歇业
         if (level.getServer().getPlayerCount() <= 0 && this.state == InnState.OPEN) {
             this.state = InnState.CLOSED;
             changed = true;
@@ -1735,7 +1592,6 @@ public class InnData {
         // 每 5 tick 检查一次
         if (currentTime % 5 != 0) return changed;
 
-        // 遍历旅客检查状态
 
         List<UUID> guestsToDepart = new ArrayList<>();
         List<UUID> guestsToCheckOut = new ArrayList<>();
@@ -1751,7 +1607,6 @@ public class InnData {
                         guestsToDepart.add(guestId);
                     }
                 } else if (guestData.getState() == GuestData.GuestState.CHECKED_IN) {
-                    // 检查是否到达退房时间
                     if (currentTime >= guestData.getCheckoutTime()
                             && guestEntity.canCheckOutNow(currentTime)) {
                         guestsToCheckOut.add(guestId);
@@ -1760,7 +1615,6 @@ public class InnData {
             }
         }
 
-        // 处理离开
         for (UUID guestId : guestsToDepart) {
             handleGuestDeparture(guestId, true, level, team);
             // handleGuestDeparture 内部不调用 removeGuest，所以这里手动移除
@@ -1768,7 +1622,6 @@ public class InnData {
             changed = true;
         }
 
-        // 处理退房
         for (UUID guestId : guestsToCheckOut) {
             checkOut(guestId, level, true);
             // checkOut 内部会调用 removeGuest
@@ -1776,20 +1629,12 @@ public class InnData {
         return changed;
     }
 
-    /**
-     * 处理旅客离开
-     *
-     * @param guestId 旅客 ID
-     * @param isAngry 是否生气离开
-     * @param level 世界
-     * @param team 队伍数据
-     */
+    /** 处理旅客离开，生气离开时扣声望并播放愤怒特效。 */
     public void handleGuestDeparture(
             UUID guestId, boolean isAngry, ServerLevel level, TeamData team) {
         Entity entity = level.getEntity(guestId);
         GuestEntity guestEntity = entity instanceof GuestEntity g ? g : null;
 
-        // 1. 获取并移除待办事项 (如果是等待中离开)
         if (guestEntity != null) {
             GuestData guestData = guestEntity.getGuestData();
             if (guestData.getState() == GuestData.GuestState.WAITING) {
@@ -1828,14 +1673,12 @@ public class InnData {
             // 正常退房由 checkOut 处理；此处处理异常离开
         }
 
-        // 通用离开逻辑：移除占用并触发离场
 
         if (guestEntity != null) {
             StoryGuestService.handleGuestVisitEnded(guestEntity, level);
             guestEntity.setNavigationTarget(new BlockPos(10, 71, 0));
             EntityUtils.scheduleDisappear(guestEntity);
 
-            // 更新状态
             guestEntity.getGuestData().setCheckedOut(true);
         }
 
@@ -1845,15 +1688,7 @@ public class InnData {
         }
     }
 
-    /**
-     * 旅客退房
-     *
-     * <p>将旅客从当前房间移除，并从旅社旅客名单中删除。 如果旅客实体存在，会触发奖励物品掉落。 此外，会将房间内的一张床标记为脏乱。
-     *
-     * @param guestId 旅客UUID
-     * @param level 服务器等级
-     * @param isNormalCheckout 是否为正常退房（如果为 false，则不计算房费）
-     */
+    /** 旅客退房：掉落奖励、结算房费与声望，并将一张床标记为脏乱。 */
     public void checkOut(UUID guestId, ServerLevel level, boolean isNormalCheckout) {
         Entity entity = level.getEntity(guestId);
         GuestEntity guestEntity = entity instanceof GuestEntity g ? g : null;
@@ -1977,16 +1812,7 @@ public class InnData {
         }
     }
 
-    /**
-     * 添加待办事项
-     *
-     * <p>同时添加到缓存列表和实际剪贴板中。
-     *
-     * @param level 世界
-     * @param team 队伍数据
-     * @param todoText 待办事项文本
-     * @return 是否成功添加到剪贴板（如果只添加到缓存也算处理成功，但返回 false 表示没有物理剪贴板更新）
-     */
+    /** 添加待办事项；返回是否成功写入物理剪贴板。 */
     public boolean addTodo(Level level, TeamData team, String todoText) {
         return addTodo(level, team, InnTodo.legacy(todoText));
     }
@@ -2002,7 +1828,6 @@ public class InnData {
         todoEntries.add(todo);
         syncTodoMutation(level, team);
 
-        // 2. 尝试同步到剪贴板
         boolean addedToClipboard = false;
         for (TeamData.InnRegion region : team.getInnRegions()) {
             AABB area =
@@ -2012,7 +1837,7 @@ public class InnData {
             }
         }
 
-        // 3. 广播通知
+        // 广播通知
         if (addedToClipboard && level instanceof ServerLevel serverLevel) {
             team.getMembers()
                     .forEach(
@@ -2041,13 +1866,6 @@ public class InnData {
         return addedToClipboard;
     }
 
-    /**
-     * 移除待办事项
-     *
-     * @param level 世界
-     * @param team 队伍数据
-     * @param todoText 待办事项文本
-     */
     public void removeTodo(Level level, TeamData team, String todoText) {
         removeTodo(level, team, InnTodo.legacy(todoText));
     }
@@ -2056,14 +1874,12 @@ public class InnData {
         if (todo == null) {
             return;
         }
-        // 1. 从缓存移除
         int index = findTodoIndex(todo);
         if (index >= 0) {
             todoEntries.remove(index);
             syncTodoMutation(level, team);
         }
 
-        // 2. 从剪贴板移除
         for (TeamData.InnRegion region : team.getInnRegions()) {
             AABB area =
                     new AABB(region.minX(), -64, region.minZ(), region.maxX(), 320, region.maxZ());
@@ -2123,11 +1939,7 @@ public class InnData {
         return index < 0 ? Long.MAX_VALUE : index;
     }
 
-    /**
-     * 同步缓存的待办事项到指定区域的剪贴板
-     *
-     * <p>通常在放置新的剪贴板时调用。
-     */
+    /** 将缓存待办同步到指定区域的剪贴板（放置新剪贴板时调用）。 */
     public void syncTodosToClipboard(Level level, AABB area) {
         if (todoEntries.isEmpty()) return;
 
@@ -2147,12 +1959,6 @@ public class InnData {
         }
     }
 
-    /**
-     * 保存数据到 NBT
-     *
-     * @param tag 目标标签
-     * @return 写入数据的标签
-     */
     public CompoundTag save(CompoundTag tag) {
         tag.putString("Name", name);
         tag.putInt("Rating", rating);
@@ -2220,11 +2026,6 @@ public class InnData {
         return tag;
     }
 
-    /**
-     * 从 NBT 加载数据
-     *
-     * @param tag 源标签
-     */
     public void load(CompoundTag tag) {
         if (tag.contains("Name")) {
             name = tag.getString("Name");

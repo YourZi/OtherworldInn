@@ -10,10 +10,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 
 /**
- * 客户端任务 HUD 数据缓存：解析任务系统专属快照包 {@code S2CQuestHudPacket} 的
- * {@code Tasks} 列表——服务端已把 quest / 委托 / 故事委托三来源归一化成统一条目格式。
- *
- * <p>与 OtherworldInnHud 附属无关：主 mod 自行渲染（常驻左侧垂直居中）。
+ * 客户端任务 HUD 数据缓存：解析 S2CQuestHudPacket 快照，服务端已将 quest/委托/故事委托归一化为统一条目。
  */
 public final class QuestHudState {
     /** 单个目标条目；required > 1 时渲染计数 current/required。 */

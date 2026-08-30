@@ -44,9 +44,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
 /**
- * 房间轮廓渲染器
- *
- * <p>使用 Create 模组的 Outliner API 渲染房间边框和预览区域。 仅在客户端运行。
+ * 房间轮廓渲染器：使用 Create 模组的 Outliner API 渲染房间边框与预览区域。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
 public class RoomOutlineRenderer {
@@ -114,7 +112,6 @@ public class RoomOutlineRenderer {
         Player player = mc.player;
         if (player == null) return;
 
-        // 仅在城镇维度显示范围
         if (player.level().dimension() != TownDimensions.TOWN_LEVEL) {
             if (overlayToggled) {
                 overlayToggled = false;
@@ -122,7 +119,6 @@ public class RoomOutlineRenderer {
             return;
         }
 
-        // 检测按键绑定切换重叠层显示
         boolean pressed = ModKeyBindings.TOGGLE_INN_OVERLAY.isDown();
         if (pressed && !overlayTogglePressed) {
             overlayToggled = !overlayToggled;
@@ -139,7 +135,6 @@ public class RoomOutlineRenderer {
         }
         overlayTogglePressed = pressed;
 
-        // 检查是否手持房间登记册或地契
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean holdingRegistry = stack.is(ModItems.ROOM_REGISTER.get());
         boolean holdingLandDeed = stack.is(ModItems.LAND_DEED.get());
@@ -181,9 +176,7 @@ public class RoomOutlineRenderer {
                                     AllSpecialTextures.CUTOUT_CHECKERED);
                 }
             } else if (holdingRoomKey) {
-                // 手持房间钥匙：渲染所有房间
-                // 绑定的房间：蓝色 (ModColors.BLUE)
-                // 其他房间：灰色 (ModColors.GRAY_DARK)
+                // 手持房间钥匙：绑定房间蓝色，其他房间灰色
                 java.util.Optional<java.util.UUID> boundRoomUUID =
                         RoomKeyItem.getBoundRoomUUID(stack);
 
@@ -324,7 +317,7 @@ public class RoomOutlineRenderer {
                     if (hitResult instanceof BlockHitResult blockHitResult) {
                         pos2 = blockHitResult.getBlockPos().relative(blockHitResult.getDirection());
                     } else {
-                        return; // 未指向方块时不渲染
+                        return;
                     }
                 }
 

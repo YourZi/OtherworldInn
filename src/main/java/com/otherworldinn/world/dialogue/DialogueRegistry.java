@@ -308,7 +308,7 @@ public final class DialogueRegistry {
                                     "回程的时候还会路过，记得给我留间房。",
                                     "I'll pass through on the return trip. Save me a room.")),
 
-                    // Ultra Rich Guest Dialogues (12 total)
+                    // Ultra Rich Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_ultra_rich_suite",
                             LocalizedText.of(
@@ -360,7 +360,7 @@ public final class DialogueRegistry {
                                     "老牌旅馆就是不一样，底蕴深厚。",
                                     "Established inns are different. They have depth.")),
 
-                    // VIP Guest Dialogues (12 total)
+                    // VIP Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_vip_ordinary_schedule",
                             LocalizedText.of(
@@ -397,7 +397,7 @@ public final class DialogueRegistry {
                                     "服务流程很规范，我会向上级汇报。",
                                     "The service process is well-standardized. I'll report upward.")),
 
-                    // Sponsor Guest Dialogues (12 total)
+                    // Sponsor Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_sponsor_photo",
                             LocalizedText.of(

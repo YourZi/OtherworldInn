@@ -74,11 +74,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/**
- * 旅客实体
- *
- * <p>抽象父类实体，存储旅客数据。
- */
+/** 旅客实体：抽象父类，存储旅客数据。 */
 public abstract class GuestEntity extends PathfinderMob {
 
     private static final EntityDataAccessor<Integer> SKIN_VARIANT =
@@ -102,13 +98,10 @@ public abstract class GuestEntity extends PathfinderMob {
     private static final double NAVIGATION_PROGRESS_THRESHOLD_SQR = 0.0625D;
     private static final String TAG_ASSIGNED_DIALOGUE_ID = "AssignedDialogueId";
 
-    /** 旅客数据 */
     @Getter private GuestData guestData;
 
-    /** 导航目标 */
     private BlockPos navigationTarget;
 
-    /** 生成延迟计数器 */
     private int spawnDelay = 0;
 
     @Getter private int budget;
@@ -146,7 +139,6 @@ public abstract class GuestEntity extends PathfinderMob {
             @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData);
 
-        // 如果没有自定义名称，则设置一个随机名称
         if (shouldUseRandomName() && !this.hasCustomName()) {
             this.setCustomName(GuestNameManager.getRandomName(this.getRandom()));
         }
@@ -475,31 +467,15 @@ public abstract class GuestEntity extends PathfinderMob {
         }
     }
 
-    /**
-     * 获取旅客皮肤纹理
-     *
-     * <p>子类必须实现此方法以提供特定的纹理。
-     *
-     * @return 纹理资源位置
-     */
+    /** 皮肤纹理，子类必须实现。 */
     public abstract ResourceLocation getSkinTexture();
 
-    /**
-     * 获取模型类型
-     *
-     * <p>返回 "default" (Steve) 或 "slim" (Alex)。 默认为 "default"。
-     *
-     * @return 模型类型字符串
-     */
+    /** 模型类型："default" (Steve) 或 "slim" (Alex)，默认为 "default"。 */
     public String getModelType() {
         return "default";
     }
 
-    /**
-     * 创建旅客属性
-     *
-     * @return 属性构建器
-     */
+    /** 旅客属性构建器。 */
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 64.0)
@@ -507,22 +483,12 @@ public abstract class GuestEntity extends PathfinderMob {
                 .add(Attributes.FOLLOW_RANGE, 48.0);
     }
 
-    /**
-     * 获取旅客停留时长（ticks）
-     *
-     * <p>默认为 1 Minecraft 天 (24000 ticks)。 子类可覆盖此方法以设定特定的停留时间。
-     *
-     * @return 停留时长 (ticks)
-     */
+    /** 旅客停留时长（ticks），默认 1 Minecraft 天，子类可覆盖。 */
     protected long getStayDuration() {
         return WorldDayUtils.TICKS_PER_DAY;
     }
 
-    /**
-     * 初始化旅客偏好
-     *
-     * <p>子类可覆盖此方法以设定特定的房间偏好。 默认所有属性偏好均为 0-100 (无限制)。
-     */
+    /** 初始化旅客偏好，默认偏好范围 0-100（无限制），子类可覆盖。 */
     protected void initGuestPreferences() {
         GuestProfile profile = this.getGuestProfile();
         applyPreferenceRange(profile.comfortRange(), this.guestData::setComfortPreference);
@@ -543,13 +509,8 @@ public abstract class GuestEntity extends PathfinderMob {
         return Math.max(0.0D, this.getGuestProfile().reputationMultiplier());
     }
 
-    /**
-     * 初始化奖励物品
-     *
-     * <p>子类可覆盖此方法以添加特定的奖励物品。 默认无奖励。 示例：this.guestData.addRewardItem(Items.EMERALD, 1, 3);
-     */
+    /** 初始化奖励物品，默认无奖励，子类可覆盖。 */
     protected void initRewardItems() {
-        // 默认无奖励，由子类实现
     }
 
     public void setNavigationTarget(BlockPos pos) {
@@ -629,17 +590,14 @@ public abstract class GuestEntity extends PathfinderMob {
 
         @Override
         public boolean canUse() {
-            // 延迟执行
+            // 生成后延迟 60 tick 再开始寻找
             if (GuestEntity.this.spawnDelay < 60) return false;
 
-            // 只有处于空闲状态且没有导航目标时才寻找旅社
             if (GuestEntity.this.guestData.getState() != GuestData.GuestState.IDLE) return false;
             if (GuestEntity.this.navigationTarget != null) return false;
 
-            // 如果已经在旅社范围内，则不需要寻找
             if (isInInnRange()) return false;
 
-            // 查找最近的队伍旅社
             if (targetInnPos == null
                     && GuestEntity.this.level() instanceof ServerLevel serverLevel) {
                 findNearestInn(serverLevel);
@@ -679,7 +637,6 @@ public abstract class GuestEntity extends PathfinderMob {
 
         @Override
         public boolean canContinueToUse() {
-            // 如果已经在范围内，或者状态不再是 IDLE，停止
             if (isInInnRange()
                     || GuestEntity.this.guestData.getState() != GuestData.GuestState.IDLE) {
                 return false;
@@ -689,23 +646,19 @@ public abstract class GuestEntity extends PathfinderMob {
 
         @Override
         public void tick() {
-            // 每5tick检查一次范围
             if (GuestEntity.this.tickCount % 5 == 0) {
-                // 检查是否进入了旅社范围
                 if (isInInnRange()) {
-                    // 停止移动
                     GuestEntity.this.getNavigation().stop();
                     targetInnPos = null;
                     return;
                 }
             }
 
-            // 重新计算路径逻辑 (每 40 tick / 2秒)
             if (--this.recalculatePathDelay <= 0) {
                 this.recalculatePathDelay = 40;
                 if (targetInnPos != null) {
                     if (GuestEntity.this.getNavigation().isDone()) {
-                        // 如果导航完成了但还没到，尝试重新寻找目标并移动
+                        // 导航完成但未到达：重新寻找最近旅社
                         if (GuestEntity.this.level() instanceof ServerLevel serverLevel) {
                             findNearestInn(serverLevel);
                         }
@@ -741,13 +694,12 @@ public abstract class GuestEntity extends PathfinderMob {
     public void die(DamageSource damageSource) {
         super.die(damageSource);
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
-            // 获取当前位置的队伍/旅社
             TeamData team =
                     TeamManager.getInstance()
                             .getTeamAt(this.blockPosition(), serverLevel.getServer());
             if (team != null) {
                 InnData innData = team.getInnData();
-                // 强制退房，标记为非正常退房（不支付房费）
+                // 非正常退房：死亡退房不支付房费
                 innData.checkOut(this.getUUID(), serverLevel, false);
             } else {
                 // 兜底清理：队伍领地外死亡时残留的旅客/房间占用
@@ -1072,13 +1024,11 @@ public abstract class GuestEntity extends PathfinderMob {
         if (!this.level().isClientSide) {
             spawnDelay++;
 
-            // 检测是否进入旅社范围并触发登记
             if (this.tickCount % 20 == 0
                     && this.guestData.getState() == GuestData.GuestState.IDLE) {
                 if (this.level() instanceof ServerLevel serverLevel) {
                     TeamData team = this.getActualInnTeamAt(serverLevel, this.blockPosition());
                     if (team != null) {
-                        // 旅客在旅社范围内，触发进入旅社逻辑
                         if (team.getInnData().addGuest(this, team, serverLevel)) {
                             TeamManager.getInstance().syncTeam(team, serverLevel.getServer());
                         }
@@ -1096,7 +1046,6 @@ public abstract class GuestEntity extends PathfinderMob {
                 tickBehaviorTree(serverLevel);
             }
 
-            // 同步状态到 SynchedEntityData
             int currentStateOrdinal = this.guestData.getState().ordinal();
             if (this.entityData.get(GUEST_STATE) != currentStateOrdinal) {
                 this.entityData.set(GUEST_STATE, currentStateOrdinal);
@@ -1124,7 +1073,7 @@ public abstract class GuestEntity extends PathfinderMob {
                 this.entityData.set(GUEST_HUMIDITY_PREF, packedHumidity);
             }
 
-            // 发光逻辑：等待入住时发光
+            // 等待入住时发光
             if (this.shouldGuestGlow()) {
                 if (!this.hasGlowingTag()) {
                     this.setGlowingTag(true);
@@ -1135,7 +1084,7 @@ public abstract class GuestEntity extends PathfinderMob {
                 }
             }
         } else {
-            // 客户端：从 SynchedEntityData 更新 GuestData 状态
+            // 客户端从 SynchedEntityData 还原状态与偏好
             int syncedStateOrdinal = this.entityData.get(GUEST_STATE);
             if (syncedStateOrdinal >= 0
                     && syncedStateOrdinal < GuestData.GuestState.values().length) {
@@ -1158,8 +1107,7 @@ public abstract class GuestEntity extends PathfinderMob {
             this.guestData.setHumidityPreference(
                     unpackMin(packedHumidity), unpackMax(packedHumidity));
 
-            // 客户端发光逻辑 (虽然 glowing tag 会自动同步，但这里双重保险或用于其他客户端效果)
-            // 注意：setGlowingTag 主要由服务端控制，客户端设置可能只在本地生效
+            // 发光 tag 主要由服务端同步，客户端设置仅本地生效，此处作双保险
         }
     }
 
@@ -1270,7 +1218,6 @@ public abstract class GuestEntity extends PathfinderMob {
         compound.putInt("DailyPurchaseTarget", this.dailyPurchaseTarget);
         compound.putInt("DailyPurchaseCount", this.dailyPurchaseCount);
         compound.putInt("DailyPurchaseAttemptCount", this.dailyPurchaseAttemptCount);
-        // 将 GuestData 保存到 NBT 中
         CompoundTag guestTag = new CompoundTag();
         this.guestData.save(guestTag);
         compound.put("GuestData", guestTag);
@@ -1308,11 +1255,9 @@ public abstract class GuestEntity extends PathfinderMob {
         this.dailyPurchaseTarget = Math.max(0, compound.getInt("DailyPurchaseTarget"));
         this.dailyPurchaseCount = Math.max(0, compound.getInt("DailyPurchaseCount"));
         this.dailyPurchaseAttemptCount = Math.max(0, compound.getInt("DailyPurchaseAttemptCount"));
-        // 从 NBT 加载 GuestData
         if (compound.contains("GuestData")) {
             CompoundTag guestTag = compound.getCompound("GuestData");
             this.guestData = GuestData.load(guestTag);
-            // 初始同步状态
             this.entityData.set(GUEST_STATE, this.guestData.getState().ordinal());
         }
     }

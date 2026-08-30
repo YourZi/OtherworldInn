@@ -101,9 +101,6 @@ public class QuestCommands {
         return 0;
     }
 
-    /*
-     * /innquest reset <questId|all> - 清除任务进度以便重新测试（管理员）
-     */
     private static int reset(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
         String questId = StringArgumentType.getString(context, "questId");

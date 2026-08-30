@@ -92,7 +92,6 @@ public class MagicianEntity extends StoreEntity {
                     stack -> stack.enchant(selected.enchantment(), selected.level()));
         }
 
-        // 每日随机下界/稀有材料
         long day = WorldDayUtils.currentDay(this.level());
         RandomSource dailyRandom = RandomSource.create(this.level().random.nextLong() ^ day);
         List<DailyNetherMaterial> dailyPool = new ArrayList<>(DAILY_NETHER_MATERIALS);

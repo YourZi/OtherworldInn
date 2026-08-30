@@ -8,9 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Applies map-view specific visual style:
- * 1) post effect with palette+dither quantization;
- * 2) flatter lighting by increasing gamma while map mode is active.
+ * Applies map-view visual style: palette+dither post effect and higher gamma for flatter lighting.
  */
 public final class MapViewVisualEffects {
     private static final ResourceLocation MAP_POST_EFFECT =

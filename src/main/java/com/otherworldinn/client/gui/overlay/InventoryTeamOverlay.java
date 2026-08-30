@@ -1,10 +1,12 @@
 package com.otherworldinn.client.gui.overlay;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.client.ClientFestivalData;
 import com.otherworldinn.client.PlayerEasterEggFlags;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.network.ModMessages;
 import com.otherworldinn.network.packet.C2SWithdrawCoinPacket;
+import com.otherworldinn.world.festival.InnAttributeBoostEffect;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.decoration.InnDecorationBuffType;
 import com.otherworldinn.world.team.TeamData;
@@ -297,15 +299,21 @@ public class InventoryTeamOverlay {
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.lodging_income",
                                     formatPercentage(
-                                            innData.getDecorationBuffValue(
-                                                    InnDecorationBuffType.LODGING_INCOME_MULTIPLIER)))
+                                            getTotalInnBuffValue(
+                                                    innData,
+                                                    InnDecorationBuffType.LODGING_INCOME_MULTIPLIER,
+                                                    InnAttributeBoostEffect.ATTR_LODGING_INCOME)))
                             .withStyle(style -> style.withColor(ModColors.INN_LODGING_BUFF)));
             tooltip.add(
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.dining_income",
                                     formatPercentage(
-                                            innData.getDecorationBuffValue(
-                                                            InnDecorationBuffType.DINING_INCOME_MULTIPLIER)
+                                            getTotalInnBuffValue(
+                                                            innData,
+                                                            InnDecorationBuffType
+                                                                    .DINING_INCOME_MULTIPLIER,
+                                                            InnAttributeBoostEffect
+                                                                    .ATTR_DINING_INCOME)
                                                     + innData.getCurrentDiningVarietyBonusValue()))
                             .withStyle(style -> style.withColor(ModColors.INN_DINING_BUFF)));
             tooltip.add(
@@ -320,8 +328,10 @@ public class InventoryTeamOverlay {
                     Component.translatable(
                                     "tooltip.otherworldinn.decoration.reputation_gain",
                                     formatPercentage(
-                                            innData.getDecorationBuffValue(
-                                                    InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER)))
+                                            getTotalInnBuffValue(
+                                                    innData,
+                                                    InnDecorationBuffType.REPUTATION_GAIN_MULTIPLIER,
+                                                    InnAttributeBoostEffect.ATTR_REPUTATION_GAIN)))
                             .withStyle(style -> style.withColor(ModColors.INN_REPUTATION_BUFF)));
             renderTooltip(guiGraphics, mc, tooltip, mouseX, mouseY);
         }
@@ -381,5 +391,11 @@ public class InventoryTeamOverlay {
             return String.format("%+.0f%%", percent);
         }
         return String.format("%+.1f%%", percent);
+    }
+
+    private static double getTotalInnBuffValue(
+            InnData innData, InnDecorationBuffType decorationBuffType, String festivalAttributeKey) {
+        return innData.getDecorationBuffValue(decorationBuffType)
+                + ClientFestivalData.getInnAttributeBoost(festivalAttributeKey);
     }
 }

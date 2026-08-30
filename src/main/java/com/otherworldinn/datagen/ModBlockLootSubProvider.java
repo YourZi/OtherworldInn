@@ -54,7 +54,6 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
                     LootTable.Builder poolBuilder = LootTable.lootTable();
 
                     if (lootConfig.silkTouchDropSelf()) {
-                        // 创建精准采集条目：掉落方块自身
                         LootPool.Builder silkTouchPool =
                                 LootPool.lootPool()
                                         .when(hasSilkTouch())
@@ -63,7 +62,6 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
                         poolBuilder.withPool(silkTouchPool);
                     }
 
-                    // 创建其他掉落物条目
                     for (LootConfig.LootEntry lootEntry : lootConfig.entries()) {
                         Item item =
                                 BuiltInRegistries.ITEM.get(
@@ -77,7 +75,6 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
                             entryPool.when(doesNotHaveSilkTouch());
                         }
 
-                        // 添加概率条件
                         if (lootEntry.chance() < 1.0f) {
                             entryPool.when(
                                     LootItemRandomChanceCondition.randomChance(lootEntry.chance()));

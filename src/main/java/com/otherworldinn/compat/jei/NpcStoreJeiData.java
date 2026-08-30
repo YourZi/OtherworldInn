@@ -15,11 +15,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * JEI 商店配方数据源。
- *
- * <p>不再各自硬编码一份商品镜像，而是直接读取各商店实体的静态
- * {@code createCatalog()}/{@code createRandomOffers()}，与游戏内商店共享同一数据来源，
- * 保证 JEI 展示与 NPC 实际出售逻辑一致。
+ * JEI 商店配方数据源：直接读取各商店实体的静态 createCatalog()/createRandomOffers()，
+ * 与游戏内商店共享同一数据来源，保证 JEI 展示与 NPC 实际出售逻辑一致。
  */
 final class NpcStoreJeiData {
     private static final String FARMER = "entity.otherworldinn.farmer";

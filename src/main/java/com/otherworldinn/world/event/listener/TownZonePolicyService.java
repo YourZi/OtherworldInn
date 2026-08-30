@@ -30,14 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 城镇维度保护规则的统一语义层。
- *
- * <p>职责分为三类：
- * <ul>
- *   <li>位置语义：自由修改区 / 已入住客房保护壳层 / 其它保护区</li>
- *   <li>行为授权：玩家修改、自然生长、活塞、Create 兼容接入</li>
- *   <li>底层绕过：项目内受控结构变更与创造模式直改的显式上下文</li>
- * </ul>
+ * 城镇维度保护规则的统一语义层：区域判定、行为授权与受控 bypass 都在这里统一处理。
  */
 public final class TownZonePolicyService {
 

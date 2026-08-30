@@ -13,9 +13,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 旅客实体渲染器
- *
- * <p>使用玩家模型渲染旅客。 支持 Steve (default) 和 Alex (slim) 模型。
+ * 旅客实体渲染器：复用玩家模型，支持 Steve 与 Alex (slim) 两种体型。
  */
 public class GuestRenderer<T extends GuestEntity> extends HumanoidMobRenderer<T, PlayerModel<T>> {
 

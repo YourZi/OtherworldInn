@@ -69,11 +69,7 @@ public class PlayerEventHandler {
     private static final Set<UUID> PENDING_RECALL_SCROLLS = new HashSet<>();
 
 
-    /**
-     * 处理玩家死亡事件
-     *
-     * <p>在非城镇维度死亡时强制回城且给予惩罚。
-     */
+    /** 处理玩家死亡事件：在非城镇维度死亡时强制回城且给予惩罚。 */
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -111,9 +107,7 @@ public class PlayerEventHandler {
         server.getPlayerList().broadcastSystemMessage(broadcast, false);
     }
 
-    /**
-     * 处理玩家维度切换事件
-     */
+    /** 处理玩家维度切换事件。 */
     @SubscribeEvent
     public static void onDimensionChange(EntityTravelToDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -135,23 +129,17 @@ public class PlayerEventHandler {
         giveOrDropRecallScroll(player);
     }
 
-    /**
-     * 处理玩家登录事件
-     *
-     * <p>玩家首次加入时，将其传送到旅社并设置重生点。 同时也负责初始化玩家的队伍信息。
-     */
+    /** 处理玩家登录事件：首次加入时传送到旅社并设置重生点，并初始化队伍信息。 */
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
 
             MinecraftServer server = player.getServer();
 
-            // 确保玩家加入队伍
             if (server != null) {
                 TeamManager.getInstance().onPlayerJoin(player, server);
             }
 
-            // 首次加入逻辑
             if (!player.getTags().contains("otherworldinn.joined")) {
                 teleportToTownSpawn(player);
                 setTownRespawn(player);
@@ -163,11 +151,7 @@ public class PlayerEventHandler {
         }
     }
 
-    /**
-     * 处理玩家重生事件
-     *
-     * <p>如果玩家没有重生点，则将其传送到旅社。
-     */
+    /** 处理玩家重生事件：没有重生点时传送到旅社。 */
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {

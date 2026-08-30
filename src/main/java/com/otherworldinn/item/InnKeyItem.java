@@ -1,6 +1,7 @@
 package com.otherworldinn.item;
 
 import com.otherworldinn.foundation.ModColors;
+import com.otherworldinn.util.AdvancementUtils;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
@@ -41,7 +42,7 @@ public class InnKeyItem extends Item {
             if (player instanceof ServerPlayer serverPlayer) {
                 TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
                 if (team != null) {
-                    // 检查权限 (假设拥有地契或者队伍成员有权限)
+                    // 权限模型：队伍成员（含地契持有者）可开关旅社
                     if (team.hasMember(player.getUUID())) {
                         InnData innData = team.getInnData();
                         InnData.InnState currentState = innData.getState();
@@ -64,6 +65,9 @@ public class InnKeyItem extends Item {
                         }
 
                         innData.setState(newState);
+                        if (newState == InnData.InnState.OPEN) {
+                            AdvancementUtils.award(serverPlayer, AdvancementUtils.OPEN_FIRST_INN);
+                        }
                         level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
                         TeamManager.getInstance().syncTeam(team, level.getServer());
                         serverPlayer.displayClientMessage(
