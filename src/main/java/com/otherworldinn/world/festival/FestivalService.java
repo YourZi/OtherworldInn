@@ -304,14 +304,54 @@ public final class FestivalService {
         }
         broadcastChat(
                 townLevel,
-                Component.literal("【节日】")
-                        .append(festival.zhName())
-                        .append(" 开始了！")
+                Component.translatable(
+                                "message.otherworldinn.festival.started",
+                                Component.translatable(festival.translationKey()))
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
+        broadcastInnAttributeBoostLines(townLevel);
         playCelebrationSound(townLevel);
         syncShopDiscounts(townLevel);
         syncInnAttributeBoosts(townLevel);
         TaskHudSnapshotSync.syncAllPlayers(townLevel);
+    }
+
+    private static void broadcastInnAttributeBoostLines(ServerLevel townLevel) {
+        Map<String, Double> boosts = getInnAttributeBoosts(townLevel);
+        broadcastInnAttributeBoostLine(
+                townLevel,
+                boosts.getOrDefault(InnAttributeBoostEffect.ATTR_LODGING_INCOME, 0.0D),
+                "tooltip.otherworldinn.decoration.lodging_income",
+                ModColors.INN_LODGING_BUFF);
+        broadcastInnAttributeBoostLine(
+                townLevel,
+                boosts.getOrDefault(InnAttributeBoostEffect.ATTR_DINING_INCOME, 0.0D),
+                "tooltip.otherworldinn.decoration.dining_income",
+                ModColors.INN_DINING_BUFF);
+        broadcastInnAttributeBoostLine(
+                townLevel,
+                boosts.getOrDefault(InnAttributeBoostEffect.ATTR_REPUTATION_GAIN, 0.0D),
+                "tooltip.otherworldinn.decoration.reputation_gain",
+                ModColors.INN_REPUTATION_BUFF);
+    }
+
+    private static void broadcastInnAttributeBoostLine(
+            ServerLevel townLevel, double value, String translationKey, int color) {
+        if (value <= 0.0D) {
+            return;
+        }
+        broadcastChat(
+                townLevel,
+                Component.literal("  ")
+                        .append(Component.translatable(translationKey, formatPercentage(value)))
+                        .withStyle(style -> style.withColor(color)));
+    }
+
+    private static String formatPercentage(double value) {
+        double percent = value * 100.0D;
+        if (Math.abs(percent - Math.rint(percent)) < 0.0001D) {
+            return String.format("%+.0f%%", percent);
+        }
+        return String.format("%+.1f%%", percent);
     }
 
     /** 节日开始音效：烟花升空 → 1 秒后爆裂 → 再 1 秒后闪烁余韵（分类与原版烟花实体一致） */
@@ -351,9 +391,9 @@ public final class FestivalService {
         }
         broadcastChat(
                 townLevel,
-                Component.literal("【节日】")
-                        .append(festival.zhName())
-                        .append(" 结束了")
+                Component.translatable(
+                                "message.otherworldinn.festival.ended",
+                                Component.translatable(festival.translationKey()))
                         .withStyle(style -> style.withColor(ModColors.FESTIVAL)));
         syncShopDiscounts(townLevel);
         syncInnAttributeBoosts(townLevel);

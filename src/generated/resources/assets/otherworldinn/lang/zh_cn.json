@@ -911,6 +911,8 @@
   "message.otherworldinn.fatigue.stage_2": "你越来越疲惫了...",
   "message.otherworldinn.fatigue.stage_3": "你感到浑身酸痛乏力...",
   "message.otherworldinn.fatigue.stage_4": "你真的撑不住了，想好好休息...",
+  "message.otherworldinn.festival.ended": "【节日】%s 结束了",
+  "message.otherworldinn.festival.started": "【节日】%s 开始了！",
   "message.otherworldinn.guest.tooltip.budget": "餐饮预算: §f§r%s",
   "message.otherworldinn.guest.tooltip.preference.comfort": "§f§r舒适偏好: %s-%s",
   "message.otherworldinn.guest.tooltip.preference.humidity": "§f§r湿度偏好: %s-%s",

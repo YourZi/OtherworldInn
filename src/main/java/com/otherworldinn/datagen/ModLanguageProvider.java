@@ -1182,6 +1182,12 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("message.otherworldinn.inventory.overlay.income.other")
                 .zh("其它：§f\uE001§r%s")
                 .en("Other: §f\uE001§r%s");
+        entry("message.otherworldinn.festival.started")
+                .zh("【节日】%s 开始了！")
+                .en("[Festival] %s has begun!");
+        entry("message.otherworldinn.festival.ended")
+                .zh("【节日】%s 结束了")
+                .en("[Festival] %s has ended");
         entry("message.otherworldinn.menu_variety.tier1")
                 .zh("旅社菜单不再单调，餐价已提升至 +5%。")
                 .en("The inn menu is no longer monotonous. Meal prices have increased to +5%.");

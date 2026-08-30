@@ -911,6 +911,8 @@
   "message.otherworldinn.fatigue.stage_2": "You are getting more and more exhausted...",
   "message.otherworldinn.fatigue.stage_3": "Your whole body aches and feels weak...",
   "message.otherworldinn.fatigue.stage_4": "You can barely keep going. You desperately need a real rest...",
+  "message.otherworldinn.festival.ended": "[Festival] %s has ended",
+  "message.otherworldinn.festival.started": "[Festival] %s has begun!",
   "message.otherworldinn.guest.tooltip.budget": "Budget: §f§r%s",
   "message.otherworldinn.guest.tooltip.preference.comfort": "§f§rComfort Preference: %s-%s",
   "message.otherworldinn.guest.tooltip.preference.humidity": "§f§rHumidity Preference: %s-%s",
