@@ -43,6 +43,7 @@ public class TownRosterItem extends Item {
         for (StoreEntity resident : residents) {
             resident.addEffect(new MobEffectInstance(MobEffects.GLOWING, GLOW_DURATION_TICKS, 0, false, false));
         }
+        player.getCooldowns().addCooldown(this, 40);
 
         serverLevel.playSound(
                 null,
@@ -51,6 +52,13 @@ public class TownRosterItem extends Item {
                 SoundSource.PLAYERS,
                 0.8F,
                 1.0F);
+        serverLevel.playSound(
+                null,
+                serverPlayer.blockPosition(),
+                SoundEvents.NOTE_BLOCK_PLING.value(),
+                SoundSource.PLAYERS,
+                0.5F,
+                1.35F);
         return InteractionResultHolder.success(stack);
     }
 }
