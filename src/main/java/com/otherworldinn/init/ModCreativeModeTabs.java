@@ -24,6 +24,7 @@ public class ModCreativeModeTabs {
                                             (parameters, output) -> {
                                                 output.accept(ModItems.RECALL_SCROLL.get());
                                                 output.accept(ModItems.ROOM_REGISTER.get());
+                                                output.accept(ModItems.TOWN_ROSTER.get());
                                                 output.accept(ModItems.BED_SHEET.get());
                                                 output.accept(ModItems.MESSY_BED_SHEET.get());
                                                 output.accept(ModItems.LAND_DEED.get());

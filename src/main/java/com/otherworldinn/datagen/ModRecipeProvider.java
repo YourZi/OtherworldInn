@@ -106,5 +106,13 @@ public class ModRecipeProvider extends RecipeProvider {
                         recipeOutput,
                         ResourceLocation.fromNamespaceAndPath(
                                 OtherworldInn.MODID, "paper_from_recall_scroll"));
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.EMERALD, 1)
+                .requires(ModItems.COIN.get(), 2)
+                .unlockedBy("has_coin", has(ModItems.COIN.get()))
+                .save(
+                        recipeOutput,
+                        ResourceLocation.fromNamespaceAndPath(
+                                OtherworldInn.MODID, "emerald_from_coin"));
     }
 }

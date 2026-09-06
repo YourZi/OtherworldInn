@@ -74,6 +74,13 @@ public class ModClientEvents {
                                 if (entity == null) return 0.0F;
                                 return entity.getOffhandItem() == stack ? 1.0F : 0.0F;
                             });
+                    ItemProperties.register(
+                            ModItems.ROOM_REGISTER.get(),
+                            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "mainhand"),
+                            (stack, level, entity, seed) -> {
+                                if (entity == null) return 0.0F;
+                                return entity.getMainHandItem() == stack ? 1.0F : 0.0F;
+                            });
                     if (ModList.get().isLoaded("waystones")) {
                         WaystonesClientCompat.init();
                     }

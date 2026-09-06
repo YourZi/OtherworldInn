@@ -819,6 +819,8 @@
   "item.otherworldinn.story_minstrel_disc": "赛琳未唱完的曲盘",
   "item.otherworldinn.story_noble_clock": "艾什福德家的旧怀表",
   "item.otherworldinn.story_old_knight_shield": "奥德里克的旧徽盾",
+  "item.otherworldinn.town_roster": "街坊名册",
+  "item.otherworldinn.town_roster.tooltip.0": "使用时标记出城镇居民",
   "itemGroup.otherworldinn": "旅社物语",
   "jei.otherworldinn.bed_sheet.info": "右键脏乱的床更换床单，会消耗耐久。",
   "jei.otherworldinn.coin.info": "通用货币；潜行右键把金币物品存进队伍余额。",

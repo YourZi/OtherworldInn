@@ -819,6 +819,8 @@
   "item.otherworldinn.story_minstrel_disc": "Selene's Unfinished Record",
   "item.otherworldinn.story_noble_clock": "Ashford Family Old Watch",
   "item.otherworldinn.story_old_knight_shield": "Aldric's Old Crested Shield",
+  "item.otherworldinn.town_roster": "Town Roster",
+  "item.otherworldinn.town_roster.tooltip.0": "Use to mark town residents",
   "itemGroup.otherworldinn": "Otherworld Inn",
   "jei.otherworldinn.bed_sheet.info": "Right-click a messy bed to replace its sheets, consuming durability.",
   "jei.otherworldinn.coin.info": "Universal currency. Sneak + right-click to deposit coin items into the team balance.",

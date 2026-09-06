@@ -16,6 +16,7 @@ import com.otherworldinn.item.RecallScrollItem;
 import com.otherworldinn.item.RoomKeyItem;
 import com.otherworldinn.item.RoomRegisterItem;
 import com.otherworldinn.item.SpaceSphereItem;
+import com.otherworldinn.item.TownRosterItem;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,15 @@ public class ModItems {
                     .lang("Room Register", "房间登记册")
                     .tooltip("Hold in off-hand to edit room", "副手手持来编辑房间");
     public static final DeferredItem<RoomRegisterItem> ROOM_REGISTER = ROOM_REGISTER_REG.register();
+
+    public static final ItemReg<TownRosterItem> TOWN_ROSTER_REG =
+            new ItemReg<>("town_roster", TownRosterItem::new)
+                    .rarity(Rarity.COMMON)
+                    .stacksTo(1)
+                    .noModel()
+                    .lang("Town Roster", "街坊名册")
+                    .tooltip("Use to mark town residents", "使用时标记出城镇居民");
+    public static final DeferredItem<TownRosterItem> TOWN_ROSTER = TOWN_ROSTER_REG.register();
 
     public static final ItemReg<RoomKeyItem> ROOM_KEY_REG =
             new ItemReg<>("room_key", RoomKeyItem::new)
