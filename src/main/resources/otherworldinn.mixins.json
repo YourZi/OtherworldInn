@@ -4,6 +4,7 @@
   "package": "com.otherworldinn.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MixinBeehiveBlockEntityHoneyCauldron",
     "MixinContraption",
     "MixinCreateAbstractBlockBreakQueue",
     "MixinCreateBlockBreakingMovementBehaviour",

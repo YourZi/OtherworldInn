@@ -1,8 +1,10 @@
 package com.otherworldinn;
 
 import com.mojang.logging.LogUtils;
+import com.otherworldinn.block.HoneyCauldronInteractions;
 import com.otherworldinn.compat.CreateCompat;
 import com.otherworldinn.compat.ExposureCompat;
+import com.otherworldinn.compat.HoneyCauldronCompat;
 import com.otherworldinn.compat.KaleidoscopeCompat;
 import com.otherworldinn.compat.ReskillableCompat;
 import com.otherworldinn.compat.WaystonesCompat;
@@ -77,6 +79,9 @@ public class OtherworldInn {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(HoneyCauldronInteractions::bootstrap);
+        event.enqueueWork(HoneyCauldronCompat::init);
+
         // Create 兼容性初始化
         if (ModList.get().isLoaded("create")) {
             event.enqueueWork(CreateCompat::init);

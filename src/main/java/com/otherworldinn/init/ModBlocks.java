@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.block.ClutterBlock;
 import com.otherworldinn.block.CommissionBoardBlock;
 import com.otherworldinn.block.CrystalBallBlock;
+import com.otherworldinn.block.HoneyCauldronBlock;
 import com.otherworldinn.block.TrophyBlock;
 import com.otherworldinn.foundation.BlockDataGenInfo;
 import com.otherworldinn.foundation.BlockReg;
@@ -63,6 +64,16 @@ public class ModBlocks {
                     .noLoot()
                     .lang("Clutter Trash", "杂物垃圾");
     public static final DeferredBlock<ClutterBlock> CLUTTER = CLUTTER_REG.register();
+
+    public static final BlockReg<HoneyCauldronBlock> HONEY_CAULDRON_REG =
+            register("honey_cauldron", HoneyCauldronBlock::new)
+                    .copyProperties(Blocks.CAULDRON)
+                    .noBlockItem()
+                    .pickaxe()
+                    .noModel()
+                    .lang("Honey Cauldron", "蜂蜜炼药锅");
+    public static final DeferredBlock<HoneyCauldronBlock> HONEY_CAULDRON =
+            HONEY_CAULDRON_REG.register();
 
     public static final BlockReg<TrophyBlock> INFRASTRUCTURE_TROPHY_REG =
             register("infrastructure_trophy", TrophyBlock::new)

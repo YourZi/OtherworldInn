@@ -3,6 +3,7 @@ package com.otherworldinn.compat.jei;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.init.ModItems;
 import java.util.List;
+import java.util.ArrayList;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
@@ -13,9 +14,12 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * JEI 信息页插件
@@ -54,23 +58,44 @@ public class InfoJeiPlugin implements IModPlugin {
                         ModItems.ORGANIC_FERTILIZER.get());
 
         for (Item item : items) {
-            ITypedIngredient<ItemStack> ingredient =
-                    ingredientManager
-                            .createTypedIngredient(VanillaTypes.ITEM_STACK, new ItemStack(item))
-                            .orElseThrow();
-            registration.addRecipes(
-                    RecipeTypes.INFORMATION,
-                    List.of(
-                            new InfoRecipe(
-                                    List.of(ingredient),
-                                    List.of(Component.translatable(infoKey(item))))));
+            registerInfo(registration, ingredientManager, List.of(new ItemStack(item)), infoKey(item));
         }
+
+        List<ItemStack> honeySystemItems = new ArrayList<>();
+        honeySystemItems.add(new ItemStack(Blocks.CAULDRON));
+        honeySystemItems.add(new ItemStack(Items.HONEY_BOTTLE));
+        honeySystemItems.add(new ItemStack(Items.HONEY_BLOCK));
+        BuiltInRegistries.ITEM
+                .getOptional(ResourceLocation.fromNamespaceAndPath("create", "honey_bucket"))
+                .ifPresent(item -> honeySystemItems.add(new ItemStack(item)));
+        registerInfo(
+                registration,
+                ingredientManager,
+                honeySystemItems,
+                "jei.otherworldinn.honey_cauldron_system.info");
     }
 
     /** 由物品注册名派生信息页翻译键，如 item.otherworldinn.recall_scroll -> jei.otherworldinn.recall_scroll.info */
     private static String infoKey(Item item) {
         String id = item.getDescriptionId();
         return "jei.otherworldinn" + id.substring("item.otherworldinn".length()) + ".info";
+    }
+
+    private static void registerInfo(
+            IRecipeRegistration registration,
+            IIngredientManager ingredientManager,
+            List<ItemStack> stacks,
+            String translationKey) {
+        List<ITypedIngredient<?>> ingredients = new ArrayList<>();
+        for (ItemStack stack : stacks) {
+            ingredients.add(
+                    ingredientManager
+                            .createTypedIngredient(VanillaTypes.ITEM_STACK, stack)
+                            .orElseThrow());
+        }
+        registration.addRecipes(
+                RecipeTypes.INFORMATION,
+                List.of(new InfoRecipe(ingredients, List.of(Component.translatable(translationKey)))));
     }
 
     /** JEI 信息页实现 */

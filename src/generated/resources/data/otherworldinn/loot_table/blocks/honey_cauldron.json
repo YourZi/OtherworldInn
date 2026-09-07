@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cauldron"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "otherworldinn:honey_cauldron",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "level": "4"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:honey_block"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "otherworldinn:blocks/honey_cauldron"
+}

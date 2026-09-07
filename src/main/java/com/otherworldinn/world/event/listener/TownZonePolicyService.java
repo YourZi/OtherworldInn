@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -279,12 +280,53 @@ public final class TownZonePolicyService {
         if (Objects.equals(oldState, newState)) {
             return true;
         }
+        if (isAllowedNaturalFluidFlowWrite(level, pos, oldState, newState)) {
+            return true;
+        }
+        if (isForbiddenFluidReplacement(oldState, newState)) {
+            return false;
+        }
         boolean oldAir = oldState.isAir();
         boolean newAir = newState.isAir();
         if (oldAir != newAir) {
             return false;
         }
         return !wouldCauseProtectedDestruction(level, pos, oldState, newState);
+    }
+
+    private static boolean isAllowedNaturalFluidFlowWrite(
+            ServerLevel level, BlockPos pos, BlockState oldState, BlockState newState) {
+        FluidState oldFluid = oldState.getFluidState();
+        FluidState newFluid = newState.getFluidState();
+        if (oldFluid.isEmpty() && newFluid.isEmpty()) {
+            return false;
+        }
+
+        if (oldState.isAir() && !newFluid.isEmpty()) {
+            return !newFluid.isSource() && hasAdjacentFluid(level, pos, newFluid);
+        }
+
+        if (!oldFluid.isEmpty() && newState.isAir()) {
+            return !oldFluid.isSource();
+        }
+
+        return false;
+    }
+
+    private static boolean isForbiddenFluidReplacement(BlockState oldState, BlockState newState) {
+        FluidState oldFluid = oldState.getFluidState();
+        FluidState newFluid = newState.getFluidState();
+        return oldFluid.isEmpty() && !oldState.isAir() && !newFluid.isEmpty();
+    }
+
+    private static boolean hasAdjacentFluid(ServerLevel level, BlockPos pos, FluidState fluidState) {
+        for (Direction direction : Direction.values()) {
+            FluidState neighborFluid = level.getFluidState(pos.relative(direction));
+            if (!neighborFluid.isEmpty() && neighborFluid.getType().isSame(fluidState.getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean wouldCauseProtectedDestruction(

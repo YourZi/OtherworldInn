@@ -2,6 +2,7 @@ package com.otherworldinn.datagen;
 
 import com.otherworldinn.foundation.BlockDataGenInfo;
 import com.otherworldinn.foundation.LootConfig;
+import com.otherworldinn.block.HoneyCauldronBlock;
 import com.otherworldinn.init.ModBlocks;
 import java.util.Collections;
 import java.util.Map;
@@ -20,9 +21,12 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** 方块战利品表生成器 负责生成方块被破坏时的掉落物 */
@@ -41,6 +45,11 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
             DeferredBlock<?> block = entry.getKey();
 
             if (block.get().getLootTable() == BuiltInLootTables.EMPTY) {
+                continue;
+            }
+
+            if (block == ModBlocks.HONEY_CAULDRON) {
+                add(block.get(), createHoneyCauldronDrops());
                 continue;
             }
 
@@ -113,5 +122,23 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
         return ModBlocks.BLOCKS.getEntries().stream()
                 .map(holder -> (Block) holder.get())
                 .collect(Collectors.toList());
+    }
+
+    private LootTable.Builder createHoneyCauldronDrops() {
+        return LootTable.lootTable()
+                .withPool(
+                        LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1.0F))
+                                .add(LootItem.lootTableItem(Items.CAULDRON)))
+                .withPool(
+                        LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1.0F))
+                                .add(LootItem.lootTableItem(Items.HONEY_BLOCK))
+                                .when(
+                                        LootItemBlockStatePropertyCondition.hasBlockStateProperties(
+                                                        ModBlocks.HONEY_CAULDRON.get())
+                                                .setProperties(
+                                                        StatePropertiesPredicate.Builder.properties()
+                                                                .hasProperty(HoneyCauldronBlock.LEVEL, 4))));
     }
 }
