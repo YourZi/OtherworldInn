@@ -48,6 +48,52 @@ public class FurnitureManager {
             new KeywordRule("photograph_frame", new FurnitureStats(6, 0, 0))
         );
 
+    /** yuushya 方块专用规则 */
+    private static final List<YuushyaRule> YUUSHYA_RULES =
+            List.of(
+                    // 房间零碎小摆件
+                    rule(
+                            true,
+                            new FurnitureStats(1, 0, 0),
+                            "calendar", "globe", "ashtray", "binoculars", "books",
+                            "sticky_note", "tissue", "tissue_", "patterned_slippers",
+                            "wastepaper_basket", "mop", "mop_bucket"),
+                    rule(true, new FurnitureStats(1, 0, 4), "kettle", "water_dispenser"),
+                    rule(true, new FurnitureStats(1, 0, 3), "large_water_bottle"),
+                    // 桌椅/柜类
+                    rule(false, new FurnitureStats(2, 0, 0), "monobloc"),
+                    rule(false, new FurnitureStats(5, 0, 0), "display_cabinet", "glass_showcase"),
+                    // 挂画/相册/镜/花瓶
+                    rule(false, new FurnitureStats(3, 0, 0), "painting"),
+                    rule(false, new FurnitureStats(2, 0, 0), "album", "curtain"),
+                    rule(false, new FurnitureStats(2, 0, 0), "mirror"),
+                    rule(false, new FurnitureStats(3, 0, 2), "vase"),
+                    // 挂布/挂衣/衣杆（软装与衣物陈列合一处理）
+                    rule(false, new FurnitureStats(3, 0, 0),
+                            "hanged", "mounted_cloth", "mounted_clothes", "hanger",
+                            "hanging_clothes"),
+                    // 影音娱乐
+                    rule(false, new FurnitureStats(4, 0, 0),
+                            "tv", "speaker", "ps4", "guitar", "piano", "boom_box",
+                            "vinyl_record_player", "classic_terminal", "pc_case", "jack"),
+                    // 唱片/杂志摆件
+                    rule(false, new FurnitureStats(2, 0, 0),
+                            "record_cyan", "record_red", "record_white", "record_yellow"),
+                    rule(true, new FurnitureStats(2, 0, 0), "piled_magazine", "sorted_magazine"),
+                    // 桌面电子/办公
+                    rule(false, new FurnitureStats(3, 0, 0), "monitor", "laptop"),
+                    rule(false, new FurnitureStats(2, 0, 0), "printer", "telephone"),
+                    // 家电（空调/风扇/冰箱/冷柜/洗衣机）
+                    rule(false, new FurnitureStats(3, 0, 0),
+                            "air_conditioner", "fan", "refrigerator", "freezer", "washing_machine"),
+                    // 室内悬挂/上墙绿植（悬挂花串/藤蔓/吊盆/苗）
+                    rule(true, new FurnitureStats(2, 0, 8),
+                            "hanging_azure_bluet", "hanging_blue_tulip", "hanging_gold_tulip",
+                            "hanging_pink_tulip", "hanging_red_tulip", "hanging_white_tulip",
+                            "mounted_bush", "mounted_fern"),
+                    rule(false, new FurnitureStats(2, 0, 8), "hanging_plant_pot", "ceiling_vine"),
+                    rule(false, new FurnitureStats(2, 0, 8), "sprout"));
+
     static {
         initDefaultFurniture();
     }
@@ -138,6 +184,15 @@ public class FurnitureManager {
 
         ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
         if (blockId != null) {
+            String name = blockId.getPath();
+            // yuushya 方块优先走其专用规则表（词根或点名精确匹配）
+            if (blockId.getNamespace().equals("yuushya")) {
+                for (YuushyaRule rule : YUUSHYA_RULES) {
+                    if (rule.matches(name)) {
+                        return Optional.of(rule.stats());
+                    }
+                }
+            }
             String key = blockId.toString();
             for (KeywordRule rule : KEYWORD_RULES) {
                 if (key.contains(rule.keyword())) {
@@ -193,6 +248,22 @@ public class FurnitureManager {
     }
 
     private record KeywordRule(String keyword, FurnitureStats stats) {}
+
+    /** yuushya 命名空间专用规则；exact=true 时对整名精确匹配，否则按词根包含匹配。 */
+    private record YuushyaRule(boolean exact, List<String> keywords, FurnitureStats stats) {
+        boolean matches(String name) {
+            for (String keyword : keywords) {
+                if (exact ? name.equals(keyword) : name.contains(keyword)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    private static YuushyaRule rule(boolean exact, FurnitureStats stats, String... keywords) {
+        return new YuushyaRule(exact, List.of(keywords), stats);
+    }
 
     /** 客户端事件处理器 */
     @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT)
