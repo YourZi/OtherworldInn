@@ -13,6 +13,7 @@
     "zh": "修复矿井",
     "en": "Repair the mine"
   },
+  "marker": [-3, 72, 79],
   "objectives": [
     {
       "type": "advancement",

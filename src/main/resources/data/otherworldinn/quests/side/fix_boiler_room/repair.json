@@ -13,6 +13,7 @@
     "zh": "修复锅炉房",
     "en": "Repair the boiler room"
   },
+  "marker": [26, 63, -34],
   "objectives": [
     {
       "type": "advancement",

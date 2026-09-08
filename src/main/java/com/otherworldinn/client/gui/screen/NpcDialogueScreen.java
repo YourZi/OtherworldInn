@@ -9,15 +9,15 @@ import com.otherworldinn.world.dialogue.DialogueOptionType;
 import com.otherworldinn.world.dialogue.DialogueOptionView;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.components.WidgetSprites;
 
@@ -79,7 +79,7 @@ public class NpcDialogueScreen extends Screen {
         for (int i = options.size() - 1; i >= 0; i--) {
             DialogueOptionView option = options.get(i);
             int y = optionBaseY - index * (OPTION_HEIGHT + OPTION_GAP);
-            Component label = buildOptionLabel(option);
+            String label = buildOptionLabelString(option);
             Button button =
                     new LeftAlignedOptionButton(
                             rightPanelX,
@@ -101,7 +101,7 @@ public class NpcDialogueScreen extends Screen {
                             optionBaseY,
                             optionWidth,
                             OPTION_HEIGHT,
-                            Component.translatable("dialogue.otherworldinn.option.close"),
+                            Component.translatable("dialogue.otherworldinn.option.close").getString(),
                             btn -> {
                                 ModMessages.sendToServer(new C2SDialogueClosePacket());
                                 this.onClose();
@@ -117,16 +117,16 @@ public class NpcDialogueScreen extends Screen {
             widestLabel = this.font.width(Component.translatable("dialogue.otherworldinn.option.close"));
         } else {
             for (DialogueOptionView option : options) {
-                widestLabel = Math.max(widestLabel, this.font.width(buildOptionLabel(option)));
+                widestLabel = Math.max(widestLabel, this.font.width(buildOptionLabelString(option)));
             }
         }
         int targetWidth = Math.max(OPTION_MIN_WIDTH, widestLabel + OPTION_TEXT_LEFT_PADDING + OPTION_TEXT_RIGHT_PADDING);
         return Math.min(targetWidth, this.width - DIALOG_MARGIN * 2);
     }
 
-    private static Component buildOptionLabel(DialogueOptionView option) {
+    private static String buildOptionLabelString(DialogueOptionView option) {
         String icon = option.type() == DialogueOptionType.FUNCTION ? FUNCTION_ICON : BRANCH_ICON;
-        return Component.literal(icon + " ").append(Component.translatable(option.labelKey()));
+        return icon + " " + Component.translatable(option.labelKey()).getString();
     }
 
     @Override
@@ -152,9 +152,6 @@ public class NpcDialogueScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // 不调用 renderBackground，避免对话时触发背景模糊。
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-
         int boxWidth = Math.min(this.width - DIALOG_MARGIN * 2, DIALOG_BOX_WIDTH);
         int boxX = (this.width - boxWidth) / 2;
         int boxY = this.height - DIALOG_BOX_HEIGHT - DIALOG_MARGIN;
@@ -173,25 +170,28 @@ public class NpcDialogueScreen extends Screen {
                     DIALOG_BOX_HEIGHT,
                     boxWidth,
                     DIALOG_BOX_HEIGHT);
-            RenderSystem.disableBlend();
+            guiGraphics.flush();
         }
 
-        Component npcName = getNpcName();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
+        String npcName = getNpcName().getString();
         int npcNameX = boxX + (boxWidth - this.font.width(npcName)) / 2;
         guiGraphics.drawString(this.font, npcName, npcNameX, boxY + 10, 0xFFE9DDAA, false);
 
-        Component dialogueComponent = Component.translatable(this.view.textKey())
-                .withStyle(style -> style.withColor(0xF0F0F0).withItalic(false));
-        List<FormattedCharSequence> lines =
-                this.font.split(dialogueComponent, Math.max(60, boxWidth - 20));
+        String dialogueText = Component.translatable(this.view.textKey()).getString();
+        List<String> lines =
+                this.font.getSplitter().splitLines(dialogueText, Math.max(60, boxWidth - 20), Style.EMPTY).stream()
+                        .map(FormattedText::getString)
+                        .toList();
         if (this.view != this.animatedView) {
             this.animatedView = this.view;
             this.revealStartMillis = Util.getMillis();
             this.revealAll = false;
         }
         int totalChars = 0;
-        for (FormattedCharSequence line : lines) {
-            totalChars += countChars(line);
+        for (String line : lines) {
+            totalChars += line.codePointCount(0, line.length());
         }
         int visibleChars = totalChars;
         if (!this.revealAll) {
@@ -204,19 +204,23 @@ public class NpcDialogueScreen extends Screen {
         }
         int[] budget = {visibleChars};
         int y = boxY + 30;
-        for (FormattedCharSequence line : lines) {
+        for (String line : lines) {
             if (budget[0] <= 0) {
                 break;
             }
-            FormattedCharSequence visible = limit(line, budget);
+            String visible = limitPlainText(line, budget);
             int lineX = boxX + (boxWidth - this.font.width(visible)) / 2;
-            // 使用 0xFFFFFFFF 避免覆盖文本中 § 格式码定义的颜色
-            guiGraphics.drawString(this.font, visible, lineX, y, 0xFFFFFFFF, false);
+            guiGraphics.drawString(this.font, visible, lineX, y, 0xFFF0F0F0, false);
             y += this.font.lineHeight + 2;
             if (y > boxY + DIALOG_BOX_HEIGHT - 14) {
                 break;
             }
         }
+        guiGraphics.pose().popPose();
+        guiGraphics.flush();
+
+        // 最后再绘制 widgets，避免按钮被对话框底板盖住。
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -228,24 +232,11 @@ public class NpcDialogueScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private static int countChars(FormattedCharSequence sequence) {
-        int[] count = {0};
-        sequence.accept((index, style, codePoint) -> {
-            count[0]++;
-            return true;
-        });
-        return count[0];
-    }
-
-    private static FormattedCharSequence limit(FormattedCharSequence sequence, int[] budget) {
-        return out ->
-                sequence.accept((index, style, codePoint) -> {
-                    if (budget[0] <= 0) {
-                        return false;
-                    }
-                    budget[0]--;
-                    return out.accept(index, style, codePoint);
-                });
+    private static String limitPlainText(String text, int[] budget) {
+        int codePoints = text.codePointCount(0, text.length());
+        int take = Math.min(budget[0], codePoints);
+        budget[0] -= take;
+        return text.substring(0, text.offsetByCodePoints(0, take));
     }
 
     private Component getNpcName() {
@@ -260,10 +251,10 @@ public class NpcDialogueScreen extends Screen {
     }
 
     private static class LeftAlignedOptionButton extends Button {
-        private final Component label;
+        private final String label;
 
         protected LeftAlignedOptionButton(
-                int x, int y, int width, int height, Component label, OnPress onPress) {
+                int x, int y, int width, int height, String label, OnPress onPress) {
             super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
             this.label = label;
         }
@@ -281,7 +272,10 @@ public class NpcDialogueScreen extends Screen {
             int textColor = this.active ? 0xFFFFFF : 0xA0A0A0;
             int textX = this.getX() + OPTION_TEXT_LEFT_PADDING;
             int textY = this.getY() + (this.height - mc.font.lineHeight) / 2;
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
             guiGraphics.drawString(mc.font, this.label, textX, textY, textColor, false);
+            guiGraphics.pose().popPose();
         }
     }
 }

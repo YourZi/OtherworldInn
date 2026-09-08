@@ -13,6 +13,7 @@
     "zh": "修复温室",
     "en": "Repair the greenhouse"
   },
+  "marker": [-12, 72, 58],
   "objectives": [
     {
       "type": "advancement",

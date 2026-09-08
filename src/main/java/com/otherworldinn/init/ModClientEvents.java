@@ -167,9 +167,9 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void onAddPackFinders(AddPackFindersEvent event) {
         event.addPackFinders(
-                ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "resourcepacks/otherworldinn_ui"),
+                ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "resourcepacks/otherworldinn"),
                 PackType.CLIENT_RESOURCES,
-                Component.literal("《旅社物语》UI包"),
+                Component.literal("《旅社物语》资源包"),
                 PackSource.BUILT_IN,
                 false,
                 Pack.Position.TOP);
