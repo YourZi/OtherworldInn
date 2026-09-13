@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.fatigue.FatigueData;
 import com.otherworldinn.world.picnic.PicnicBoxData;
 import com.otherworldinn.world.teleport.DeathExploreAnchorData;
+import com.otherworldinn.world.teleport.NetherPortalReturnData;
 import java.util.function.Supplier;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -31,6 +32,13 @@ public final class ModAttachments {
             ATTACHMENT_TYPES.register(
                     "player_death_explore_anchor",
                     () -> AttachmentType.serializable(DeathExploreAnchorData::new)
+                            .copyOnDeath()
+                            .build());
+
+    public static final Supplier<AttachmentType<NetherPortalReturnData>> PLAYER_NETHER_PORTAL_RETURN =
+            ATTACHMENT_TYPES.register(
+                    "player_nether_portal_return",
+                    () -> AttachmentType.serializable(NetherPortalReturnData::new)
                             .copyOnDeath()
                             .build());
 

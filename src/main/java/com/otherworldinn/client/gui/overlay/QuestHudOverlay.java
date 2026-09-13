@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.quest.QuestMarkerProjector;
 import com.otherworldinn.client.quest.QuestHudState;
+import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.mixin.MixinGameRendererAccessor;
 import com.otherworldinn.util.ClientServices;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
@@ -54,6 +56,7 @@ public final class QuestHudOverlay {
     private static final int REQUIREMENT_COMPLETE_COLOR = 0xFF8A8A8A;
     private static final int REQUIREMENT_ITEM_COMPLETE_COLOR = 0xFF72D66A;
     private static final int BACKGROUND = 0x66000000;
+    private static final int HINT_COLOR = 0xFF8A8A8A;
     private static final int PREFIX_MAIN_COLOR = 0xFFE8B45A;
     private static final int PREFIX_SIDE_COLOR = 0xFF8FC7C7;
     private static final int MARKER_EDGE_MARGIN = 24;
@@ -84,6 +87,11 @@ public final class QuestHudOverlay {
     private static final Map<String, CrossFade> CROSS_FADE = new HashMap<>();
     private static long lastFrameMillis = 0L;
 
+    /** 任务 HUD 是否被隐藏（按下切换键后隐藏，再按显示）。 */
+    private static boolean hidden = false;
+    /** 最近一次隐藏状态切换时刻，用于底部提示行的淡入淡出。 */
+    private static long hiddenChangedAt = -1L;
+
     private record DisplayLine(FormattedCharSequence text, int color, int indent) {}
 
     private record TaskBlock(String key, String stage, List<DisplayLine> lines) {}
@@ -96,6 +104,25 @@ public final class QuestHudOverlay {
                 VanillaGuiLayers.EXPERIENCE_BAR,
                 ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "quest_hud_overlay"),
                 QuestHudOverlay::render);
+    }
+
+    /** 切换任务 HUD 显示/隐藏（由键位触发）。 */
+    public static void toggleHidden() {
+        hidden = !hidden;
+        hiddenChangedAt = Util.getMillis();
+        // 清空出现时刻，确保切换方向后所有块重新触发出现/消失缓动
+        APPEARED_AT.clear();
+    }
+
+    /** 处理任务 HUD 切换键位（游戏内按下）。 */
+    @EventBusSubscriber(modid = OtherworldInn.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+    public static final class KeyHandler {
+        @SubscribeEvent
+        public static void onKeyInput(InputEvent.Key event) {
+            if (ModKeyBindings.TOGGLE_QUEST_HUD.consumeClick()) {
+                QuestHudOverlay.toggleHidden();
+            }
+        }
     }
 
     private static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -113,35 +140,37 @@ public final class QuestHudOverlay {
         // 构建当前帧的块（快照顺序：任务在前，委托/故事委托在后）
         List<TaskBlock> current = new ArrayList<>();
         List<int[]> activeMarkers = new ArrayList<>();
-        for (QuestHudState.HudTask task : QuestHudState.getTasks()) {
-            activeMarkers.addAll(task.markers());
-            List<DisplayLine> lines = new ArrayList<>();
-            int titleColor = "main".equals(task.category()) ? PREFIX_MAIN_COLOR : PREFIX_SIDE_COLOR;
-            appendWrapped(lines, font, withCategoryPrefix(task), titleColor, 0);
-            for (QuestHudState.HudRequirement requirement : task.requirements()) {
-                MutableComponent line = requirement.text().copy();
-                int color = requirement.complete() ? REQUIREMENT_COMPLETE_COLOR : REQUIREMENT_OPEN_COLOR;
-                if ("item".equals(requirement.type())) {
-                    if (requirement.complete()) {
-                        line = line.append(Component.literal(" \u221a"));
-                        color = REQUIREMENT_ITEM_COMPLETE_COLOR;
-                    } else if (requirement.required() > 1) {
+        if (!hidden) {
+            for (QuestHudState.HudTask task : QuestHudState.getTasks()) {
+                activeMarkers.addAll(task.markers());
+                List<DisplayLine> lines = new ArrayList<>();
+                int titleColor = "main".equals(task.category()) ? PREFIX_MAIN_COLOR : PREFIX_SIDE_COLOR;
+                appendWrapped(lines, font, withCategoryPrefix(task), titleColor, 0);
+                for (QuestHudState.HudRequirement requirement : task.requirements()) {
+                    MutableComponent line = requirement.text().copy();
+                    int color = requirement.complete() ? REQUIREMENT_COMPLETE_COLOR : REQUIREMENT_OPEN_COLOR;
+                    if ("item".equals(requirement.type())) {
+                        if (requirement.complete()) {
+                            line = line.append(Component.literal(" \u221a"));
+                            color = REQUIREMENT_ITEM_COMPLETE_COLOR;
+                        } else if (requirement.required() > 1) {
+                            line = line.append(Component.literal(
+                                    " (" + requirement.current() + "/" + requirement.required() + ")"));
+                        }
+                    } else if (requirement.required() > 1 && !requirement.complete()) {
                         line = line.append(Component.literal(
                                 " (" + requirement.current() + "/" + requirement.required() + ")"));
                     }
-                } else if (requirement.required() > 1 && !requirement.complete()) {
-                    line = line.append(Component.literal(
-                            " (" + requirement.current() + "/" + requirement.required() + ")"));
+                    appendWrapped(
+                            lines,
+                            font,
+                            line,
+                            color,
+                            REQUIREMENT_INDENT);
                 }
-                appendWrapped(
-                        lines,
-                        font,
-                        line,
-                        color,
-                        REQUIREMENT_INDENT);
-            }
-            if (!lines.isEmpty()) {
-                current.add(new TaskBlock(task.key(), task.stage(), lines));
+                if (!lines.isEmpty()) {
+                    current.add(new TaskBlock(task.key(), task.stage(), lines));
+                }
             }
         }
         if (current.isEmpty() && DISAPPEARED_AT.isEmpty() && LINE_CACHE.isEmpty()) {
@@ -279,6 +308,30 @@ public final class QuestHudOverlay {
             if (newAlpha >= 0.03F) {
                 drawLines(guiGraphics, font, lines, x, (int) y, withAlphaBits(newAlpha));
             }
+        }
+
+        // 底部提示行：动态显示切换键位，跟随隐藏状态淡入淡出
+        float hintAlpha = 1.0F;
+        if (hiddenChangedAt >= 0L) {
+            if (hidden) {
+                float progress = Mth.clamp((now - hiddenChangedAt) / (float) DISAPPEAR_DURATION_MS, 0.0F, 1.0F);
+                hintAlpha = 1.0F - easeOut(progress);
+            } else {
+                float progress = Mth.clamp((now - hiddenChangedAt) / (float) APPEAR_DURATION_MS, 0.0F, 1.0F);
+                hintAlpha = easeOut(progress);
+            }
+        }
+        if (hintAlpha >= 0.03F) {
+            Component hint = Component.translatable(
+                    "hud.otherworldinn.quest_hud.toggle_hint",
+                    ModKeyBindings.TOGGLE_QUEST_HUD.getTranslatedKeyMessage());
+            guiGraphics.drawString(
+                    font,
+                    hint,
+                    LEFT_MARGIN + BLOCK_PADDING_X,
+                    top + totalHeight + BLOCK_GAP,
+                    withAlpha(HINT_COLOR, hintAlpha),
+                    false);
         }
 
         renderMarkers(guiGraphics, mc, deltaTracker, activeMarkers);

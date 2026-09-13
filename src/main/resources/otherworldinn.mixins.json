@@ -6,6 +6,8 @@
   "mixins": [
     "MixinBeehiveBlockEntityHoneyCauldron",
     "MixinBaseFireBlock",
+    "MixinNetherPortalBlock",
+    "NetherPortalBlockAccessor",
     "MixinContraption",
     "MixinCreateAbstractBlockBreakQueue",
     "MixinCreateBlockBreakingMovementBehaviour",
@@ -62,7 +64,8 @@
     "MixinSchematicToolBasePreviewColor",
     "MixinXaeroHudRenderer",
     "MixinXaeroWorldMapClientEvents",
-    "MixinExposureViewfinderOverlay"
+    "MixinExposureViewfinderOverlay",
+    "MixinFontSet"
   ],
   "injectors": {
     "defaultRequire": 1

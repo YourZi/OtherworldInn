@@ -25,4 +25,13 @@ public class ModKeyBindings {
                     InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_I,
                     "key.categories.otherworldinn");
+
+    public static final KeyMapping TOGGLE_QUEST_HUD =
+            new KeyMapping(
+                    "key.otherworldinn.quest_hud",
+                    KeyConflictContext.IN_GAME,
+                    KeyModifier.NONE,
+                    InputConstants.Type.KEYSYM,
+                    GLFW.GLFW_KEY_C,
+                    "key.categories.otherworldinn");
 }

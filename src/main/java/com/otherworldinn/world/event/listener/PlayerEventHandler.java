@@ -10,6 +10,7 @@ import com.otherworldinn.world.hud.TaskHudSnapshotSync;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
+import com.otherworldinn.world.teleport.NetherPortalReturnData;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -110,11 +112,22 @@ public class PlayerEventHandler {
     /** 处理玩家维度切换事件。 */
     @SubscribeEvent
     public static void onDimensionChange(EntityTravelToDimensionEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
-            if (player.level().dimension() == TownDimensions.TOWN_LEVEL
-                    && event.getDimension() != TownDimensions.TOWN_LEVEL) {
-                PENDING_RECALL_SCROLLS.add(player.getUUID());
-            }
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        ResourceKey<Level> source = player.level().dimension();
+        ResourceKey<Level> target = event.getDimension();
+
+        // 记录进入下界的来源维度：来源为城镇则回城传送门模式，否则回退原版行为。
+        NetherPortalReturnData returnData = player.getData(ModAttachments.PLAYER_NETHER_PORTAL_RETURN);
+        if (target == Level.NETHER) {
+            returnData.setReturnToTown(source == TownDimensions.TOWN_LEVEL);
+        } else if (source == Level.NETHER) {
+            returnData.setReturnToTown(false);
+        }
+
+        if (source == TownDimensions.TOWN_LEVEL && target != TownDimensions.TOWN_LEVEL) {
+            PENDING_RECALL_SCROLLS.add(player.getUUID());
         }
     }
 
@@ -122,6 +135,10 @@ public class PlayerEventHandler {
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
+        }
+        // 离开下界（不论途径）后清理城镇回程标记，避免残留影响后续传送。
+        if (event.getFrom() == Level.NETHER) {
+            player.getData(ModAttachments.PLAYER_NETHER_PORTAL_RETURN).setReturnToTown(false);
         }
         if (!PENDING_RECALL_SCROLLS.remove(player.getUUID())) {
             return;

@@ -139,6 +139,10 @@ public class ModLanguageProvider extends LanguageProvider {
 
         entry("key.otherworldinn.map_mode").zh("地图视图").en("Map View");
         entry("key.otherworldinn.inn_overlay").zh("旅社范围显示").en("Inn Overlay");
+        entry("key.otherworldinn.quest_hud").zh("隐藏/显示任务 HUD").en("Toggle Quest HUD");
+        entry("hud.otherworldinn.quest_hud.toggle_hint")
+                .zh("按 %s 键隐藏/显示")
+                .en("Press %s to hide/show");
         entry("message.otherworldinn.inn_overlay.toggled")
                 .zh("旅社范围显示：%s")
                 .en("Inn Overlay: %s");
@@ -620,6 +624,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("tooltip.otherworldinn.name_tag.room_rename")
                 .zh("可用于重命名旅社房间")
                 .en("Can be used to rename inn rooms");
+        entry("tooltip.otherworldinn.anvil_levitation_immune")
+                .zh("背包内有铁砧时免疫漂浮")
+                .en("Immune to Levitation while carrying an anvil");
         entry("message.otherworldinn.book.desk_bell")
                 .zh("潜行生成旅客名册")
                 .en("Create Guest Roster");

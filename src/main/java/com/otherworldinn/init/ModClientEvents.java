@@ -143,6 +143,7 @@ public class ModClientEvents {
             net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent event) {
         event.register(ModKeyBindings.TOGGLE_MAP_MODE);
         event.register(ModKeyBindings.TOGGLE_INN_OVERLAY);
+        event.register(ModKeyBindings.TOGGLE_QUEST_HUD);
     }
 
     @SubscribeEvent
