@@ -86,6 +86,16 @@ public class GuestData {
         }
     }
 
+    /** 世界时间回拨时平移绝对 DayTime 锚点；0 表示未初始化。 */
+    public void rebaseDayTimeAnchors(long delta) {
+        if (this.checkoutTime > 0) {
+            this.checkoutTime -= delta;
+        }
+        if (this.waitingSince > 0) {
+            this.waitingSince -= delta;
+        }
+    }
+
     // 隐式偏好分数 (0-10)
     @Setter(AccessLevel.NONE)
     private int preferenceScore = 0;

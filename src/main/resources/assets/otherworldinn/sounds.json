@@ -22,5 +22,13 @@
     "sounds": [
       "otherworldinn:coin_projectile"
     ]
+  },
+  "outer_wilds": {
+    "sounds": [
+      {
+        "name": "otherworldinn:records/outer_wilds",
+        "stream": true
+      }
+    ]
   }
 }

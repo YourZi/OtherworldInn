@@ -9,6 +9,7 @@ import com.otherworldinn.entity.guest.RichGuestEntity;
 import com.otherworldinn.entity.guest.SponsorGuestEntity;
 import com.otherworldinn.entity.guest.UltraRichGuestEntity;
 import com.otherworldinn.util.BlockEntitySearchUtils;
+import com.otherworldinn.util.EntityUtils;
 import com.otherworldinn.util.WorldDayUtils;
 import com.otherworldinn.util.service.GuestNameManager;
 import com.otherworldinn.world.dialogue.DialogueService;
@@ -16,6 +17,7 @@ import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import com.otherworldinn.world.inn.GuestData;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.service.InnDiningDisplayHelper;
+import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.simibubi.create.content.redstone.deskBell.DeskBellBlockEntity;
@@ -96,6 +98,11 @@ public abstract class GuestEntity extends PathfinderMob {
     private static final int MIN_DAILY_DINING_ATTEMPTS = 6;
     private static final int NAVIGATION_STUCK_TIMEOUT_TICKS = 200;
     private static final double NAVIGATION_PROGRESS_THRESHOLD_SQR = 0.0625D;
+    // IDLE 兜底：1/4 游戏日仍未被前台登记则静默离场
+    private static final int MAX_UNCLAIMED_IDLE_TICKS = 6000;
+    // FindInn 兜底：寻路 30 秒且 3 次到达失败则视为无法抵达前台
+    private static final int MIN_FIND_INN_PATHING_TICKS = 600;
+    private static final int MAX_FIND_INN_FAILED_ARRIVALS = 3;
     private static final String TAG_ASSIGNED_DIALOGUE_ID = "AssignedDialogueId";
 
     @Getter private GuestData guestData;
@@ -108,6 +115,8 @@ public abstract class GuestEntity extends PathfinderMob {
     private String assignedDialogueId = "";
     private int navigationStuckTicks = 0;
     private double lastNavigationDistanceSqr = Double.MAX_VALUE;
+    private int idleTicks = 0;
+    private boolean silentVanishScheduled = false;
     private long diningPlanDay = Long.MIN_VALUE;
     private int dailySpendTarget = 0;
     private int dailySpentCoins = 0;
@@ -583,6 +592,8 @@ public abstract class GuestEntity extends PathfinderMob {
     private class FindInnGoal extends Goal {
         private BlockPos targetInnPos;
         private int recalculatePathDelay;
+        private int pathingTicks = 0;
+        private int failedArrivals = 0;
 
         public FindInnGoal() {
             this.setFlags(EnumSet.of(Flag.MOVE));
@@ -646,6 +657,7 @@ public abstract class GuestEntity extends PathfinderMob {
 
         @Override
         public void tick() {
+            this.pathingTicks++;
             if (GuestEntity.this.tickCount % 5 == 0) {
                 if (isInInnRange()) {
                     GuestEntity.this.getNavigation().stop();
@@ -658,7 +670,8 @@ public abstract class GuestEntity extends PathfinderMob {
                 this.recalculatePathDelay = 40;
                 if (targetInnPos != null) {
                     if (GuestEntity.this.getNavigation().isDone()) {
-                        // 导航完成但未到达：重新寻找最近旅社
+                        // 导航完成但未到达：计入失败并重找最近旅社
+                        this.failedArrivals++;
                         if (GuestEntity.this.level() instanceof ServerLevel serverLevel) {
                             findNearestInn(serverLevel);
                         }
@@ -671,6 +684,13 @@ public abstract class GuestEntity extends PathfinderMob {
                                     targetInnPos.getZ(),
                                     1.0D);
                 }
+            }
+
+            // 寻路兜底：多次失败且耗时过长则静默离场
+            if (this.failedArrivals >= MAX_FIND_INN_FAILED_ARRIVALS
+                    && this.pathingTicks >= MIN_FIND_INN_PATHING_TICKS
+                    && GuestEntity.this.level() instanceof ServerLevel serverLevel) {
+                GuestEntity.this.vanishSilently(serverLevel);
             }
         }
 
@@ -1023,6 +1043,17 @@ public abstract class GuestEntity extends PathfinderMob {
         super.tick();
         if (!this.level().isClientSide) {
             spawnDelay++;
+
+            if (this.level() instanceof ServerLevel serverLevel) {
+                if (this.guestData.getState() == GuestData.GuestState.IDLE) {
+                    this.idleTicks++;
+                    if (this.idleTicks >= MAX_UNCLAIMED_IDLE_TICKS) {
+                        vanishSilently(serverLevel);
+                    }
+                } else {
+                    this.idleTicks = 0;
+                }
+            }
 
             if (this.tickCount % 20 == 0
                     && this.guestData.getState() == GuestData.GuestState.IDLE) {
@@ -1384,6 +1415,25 @@ public abstract class GuestEntity extends PathfinderMob {
 
     public boolean canCheckOutNow(long currentTime) {
         return true;
+    }
+
+    /** 世界时间回拨时平移本实体的 DayTime 锚点，子类覆盖以处理自身字段。 */
+    public void rebaseDayTimeAnchors(long delta) {
+        if (this.nextDiningAttemptTime > 0) {
+            this.nextDiningAttemptTime -= delta;
+        }
+    }
+
+    /** 静默离场：未被前台登记或无法抵达前台时直接消失，不结算房费与声望。 */
+    private void vanishSilently(ServerLevel level) {
+        if (this.silentVanishScheduled) {
+            return;
+        }
+        this.silentVanishScheduled = true;
+        this.getNavigation().stop();
+        this.guestData.setCheckedOut(true);
+        StoryGuestService.handleGuestVisitEnded(this, level);
+        EntityUtils.scheduleDisappear(this);
     }
 
     private void applyPreferenceRange(

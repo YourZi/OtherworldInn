@@ -391,6 +391,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("advancements.otherworldinn.complete_20_commissions.description")
                 .zh("累计完成 20 个委托任务")
                 .en("Complete a total of 20 commissions");
+        entry("advancements.otherworldinn.outer_wilds.description")
+                .zh("星空与篝火与烤棉花糖")
+                .en("A starry sky, a campfire, and a toasted marshmallow");
         entry("facility.otherworldinn.overlay.title").zh("设施状态").en("Facility Status");
         entry("facility.otherworldinn.overlay.name").zh("名称: %s").en("Name: %s");
         entry("facility.otherworldinn.overlay.level").zh("等级: %s/%s").en("Level: %s/%s");
@@ -598,6 +601,24 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("item.otherworldinn.picnic_box.tooltip.entry")
                 .zh("- %s x%s")
                 .en("- %s x%s");
+        entry("item.otherworldinn.marshmallow_stick.stage.0")
+                .zh("温热的棉花糖")
+                .en("Warm Marshmallow");
+        entry("item.otherworldinn.marshmallow_stick.stage.1")
+                .zh("焦香的棉花糖")
+                .en("Fragrant Roasted Marshmallow");
+        entry("item.otherworldinn.marshmallow_stick.stage.2")
+                .zh("烤透的棉花糖")
+                .en("Perfectly Roasted Marshmallow");
+        entry("item.otherworldinn.marshmallow_stick.stage.3")
+                .zh("烤焦的棉花糖")
+                .en("Burnt Marshmallow");
+        entry("item.otherworldinn.marshmallow_stick.stage.4")
+                .zh("碳化的棉花糖")
+                .en("Charred Marshmallow");
+        entry("item.otherworldinn.marshmallow_stick.hud.hint")
+                .zh("在营火上烤棉花糖")
+                .en("Roast on a Campfire");
         entry("message.otherworldinn.reskillable.auto_level_up")
                 .zh("技能 %s 已升级至等级 %s")
                 .en("Skill %s has been upgraded to level %s");

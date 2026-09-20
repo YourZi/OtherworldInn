@@ -12,6 +12,7 @@ import com.otherworldinn.foundation.ClientConfig;
 import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.init.ModAttachments;
 import com.otherworldinn.init.ModCreativeModeTabs;
+import com.otherworldinn.init.ModDataComponents;
 import com.otherworldinn.init.ModDimensions;
 import com.otherworldinn.init.ModEntities;
 import com.otherworldinn.init.ModGameRules;
@@ -56,11 +57,16 @@ public class OtherworldInn {
             TagKey.create(
                     Registries.BLOCK,
                     ResourceLocation.fromNamespaceAndPath(MODID, "inn_free_interact"));
+    public static final TagKey<Block> PROTECTED_ZONE_NATURAL_CONVERSIONS =
+            TagKey.create(
+                    Registries.BLOCK,
+                    ResourceLocation.fromNamespaceAndPath(MODID, "protected_zone_natural_conversions"));
 
     public OtherworldInn(IEventBus modEventBus, ModContainer modContainer) {
         // 注册物品和方块
         ModBlocks.BLOCKS.register(modEventBus);
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        ModDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModMenuTypes.MENU_TYPES.register(modEventBus);

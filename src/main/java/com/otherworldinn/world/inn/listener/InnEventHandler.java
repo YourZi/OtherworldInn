@@ -63,6 +63,9 @@ public class InnEventHandler {
 
     // 记录本 tick 需要检查的队伍及其变更位置
     private static final Map<UUID, Set<BlockPos>> pendingChecks = new HashMap<>();
+
+    /** 上一 tick 的城镇 DayTime，用于检测 /time set 回拨。 */
+    private static long lastObservedDayTime = Long.MIN_VALUE;
     private static final String MESSY_BED_ITEM_KEY = "MessyBed";
 
     public static void markInnBlockChanged(ServerLevel level, BlockPos pos) {
@@ -257,8 +260,20 @@ public class InnEventHandler {
 
         TeamManager teamManager = TeamManager.getInstance();
 
+        // 世界时间回拨检测（/time set 覆写共享时间线）：按差值平移各队伍的日程锚点以保持剩余时长；
+        // day 粒度日程随 currentDay 自然追回。检测锚不持久化，重启前的回拨窗口不检测。
+        long currentDayTime = level.getDayTime();
+        long rebaseDelta =
+                lastObservedDayTime == Long.MIN_VALUE ? 0 : lastObservedDayTime - currentDayTime;
+        lastObservedDayTime = currentDayTime;
+
         TeamSavedData data = teamManager.getData(level.getServer());
         if (data != null) {
+            if (rebaseDelta > 0) {
+                for (TeamData team : data.getTeams().values()) {
+                    team.getInnData().rebaseGuestScheduleTimes(rebaseDelta, level);
+                }
+            }
             for (TeamData team : data.getTeams().values()) {
                 if (team.getInnData().tick(level, team)) {
                     teamManager.syncTeam(team, level.getServer());

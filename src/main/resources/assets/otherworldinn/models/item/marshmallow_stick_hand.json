@@ -1,0 +1,27 @@
+{
+	"textures": {
+		"0": "otherworldinn:item/marshmellow_handheld",
+		"particle": "otherworldinn:item/marshmellow_handheld"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, 35, 0],
+			"translation": [0.5, 4, 0.5]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [0, 35, 0],
+			"translation": [0.5, 4, 0.5]
+		},
+		"firstperson_righthand": {
+			"rotation": [-15.5, 35, 0],
+			"translation": [0.5, 2.75, 1]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-15.5, 35, 0],
+			"translation": [0.5, 2.75, 1]
+		},
+		"head": {
+			"translation": [0, 7.75, 0]
+		}
+	}
+}

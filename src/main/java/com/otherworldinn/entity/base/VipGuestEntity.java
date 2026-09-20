@@ -113,6 +113,14 @@ public abstract class VipGuestEntity extends GuestEntity {
     }
 
     @Override
+    public void rebaseDayTimeAnchors(long delta) {
+        super.rebaseDayTimeAnchors(delta);
+        if (this.vipDeferredCheckoutTime > 0L) {
+            this.vipDeferredCheckoutTime -= delta;
+        }
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (!(this.level() instanceof ServerLevel level)) {

@@ -143,13 +143,13 @@ public final class PlayerFatigueHandler {
     }
 
     private static boolean tracksFatigue(Level level, ServerPlayer player) {
-        return level.dimension() != TownDimensions.TOWN_LEVEL
+        return !TownDimensions.isRecoveryDimension(level)
                 && !player.isCreative()
                 && !player.isSpectator();
     }
 
     private static boolean shouldRecoverInTown(Level level, ServerPlayer player) {
-        return level.dimension() == TownDimensions.TOWN_LEVEL
+        return TownDimensions.isRecoveryDimension(level)
                 && !player.isCreative()
                 && !player.isSpectator();
     }

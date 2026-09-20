@@ -197,6 +197,10 @@ public class TownProtectionHandler {
         if (TownZonePolicyService.canPlayerModifyAt(level, event.getPos(), player)) {
             return;
         }
+        // 季节性雪冰视为临时方块，保护区内可破坏（铲雪、取冰）
+        if (TownZonePolicyService.isSeasonalSnowIce(level.getBlockState(event.getPos()))) {
+            return;
+        }
         if (isPlayerCleanableClutter(level, event.getPos())) {
             return;
         }

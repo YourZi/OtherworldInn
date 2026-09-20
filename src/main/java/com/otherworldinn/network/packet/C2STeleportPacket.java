@@ -9,6 +9,7 @@ import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.teleport.DeathExploreAnchorSyncHelper;
 import com.otherworldinn.world.teleport.TeleportUtils;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.particles.ParticleTypes;
@@ -124,44 +125,89 @@ public record C2STeleportPacket(ResourceLocation pointId) implements CustomPacke
                 player.getYRot(),
                 player.getXRot());
 
-        // 再传送到默认探索维度或跑尸保护记录的死亡维度
+        // 个人死亡锚点优先：单独前往该点，不影响队伍共享落点。
+        if (teleportToPersonalDeathAnchor(player)) {
+            return;
+        }
+
+        // 否则使用队伍共享落点，使一起出发的成员落在同一处。
         ServerLevel overworld = player.server.getLevel(Level.OVERWORLD);
         if (overworld == null) {
             return;
         }
 
-        ServerLevel targetLevel = overworld;
-        BlockPos centerPos = overworld.getSharedSpawnPos();
-        int searchRadius = OVERWORLD_EXIT_RADIUS;
+        BlockPos spawnPos = resolveTeamExpeditionSpawn(player, overworld);
+        TeleportUtils.changeDimensionTo(player, overworld, spawnPos);
+        playTeleportEffects(player);
+    }
+
+    /** 个人死亡锚点有效时前往该点并返回 true。 */
+    private static boolean teleportToPersonalDeathAnchor(ServerPlayer player) {
         var deathAnchorData = player.getData(ModAttachments.PLAYER_DEATH_EXPLORE_ANCHOR);
-        boolean hadPendingDeathAnchor = deathAnchorData.hasPendingDeathPos();
-        if (hadPendingDeathAnchor) {
-            ResourceKey<Level> pendingDeathDimension = deathAnchorData.getPendingDeathDimension();
-            BlockPos pendingDeathPos = deathAnchorData.getPendingDeathPos();
-            if (pendingDeathDimension != null
-                    && pendingDeathPos != null
-                    && isSupportedDeathReturnDimension(pendingDeathDimension)) {
-                ServerLevel pendingDeathLevel = player.server.getLevel(pendingDeathDimension);
-                if (pendingDeathLevel != null) {
-                    targetLevel = pendingDeathLevel;
-                    centerPos = pendingDeathPos;
-                    searchRadius = getDeathReturnRadius(pendingDeathDimension);
-                }
-            }
+        if (!deathAnchorData.hasPendingDeathPos()) {
+            return false;
+        }
+
+        ResourceKey<Level> pendingDeathDimension = deathAnchorData.getPendingDeathDimension();
+        BlockPos pendingDeathPos = deathAnchorData.getPendingDeathPos();
+        if (pendingDeathDimension == null
+                || pendingDeathPos == null
+                || !isSupportedDeathReturnDimension(pendingDeathDimension)) {
+            return false;
+        }
+
+        ServerLevel pendingDeathLevel = player.server.getLevel(pendingDeathDimension);
+        if (pendingDeathLevel == null) {
+            return false;
         }
 
         BlockPos spawnPos =
                 TeleportUtils.findRandomSafeSpawnPos(
-                        targetLevel,
-                        centerPos,
-                        searchRadius,
+                        pendingDeathLevel,
+                        pendingDeathPos,
+                        getDeathReturnRadius(pendingDeathDimension),
                         OVERWORLD_EXIT_ATTEMPTS);
-        TeleportUtils.changeDimensionTo(player, targetLevel, spawnPos);
-        if (hadPendingDeathAnchor) {
-            deathAnchorData.clearPendingDeathPos();
-            DeathExploreAnchorSyncHelper.sync(player);
-        }
+        TeleportUtils.changeDimensionTo(player, pendingDeathLevel, spawnPos);
+        deathAnchorData.clearPendingDeathPos();
+        DeathExploreAnchorSyncHelper.sync(player);
         playTeleportEffects(player);
+        return true;
+    }
+
+    /** 复用队伍本次出发的共享落点；该维度已无队伍成员时重新随机。 */
+    private static BlockPos resolveTeamExpeditionSpawn(ServerPlayer player, ServerLevel targetLevel) {
+        TeamData team = TeamManager.getInstance().getPlayerTeam(player);
+        BlockPos sharedPos = team != null ? team.getExpeditionAnchorPos() : null;
+        if (sharedPos != null && hasTeamMemberInDimension(team, player, targetLevel)) {
+            return sharedPos;
+        }
+
+        BlockPos rolledPos =
+                TeleportUtils.findRandomSafeSpawnPos(
+                        targetLevel,
+                        targetLevel.getSharedSpawnPos(),
+                        OVERWORLD_EXIT_RADIUS,
+                        OVERWORLD_EXIT_ATTEMPTS);
+        if (team != null) {
+            team.setExpeditionAnchorPos(rolledPos);
+            TeamManager.getInstance().syncTeam(team, player.getServer());
+        }
+        return rolledPos;
+    }
+
+    /** 队伍中是否已有成员停留在目标维度。 */
+    private static boolean hasTeamMemberInDimension(
+            TeamData team, ServerPlayer player, ServerLevel targetLevel) {
+        if (team == null || player.getServer() == null) {
+            return false;
+        }
+        for (UUID memberId : team.getMembers()) {
+            ServerPlayer member = player.getServer().getPlayerList().getPlayer(memberId);
+            if (member != null && member.level().dimension() == targetLevel.dimension()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isSupportedDeathReturnDimension(ResourceKey<Level> dimension) {

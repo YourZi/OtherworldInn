@@ -90,6 +90,9 @@ public class TeamData {
 
     private boolean teleportUnlocked = false;
 
+    /** 队伍本次出发的共享落点；该维度已无队伍成员时失效，下次出发重新随机。 */
+    private BlockPos expeditionAnchorPos;
+
     @Setter(AccessLevel.NONE)
     private int coins = 0;
 
@@ -439,6 +442,10 @@ public class TeamData {
         tag.putBoolean("TeleportUnlocked", teleportUnlocked);
         tag.putInt("Coins", coins);
 
+        if (expeditionAnchorPos != null) {
+            tag.putLong("ExpeditionAnchorPos", expeditionAnchorPos.asLong());
+        }
+
         tag.put("InnData", innData.save(new CompoundTag()));
         tag.put("CommissionData", commissionData.save());
         tag.put("QuestData", questData.save());
@@ -487,6 +494,11 @@ public class TeamData {
         } else {
             coins = 0;
         }
+
+        expeditionAnchorPos =
+                tag.contains("ExpeditionAnchorPos")
+                        ? BlockPos.of(tag.getLong("ExpeditionAnchorPos"))
+                        : null;
 
         // 优先加载 InnData，因为后续可能需要用到它
         if (tag.contains("InnData")) {

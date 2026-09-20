@@ -77,6 +77,8 @@ public final class AdvancementUtils {
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "starcatcher_full_collection");
     public static final ResourceLocation FIELD_GUIDE_COMPLETE =
             ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "field_guide_complete");
+    public static final ResourceLocation OUTER_WILDS =
+            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "outer_wilds");
     private static final AABB TOWN_NPC_SCAN_BOX = new AABB(-1024, -64, -1024, 1024, 384, 1024);
 
     private AdvancementUtils() {}

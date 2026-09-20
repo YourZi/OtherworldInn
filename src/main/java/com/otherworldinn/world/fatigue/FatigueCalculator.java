@@ -36,7 +36,7 @@ public final class FatigueCalculator {
         FatigueData.HungerSample hunger = data.sampleHunger(player);
         FatigueData.ActivitySample activity = data.consumeActivitySample();
 
-        boolean outsideTown = player.level().dimension() != TownDimensions.TOWN_LEVEL;
+        boolean outsideTown = !TownDimensions.isRecoveryDimension(player.level());
         data.tickJourney(outsideTown);
         boolean inExploredChunk = data.updateExplorationChunk(player, outsideTown);
 

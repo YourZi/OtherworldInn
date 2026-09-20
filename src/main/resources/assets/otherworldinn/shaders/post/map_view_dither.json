@@ -8,14 +8,14 @@
       "intarget": "minecraft:main",
       "outtarget": "swap",
       "uniforms": [
-        { "name": "FlatLightingStrength", "values": [0.50] },
-        { "name": "Contrast", "values": [1.12] },
-        { "name": "Brightness", "values": [0.01] },
-        { "name": "Saturation", "values": [0.92] },
-        { "name": "Warmth", "values": [0.65] },
-        { "name": "DitherPixelSize", "values": [1.3] },
-        { "name": "DitherStrength", "values": [1.05] },
-        { "name": "Levels", "values": [5.0] }
+        { "name": "FlatLightingStrength", "values": [0.35] },
+        { "name": "Contrast", "values": [1.08] },
+        { "name": "Brightness", "values": [0.00] },
+        { "name": "Saturation", "values": [0.96] },
+        { "name": "Warmth", "values": [0.45] },
+        { "name": "DitherPixelSize", "values": [1.0] },
+        { "name": "DitherStrength", "values": [0.75] },
+        { "name": "Levels", "values": [8.0] }
       ]
     },
     {

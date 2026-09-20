@@ -49,7 +49,9 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
+import com.otherworldinn.client.render.MarshmallowStickHandRenderer;
 import com.otherworldinn.client.render.SlotIconRenderer;
 
 /** 模组客户端事件处理器。 */
@@ -149,6 +151,14 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         event.register(COLD_CUT_HAM_SLICES_FORCED_MODEL_PATH);
+        MarshmallowStickHandRenderer.HAND_MODELS.forEach(event::register);
+        event.register(MarshmallowStickHandRenderer.ICON_MODEL);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerItem(
+                MarshmallowStickHandRenderer.EXTENSIONS, ModItems.MARSHMALLOW_STICK.get());
     }
 
     @SubscribeEvent

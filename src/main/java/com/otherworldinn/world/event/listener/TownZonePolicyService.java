@@ -1,5 +1,6 @@
 package com.otherworldinn.world.event.listener;
 
+import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.foundation.ModColors;
 import com.otherworldinn.world.dimension.TownDimensions;
 import com.otherworldinn.world.inn.InnData;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
@@ -280,6 +282,19 @@ public final class TownZonePolicyService {
         if (Objects.equals(oldState, newState)) {
             return true;
         }
+        // 同方块属性更新（生长、液位、门、红石）一律放行
+        if (oldState.getBlock() == newState.getBlock()) {
+            return true;
+        }
+        // 季节性雪冰：积雪、融化、铲除、覆盖均视为临时变化
+        if (isSeasonalSnowIce(oldState) || isSeasonalSnowIce(newState)) {
+            return true;
+        }
+        // 白名单内的自然表面转换（草蔓延/退化、菌丝、耕地退化），tag 可由数据包扩展
+        if (oldState.is(OtherworldInn.PROTECTED_ZONE_NATURAL_CONVERSIONS)
+                && newState.is(OtherworldInn.PROTECTED_ZONE_NATURAL_CONVERSIONS)) {
+            return true;
+        }
         if (isAllowedNaturalFluidFlowWrite(level, pos, oldState, newState)) {
             return true;
         }
@@ -291,7 +306,8 @@ public final class TownZonePolicyService {
         if (oldAir != newAir) {
             return false;
         }
-        return !wouldCauseProtectedDestruction(level, pos, oldState, newState);
+        // 其余为不同固体间替换（苔藓蔓延、骨粉催熟等），保护区内一律拒绝
+        return false;
     }
 
     private static boolean isAllowedNaturalFluidFlowWrite(
@@ -329,35 +345,14 @@ public final class TownZonePolicyService {
         return false;
     }
 
-    public static boolean wouldCauseProtectedDestruction(
-            ServerLevel level, BlockPos pos, BlockState oldState, BlockState newState) {
-        if (newState.isAir()) {
-            return true;
-        }
-        if (!newState.canSurvive(level, pos)) {
-            return true;
-        }
-        for (Direction direction : Direction.values()) {
-            BlockPos neighborPos = pos.relative(direction);
-            BlockState neighborState = level.getBlockState(neighborPos);
-            if (!neighborState.isAir()) {
-                BlockState updatedNeighbor = neighborState.updateShape(
-                        direction.getOpposite(), newState, level, neighborPos, pos);
-                if (updatedNeighbor.isAir()) {
-                    return true;
-                }
-            }
-            BlockState updatedSelf =
-                    newState.updateShape(direction, neighborState, level, pos, neighborPos);
-            if (updatedSelf.isAir()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static boolean isProtectedCropChange(BlockState oldState, BlockState newState) {
         return isProtectedCropState(oldState) || isProtectedCropState(newState);
+    }
+
+    /** 季节性临时方块：雪层、雪块、冰。 */
+    public static boolean isSeasonalSnowIce(@Nullable BlockState state) {
+        return state != null
+                && (state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.ICE));
     }
 
     /** 保护旁路是否激活（仅在结构贴图等受控世界写入的 try-with-resources 窗口内为真） */

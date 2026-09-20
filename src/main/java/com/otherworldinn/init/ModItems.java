@@ -8,6 +8,7 @@ import com.otherworldinn.item.CoinItem;
 import com.otherworldinn.item.EndSpaceSphereItem;
 import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
+import com.otherworldinn.item.MarshmallowOnStickItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
 import com.otherworldinn.item.OrganicFertilizerItem;
@@ -23,11 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.JukeboxSong;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -40,6 +44,12 @@ public class ModItems {
 
     /** 存储物品的数据生成信息，用于 DataGen */
     public static final Map<DeferredItem<?>, ItemDataGenInfo> ITEM_INFOS = new HashMap<>();
+
+    /** Outer Wilds 唱片的点唱机曲目，数据见 data/otherworldinn/jukebox_song/outer_wilds.json。 */
+    public static final ResourceKey<JukeboxSong> OUTER_WILDS_SONG =
+            ResourceKey.create(
+                    Registries.JUKEBOX_SONG,
+                    ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "outer_wilds"));
 
     // --- 物品注册 ---
 
@@ -216,6 +226,34 @@ public class ModItems {
                             "可以催熟更多东西");
     public static final DeferredItem<OrganicFertilizerItem> ORGANIC_FERTILIZER =
             ORGANIC_FERTILIZER_REG.register();
+
+    public static final ItemReg<Item> MARSHMALLOW_REG =
+            register("marshmallow")
+                    .properties(properties -> properties.food(MarshmallowOnStickItem.BASE_FOOD))
+                    .stacksTo(64)
+                    .lang("Marshmallow", "棉花糖");
+    public static final DeferredItem<Item> MARSHMALLOW = MARSHMALLOW_REG.register();
+
+    public static final ItemReg<MarshmallowOnStickItem> MARSHMALLOW_STICK_REG =
+            new ItemReg<>("marshmallow_stick", MarshmallowOnStickItem::new)
+                    .properties(properties -> properties.food(MarshmallowOnStickItem.BASE_FOOD))
+                    .stacksTo(1)
+                    .customRenderer()
+                    .lang("Marshmallow on a Stick", "一串棉花糖");
+    public static final DeferredItem<MarshmallowOnStickItem> MARSHMALLOW_STICK =
+            MARSHMALLOW_STICK_REG.register();
+
+    public static final ItemReg<Item> MUSIC_DISC_OUTER_WILDS_REG =
+            new ItemReg<>("music_disc_outer_wilds", Item::new)
+                    .properties(
+                            properties ->
+                                    properties.stacksTo(1)
+                                            .rarity(Rarity.RARE)
+                                            .jukeboxPlayable(OUTER_WILDS_SONG))
+                    .lang("Music Disc", "音乐唱片");
+    public static final DeferredItem<Item> MUSIC_DISC_OUTER_WILDS =
+            MUSIC_DISC_OUTER_WILDS_REG.register();
+
     // --- 辅助方法 ---
 
     /** 开始一个自定义物品类的链式注册。 */

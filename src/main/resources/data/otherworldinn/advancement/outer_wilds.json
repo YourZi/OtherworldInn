@@ -1,0 +1,26 @@
+{
+  "parent": "otherworldinn:root",
+  "display": {
+    "icon": {
+      "id": "otherworldinn:marshmallow_stick"
+    },
+    "title": "Outer Wilds",
+    "description": {
+      "translate": "advancements.otherworldinn.outer_wilds.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "unlock": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "rewards": {
+    "loot": [
+      "otherworldinn:advancement_rewards/outer_wilds_disc"
+    ]
+  }
+}

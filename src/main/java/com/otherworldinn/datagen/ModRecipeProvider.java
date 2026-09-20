@@ -40,6 +40,17 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_book", has(Items.BOOK))
                 .save(recipeOutput);
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MARSHMALLOW.get(), 1)
+                .requires(Items.SUGAR)
+                .unlockedBy("has_sugar", has(Items.SUGAR))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ModItems.MARSHMALLOW_STICK.get(), 1)
+                .requires(ModItems.MARSHMALLOW.get())
+                .requires(Items.STICK)
+                .unlockedBy("has_marshmallow", has(ModItems.MARSHMALLOW.get()))
+                .save(recipeOutput);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.INN_KEY.get(), 1)
                 .pattern("G ")
                 .pattern(" G")

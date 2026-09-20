@@ -69,6 +69,12 @@ public class ItemReg<T extends Item> {
         return this;
     }
 
+    /** 模型以 builtin/entity 为父级，几何交由客户端自定义渲染器绘制。 */
+    public ItemReg<T> customRenderer() {
+        this.modelType = "builtin_entity";
+        return this;
+    }
+
     public ItemReg<T> noModel() {
         this.generateModel = false;
         return this;

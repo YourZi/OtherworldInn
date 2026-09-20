@@ -36,5 +36,10 @@ public class TownDimensions {
                     Registries.DIMENSION_TYPE,
                     ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "magic_space_type"));
 
+    /** 城镇与魔法空间视为安全区：恢复且不消耗体力。 */
+    public static boolean isRecoveryDimension(Level level) {
+        return level.dimension() == TOWN_LEVEL || level.dimension() == MAGIC_SPACE_LEVEL;
+    }
+
     public static void register() {}
 }

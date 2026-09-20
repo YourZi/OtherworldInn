@@ -616,6 +616,20 @@ public class InnData {
         guestIds.remove(uuid);
     }
 
+    /** 世界时间被指令回拨时，按差值平移全部旅客日程锚点，保持剩余时长不变。 */
+    public void rebaseGuestScheduleTimes(long delta, ServerLevel level) {
+        if (this.nextGuestSpawnTime > 0) {
+            this.nextGuestSpawnTime -= delta;
+        }
+        for (UUID guestId : guestIds) {
+            Entity entity = level.getEntity(guestId);
+            if (entity instanceof GuestEntity guestEntity) {
+                guestEntity.getGuestData().rebaseDayTimeAnchors(delta);
+                guestEntity.rebaseDayTimeAnchors(delta);
+            }
+        }
+    }
+
     /** 清除所有旅客数据并移除待入住待办事项（调试用） */
     public void clearAllGuests(Level level, TeamData team) {
         for (InnTodo todo : List.copyOf(todoEntries)) {
