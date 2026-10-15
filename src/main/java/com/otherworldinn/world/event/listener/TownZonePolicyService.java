@@ -11,6 +11,7 @@ import com.otherworldinn.world.team.service.TeamManager;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -30,6 +31,9 @@ import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -38,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 public final class TownZonePolicyService {
 
     private static final String GREENHOUSE_FACILITY_ID = "greenhouse";
-    private static final ThreadLocal<Deque<ProtectionBypassContext>> BYPASS_STACK =
+    private static final ThreadLocal<Deque<ActiveBypass>> BYPASS_STACK =
             ThreadLocal.withInitial(ArrayDeque::new);
 
     private TownZonePolicyService() {}
@@ -60,11 +64,35 @@ public final class TownZonePolicyService {
         TRADER_SHIP_REBUILD,
         CHECKOUT_CLUTTER_SPAWN,
         ROOM_CLEAN_CLUTTER,
+        /** 玩家/女仆为住客房间更换床单：只改床方块自身的 {@code messy} 属性，不改结构。 */
+        ROOM_CLEAN_BED_SHEET,
         CREATIVE_PLAYER_ACTION,
         FESTIVAL_DECORATION
     }
 
     public record MovePair(@Nullable BlockPos fromPos, @Nullable BlockPos toPos) {}
+
+    /**
+     * 需要抑制方块掉落的旁路原因：结构贴图与整洁类清理。
+     *
+     * <p>刻意<b>不含</b> {@link ProtectionBypassReason#CREATIVE_PLAYER_ACTION}：创造模式挖掘本来就不产生掉落，
+     * 把它排除后，即使该作用域意外泄漏，也不会牵连全局的普通挖掘掉落。
+     */
+    private static final Set<ProtectionBypassReason> DROP_SUPPRESSING_REASONS =
+            Set.of(
+                    ProtectionBypassReason.FACILITY_UPGRADE,
+                    ProtectionBypassReason.TRADER_SHIP_REBUILD,
+                    ProtectionBypassReason.FESTIVAL_DECORATION,
+                    ProtectionBypassReason.CHECKOUT_CLUTTER_SPAWN,
+                    ProtectionBypassReason.ROOM_CLEAN_CLUTTER);
+
+    /**
+     * 旁路栈内元素：上下文 + 打开时刻。
+     *
+     * <p>记录打开时刻是为了让 {@link #expireStaleBypasses(long)} 能自动清理"忘记关闭"的作用域： 泄漏的旁路会让服务端线程永久处于旁路态，
+     * 进而持续取消所有方块掉落（联机时表现为破坏方块没有掉落物，且只能重启恢复）。
+     */
+    private record ActiveBypass(ProtectionBypassContext context, long openedAtNanos) {}
 
     public record ProtectionBypassContext(
             ProtectionBypassReason reason,
@@ -85,11 +113,15 @@ public final class TownZonePolicyService {
                 return;
             }
             closed = true;
-            Deque<ProtectionBypassContext> stack = BYPASS_STACK.get();
-            if (!stack.isEmpty() && stack.peek() == context) {
+            Deque<ActiveBypass> stack = BYPASS_STACK.get();
+            if (!stack.isEmpty() && stack.peek().context() == context) {
                 stack.pop();
             } else {
-                stack.remove(context);
+                // 乱序/越界关闭：正常流程不应发生，记录下来便于定位（否则会留下泄漏的旁路态）
+                OtherworldInn.LOGGER.warn(
+                        "Protection bypass scope closed out of order (reason={}); removing its context",
+                        context.reason());
+                stack.removeIf(active -> active.context() == context);
             }
             if (stack.isEmpty()) {
                 BYPASS_STACK.remove();
@@ -286,6 +318,12 @@ public final class TownZonePolicyService {
         if (oldState.getBlock() == newState.getBlock()) {
             return true;
         }
+        // 房间整洁类方块（杂物垃圾等）被清除成空气：放行。
+        // 否则会出现"事件层白名单放行玩家清理、写入层却静默拒绝"的矛盾：方块清不掉且没有任何提示，
+        // 屋子还有住客时就永远无法打扫。语义与 TownProtectionHandler#isPlayerCleanableClutter 一致。
+        if (newState.isAir() && oldState.is(OtherworldInn.PROTECTED_ZONE_PLAYER_CLEANABLE)) {
+            return true;
+        }
         // 季节性雪冰：积雪、融化、铲除、覆盖均视为临时变化
         if (isSeasonalSnowIce(oldState) || isSeasonalSnowIce(newState)) {
             return true;
@@ -360,6 +398,56 @@ public final class TownZonePolicyService {
         return !BYPASS_STACK.get().isEmpty();
     }
 
+    /**
+     * 当前线程是否处于"需要抑制方块掉落"的旁路窗口内。
+     *
+     * <p>与 {@link #isProtectionBypassActive()} 的区别：只认结构贴图/整洁类清理这些确实会产生掉落的场景，
+     * 创造模式玩家操作不算在内。这样即便某个旁路作用域意外泄漏，也不会导致全局挖掘掉落消失。
+     */
+    public static boolean isDropSuppressingBypassActive() {
+        for (ActiveBypass active : BYPASS_STACK.get()) {
+            if (DROP_SUPPRESSING_REASONS.contains(active.context().reason())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 清理打开过久（疑似忘记关闭/异常泄漏）的旁路作用域。
+     *
+     * <p>由 {@link BypassWatchdog} 每服务端 tick 调用一次。正常的结构贴图/清理窗口都只有一瞬间，
+     * 因此超过阈值即可判定为泄漏；主动清理可避免"全局方块不掉落"这类需要重启才能恢复的故障。
+     *
+     * @return 被清理掉的泄漏作用域数量
+     */
+    public static int expireStaleBypasses(long maxAgeNanos) {
+        Deque<ActiveBypass> stack = BYPASS_STACK.get();
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        long now = System.nanoTime();
+        int expired = 0;
+        Iterator<ActiveBypass> iterator = stack.iterator();
+        while (iterator.hasNext()) {
+            ActiveBypass active = iterator.next();
+            if (now - active.openedAtNanos() < maxAgeNanos) {
+                continue;
+            }
+            iterator.remove();
+            expired++;
+            OtherworldInn.LOGGER.warn(
+                    "Expired a leaked protection bypass scope (reason={}, open for {}s);"
+                            + " this would otherwise suppress block drops server-wide",
+                    active.context().reason(),
+                    (now - active.openedAtNanos()) / 1_000_000_000L);
+        }
+        if (stack.isEmpty()) {
+            BYPASS_STACK.remove();
+        }
+        return expired;
+    }
+
     public static ProtectionBypassScope beginProtectionBypass(
             ProtectionBypassReason reason, Collection<BlockPos> allowedPositions) {
         Set<BlockPos> immutablePositions = allowedPositions.stream()
@@ -398,21 +486,40 @@ public final class TownZonePolicyService {
     }
 
     private static ProtectionBypassScope pushBypass(ProtectionBypassContext context) {
-        BYPASS_STACK.get().push(context);
+        BYPASS_STACK.get().push(new ActiveBypass(context, System.nanoTime()));
         return new ProtectionBypassScope(context);
     }
 
     private static boolean isBypassAllowed(BlockPos pos) {
-        Deque<ProtectionBypassContext> stack = BYPASS_STACK.get();
+        Deque<ActiveBypass> stack = BYPASS_STACK.get();
         if (stack.isEmpty()) {
             return false;
         }
-        for (ProtectionBypassContext context : stack) {
-            if (context.allows().test(pos)) {
+        for (ActiveBypass active : stack) {
+            if (active.context().allows().test(pos)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 旁路泄漏看门狗：每服务端 tick 清理一次打开过久的旁路作用域。
+     *
+     * <p>这是一道兜底保险——即使将来又出现"忘记 close / 跨线程 close"的写法，也不会演变成
+     * "所有维度破坏方块不掉落、只能重启"的线上事故；同时会在日志里留下明确告警。
+     */
+    @EventBusSubscriber(modid = OtherworldInn.MODID, bus = EventBusSubscriber.Bus.GAME)
+    public static final class BypassWatchdog {
+
+        /** 正常旁路窗口只有一瞬间；超过 60 秒即判定为泄漏。 */
+        private static final long MAX_BYPASS_AGE_NANOS =
+                java.util.concurrent.TimeUnit.SECONDS.toNanos(60);
+
+        @SubscribeEvent
+        public static void onServerTick(ServerTickEvent.Post event) {
+            expireStaleBypasses(MAX_BYPASS_AGE_NANOS);
+        }
     }
 
     private static int getGreenhouseLevelAtPos(ServerLevel level, BlockPos pos) {

@@ -202,6 +202,9 @@ public class ModLanguageProvider extends LanguageProvider {
         entry("jei.otherworldinn.honey_cauldron_system.info")
                 .zh("炼药锅放置在蜂箱/蜂巢下方会缓慢积攒蜂蜜，蜂蜜炼药锅可以使用瓶装、桶装，也可以制作蜜渍苹果；满锅的蜂蜜也可以直接取出为蜂蜜块")
                 .en("A cauldron placed below a beehive or bee nest will slowly collect honey. A honey cauldron can be filled or drained with bottles and buckets, and can also be used to make honeyed apples; a full cauldron of honey can also be taken out directly as a honey block.");
+        entry("jei.otherworldinn.hanging_entity_surface.info")
+                .zh("现在可以被放置在任意平面上。")
+                .en("Can now be placed on any surface.");
         entry("jei.otherworldinn.space_sphere.info")
                 .zh("使用后全队解锁地图点传送，可在城镇地图视图下直接点击地图标点传送至目的地。")
                 .en("Using it unlocks map-point teleportation for the whole team, letting you click map markers directly in the Town map view to teleport to the destination.");

@@ -1,0 +1,65 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "spawn:tuna_roll",
+      "required": false
+    },
+    {
+      "id": "spawn:tuna_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:cooked_tuna_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:steamed_clams",
+      "required": false
+    },
+    {
+      "id": "spawn:herring_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:cooked_herring_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:herring_roll",
+      "required": false
+    },
+    {
+      "id": "spawn:canned_herring",
+      "required": false
+    },
+    {
+      "id": "spawn:crab_boil_block",
+      "required": false
+    },
+    {
+      "id": "spawn:crab_boil",
+      "required": false
+    },
+    {
+      "id": "spawn:bluefish_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:cooked_bluefish_slice",
+      "required": false
+    },
+    {
+      "id": "spawn:bluefish_roll",
+      "required": false
+    },
+    {
+      "id": "spawn:clam_chowder",
+      "required": false
+    },
+    {
+      "id": "spawn:tuna_sandwich",
+      "required": false
+    }
+  ]
+}

@@ -75,6 +75,8 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 
 /** 旅客实体：抽象父类，存储旅客数据。 */
 public abstract class GuestEntity extends PathfinderMob {
@@ -93,6 +95,8 @@ public abstract class GuestEntity extends PathfinderMob {
             SynchedEntityData.defineId(GuestEntity.class, EntityDataSerializers.INT);
     // 搜索“餐台”的范围：以旅客为中心 32 格
     private static final int DINING_SEARCH_RADIUS = 32;
+    // 退房投递奖励：以铃铛为中心搜索储物方块的范围
+    private static final int REWARD_CONTAINER_SEARCH_RADIUS = 4;
     // 平均一天触发 3 次：24000 / 3 = 8000 tick
     private static final int DINING_AVERAGE_INTERVAL = 8000;
     private static final int MIN_DAILY_DINING_ATTEMPTS = 6;
@@ -108,6 +112,10 @@ public abstract class GuestEntity extends PathfinderMob {
     @Getter private GuestData guestData;
 
     private BlockPos navigationTarget;
+
+    // 退房流程：先前往前台铃铛附近最近的储物方块投递奖励，到达后再正式退房
+    private boolean checkoutMoveStarted = false;
+    @Nullable private BlockPos pendingRewardContainer;
 
     private int spawnDelay = 0;
 
@@ -231,6 +239,11 @@ public abstract class GuestEntity extends PathfinderMob {
         }
 
         private boolean canGuestOccupy(Node node) {
+            if (isDoorNode(node)) {
+                // 关闭的可打开木门在寻路时是 WALKABLE_DOOR。
+                // 此时不能按实碰撞箱否决，否则门节点会被删除，OpenDoorGoal 永远拿不到门。
+                return true;
+            }
             return this.canGuestOccupy(new BlockPos(node.x, node.y, node.z));
         }
 
@@ -242,6 +255,10 @@ public abstract class GuestEntity extends PathfinderMob {
         }
 
         private boolean canGuestMoveBetween(Node from, Node to) {
+            if (isDoorNode(from) || isDoorNode(to)) {
+                // 允许经由门节点进出；开门/关门由 OpenDoorGoal 处理。
+                return true;
+            }
             if (this.currentContext == null || this.mob == null) {
                 return false;
             }
@@ -262,6 +279,10 @@ public abstract class GuestEntity extends PathfinderMob {
                 }
             }
             return true;
+        }
+
+        private static boolean isDoorNode(Node node) {
+            return node.type == PathType.WALKABLE_DOOR || node.type == PathType.DOOR_OPEN;
         }
 
         private AABB makeGuestBox(BlockPos pos) {
@@ -366,6 +387,7 @@ public abstract class GuestEntity extends PathfinderMob {
         @Override
         public boolean canUse() {
             if (!(GuestEntity.this.level() instanceof ServerLevel level)) return false;
+            if (GuestEntity.this.checkoutMoveStarted) return false;
             if (!level.isNight()) return false;
             if (GuestEntity.this.guestData.getState() != GuestData.GuestState.CHECKED_IN)
                 return false;
@@ -386,6 +408,7 @@ public abstract class GuestEntity extends PathfinderMob {
         @Override
         public boolean canContinueToUse() {
             if (!(GuestEntity.this.level() instanceof ServerLevel level)) return false;
+            if (GuestEntity.this.checkoutMoveStarted) return false;
             if (!level.isNight()) return false;
             if (GuestEntity.this.guestData.getState() != GuestData.GuestState.CHECKED_IN)
                 return false;
@@ -536,6 +559,54 @@ public abstract class GuestEntity extends PathfinderMob {
         this.navigationStuckTicks = 0;
         this.lastNavigationDistanceSqr = Double.MAX_VALUE;
         this.getNavigation().stop();
+    }
+
+    /** 是否已进入退房流程（前往前台储物方块投递奖励）。 */
+    public boolean isCheckoutMoveStarted() {
+        return this.checkoutMoveStarted;
+    }
+
+    /** 退房流程是否已就绪：无需移动，或已到达/放弃移动。 */
+    public boolean isCheckoutMoveReady() {
+        if (!this.checkoutMoveStarted) {
+            return false;
+        }
+        return this.pendingRewardContainer == null || this.navigationTarget == null;
+    }
+
+    /** 退房流程中锁定的储物方块；null 表示铃铛附近没有可用容器。 */
+    @Nullable
+    public BlockPos getPendingRewardContainer() {
+        return this.pendingRewardContainer;
+    }
+
+    /** 清除退房流程标记（不影响当前导航目标）。 */
+    public void clearCheckoutMove() {
+        this.checkoutMoveStarted = false;
+        this.pendingRewardContainer = null;
+    }
+
+    /**
+     * 开始退房流程：在旅社范围内寻找离前台铃铛最近的储物方块，寻路过去后再投递奖励并退房。 找不到铃铛或储物方块时不移动，直接退房。
+     */
+    public void beginCheckoutMove(ServerLevel level, TeamData team) {
+        this.checkoutMoveStarted = true;
+        if (this.guestData.getRewardItems().isEmpty()) {
+            return;
+        }
+        BlockPos bellPos = this.findNearestDeskBellInInn(level, team);
+        if (bellPos == null) {
+            return;
+        }
+        BlockPos containerPos = this.findNearestContainerTo(level, team, bellPos);
+        if (containerPos == null) {
+            return;
+        }
+        this.pendingRewardContainer = containerPos;
+        if (this.isSleeping()) {
+            this.stopSleeping();
+        }
+        this.setNavigationTarget(containerPos);
     }
 
     private boolean canGuestStandAt(Level level, BlockPos pos) {
@@ -798,7 +869,7 @@ public abstract class GuestEntity extends PathfinderMob {
             int unitPrice = ItemSellPriceManager.getPrice(stack);
             if (unitPrice > 0
                     && unitPrice <= this.budget
-                    && com.otherworldinn.world.inn.service.InnMenuDishRegistry.isMenuDish(stack)) {
+                    && InnDiningDisplayHelper.isSellableItem(stack)) {
                 sellableSlots.add(slot);
             }
         }
@@ -852,6 +923,11 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private void handleDiningPurchase(ServerLevel level) {
+        // 退房流程中不再发起用餐行为，避免抢走导航目标
+        if (this.checkoutMoveStarted) {
+            this.pendingDiningTarget = null;
+            return;
+        }
         if (this.guestData.getState() != GuestData.GuestState.CHECKED_IN) {
             this.pendingDiningTarget = null;
             return;
@@ -1593,6 +1669,45 @@ public abstract class GuestEntity extends PathfinderMob {
                         return;
                     }
                     double dist = origin.distSqr(pos);
+                    if (dist < bestDist[0]) {
+                        bestDist[0] = dist;
+                        bestPos[0] = pos.immutable();
+                    }
+                });
+        return bestPos[0];
+    }
+
+    /** 在铃铛周围查找最近的储物方块（提供物品容器的方块实体），搜索半径为 4 格。 */
+    @Nullable
+    private BlockPos findNearestContainerTo(ServerLevel level, TeamData team, BlockPos center) {
+        final int radius = REWARD_CONTAINER_SEARCH_RADIUS;
+        BlockPos[] bestPos = new BlockPos[1];
+        double[] bestDist = new double[] {Double.MAX_VALUE};
+
+        BlockEntitySearchUtils.forEachInBlockRange(
+                level,
+                center.getX() - radius,
+                center.getX() + radius,
+                center.getY() - radius,
+                center.getY() + radius,
+                center.getZ() - radius,
+                center.getZ() + radius,
+                blockEntity -> {
+                    BlockPos pos = blockEntity.getBlockPos();
+                    IItemHandler handler =
+                            level.getCapability(
+                                    Capabilities.ItemHandler.BLOCK,
+                                    pos,
+                                    blockEntity.getBlockState(),
+                                    blockEntity,
+                                    null);
+                    if (handler == null) {
+                        return;
+                    }
+                    if (!team.isInInnZone(pos)) {
+                        return;
+                    }
+                    double dist = center.distSqr(pos);
                     if (dist < bestDist[0]) {
                         bestDist[0] = dist;
                         bestPos[0] = pos.immutable();

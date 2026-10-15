@@ -17,7 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * UPDATE_SUPPRESS_DROPS 只作用于 destroy 路径的战利品、对此无拦截能力。在
  * popResource 入口处按保护旁路窗口取消，同时覆盖 Copycat 手动弹出与
  * Containers.dropContents（箱子等容器内容）链路——两者最终都汇入该方法。
- * 旁路窗口仅在 TownStructurePlacer 结构贴图期间激活，窗口外行为不变。
+ * 旁路窗口仅在结构贴图/整洁类清理期间激活，窗口外行为不变。
+ *
+ * <p>注意这里只认 {@link TownZonePolicyService#isDropSuppressingBypassActive()}：
+ * 早期版本用"任意旁路激活"判定，一旦某个旁路作用域泄漏（例如创造模式玩家操作的作用域没有关闭），
+ * 该服务端线程上<b>所有</b>方块掉落都会被静默取消，表现为联机时破坏方块没有掉落物、且只能重启恢复。
  */
 @Mixin(Block.class)
 public abstract class MixinBlockPopResource {
@@ -28,7 +32,7 @@ public abstract class MixinBlockPopResource {
             cancellable = true)
     private static void otherworldinn$suppressDuringStructurePaste(
             Level level, BlockPos pos, ItemStack stack, CallbackInfo ci) {
-        if (TownZonePolicyService.isProtectionBypassActive()) {
+        if (TownZonePolicyService.isDropSuppressingBypassActive()) {
             ci.cancel();
         }
     }

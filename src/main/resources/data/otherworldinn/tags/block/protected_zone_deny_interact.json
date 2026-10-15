@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "kaleidoscope_cookery:chili_ristra",
+      "required": false
+    },
+    {
+      "id": "kaleidoscope_cookery:strung_mushrooms",
+      "required": false
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 package com.otherworldinn.world.inn.service;
 
+import com.otherworldinn.world.economy.service.ItemSellPriceManager;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,14 +35,18 @@ public final class InnDiningDisplayHelper {
         return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, null);
     }
 
+    /** 可出售给旅客的展示物：有有效售价即可，酒馆饮品同样可以出售。 */
+    public static boolean isSellableItem(ItemStack stack) {
+        return !stack.isEmpty() && ItemSellPriceManager.getPrice(stack) > 0;
+    }
+
     public static boolean hasSellableItem(ServerLevel level, BlockPos pos, BlockState state) {
         IItemHandler itemHandler = getDisplayItemHandler(level, pos, state);
         if (itemHandler == null) {
             return false;
         }
         for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-            ItemStack stack = itemHandler.getStackInSlot(slot);
-            if (InnMenuDishRegistry.isMenuDish(stack)) {
+            if (isSellableItem(itemHandler.getStackInSlot(slot))) {
                 return true;
             }
         }

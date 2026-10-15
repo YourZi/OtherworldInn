@@ -61,6 +61,23 @@ public class OtherworldInn {
             TagKey.create(
                     Registries.BLOCK,
                     ResourceLocation.fromNamespaceAndPath(MODID, "protected_zone_natural_conversions"));
+    /**
+     * 保护区内允许玩家/女仆清除的方块（房间整洁类方块，例如{@code otherworldinn:clutter}）。 语义与
+     * {@code TownProtectionHandler} 的"玩家可清理白名单"一致：命中该标签的方块变成空气时， 底层结构性写入闸门一律放行，避免"事件层放行、写入层静默拒绝"造成的清不掉。
+     */
+    public static final TagKey<Block> PROTECTED_ZONE_PLAYER_CLEANABLE =
+            TagKey.create(
+                    Registries.BLOCK,
+                    ResourceLocation.fromNamespaceAndPath(MODID, "protected_zone_player_cleanable"));
+    /**
+     * 保护区内禁止玩家右键交互的方块（默认黑名单为空）。
+     *
+     * <p>用于第三方方块：它们的 {@code useItemOn} 会在"取下产物"后用 {@code setBlock(..., AIR)} 删除自己， 但完全忽略返回值；保护区拒绝这次删除后，方块留在原地、产物却照发，从而可以被无限刷取。
+     */
+    public static final TagKey<Block> PROTECTED_ZONE_DENY_INTERACT =
+            TagKey.create(
+                    Registries.BLOCK,
+                    ResourceLocation.fromNamespaceAndPath(MODID, "protected_zone_deny_interact"));
 
     public OtherworldInn(IEventBus modEventBus, ModContainer modContainer) {
         // 注册物品和方块

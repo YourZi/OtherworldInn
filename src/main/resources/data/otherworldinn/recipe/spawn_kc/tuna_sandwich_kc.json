@@ -1,0 +1,39 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "food",
+  "ingredients": [
+    {
+      "item": "minecraft:bread"
+    },
+    {
+      "item": "spawn:cooked_tuna_chunk"
+    },
+    {
+      "item": "kaleidoscope_cookery:lettuce"
+    },
+    {
+      "item": "kaleidoscope_cookery:lettuce"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "spawn:tuna_sandwich"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "spawn"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "kaleidoscope_cookery"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "farmersdelight"
+      }
+    }
+  ]
+}

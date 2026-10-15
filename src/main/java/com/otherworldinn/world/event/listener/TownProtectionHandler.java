@@ -4,7 +4,6 @@ import com.github.ysbbbbbb.kaleidoscopecookery.api.event.SickleHarvestEvent;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.food.FoodBlock;
 import com.github.ysbbbbbb.kaleidoscopetavern.block.brew.BottleBlock;
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.init.ModBlocks;
 import com.otherworldinn.world.dimension.TownDimensions;
 
 import java.util.ArrayList;
@@ -136,8 +135,9 @@ public class TownProtectionHandler {
                 || state.getBlock() instanceof BottleBlock;
     }
 
+    /** 玩家可清理的方块（房间整洁类，如杂物垃圾）：与底层写入闸门使用同一条标签，避免两层规则不一致。 */
     private static boolean isPlayerCleanableClutter(ServerLevel level, BlockPos pos) {
-        return level.getBlockState(pos).is(ModBlocks.CLUTTER.get());
+        return level.getBlockState(pos).is(OtherworldInn.PROTECTED_ZONE_PLAYER_CLEANABLE);
     }
 
     private static boolean isTouhouLittleMaid(Entity entity) {
@@ -146,6 +146,24 @@ public class TownProtectionHandler {
         return key != null
                 && "touhou_little_maid".equals(key.getNamespace())
                 && "maid".equals(key.getPath());
+    }
+
+    /**
+     * Sophisticated Backpacks 的背包不是 {@link BlockItem}，但下蹲右键时会改为放置成方块。
+     * 若等到 {@link BlockEvent.EntityPlaceEvent} 阶段才拒绝，物品使用/客户端预测已经发生，
+     * 会出现背包（尤其是带内容的背包）在客户端被消耗而无法稳定回滚的问题。
+     * 因此在右键阶段就按同类“可放置物品”处理。
+     */
+    private static final String SOPHISTICATED_BACKPACK_ITEM_CLASS =
+            "net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem";
+
+    private static boolean isSophisticatedBackpackItem(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) return false;
+        if (SOPHISTICATED_BACKPACK_ITEM_CLASS.equals(stack.getItem().getClass().getName())) return true;
+        ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (key == null || !"sophisticatedbackpacks".equals(key.getNamespace())) return false;
+        String path = key.getPath();
+        return "backpack".equals(path) || path.endsWith("_backpack");
     }
 
     // ── 副作用帮助方法 ────────────────────────────────────
@@ -320,6 +338,14 @@ public class TownProtectionHandler {
         // Depot 展示块始终放行
         if (isDepotDisplayBlock(clickedState)) return;
 
+        // 保护区内禁止交互的方块：这些模组方块的 useItemOn 会用 setBlock(..., AIR) 删除自己却忽略返回值，
+        // 写入被底层闸门拒绝后方块仍在，产物却照发，从而能被反复刷取。自由修改区与创造模式不受影响。
+        if (clickedState.is(OtherworldInn.PROTECTED_ZONE_DENY_INTERACT)
+                && !TownZonePolicyService.canPlayerModifyAt(level, event.getPos(), player)) {
+            denyRightClickBlock(event, player, getDenyMessage(level, event.getPos()));
+            return;
+        }
+
         if (!TownZonePolicyService.canPlayerHarvestCropAt(level, event.getPos(), clickedState, player)) {
             denyRightClickBlock(event, player,
                     getDenyMessage(level, event.getPos()));
@@ -342,7 +368,7 @@ public class TownProtectionHandler {
             return;
         }
 
-        //    c) 手持方块 → 以放置目标位置判定
+        //    c) 手持方块 / 自定义可放置物 → 以放置目标位置判定
         if (!player.isCreative() && !stack.isEmpty()) {
             if (stack.getItem() instanceof BlockItem blockItem) {
                 if (TownZonePolicyService.canPlayerModifyAt(level, placePos, player)) return;
@@ -355,6 +381,10 @@ public class TownProtectionHandler {
                 if (restrictedPos == null) return;
                 denyRightClickBlock(event, player,
                         getDenyMessage(level, restrictedPos));
+            } else if (player.isShiftKeyDown() && isSophisticatedBackpackItem(stack)) {
+                if (TownZonePolicyService.canPlayerModifyAt(level, placePos, player)) return;
+                denyRightClickBlock(event, player,
+                        getDenyMessage(level, placePos));
             } else if (stack.getItem() instanceof HoeItem) {
                 if (TownZonePolicyService.canPlayerModifyAt(level, event.getPos(), player)) return;
                 denyRightClickBlock(event, player,
@@ -530,6 +560,16 @@ public class TownProtectionHandler {
         public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
             if (event.getLevel().dimension() != TownDimensions.TOWN_LEVEL) return;
             if (event.getItemStack().is(OtherworldInn.BANNED_IN_TOWN)) {
+                event.setCanceled(true);
+                event.setUseItem(TriState.FALSE);
+                event.setUseBlock(TriState.FALSE);
+                event.setCancellationResult(InteractionResult.FAIL);
+                return;
+            }
+            // 与主处理保持一致：保护区内禁止交互的方块，在客户端也提前拦下，避免本地预测播放"取下产物"的动画/音效
+            if (event.getLevel().getBlockState(event.getPos()).is(OtherworldInn.PROTECTED_ZONE_DENY_INTERACT)
+                    && !TownZonePolicyService.canPlayerModifyAt(
+                            event.getLevel(), event.getPos(), event.getEntity())) {
                 event.setCanceled(true);
                 event.setUseItem(TriState.FALSE);
                 event.setUseBlock(TriState.FALSE);

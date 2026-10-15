@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -168,8 +169,38 @@ public class GuestData {
 
     /** 掉落奖励物品，优先放入床位或掉落点附近的容器。 */
     public void dropRewards(ServerLevel level, BlockPos pos, @Nullable BlockPos bedPos) {
-        RandomSource random = level.getRandom();
+        List<ItemStack> itemsToDeliver = rollRewardItems(level.getRandom());
+        if (itemsToDeliver.isEmpty()) return;
 
+        BlockPos searchCenter = bedPos != null ? bedPos : pos;
+        List<ItemStack> remaining = tryInsertIntoNearestContainer(level, searchCenter, itemsToDeliver);
+        dropItems(level, pos, remaining);
+    }
+
+    /** 将奖励物品放入指定储物方块；containerPos 为 null 或不是容器时直接掉落在 pos。 */
+    public void dropRewardsIntoContainer(
+            ServerLevel level, BlockPos pos, @Nullable BlockPos containerPos) {
+        List<ItemStack> itemsToDeliver = rollRewardItems(level.getRandom());
+        if (itemsToDeliver.isEmpty()) return;
+
+        List<ItemStack> remaining = itemsToDeliver;
+        if (containerPos != null && level.getBlockEntity(containerPos) instanceof BlockEntity be) {
+            IItemHandler handler =
+                    level.getCapability(
+                            Capabilities.ItemHandler.BLOCK,
+                            containerPos,
+                            be.getBlockState(),
+                            be,
+                            null);
+            if (handler != null) {
+                remaining = insertItemStacks(handler, itemsToDeliver);
+            }
+        }
+        dropItems(level, pos, remaining);
+    }
+
+    /** 按偏好分随机生成本次退房的奖励物品，并清空奖励池。 */
+    private List<ItemStack> rollRewardItems(RandomSource random) {
         float multiplier = this.preferenceScore / 10.0f;
 
         List<ItemStack> itemsToDeliver = new ArrayList<>();
@@ -188,14 +219,25 @@ public class GuestData {
             }
         }
         rewardItems.clear();
+        return itemsToDeliver;
+    }
 
-        if (itemsToDeliver.isEmpty()) return;
+    /** 将物品插入单个容器，返回放不下的剩余部分。 */
+    private static List<ItemStack> insertItemStacks(IItemHandler handler, List<ItemStack> items) {
+        List<ItemStack> remaining = new ArrayList<>();
+        for (ItemStack stack : items) {
+            ItemStack leftover =
+                    net.neoforged.neoforge.items.ItemHandlerHelper.insertItem(
+                            handler, stack.copy(), false);
+            if (!leftover.isEmpty()) {
+                remaining.add(leftover);
+            }
+        }
+        return remaining;
+    }
 
-        BlockPos searchCenter = bedPos != null ? bedPos : pos;
-        List<ItemStack> remaining = tryInsertIntoNearestContainer(level, searchCenter, itemsToDeliver);
-        if (remaining.isEmpty()) return;
-
-        for (ItemStack stack : remaining) {
+    private static void dropItems(ServerLevel level, BlockPos pos, List<ItemStack> items) {
+        for (ItemStack stack : items) {
             ItemEntity itemEntity =
                     new ItemEntity(
                             level,

@@ -360,7 +360,8 @@ public class InnData {
         }
         double multiplier = getDiningDisplaySaleMultiplier(level, team);
         int scaled = (int) Math.round(amount * multiplier);
-        return Math.max(amount, scaled);
+        int boosted = Math.max(amount, scaled);
+        return applyFestivalAttributeBoost(boosted, InnAttributeBoostEffect.ATTR_DINING_INCOME, level);
     }
 
     private double getDiningDisplaySaleMultiplier(ServerLevel level, TeamData team) {
@@ -1621,9 +1622,14 @@ public class InnData {
                         guestsToDepart.add(guestId);
                     }
                 } else if (guestData.getState() == GuestData.GuestState.CHECKED_IN) {
-                    if (currentTime >= guestData.getCheckoutTime()
+                    if (guestEntity.isCheckoutMoveStarted()) {
+                        // 两阶段退房：已开始前往前台储物方块，到达后立即结算退房
+                        if (guestEntity.isCheckoutMoveReady()) {
+                            guestsToCheckOut.add(guestId);
+                        }
+                    } else if (currentTime >= guestData.getCheckoutTime()
                             && guestEntity.canCheckOutNow(currentTime)) {
-                        guestsToCheckOut.add(guestId);
+                        guestEntity.beginCheckoutMove(level, team);
                     }
                 }
             }
@@ -1712,7 +1718,12 @@ public class InnData {
             guest = guestEntity.getGuestData();
             vipGuest = guestEntity instanceof VipGuestEntity;
             if (guest != null) {
-                guest.dropRewards(level, entity.blockPosition(), guest.getAssignedBedPos());
+                if (isNormalCheckout) {
+                    guest.dropRewardsIntoContainer(
+                            level, entity.blockPosition(), guestEntity.getPendingRewardContainer());
+                } else {
+                    guest.dropRewards(level, entity.blockPosition(), guest.getAssignedBedPos());
+                }
             }
         }
         RoomData targetRoom = null;
@@ -1795,6 +1806,7 @@ public class InnData {
             TeamManager.getInstance().syncTeam(team, level.getServer());
         }
         if (guestEntity != null) {
+            guestEntity.clearCheckoutMove();
             guestEntity.setNavigationTarget(new BlockPos(10, 71, 0));
         }
         if (entity != null) {

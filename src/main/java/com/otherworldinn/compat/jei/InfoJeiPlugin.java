@@ -73,6 +73,15 @@ public class InfoJeiPlugin implements IModPlugin {
                 ingredientManager,
                 honeySystemItems,
                 "jei.otherworldinn.honey_cauldron_system.info");
+
+        registerInfo(
+                registration,
+                ingredientManager,
+                List.of(
+                        new ItemStack(Items.PAINTING),
+                        new ItemStack(Items.ITEM_FRAME),
+                        new ItemStack(Items.GLOW_ITEM_FRAME)),
+                "jei.otherworldinn.hanging_entity_surface.info");
     }
 
     /** 由物品注册名派生信息页翻译键，如 item.otherworldinn.recall_scroll -> jei.otherworldinn.recall_scroll.info */

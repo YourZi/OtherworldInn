@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "spawn:clam_chowder",
+      "required": false
+    },
+    {
+      "id": "spawn:crab_boil",
+      "required": false
+    }
+  ]
+}

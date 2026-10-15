@@ -45,7 +45,8 @@
     "MixinWaystonesInternalMethodsCoinCost",
     "MixinSchematicItemToggle",
     "MixinSchematicPlacePacketSurvivalPrint",
-    "MixinBlockPopResource"
+    "MixinBlockPopResource",
+    "MixinHangingEntity"
   ],
   "client": [
     "MixinDeskBellRenderer",

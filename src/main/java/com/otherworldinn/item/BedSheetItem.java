@@ -2,10 +2,12 @@ package com.otherworldinn.item;
 
 import com.otherworldinn.foundation.ModBlockProperties;
 import com.otherworldinn.init.ModItems;
+import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import com.otherworldinn.world.inn.InnData;
 import com.otherworldinn.world.inn.RoomData;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -74,26 +76,41 @@ public class BedSheetItem extends Item {
         return InteractionResult.PASS;
     }
 
+    /**
+     * 清除床的脏乱状态（换床单）。
+     *
+     * <p>换床单属于"整理客房"的玩家／女仆主动动作，在已入住客房（保护区）内也应允许， 因此这里显式进入 {@link
+     * TownZonePolicyService.ProtectionBypassReason#ROOM_CLEAN_BED_SHEET} 旁路窗口 （与女仆清理垃圾用的
+     * ROOM_CLEAN_CLUTTER 是同一套受控旁路机制），而不是依赖"同方块属性变化"这类通用放行规则。
+     *
+     * <p>写入结果会被校验：只有整张床（含另一半）都确认不再脏乱才返回 {@code true}。 否则调用方不得把干净床单换成脏床单，避免出现"手里干净床单变脏、脏床没变干净"。
+     */
     public static boolean cleanMessyBed(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof BedBlock)
-                || !state.hasProperty(ModBlockProperties.MESSY)
-                || !state.getValue(ModBlockProperties.MESSY)) {
+        if (!isMessyBedState(state)) {
             return false;
         }
-        level.setBlock(pos, state.setValue(ModBlockProperties.MESSY, false), 3);
+
         BedPart part = state.getValue(BedBlock.PART);
         BlockPos otherPos =
                 pos.relative(
                         part == BedPart.HEAD
                                 ? state.getValue(BedBlock.FACING).getOpposite()
                                 : state.getValue(BedBlock.FACING));
-        BlockState otherState = level.getBlockState(otherPos);
-        if (otherState.getBlock() instanceof BedBlock
-                && otherState.hasProperty(ModBlockProperties.MESSY)
-                && otherState.getValue(ModBlockProperties.MESSY)) {
-            level.setBlock(otherPos, otherState.setValue(ModBlockProperties.MESSY, false), 3);
+
+        try (TownZonePolicyService.ProtectionBypassScope ignored =
+                TownZonePolicyService.beginProtectionBypass(
+                        TownZonePolicyService.ProtectionBypassReason.ROOM_CLEAN_BED_SHEET,
+                        List.of(pos.immutable(), otherPos.immutable()))) {
+            clearMessyAt(level, pos);
+            clearMessyAt(level, otherPos);
         }
+
+        if (isMessyBedState(level.getBlockState(pos))
+                || isMessyBedState(level.getBlockState(otherPos))) {
+            return false;
+        }
+
         TeamData team = TeamManager.getInstance().getTeamAt(pos, level.getServer());
         if (team != null) {
             InnData innData = team.getInnData();
@@ -104,6 +121,21 @@ public class BedSheetItem extends Item {
             }
         }
         return true;
+    }
+
+    /** 单个床格（头或脚）去脏；不在此处校验，由 {@link #cleanMessyBed} 统一校验整张床的最终状态。 */
+    private static void clearMessyAt(ServerLevel level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!isMessyBedState(state)) {
+            return;
+        }
+        level.setBlock(pos, state.setValue(ModBlockProperties.MESSY, false), 3);
+    }
+
+    private static boolean isMessyBedState(BlockState state) {
+        return state.getBlock() instanceof BedBlock
+                && state.hasProperty(ModBlockProperties.MESSY)
+                && state.getValue(ModBlockProperties.MESSY);
     }
 
     public static ItemStack createDirtySheet(ItemStack source, int extraDamage) {

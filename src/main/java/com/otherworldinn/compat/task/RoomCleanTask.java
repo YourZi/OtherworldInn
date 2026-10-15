@@ -3,7 +3,9 @@ package com.otherworldinn.compat.task;
 import com.github.tartaricacid.touhoulittlemaid.api.task.IMaidTask;
 import com.github.tartaricacid.touhoulittlemaid.entity.ai.brain.task.MaidArriveAtBlockTask;
 import com.github.tartaricacid.touhoulittlemaid.entity.ai.brain.task.MaidMoveToPredicateBlockTask;
+import com.github.tartaricacid.touhoulittlemaid.entity.ai.navigation.MaidNodeEvaluator;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import com.github.tartaricacid.touhoulittlemaid.entity.passive.MaidPathFindingBFS;
 import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
 import com.github.tartaricacid.touhoulittlemaid.init.InitItems;
 import com.google.common.collect.Lists;
@@ -24,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -38,6 +42,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.Path;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class RoomCleanTask implements IMaidTask{
@@ -47,7 +52,7 @@ public class RoomCleanTask implements IMaidTask{
     private static final ItemStack ICON = new ItemStack(InitItems.BROOM.get());
 
     private static final Map<UUID, Long> WASH_COOLDOWN = new HashMap<>();
-    private static final int CLEAN_SEARCH_RANGE = 48;
+    private static final int CLEAN_VERTICAL_SEARCH_RANGE = 16;
 
     @Override
     public ResourceLocation getUid() {
@@ -72,28 +77,72 @@ public class RoomCleanTask implements IMaidTask{
         return Lists.newArrayList(
                 Pair.of(
                         5,
-                        new MaidMoveToPredicateBlockTask(
+                        new RoomCleanMoveTask(
                                 moveSpeed,
-                                CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldWashDirtySheets,
                                 RoomCleanTask::isWashTarget)),
                 Pair.of(6, new MaidArriveAtBlockTask(2.2, RoomCleanTask::washMessySheetAt)),
                 Pair.of(
                         7,
-                        new MaidMoveToPredicateBlockTask(
+                        new RoomCleanMoveTask(
                                 moveSpeed,
-                                CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldCleanBeds,
                                 RoomCleanTask::isMessyBed)),
                 Pair.of(8, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanMessyBedAt)),
                 Pair.of(
                         9,
-                        new MaidMoveToPredicateBlockTask(
+                        new RoomCleanMoveTask(
                                 moveSpeed,
-                                CLEAN_SEARCH_RANGE,
                                 RoomCleanTask::shouldCleanClutter,
                                 RoomCleanTask::isClutter)),
                 Pair.of(10, new MaidArriveAtBlockTask(2.2, RoomCleanTask::cleanClutterAt)));
+    }
+
+    private static class RoomCleanMoveTask extends MaidMoveToPredicateBlockTask {
+        private RoomCleanMoveTask(
+                float movementSpeed,
+                Predicate<EntityMaid> searchCondition,
+                BiPredicate<EntityMaid, BlockPos> blockPredicate) {
+            super(movementSpeed, CLEAN_VERTICAL_SEARCH_RANGE, searchCondition, blockPredicate);
+        }
+
+        @Override
+        protected MaidPathFindingBFS getOrCreateArrivalMap(ServerLevel worldIn, EntityMaid maid) {
+            // 使用独立的 NodeEvaluator 做 BFS 初筛，避免和之后 createPath 使用的
+            // 导航 NodeEvaluator 共享状态、互相污染。
+            MaidNodeEvaluator evaluator = new MaidNodeEvaluator();
+            evaluator.setCanOpenDoors(true);
+            evaluator.setCanPassDoors(true);
+            evaluator.setCanFloat(true);
+            return new MaidPathFindingBFS(
+                    evaluator,
+                    worldIn,
+                    maid,
+                    maid.searchRadius(),
+                    CLEAN_VERTICAL_SEARCH_RANGE);
+        }
+
+        @Override
+        protected boolean checkPathReach(
+                EntityMaid maid, MaidPathFindingBFS pathFinding, BlockPos pos) {
+            // TLM 的 BFS 对“目标上方一格可达”也会返回 true，跨楼层时会出现假可达。
+            // 这里先用 BFS 初筛，再对实际可站立位置做一次原版路径校验，只有真能走到才选择目标。
+            for (int x = -1; x <= 1; x++) {
+                for (int y = 0; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        BlockPos candidate = pos.offset(x, y, z);
+                        if (!pathFinding.canPathReach(candidate)) {
+                            continue;
+                        }
+                        Path path = maid.getNavigation().createPath(candidate, 1);
+                        if (path != null && path.canReach()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     private static boolean hasCleanSheet(EntityMaid maid) {
