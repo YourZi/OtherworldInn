@@ -175,7 +175,8 @@ public class TeamData {
 
     public void addCoins(int amount, net.minecraft.server.MinecraftServer server) {
         if (amount > 0) {
-            this.coins += amount;
+            // 饱和加法：达到 int 上限后不再增加，避免溢出成负数
+            this.coins = com.otherworldinn.foundation.CoinFormat.saturatingAdd(this.coins, amount);
             playPaymentSound(server);
         }
     }
@@ -183,7 +184,7 @@ public class TeamData {
     // 保留旧方法以兼容，但不播放声音
     public void addCoins(int amount) {
         if (amount > 0) {
-            this.coins += amount;
+            this.coins = com.otherworldinn.foundation.CoinFormat.saturatingAdd(this.coins, amount);
         }
     }
 

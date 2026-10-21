@@ -88,7 +88,7 @@ public class FacilityUpgradeOverlay {
                                 repairing
                                         ? "facility.otherworldinn.overlay.repair_cost"
                                         : "facility.otherworldinn.overlay.upgrade_cost",
-                                Component.literal(String.valueOf(next.requiredCoins()))
+                                Component.literal(com.otherworldinn.foundation.CoinFormat.format(next.requiredCoins()))
                                         .withStyle(
                                                 style ->
                                                         style.withColor(

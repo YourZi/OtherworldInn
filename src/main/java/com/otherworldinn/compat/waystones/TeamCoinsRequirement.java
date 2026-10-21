@@ -56,7 +56,9 @@ public class TeamCoinsRequirement implements WarpRequirement {
         TeamData team = getPlayerTeam(player);
         boolean affordable = team != null && team.getCoins() >= coins;
         tooltip.add(
-                Component.translatable("gui.waystones.waystone_selection.xp_requirement", coins)
+                Component.translatable(
+                        "gui.waystones.waystone_selection.xp_requirement",
+                        com.otherworldinn.foundation.CoinFormat.format(coins))
                         .withStyle(affordable ? ChatFormatting.YELLOW : ChatFormatting.RED));
 
         if (team == null) {

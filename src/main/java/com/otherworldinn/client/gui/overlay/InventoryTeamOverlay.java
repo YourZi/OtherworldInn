@@ -83,7 +83,7 @@ public class InventoryTeamOverlay {
                 BAR_WIDTH,
                 BAR_HEIGHT * RATING_ROWS);
         Component coinsText =
-                Component.translatable("message.otherworldinn.inventory.overlay.coins", team.getCoins());
+                Component.translatable("message.otherworldinn.inventory.overlay.coins", com.otherworldinn.foundation.CoinFormat.format(team.getCoins()));
         int coinsX = contentRight - mc.font.width(coinsText);
 
         guiGraphics.drawString(
@@ -360,7 +360,7 @@ public class InventoryTeamOverlay {
         int contentRight = guiLeft + BAR_WIDTH - CONTENT_INSET;
         int y = guiTop - 10;
         Component coinsText =
-                Component.translatable("message.otherworldinn.inventory.overlay.coins", team.getCoins());
+                Component.translatable("message.otherworldinn.inventory.overlay.coins", com.otherworldinn.foundation.CoinFormat.format(team.getCoins()));
         int coinsWidth = mc.font.width(coinsText);
         int coinsX = contentRight - coinsWidth;
         int lineHeight = mc.font.lineHeight;
