@@ -34,7 +34,7 @@ public class GrocerEntity extends StoreEntity {
     public static List<CatalogEntry> createCatalog() {
         List<CatalogEntry> entries = new ArrayList<>();
         entries.add(new CatalogEntry(createStack("sophisticatedbackpacks:upgrade_base"), 12, 16));
-        entries.add(new CatalogEntry(createStack("refinedstorage:storage_housing"), 12, 16));
+        entries.add(new CatalogEntry(createStack("toms_storage:trim"), 12, 16));
         entries.add(new CatalogEntry(createStack("otherworldinn:land_deed"), 32, 1));
         entries.add(new CatalogEntry(createStack("otherworldinn:inn_upgrade_voucher"), 128, 1));
         entries.add(new CatalogEntry(createStack("otherworldinn:facility_upgrade_template"), 32, 4));
@@ -45,10 +45,10 @@ public class GrocerEntity extends StoreEntity {
         for (String dye : DYED_ITEMS) {
             entries.add(new CatalogEntry(createStack("minecraft:" + dye), 2, 32));
         }
-        entries.add(new CatalogEntry(createStack("refinedstorage:1k_storage_part"), 32, 8, 2));
-        entries.add(new CatalogEntry(createStack("refinedstorage:4k_storage_part"), 64, 6, 4));
-        entries.add(new CatalogEntry(createStack("refinedstorage:16k_storage_part"), 128, 4, 6));
-        entries.add(new CatalogEntry(createStack("refinedstorage:64k_storage_part"), 256, 2, 8));
+        entries.add(new CatalogEntry(createStack("toms_storage:inventory_cable"), 32, 8, 2));
+        entries.add(new CatalogEntry(createStack("toms_storage:inventory_connector"), 64, 6, 4));
+        entries.add(new CatalogEntry(createStack("toms_storage:crafting_terminal"), 128, 4, 6));
+        entries.add(new CatalogEntry(createStack("toms_storage:storage_terminal"), 256, 2, 8));
         // 节日限定（隆冬节）
         entries.add(new CatalogEntry(createStack("minecraft:snowball"), 8, 16, "deep_winter_festival"));
         entries.add(new CatalogEntry(createStack("minecraft:snow_block"), 16, 16, "deep_winter_festival"));
