@@ -7,14 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 菜单多样性统计用的菜品判定。
- *
- * <p>当前规则：售价大于 {@value #MENU_DISH_PRICE_THRESHOLD} 的展示物才计入菜单多样性。
- * 酒水、果汁、醋等只要有足够售价，也会计入菜单多样性。
- *
- * <p>可出售判定由
- * {@link InnDiningDisplayHelper#isSellableItem(net.minecraft.world.item.ItemStack)} 维护；
- * 售价不大于阈值的物品仍可出售，但不计入多样性。
+ * 菜单多样性统计用的菜品判定：售价大于 {@value #MENU_DISH_PRICE_THRESHOLD} 的展示物才计入多样性
+ * （酒水、果汁、醋等够价也计入）。可出售判定见 {@link InnDiningDisplayHelper#isSellableItem}：
+ * 售价不高于阈值的物品仍可出售，只是不计入多样性。
  */
 public final class InnMenuDishRegistry {
     public static final int MENU_DISH_PRICE_THRESHOLD = 4;

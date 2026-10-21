@@ -1,8 +1,7 @@
 package com.otherworldinn.util;
 
 /**
- * 对话系统富文本工具：基于 §（U+00A7）格式码的常量与快捷构造，
- * 可直接嵌入翻译文本（lang JSON）。格式码可叠加，r 重置所有样式。
+ * 对话系统富文本工具：{@code §}（U+00A7）格式码常量与快捷构造，可直接嵌入 lang JSON；格式码可叠加，{@code r} 重置全部样式。
  *
  * @see net.minecraft.ChatFormatting
  */

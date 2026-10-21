@@ -13,16 +13,15 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * 节日装饰服务：成对结构快照（节日版/还原版，含空气全量覆盖、天然幂等）的世界写入与状态对账。
- * 还原版会抹掉装饰期间区域内的一切变化（城镇保护下公共区域不可被玩家改动，可接受）；装饰结构不携带实体。
- * 状态持久化于 {@link TownSavedData#getDecoratedFestivalId()}，服务器启动后首个有效 tick 执行 {@link #reconcile} 强制到目标态（崩溃/中断自愈）。
+ * 还原版会抹掉装饰期间区域内的一切变化（公共区域受城镇保护，可接受）；装饰结构不携带实体。
+ * 状态持久化于 {@link TownSavedData#getDecoratedFestivalId()}，启动后首个有效 tick 执行 {@link #reconcile} 强制到目标态。
  */
 public final class FestivalDecorationService {
     private FestivalDecorationService() {}
 
     /**
-     * 一个装饰区域：节日版/还原版快照对 + 一组放置原点。
-     *
-     * <p>同一对快照可复用于多个原点（如灯串段贴满主街）。两个快照必须同原点、同尺寸导出。
+     * 一个装饰区域：节日版/还原版快照对 + 一组放置原点。同一对快照可复用于多个原点（如灯串段贴满主街），
+     * 两个快照必须同原点、同尺寸导出。
      */
     public record DecorationRegion(
             ResourceLocation decoratedStructure,

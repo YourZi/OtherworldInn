@@ -90,10 +90,8 @@ public final class FatigueCalculator {
     }
 
     /**
-     * 根据敏捷/挖掘/攻击/防御四项技能等级计算疲劳倍率。
-     *
-     * <p>用"先定目标时间再反推倍率"的方式，使技能进度和探索时间呈线性关系。
-     * 四项满级 = 约 90 分钟主世界探索时间；无技能或 Reskillable 未加载时无减免（1.0）。
+     * 根据敏捷/挖掘/攻击/防御四项技能等级计算疲劳倍率：用"先定目标时间再反推倍率"的方式，
+     * 使技能进度与探索时间呈线性关系（四项满级约 90 分钟主世界探索）；无技能或 Reskillable 未加载时返回 1.0。
      */
     public static double getSkillFatigueMultiplier(ServerPlayer player) {
         if (!ReskillableCompat.isLoaded()) {

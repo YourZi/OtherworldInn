@@ -12,11 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * 在 Exposure 取景器 overlay 渲染尾部追加拍照任务目标提示。
  *
- * <p>Exposure 在 Gui.render 头部渲染取景器 overlay 并（按配置）取消原版 HUD 渲染，
- * NeoForge 的 RenderGuiEvent.Post 随之不触发，常规 HUD 事件钩子无法显示在取景器之上。
- * 借 overlay 自身的 GuiGraphics 在 TAIL 绘制，投影与层级天然正确。
- * Exposure 未安装时本 mixin 被 @Pseudo 静默跳过；PhotoTargetHintService 仅在此处
- * （即 Exposure 必然已加载时）被调用，无软依赖类加载风险。
+ * <p>Exposure 在 {@code Gui.render} 头部渲染取景器 overlay 并（按配置）取消原版 HUD，
+ * {@code RenderGuiEvent.Post} 随之不触发；借 overlay 自身的 {@code GuiGraphics} 在 TAIL 绘制，
+ * 投影与层级天然正确。Exposure 未安装时本 mixin 被 {@code @Pseudo} 静默跳过。
  */
 @Pseudo
 @Mixin(

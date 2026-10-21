@@ -51,9 +51,7 @@ public abstract class StoreEntity extends PathfinderMob {
         return MAX_FAVOR_LEVEL;
     }
 
-    /**
-     * 按注册名解析物品，用于跨模组商品（例如节日限定）。未知 id 返回空栈，由调用方过滤。
-     */
+    /** 按注册名解析物品（用于跨模组商品，如节日限定）；未知 id 返回空栈，由调用方过滤。 */
     protected static ItemStack createStack(String itemId) {
         ResourceLocation id = ResourceLocation.tryParse(itemId);
         if (id == null) {

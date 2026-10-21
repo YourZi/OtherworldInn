@@ -74,9 +74,8 @@ public final class TownZonePolicyService {
 
     /**
      * 需要抑制方块掉落的旁路原因：结构贴图与整洁类清理。
-     *
-     * <p>刻意<b>不含</b> {@link ProtectionBypassReason#CREATIVE_PLAYER_ACTION}：创造模式挖掘本来就不产生掉落，
-     * 把它排除后，即使该作用域意外泄漏，也不会牵连全局的普通挖掘掉落。
+     * 不含 {@link ProtectionBypassReason#CREATIVE_PLAYER_ACTION}（创造模式挖掘本就不产生掉落），
+     * 因此该作用域一旦泄漏也不会牵连普通挖掘掉落。
      */
     private static final Set<ProtectionBypassReason> DROP_SUPPRESSING_REASONS =
             Set.of(
@@ -88,9 +87,8 @@ public final class TownZonePolicyService {
 
     /**
      * 旁路栈内元素：上下文 + 打开时刻。
-     *
-     * <p>记录打开时刻是为了让 {@link #expireStaleBypasses(long)} 能自动清理"忘记关闭"的作用域： 泄漏的旁路会让服务端线程永久处于旁路态，
-     * 进而持续取消所有方块掉落（联机时表现为破坏方块没有掉落物，且只能重启恢复）。
+     * 打开时刻供 {@link #expireStaleBypasses(long)} 清理忘记关闭的作用域——泄漏的旁路会让该线程
+     * 永久处于旁路态并持续取消方块掉落。
      */
     private record ActiveBypass(ProtectionBypassContext context, long openedAtNanos) {}
 
@@ -318,9 +316,7 @@ public final class TownZonePolicyService {
         if (oldState.getBlock() == newState.getBlock()) {
             return true;
         }
-        // 房间整洁类方块（杂物垃圾等）被清除成空气：放行。
-        // 否则会出现"事件层白名单放行玩家清理、写入层却静默拒绝"的矛盾：方块清不掉且没有任何提示，
-        // 屋子还有住客时就永远无法打扫。语义与 TownProtectionHandler#isPlayerCleanableClutter 一致。
+        // 房间整洁类方块被清除成空气：放行，否则玩家清理会与事件层白名单相矛盾（方块清不掉）
         if (newState.isAir() && oldState.is(OtherworldInn.PROTECTED_ZONE_PLAYER_CLEANABLE)) {
             return true;
         }
@@ -399,10 +395,8 @@ public final class TownZonePolicyService {
     }
 
     /**
-     * 当前线程是否处于"需要抑制方块掉落"的旁路窗口内。
-     *
-     * <p>与 {@link #isProtectionBypassActive()} 的区别：只认结构贴图/整洁类清理这些确实会产生掉落的场景，
-     * 创造模式玩家操作不算在内。这样即便某个旁路作用域意外泄漏，也不会导致全局挖掘掉落消失。
+     * 当前线程是否处于"需要抑制方块掉落"的旁路窗口内：只认结构贴图/整洁类清理这些确实会产生掉落的场景，
+     * 创造模式玩家操作不算在内。
      */
     public static boolean isDropSuppressingBypassActive() {
         for (ActiveBypass active : BYPASS_STACK.get()) {
@@ -414,10 +408,7 @@ public final class TownZonePolicyService {
     }
 
     /**
-     * 清理打开过久（疑似忘记关闭/异常泄漏）的旁路作用域。
-     *
-     * <p>由 {@link BypassWatchdog} 每服务端 tick 调用一次。正常的结构贴图/清理窗口都只有一瞬间，
-     * 因此超过阈值即可判定为泄漏；主动清理可避免"全局方块不掉落"这类需要重启才能恢复的故障。
+     * 清理打开过久（疑似忘记关闭）的旁路作用域：正常窗口只有一瞬间，超过阈值即可判为泄漏。
      *
      * @return 被清理掉的泄漏作用域数量
      */
@@ -504,10 +495,8 @@ public final class TownZonePolicyService {
     }
 
     /**
-     * 旁路泄漏看门狗：每服务端 tick 清理一次打开过久的旁路作用域。
-     *
-     * <p>这是一道兜底保险——即使将来又出现"忘记 close / 跨线程 close"的写法，也不会演变成
-     * "所有维度破坏方块不掉落、只能重启"的线上事故；同时会在日志里留下明确告警。
+     * 旁路泄漏看门狗：每服务端 tick 清理一次打开过久的旁路作用域，是"忘记 close / 跨线程 close"
+     * 的兜底保障，同时留下日志告警。
      */
     @EventBusSubscriber(modid = OtherworldInn.MODID, bus = EventBusSubscriber.Bus.GAME)
     public static final class BypassWatchdog {

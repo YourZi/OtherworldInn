@@ -10,12 +10,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * 单个任务目标定义（JSON 解析产物）。
- *
- * <p>字段按 {@link #type} 取用，互斥字段组由 {@link QuestRegistry} 在加载时校验：
- * interact_entity 的 entityType / entityUuid 二选一；interact_block 的 block / pos 二选一。
- */
+/** 单个任务目标定义（JSON 解析产物）：字段按 {@link #type} 取用，互斥字段组由 {@link QuestRegistry} 加载时校验。 */
 public record QuestObjectiveDef(
         String id,
         QuestObjectiveType type,

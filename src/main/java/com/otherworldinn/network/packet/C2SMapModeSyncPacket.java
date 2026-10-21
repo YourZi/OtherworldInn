@@ -97,8 +97,7 @@ public record C2SMapModeSyncPacket(int action, double x, double y, double z, flo
     }
 
     /**
-     * 传送成功后须立即退出地图模式，避免 {@link #maintainMapHover}
-     * 在客户端关闭动画期间把玩家拉回地图虚拟位置。
+     * 传送成功后须立即退出地图模式，否则 {@link #maintainMapHover} 会在客户端关闭动画期间把玩家拉回地图虚拟位置。
      */
     static void exitMapMode(ServerPlayer player, boolean restorePosition) {
         PlayerMapModeState state = ACTIVE_STATES.remove(player.getUUID());

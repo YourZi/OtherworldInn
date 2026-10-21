@@ -10,9 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * 旅社单方块全局装饰维护服务。
- *
- * <p>只对发生变化的方块坐标做增量校验，不遍历整片旅社地皮。
+ * 旅社单方块全局装饰维护服务：只对发生变化的方块坐标做增量校验，不遍历整片旅社地皮。
  */
 public final class InnDecorationService {
     private InnDecorationService() {}

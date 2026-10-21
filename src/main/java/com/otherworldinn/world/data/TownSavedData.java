@@ -9,9 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 城镇数据
- *
- * <p>存储城镇维度的状态，包括初始建筑生成标记和游商循环状态。
+ * 城镇数据：存储城镇维度的状态，包括初始建筑生成标记与游商循环状态。
  */
 public class TownSavedData extends SavedData {
     private static final String DATA_NAME = "otherworldinn_town";

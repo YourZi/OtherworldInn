@@ -77,13 +77,8 @@ public class BedSheetItem extends Item {
     }
 
     /**
-     * 清除床的脏乱状态（换床单）。
-     *
-     * <p>换床单属于"整理客房"的玩家／女仆主动动作，在已入住客房（保护区）内也应允许， 因此这里显式进入 {@link
-     * TownZonePolicyService.ProtectionBypassReason#ROOM_CLEAN_BED_SHEET} 旁路窗口 （与女仆清理垃圾用的
-     * ROOM_CLEAN_CLUTTER 是同一套受控旁路机制），而不是依赖"同方块属性变化"这类通用放行规则。
-     *
-     * <p>写入结果会被校验：只有整张床（含另一半）都确认不再脏乱才返回 {@code true}。 否则调用方不得把干净床单换成脏床单，避免出现"手里干净床单变脏、脏床没变干净"。
+     * 清除床的脏乱状态（换床单）：只有整张床（含另一半）都确认不再脏乱才返回 {@code true}，调用方据此决定是否消耗干净床单。
+     * 换床单属于玩家/女仆主动整理客房，故显式进入 {@link TownZonePolicyService.ProtectionBypassReason#ROOM_CLEAN_BED_SHEET} 旁路窗口。
      */
     public static boolean cleanMessyBed(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);

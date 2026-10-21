@@ -12,9 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 /**
- * 旅社装饰注册表。
- *
- * <p>形式与家具系统保持一致，按方块、标签或关键词匹配全局装饰属性。
+ * 旅社装饰注册表：形式与家具系统一致，按方块、标签或关键词匹配全局装饰属性。
  */
 public final class InnDecorationRegistry {
     private static final Map<String, InnDecorationStats> ID_STATS = new HashMap<>();

@@ -28,8 +28,8 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
 /**
  * 任务注册表（参照原版进度的文件组织）：一个节点一个 JSON 文件，位于 {@code data/<命名空间>/quests/} 下，文件路径即节点 id。
- * 根节点额外承担任务元数据（{@code name} 必填、{@code desc}、{@code category} 默认 side）。
- * 解析或校验失败（单根、parent 存在且同任务、无环、全可达）只记日志并跳过该文件/任务。
+ * 根节点额外承担任务元数据（{@code name} 必填、{@code desc}、{@code category} 默认 side）；校验失败（单根、parent 同任务、无环、
+ * 全可达）只记日志并跳过该文件/任务。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class QuestRegistry {

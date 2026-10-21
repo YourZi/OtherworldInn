@@ -2,12 +2,7 @@ package com.otherworldinn.world.festival;
 
 import java.util.Map;
 
-/**
- * 旅社属性加成效果：节日期间旅社全局属性（住宿/餐饮收益、声望获取）提升。
- *
- * <p>属性加成（0.3 = 收益提升 30%）。键 {@code ""} 表示全部属性的全局加成，
- * 具体属性键优先于全局加成。
- */
+/** 旅社属性加成：把住宿/餐饮收益与声望获取提升配置值（0.3 = 提升 30%）；键 {@code ""} 为全部属性的全局加成，具体属性键优先。 */
 public class InnAttributeBoostEffect implements FestivalEffect {
 
     /** 住宿收益属性键 */

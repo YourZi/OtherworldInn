@@ -23,11 +23,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
- * 游商管理器
- *
- * <p>管理游商的出现/消失循环：每 2-5 天出现一次，停留 3 天后离开。
- * 统一按世界时间（DayTime）计算，睡觉跳过时间、/time set 等也会同步推进周期。
- * 出现时全服广播，同时放置/移除商船结构。
+ * 游商管理器：管理游商的出现/消失循环——每 2~5 天出现一次，停留 3 天，出现时全服广播并放置商船结构。
+ * 周期按世界时间（DayTime）计算，睡觉跳过时间与 {@code /time set} 都会同步推进。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class WanderingTraderManager {
@@ -207,12 +204,7 @@ public final class WanderingTraderManager {
 
     // === 调试命令入口 ===
 
-    /**
-     * 强制使游商到达。如果已在停留中则刷新商品并重置停留计时。
-     *
-     * @param townLevel 城镇维度
-     * @return true 表示操作成功
-     */
+    /** 强制使游商到达；已在停留中则刷新商品并重置停留计时。{@code townLevel} 为城镇维度。 */
     public static boolean forceArrive(ServerLevel townLevel) {
         TownSavedData data = TownSavedData.get(townLevel);
         arriveTrader(townLevel, data);
@@ -223,14 +215,7 @@ public final class WanderingTraderManager {
         return true;
     }
 
-    /**
-     * 强制使游商离开。如果不在停留中则无操作。
-     *
-     * <p>离开后会按正常周期在 2-5 天后再次出现。
-     *
-     * @param townLevel 城镇维度
-     * @return true 表示操作成功（游商确实被移除），false 表示游商本来就不在
-     */
+    /** 强制使游商离开并回到正常周期（2~5 天后再次出现）；不在停留中时返回 false。 */
     public static boolean forceLeave(ServerLevel townLevel) {
         TownSavedData data = TownSavedData.get(townLevel);
         if (!data.isTraderActive()) {

@@ -101,7 +101,6 @@ public class MapViewScreen extends Screen {
 
         Set<ResourceLocation> pagePoints = manager.getPointsForPage(currentX, currentZ);
 
-        // 初始化当前页面的地图点按钮
         for (MapPoint point : TownDataProvider.getPoints()) {
             if (pagePoints.contains(point.id())) {
                 MapPointButton button = new MapPointButton(point);
@@ -123,12 +122,11 @@ public class MapViewScreen extends Screen {
         this.clearWidgets();
         pointButtons.clear();
 
-        // 将当前的导航按钮移动到 prev 列表以执行淡出动画
         prevNavButtons.clear();
         prevNavButtons.addAll(navButtons);
         navButtons.clear();
 
-        // 将旧按钮重新添加回界面，但禁用交互
+        // 旧按钮重新加回界面并禁用交互，只参与淡出
         for (MapNavigationButton btn : prevNavButtons) {
             this.addRenderableWidget(btn);
             btn.active = false;
@@ -305,10 +303,8 @@ public class MapViewScreen extends Screen {
 
     /** 计算淡入淡出动画的垂直位移 */
     private float calculateFadeOffset(float visibility) {
-        // Cubic ease out
         float eased = 1.0f - (1.0f - visibility) * (1.0f - visibility) * (1.0f - visibility);
 
-        // 从底部滑入 (偏移量从负值变到0)
         int iconSize = getIconSize();
         float startOffset = -iconSize / 2.0f;
 
@@ -330,7 +326,6 @@ public class MapViewScreen extends Screen {
         double baseY = ClientConfig.INSTANCE.cameraY.get();
         double baseZ = ClientConfig.INSTANCE.cameraZ.get();
 
-        // 页面切换动画进度 (基于时间)
         float smoothProgress = 0.0f;
         if (isSwitchingPage) {
             long now = System.currentTimeMillis();
@@ -344,14 +339,12 @@ public class MapViewScreen extends Screen {
             }
         }
 
-        // 插值因子 (Cubic Ease Out)
         float transitionT = 0.0f;
         if (isSwitchingPage) {
             float f = 1.0f - smoothProgress;
             transitionT = 1.0f - f * f * f;
         }
 
-        // 当前相机的插值位置
         Vec3 camPos;
         if (isSwitchingPage) {
             double startX = baseX + CameraHandler.getPrevGridX() * MapPageManager.PAGE_SPACING;
@@ -380,7 +373,6 @@ public class MapViewScreen extends Screen {
         double pixelsPerBlock = height / (orthoSize * 2.0);
         int iconSize = getIconSize();
 
-        // 判断每个点属于当前页还是上一页
         MapPageManager manager = MapPageManager.getInstance();
         int curGridX = CameraHandler.getCurrentGridX();
         int curGridZ = CameraHandler.getCurrentGridZ();
@@ -390,7 +382,6 @@ public class MapViewScreen extends Screen {
         Set<ResourceLocation> currentPoints = manager.getPointsForPage(curGridX, curGridZ);
         Set<ResourceLocation> prevPoints = manager.getPointsForPage(prevGridX, prevGridZ);
 
-        // 1. 更新地图点按钮
         for (MapPointButton button : pointButtons) {
             MapPoint point = button.point;
 
@@ -406,10 +397,8 @@ public class MapViewScreen extends Screen {
                 boolean inPrev = prevPoints.contains(point.id());
 
                 if (inCurrent && inPrev) {
-                    // 共用点：直接插值屏幕坐标，确保平滑
                     alpha = 1.0f;
 
-                    // 起点：相对于上一页相机的屏幕坐标
                     double startCamX = baseX + prevGridX * MapPageManager.PAGE_SPACING;
                     double startCamZ = baseZ + prevGridZ * MapPageManager.PAGE_SPACING;
                     Vec2 startScreenPos =
@@ -424,7 +413,6 @@ public class MapViewScreen extends Screen {
                                     startCamZ,
                                     pixelsPerBlock);
 
-                    // 终点：相对于当前页相机的屏幕坐标
                     double endCamX = baseX + curGridX * MapPageManager.PAGE_SPACING;
                     double endCamZ = baseZ + curGridZ * MapPageManager.PAGE_SPACING;
                     Vec2 endScreenPos =
@@ -439,7 +427,6 @@ public class MapViewScreen extends Screen {
                                     endCamZ,
                                     pixelsPerBlock);
 
-                    // 插值
                     double screenX = Mth.lerp(transitionT, startScreenPos.x, endScreenPos.x);
                     double screenY = Mth.lerp(transitionT, startScreenPos.y, endScreenPos.y);
 
@@ -447,7 +434,6 @@ public class MapViewScreen extends Screen {
                     button.setHeight(iconSize);
                     button.setPosition((int) screenX - iconSize / 2, (int) screenY - iconSize / 2);
 
-                    // 设置透明度后跳过后续常规更新
                     button.setAlpha(alpha * globalVisibility);
                     button.active = (alpha * globalVisibility) > 0.05f;
                     button.visible = (alpha * globalVisibility) > 0.01f;
@@ -455,7 +441,6 @@ public class MapViewScreen extends Screen {
 
                 } else if (inPrev) {
                     // 退出点：淡出并向上滑出
-                    // 保持相对于上一页相机的固定位置
                     calcCamX = baseX + prevGridX * MapPageManager.PAGE_SPACING;
                     calcCamZ = baseZ + prevGridZ * MapPageManager.PAGE_SPACING;
 
@@ -465,7 +450,6 @@ public class MapViewScreen extends Screen {
 
                 } else if (inCurrent) {
                     // 进入点：淡入并从上滑入
-                    // 保持相对于当前页相机的固定位置
                     calcCamX = baseX + curGridX * MapPageManager.PAGE_SPACING;
                     calcCamZ = baseZ + curGridZ * MapPageManager.PAGE_SPACING;
 
@@ -496,7 +480,6 @@ public class MapViewScreen extends Screen {
                     iconSize);
         }
 
-        // 2. 更新导航按钮 (新页面) - 淡入
         double navOffset = 25.0;
         double pageY = ClientConfig.INSTANCE.cameraY.get();
 
@@ -524,12 +507,10 @@ public class MapViewScreen extends Screen {
                     iconSize);
         }
 
-        // 3. 更新旧导航按钮 (旧页面) - 淡出
         for (MapNavigationButton button : prevNavButtons) {
             if (isSwitchingPage) {
                 button.setAlpha((1.0f - smoothProgress) * globalVisibility);
 
-                // 保持相对于旧页面的固定位置
                 double prevPageCenterX = baseX + prevGridX * MapPageManager.PAGE_SPACING;
                 double prevPageCenterZ = baseZ + prevGridZ * MapPageManager.PAGE_SPACING;
 
@@ -597,12 +578,11 @@ public class MapViewScreen extends Screen {
             double camZ,
             double pixelsPerBlock) {
 
-        // 1. 计算相对于相机的世界坐标偏移
         double dx = worldX - camX;
         double dy = worldY - camY;
         double dz = worldZ - camZ;
 
-        // 2. 旋转坐标系以匹配相机视角
+        // 旋转坐标系以匹配相机视角
         float yawRad = (float) Math.toRadians(ClientConfig.INSTANCE.cameraYaw.get());
         float pitchRad = (float) Math.toRadians(ClientConfig.INSTANCE.cameraPitch.get());
 
@@ -613,14 +593,12 @@ public class MapViewScreen extends Screen {
         double z1 = rotatedZ;
         double y1 = dy;
 
-        // 3. 投影到屏幕
         int centerX = width / 2;
         int centerY = height / 2;
         double screenX = centerX + x1 * pixelsPerBlock;
         double screenY =
                 centerY - (y1 * Math.cos(pitchRad) + z1 * Math.sin(pitchRad)) * pixelsPerBlock;
 
-        // 4. 应用屏幕偏移
         screenX += screenOffsetX;
         screenY += screenOffsetY;
 
@@ -749,7 +727,6 @@ public class MapViewScreen extends Screen {
             int totalTextureWidth = MapIconAtlas.ATLAS_WIDTH;
             int uOffset = Math.max(0, point.atlasSlot()) * TEXTURE_SIZE;
 
-            // 应用按钮透明度
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
 
             guiGraphics.blit(
@@ -765,7 +742,7 @@ public class MapViewScreen extends Screen {
                     totalTextureWidth,
                     totalTextureHeight);
 
-            // 悬停时显示名称
+            // 悬停时才绘制名称，避免遮挡图标
             if (isHovered) {
                 Component text = getDisplayName();
                 this.setMessage(text);

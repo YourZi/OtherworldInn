@@ -3,14 +3,9 @@ package com.otherworldinn.world.festival;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * 节日效果接口（扩展点）
- *
- * <p>新增节日效果只需实现本接口并注册到节日定义，无需改动引擎。
- * 效果分两类：
- * <ul>
- *   <li>事件式：onFestivalStart / onFestivalEnd，一次性副作用（如放置装饰）；</li>
- *   <li>查询式：queryValue，由各系统在运行时主动查询加成（默认返回 0 表示无加成）。</li>
- * </ul>
+ * 节日效果扩展点：实现本接口并注册到节日定义即可，无需改动引擎。
+ * 事件式（{@code onFestivalStart} / {@code onFestivalEnd}）做一次性副作用；
+ * 查询式（{@code queryValue}）由各系统在运行时主动查询加成，默认返回 0 表示无加成。
  */
 public interface FestivalEffect {
 

@@ -11,17 +11,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 结构贴图期间的掉落抑制。
+ * 结构贴图期间抑制方块掉落：在 {@code Block.popResource} 入口按旁路窗口取消，
+ * 可同时覆盖 Copycat 伪装方块的手动弹出与 {@code Containers.dropContents} 链路。
  *
- * <p>Create 伪装方块在 onRemove 中手动 popResource 弹出内容物，setBlock 的
- * UPDATE_SUPPRESS_DROPS 只作用于 destroy 路径的战利品、对此无拦截能力。在
- * popResource 入口处按保护旁路窗口取消，同时覆盖 Copycat 手动弹出与
- * Containers.dropContents（箱子等容器内容）链路——两者最终都汇入该方法。
- * 旁路窗口仅在结构贴图/整洁类清理期间激活，窗口外行为不变。
- *
- * <p>注意这里只认 {@link TownZonePolicyService#isDropSuppressingBypassActive()}：
- * 早期版本用"任意旁路激活"判定，一旦某个旁路作用域泄漏（例如创造模式玩家操作的作用域没有关闭），
- * 该服务端线程上<b>所有</b>方块掉落都会被静默取消，表现为联机时破坏方块没有掉落物、且只能重启恢复。
+ * <p>判定只认 {@link TownZonePolicyService#isDropSuppressingBypassActive()}：若改成"任意旁路激活"，
+ * 旁路作用域一旦泄漏就会永久吞掉该服务端线程的所有掉落。
  */
 @Mixin(Block.class)
 public abstract class MixinBlockPopResource {

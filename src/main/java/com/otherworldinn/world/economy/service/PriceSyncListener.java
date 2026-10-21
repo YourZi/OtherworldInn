@@ -14,10 +14,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 /**
- * 服务端价格计算与同步
- *
- * <p>每次有维度加载时从 overworld 捕获种子，确保切换存档后种子被更新。
- * 玩家登录时全量发送浮动后价格表给客户端。
+ * 服务端价格计算与同步：每次有维度加载时从 overworld 捕获种子（保证切换存档后种子被更新），
+ * 玩家登录时把浮动后的价格表全量发给客户端。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class PriceSyncListener {

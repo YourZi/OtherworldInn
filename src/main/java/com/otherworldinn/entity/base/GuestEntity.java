@@ -586,9 +586,7 @@ public abstract class GuestEntity extends PathfinderMob {
         this.pendingRewardContainer = null;
     }
 
-    /**
-     * 开始退房流程：在旅社范围内寻找离前台铃铛最近的储物方块，寻路过去后再投递奖励并退房。 找不到铃铛或储物方块时不移动，直接退房。
-     */
+    /** 开始退房流程：在旅社范围内寻找离前台铃铛最近的储物方块，寻路过去后再投递奖励并退房；找不到铃铛或容器时不移动、直接退房。 */
     public void beginCheckoutMove(ServerLevel level, TeamData team) {
         this.checkoutMoveStarted = true;
         if (this.guestData.getRewardItems().isEmpty()) {
@@ -1435,8 +1433,7 @@ public abstract class GuestEntity extends PathfinderMob {
     }
 
     private void ensureDailyDiningPlan(ServerLevel level) {
-        // 统一按世界时间（DayTime）计算日期：睡眠跳时、/time set 等都会推进日期，
-        // 使次日餐饮计划与商店补货、游商周期等其它每日逻辑使用同一时间源
+        // 统一按世界时间（DayTime）计算日期，使次日餐饮计划与商店补货、游商周期共用同一时间源
         long currentDay = WorldDayUtils.currentDay(level);
         if (this.diningPlanDay == currentDay) {
             return;

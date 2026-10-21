@@ -35,9 +35,7 @@ public final class FestivalRegistry {
     private FestivalRegistry() {}
 
     /**
-     * 内置节日注册（实装版，见 festival-design.md）。
-     *
-     * <p>窗口按主季天数（0 起）换算：早/仲/晚季分别对应主季 0-7 / 8-15 / 16-23 天，
+     * 内置节日注册。窗口按主季天数（0 起）换算：早/仲/晚季对应主季 0-7 / 8-15 / 16-23 天，
      * 子季内的 "day 1-N"（1 起）换算为 0 起的索引区间。
      */
     private static void registerDefaults() {

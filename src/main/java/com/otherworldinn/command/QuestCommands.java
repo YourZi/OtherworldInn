@@ -17,12 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 /*
- * 任务调试命令
- *
- * /innquest list - 列出全部任务定义与本队接取/完成状态
- * /innquest state - 查看本队活跃任务的活跃节点
- * /innquest start <questId> - 接取任务（管理员，调试用；正式接取走对话选项）
- * /innquest reset <questId|all> - 清除任务进度以便反复测试（管理员）
+ * /innquest 任务调试命令：
+ * /innquest list                 列出全部任务定义与本队接取/完成状态
+ * /innquest state                查看本队活跃任务的活跃节点
+ * /innquest start <questId>      接取任务（管理员，调试用；正式接取走对话选项）
+ * /innquest reset <questId|all>  清除任务进度以便反复测试（管理员）
  */
 public class QuestCommands {
 

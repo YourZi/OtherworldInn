@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * Contraption Mixin：捕获当前 StructureBlockInfo，并在城镇维度的非法区域拦截
- * customBlockPlacement，使其掉落方块与内容物。
+ * 城镇维度里拦截 Create 装置的非法放置：捕获当前 {@code StructureBlockInfo}，
+ * 在非法区域拦下 {@code customBlockPlacement} 并让方块与内容物掉落。
  */
 @Mixin(Contraption.class)
 public class MixinContraption {

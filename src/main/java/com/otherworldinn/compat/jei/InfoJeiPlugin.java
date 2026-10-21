@@ -22,10 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
 /**
- * JEI 信息页插件
- *
- * <p>集中注册模组物品的 JEI Information 信息页说明。
- * 文案见 {@link com.otherworldinn.datagen.ModLanguageProvider} 中的 jei.otherworldinn.* 翻译键。
+ * JEI 信息页插件：集中注册模组物品的 JEI Information 说明，
+ * 文案见 {@link com.otherworldinn.datagen.ModLanguageProvider} 中的 {@code jei.otherworldinn.*} 翻译键。
  */
 @JeiPlugin
 public class InfoJeiPlugin implements IModPlugin {

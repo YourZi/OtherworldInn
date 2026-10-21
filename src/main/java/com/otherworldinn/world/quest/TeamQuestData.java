@@ -10,9 +10,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
 /**
- * 队伍任务进度（挂在 {@link com.otherworldinn.world.team.TeamData}，队伍级共享）。
- *
- * <p>Map 中存在 questId 即视为已接取；完成状态单独标记，奖励只在完成瞬间发放一次。
+ * 队伍任务进度（挂在 {@link com.otherworldinn.world.team.TeamData}，队伍级共享）：
+ * Map 中存在 questId 即视为已接取，完成状态单独标记，奖励只在完成瞬间发放一次。
  */
 public class TeamQuestData {
     private final Map<String, QuestProgress> quests = new HashMap<>();

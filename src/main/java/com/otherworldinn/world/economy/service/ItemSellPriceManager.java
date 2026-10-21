@@ -12,10 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 物品售价管理器
- *
- * <p>BASE_PRICES 存配置的基准价格。
- * floatedPrices 由服务端计算后通过 S2CPriceSyncPacket 同步到客户端。
+ * 物品售价管理器：{@code BASE_PRICES} 存配置的基准价格，{@code floatedPrices} 由服务端计算后
+ * 经 {@code S2CPriceSyncPacket} 同步到客户端。
  */
 public class ItemSellPriceManager {
 

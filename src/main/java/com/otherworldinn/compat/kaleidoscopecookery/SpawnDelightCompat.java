@@ -24,19 +24,12 @@ import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
- * 把 Spawn 模组"农夫乐事（Farmer's Delight）专属内容"改由森罗物语：厨房（Kaleidoscope Cookery）承接的兼容层。
+ * 把 Spawn 模组"农夫乐事（Farmer's Delight）专属内容"改由森罗物语：厨房承接的兼容层：
+ * 没装 FD 时把 13 种菜品加回创造栏，食用后套用森罗的 {@code warmth} / {@code vigor}
+ * （对应 FD 的 Comfort 6000t / Nourishment 3600t），并补上效果 tooltip。
+ * 配方与标签由数据包补齐（{@code data/otherworldinn/recipe/spawn_kc/} 等）。
  *
- * <p>背景：Spawn 把 13 种菜品挂在 FD 上——配方（切菜板/炖锅）、创造栏可见性、以及食用后的 Comfort / Nourishment
- * 效果。本整合包不带 FD、只带森罗厨房，因此：
- *
- * <ul>
- *   <li>配方与标签由数据包补齐：{@code data/otherworldinn/recipe/spawn_kc/}（森罗切菜板/炖锅/合成）、 {@code
- *       data/kaleidoscope_cookery/tags/item/meals.json}（追加两道正餐）；
- *   <li>本类负责 Spawn 侧代码行为：{@linkplain #HIDDEN_WITHOUT_FD_DISHES 没装 FD 时被隐藏的 13 种菜品}加回创造栏、 食用后套用森罗厨房的 {@code warmth} / {@code vigor}（对应原
- *       FD 的 Comfort 6000t / Nourishment 3600t）、以及效果 tooltip。
- * </ul>
- *
- * <p>只要装了 Farmer's Delight，本类全部不生效，交回 Spawn 自己的 FD 兼容逻辑，避免效果叠加与内容重复。
+ * <p>装了 Farmer's Delight 时本类全部不生效，交回 Spawn 自己的 FD 兼容逻辑，避免效果叠加。
  */
 public final class SpawnDelightCompat {
 
@@ -63,7 +56,7 @@ public final class SpawnDelightCompat {
     private static final ResourceLocation VIGOR_EFFECT =
             ResourceLocation.fromNamespaceAndPath(COOKERY_MOD_ID, "vigor");
 
-    /** 时长与 Spawn 原本给 FD Comfort / Nourishment 的数值对齐（源码字节码实测 6000 / 3600 tick）。 */
+    /** 时长与 Spawn 给 FD 的 Comfort / Nourishment 数值对齐：6000 / 3600 tick。 */
     private static final int WARMTH_DURATION_TICKS = 6000;
     private static final int VIGOR_DURATION_TICKS = 3600;
 

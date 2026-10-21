@@ -14,13 +14,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 让挂载实体（物品展示框、荧光展示框、画）贴合被点击方块的实际表面，
- * 而不是永远贴在整格的边界平面上。
+ * 让挂载实体（物品展示框、荧光展示框、画）贴合被点击方块的实际表面，而不是整格边界平面。
  *
- * <p>原版把背面偏移硬编码为 0.46875（对齐到支撑方块的整格边界），因此贴在栅栏柱侧面、
- * 半砖顶面这类非满方块上时会悬空。这里在 {@code recalculateBoundingBox} 之后按支撑方块
- * 朝该方向的最外沿再平移一次包围盒：该方法是直接用包围盒中心取实体位置的，
- * 所以修正包围盒即可同时修正渲染位置，两端都能由世界状态推导，无需额外同步或存档字段。
+ * <p>原版把背面偏移硬编码为 0.46875（对齐到整格边界），贴在栅栏柱侧面、半砖顶面这类非满方块上会悬空。
+ * 这里在 {@code recalculateBoundingBox} 之后按支撑方块朝该方向的最外沿平移包围盒——实体位置由包围盒中心推导，
+ * 所以改包围盒即可同时修正渲染位置，无需额外同步或存档字段。
  */
 @Mixin(HangingEntity.class)
 public abstract class MixinHangingEntity {

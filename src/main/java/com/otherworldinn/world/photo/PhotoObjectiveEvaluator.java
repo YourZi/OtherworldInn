@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * 拍照目标的通用子判定（双端可用，不依赖 Exposure）。
  *
- * <p>服务端完成判定（ExposurePhotoMatcher，基于 Frame 额外数据）与客户端取景提示
- * （PhotoTargetHintService，基于本地预测的画面内容）共用同一套匹配规则，避免两份逻辑漂移。
- * 结构条件依赖服务端 Frame 数据，保留在 ExposurePhotoMatcher 中。
+ * <p>服务端完成判定（{@code ExposurePhotoMatcher}，基于 Frame 额外数据）与客户端取景提示
+ * （{@code PhotoTargetHintService}，基于本地预测的画面内容）共用同一套匹配规则，避免两份逻辑漂移。
+ * 结构条件依赖服务端 Frame 数据，保留在 {@code ExposurePhotoMatcher} 中。
  */
 public final class PhotoObjectiveEvaluator {
     /** 客户端群系采样沿视线的最大距离（格） */
@@ -73,11 +73,8 @@ public final class PhotoObjectiveEvaluator {
     }
 
     /**
-     * 取景提示用：以相机位置与朝向近似还原拍照时刻的判定上下文，
-     * 返回三态结果供提示区分"发现目标"与"生物对但群系错"。
-     *
-     * <p>群系条件沿视线采样若干点（近似服务端从画面命中方块取群系的口径），
-     * 任一采样点命中即视为满足。语义按 matchMode=ALL 展开（现有目标均为 ALL）。
+     * 取景提示用：以相机位置与朝向近似还原判定上下文，返回三态结果供提示区分"发现目标"与"生物对但群系错"。
+     * 群系条件沿视线采样若干点（近似服务端从画面命中方块取群系的口径），任一采样点命中即视为满足。
      */
     public static ClientViewMatch evaluateClientView(
             PhotoObjective objective,

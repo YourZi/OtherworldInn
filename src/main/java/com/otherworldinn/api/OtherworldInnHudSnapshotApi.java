@@ -5,9 +5,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 
 /**
- * Client-side bridge consumed by Otherworld Inn HUD.
- *
- * <p>The returned tag is always a defensive copy and follows FormatVersion 1.
+ * Client-side bridge consumed by Otherworld Inn HUD. The returned tag is always a defensive copy
+ * and follows FormatVersion 1.
  */
 public final class OtherworldInnHudSnapshotApi {
     private static CompoundTag taskHudSnapshot = createEmptySnapshot();

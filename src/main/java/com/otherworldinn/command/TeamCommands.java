@@ -19,17 +19,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 /*
- * 队伍命令
- *
- * /innteam create <name> - 创建队伍
- * /innteam invite <player> - 邀请玩家（简化：直接加入） 
- * /innteam join <player_in_team> - 加入某玩家所在的队伍 
- * /innteam leave - 离开队伍 
- * /innteam kick <player> - 踢出成员（仅队长） 
- * /innteam transfer <player> - 转让队长（仅队长） 
- * /innteam rename <name> - 重命名队伍（仅队长） 
- * /innteam info - 查看队伍信息 
- * /innteam teleport <enabled> - 开启/关闭队伍传送（管理员）
+ * /innteam create <name>          创建队伍
+ * /innteam invite <player>        邀请玩家（直接加入）
+ * /innteam join <player_in_team>  加入该玩家所在队伍
+ * /innteam leave                  离开队伍
+ * /innteam kick|transfer <player> 踢出成员 / 转让队长（仅队长）
+ * /innteam rename <name>          重命名队伍（仅队长）
+ * /innteam info                   查看队伍信息
+ * /innteam teleport <enabled>     开启/关闭队伍传送（管理员）
  */
 public class TeamCommands {
 

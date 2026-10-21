@@ -149,10 +149,9 @@ public class TownProtectionHandler {
     }
 
     /**
-     * Sophisticated Backpacks 的背包不是 {@link BlockItem}，但下蹲右键时会改为放置成方块。
-     * 若等到 {@link BlockEvent.EntityPlaceEvent} 阶段才拒绝，物品使用/客户端预测已经发生，
-     * 会出现背包（尤其是带内容的背包）在客户端被消耗而无法稳定回滚的问题。
-     * 因此在右键阶段就按同类“可放置物品”处理。
+     * Sophisticated Backpacks 的背包不是 {@link BlockItem}，但下蹲右键会放置成方块；
+     * 必须在右键阶段就按"可放置物品"处理，否则等到 {@link BlockEvent.EntityPlaceEvent}
+     * 才拒绝时客户端预测已消耗背包且无法稳定回滚。
      */
     private static final String SOPHISTICATED_BACKPACK_ITEM_CLASS =
             "net.p3pp3rf1y.sophisticatedbackpacks.backpack.BackpackItem";

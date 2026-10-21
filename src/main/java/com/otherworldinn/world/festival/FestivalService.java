@@ -32,7 +32,8 @@ import sereneseasons.api.season.SeasonHelper;
 
 /**
  * 节日服务：整个城镇维度全局共享过节，每日判定激活窗口，窗口变化时广播开始/结束事件并触发效果生命周期钩子。
- * 窗口为纯时间函数（季节绑定），只持久化"上次广播的窗口标识"用于事件去重；查询入口供商店、客人、设施等系统运行时主动查询加成，Serene Seasons 未安装时全部返回空/0。
+ * 窗口为纯时间函数（季节绑定），只持久化"上次广播的窗口标识"用于事件去重；查询入口供商店、客人、设施等系统
+ * 运行时主动查询加成，Serene Seasons 未安装时全部返回空/0。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class FestivalService {
@@ -42,8 +43,7 @@ public final class FestivalService {
     private static double debugGlobalDiscount;
 
     /**
-     * 调试用强制激活节日 id（null = 关闭）。
-     * 非空时无视季节直接返回该节日（限定商品、限定委托、效果加成全部生效），切换时立即广播开始/结束事件，
+     * 调试用强制激活节日 id（null = 关闭）：非空时无视季节直接返回该节日（限定商品、限定委托、效果加成全部生效），
      * 但不写入 lastFestivalWindow 去重记录，避免调试吞掉真实季节窗口的事件。
      */
     @Nullable
@@ -146,10 +146,7 @@ public final class FestivalService {
     /** 激活节日窗口信息：dayIndex 为窗口内第几天（0 起），lengthInDays 为窗口总天数 */
     public record FestivalWindow(FestivalDefinition festival, int dayIndex, int lengthInDays) {}
 
-    /**
-     * 查询当前激活节日的窗口信息，供需要窗口对齐限时（如节日限定委托）的系统使用。
-     * 调试模式下无法从真实季节推导窗口内日序，dayIndex 固定为 0。
-     */
+    /** 查询当前激活节日的窗口信息，供需要窗口对齐限时（如节日限定委托）的系统使用；调试模式下 dayIndex 固定为 0。 */
     public static Optional<FestivalWindow> getActiveFestivalWindow(ServerLevel townLevel) {
         Optional<FestivalDefinition> festival = getActiveFestival(townLevel);
         if (festival.isEmpty()) {
@@ -164,10 +161,7 @@ public final class FestivalService {
         return Optional.of(new FestivalWindow(festival.get(), dayIndex, lengthInDays));
     }
 
-    /**
-     * 通用数值查询：汇总当前激活节日所有效果对 key 的加成值，无节日/无匹配返回 0。
-     * 参数 key 见 {@link FestivalEffect} 的查询键常量。
-     */
+    /** 通用数值查询：汇总当前激活节日所有效果对 key 的加成值，无节日/无匹配返回 0；key 见 {@link FestivalEffect}。 */
     public static double queryValue(ServerLevel townLevel, String key, Object... args) {
         if (FestivalEffect.KEY_SHOP_DISCOUNT.equals(key) && debugGlobalDiscount > 0.0D) {
             return debugGlobalDiscount;

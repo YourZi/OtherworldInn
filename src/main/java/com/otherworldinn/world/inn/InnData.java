@@ -785,7 +785,7 @@ public class InnData {
             calculateRoomStats(roomId, level);
             RoomData room = rooms.get(roomId);
             if (room != null && level instanceof ServerLevel serverLevel) {
-                // 更新房间整洁度（虽然不用于平均计算，但可能用于其他逻辑）
+                // 更新房间整洁度
                 int[] bedStats =
                         RoomData.calculateBedStats(room.getMinPos(), room.getMaxPos(), level);
                 room.setMaxGuests(bedStats[0]); // 有效床位
@@ -1009,9 +1009,7 @@ public class InnData {
         return null;
     }
 
-    /**
-     * 根据一组变更位置，找出受影响的房间 ID 集合。
-     */
+    /** 根据一组变更位置，找出受影响的房间 ID 集合。 */
     public java.util.Set<Integer> findAffectedRoomIds(java.util.Set<BlockPos> positions) {
         java.util.Set<Integer> affected = new java.util.HashSet<>();
         for (BlockPos pos : positions) {
@@ -1413,10 +1411,7 @@ public class InnData {
     }
 
     private void spawnGuest(ServerLevel level) {
-        // 随机坐标范围：(20, 71, 2) ~ (5, 71, -2)
-        // X: 5 ~ 20
-        // Z: -2 ~ 2
-        // Y: 71
+        // 随机坐标范围：X 5 ~ 20、Z -2 ~ 2、Y 71
         double x = 5 + level.random.nextDouble() * (20 - 5);
         double z = -2 + level.random.nextDouble() * (2 - (-2));
         double y = 71;

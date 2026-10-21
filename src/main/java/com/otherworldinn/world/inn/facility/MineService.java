@@ -26,11 +26,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
- * 矿井服务
- *
- * <p>矿井设施每日按等级向设施范围内的原版木桶填充随机矿物
- * 日期统一按世界时间（DayTime）计算，与商店补货、游商周期等共享同一时间源，
- * 玩家睡觉跳过时间会同步推进产出周期。
+ * 矿井服务：矿井设施每日按等级向设施范围内的原版木桶填充随机矿物。
+ * 日期统一按世界时间（DayTime）计算，与商店补货、游商周期共享同一时间源，睡觉跳过时间也会推进产出周期。
  */
 @EventBusSubscriber(modid = OtherworldInn.MODID)
 public final class MineService {

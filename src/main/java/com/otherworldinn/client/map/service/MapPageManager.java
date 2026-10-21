@@ -32,11 +32,7 @@ public class MapPageManager {
         return INSTANCE;
     }
 
-    /**
-     * 初始化默认的地图页面配置
-     *
-     * <p>包含初始页面 (0,0) 和示例扩展页面 (1,0)，以及各页面的地图点分配。
-     */
+    /** 初始化默认的地图页面配置：初始页面 (0,0) 与扩展页面，以及各页面的地图点分配。 */
     private void initDefaultPages() {
         registerPage(0, 0);
 
