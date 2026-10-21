@@ -55,7 +55,19 @@
     "MixinReskillableSkillButton",
     "MixinReskillableSkillScreen",
     "MixinWorldOpenFlowsExperimentalWarning",
-    "MixinGameRendererAccessor",
+    "MixinAbstractWidgetHoverScale",
+    "MixinAbstractContainerScreenPanelOpen",
+    "MixinAbstractContainerScreenSlotHighlight",
+    "MixinAbstractContainerScreenSlotPop",
+    "MixinAbstractContainerScreenTooltipPop",
+    "MixinChatLineSlide",
+    "MixinCreativeTabs",
+    "MixinCreativeTabAccessor",
+    "MixinCreativeGridScissor",
+    "MixinScreenTrackOpen",
+    "MixinSelectionListEntryCascade",
+    "MixinGuiHotbarShake",
+    "MixinLocalPlayerEmptyDropShake",
     "MixinPlayerRendererMapModeHidden",
     "MixinEntityRenderDispatcherMapMode",
     "MixinToolTypeSurvivalPrint",
@@ -66,7 +78,9 @@
     "MixinXaeroHudRenderer",
     "MixinXaeroWorldMapClientEvents",
     "MixinExposureViewfinderOverlay",
-    "MixinFontSet"
+    "MixinFontSet",
+    "MixinWorldListEntryPlayTime",
+    "MixinOnlineServerEntryPlayTime"
   ],
   "injectors": {
     "defaultRequire": 1
