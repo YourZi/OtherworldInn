@@ -4,6 +4,7 @@ import com.otherworldinn.OtherworldInn;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -24,6 +25,14 @@ public final class QuestEventHandler {
         if (tickCounter >= REEVALUATE_INTERVAL_TICKS) {
             tickCounter = 0;
             QuestService.reevaluateAll(event.getServer());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // 补偿离线期间的任务变化，并清掉上次会话残留的委托标点
+            QuestWaypointSync.syncPlayer(player);
         }
     }
 

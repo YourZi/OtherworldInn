@@ -19,6 +19,7 @@ import com.otherworldinn.network.packet.S2CFestivalShopDiscountPacket;
 import com.otherworldinn.network.packet.S2CPicnicBoxSyncPacket;
 import com.otherworldinn.network.packet.S2CPriceSyncPacket;
 import com.otherworldinn.network.packet.S2CQuestHudPacket;
+import com.otherworldinn.network.packet.S2CQuestWaypointPacket;
 import com.otherworldinn.network.packet.S2CTaskHudSnapshotPacket;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -83,6 +84,10 @@ public class ModMessages {
                 S2CQuestHudPacket.TYPE,
                 S2CQuestHudPacket.STREAM_CODEC,
                 S2CQuestHudPacket::handle);
+        registrar.playToClient(
+                S2CQuestWaypointPacket.TYPE,
+                S2CQuestWaypointPacket.STREAM_CODEC,
+                S2CQuestWaypointPacket::handle);
 
         registrar.playToServer(
                 C2STeleportPacket.TYPE, C2STeleportPacket.STREAM_CODEC, C2STeleportPacket::handle);

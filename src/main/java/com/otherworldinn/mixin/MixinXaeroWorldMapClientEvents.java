@@ -17,7 +17,7 @@ public abstract class MixinXaeroWorldMapClientEvents {
         if (!XaeroCompatBridge.isTownBlocked(mc)) {
             return;
         }
-        XaeroCompatBridge.suppressWorldMapInputs();
+        XaeroCompatBridge.suppressConflictingOpenMapInput();
         ci.cancel();
     }
 }

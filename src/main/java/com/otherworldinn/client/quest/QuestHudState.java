@@ -25,8 +25,7 @@ public final class QuestHudState {
             String stage,
             String category,
             Component title,
-            List<HudRequirement> requirements,
-            List<int[]> markers) {}
+            List<HudRequirement> requirements) {}
 
     private static volatile List<HudTask> tasks = List.of();
 
@@ -69,23 +68,12 @@ public final class QuestHudState {
                         Math.max(0, requirementTag.getInt("Current")),
                         Math.max(1, requirementTag.getInt("Required"))));
             }
-            List<int[]> markers = new ArrayList<>();
-            ListTag markerList = taskTag.getList("Markers", Tag.TAG_COMPOUND);
-            for (Tag m : markerList) {
-                if (!(m instanceof CompoundTag markerTag)) {
-                    continue;
-                }
-                markers.add(new int[] {
-                    markerTag.getInt("X"), markerTag.getInt("Y"), markerTag.getInt("Z")
-                });
-            }
             parsed.add(new HudTask(
                     key,
                     taskTag.getString("Stage"),
                     taskTag.getString("Category"),
                     title,
-                    List.copyOf(requirements),
-                    List.copyOf(markers)));
+                    List.copyOf(requirements)));
         }
         tasks = List.copyOf(parsed);
     }

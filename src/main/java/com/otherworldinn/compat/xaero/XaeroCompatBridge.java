@@ -1,11 +1,13 @@
 package com.otherworldinn.compat.xaero;
 
 import com.otherworldinn.OtherworldInn;
+import com.otherworldinn.init.ModKeyBindings;
 import com.otherworldinn.world.event.listener.TownZonePolicyService;
 import java.lang.reflect.Field;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 
 public final class XaeroCompatBridge {
     private static final String WORLD_MAP_GUI_PREFIX = "xaero.map.gui.";
@@ -15,8 +17,11 @@ public final class XaeroCompatBridge {
     private static final String MINIMAP_MODULE_OWNER_CLASS = "xaero.hud.minimap.BuiltInHudModules";
     private static final String MINIMAP_MODULE_FIELD = "MINIMAP";
     private static final String WORLD_MAP_CONTROLS_CLASS = "xaero.map.controls.ControlsRegister";
+    private static final String WORLD_MAP_OPEN_KEY_FIELD = "keyOpenMap";
 
-    private static boolean worldMapControlsFailureLogged;
+    @Nullable
+    private static KeyMapping openMapKey;
+    private static boolean openMapKeyResolved;
 
     private XaeroCompatBridge() {}
 
@@ -68,33 +73,50 @@ public final class XaeroCompatBridge {
         return true;
     }
 
-    public static void suppressWorldMapInputs() {
-        try {
-            Class<?> controlsClass = Class.forName(WORLD_MAP_CONTROLS_CLASS);
-            for (Field field : controlsClass.getDeclaredFields()) {
-                if (!KeyMapping.class.isAssignableFrom(field.getType())) {
-                    continue;
-                }
-                field.setAccessible(true);
-                Object value = field.get(null);
-                if (value instanceof KeyMapping keyMapping) {
-                    clearKeyMapping(keyMapping);
-                }
-            }
-        } catch (ClassNotFoundException ignored) {
-            // Xaero World Map 未安装时无需处理。
-        } catch (IllegalAccessException exception) {
-            if (!worldMapControlsFailureLogged) {
-                worldMapControlsFailureLogged = true;
-                OtherworldInn.LOGGER.warn("Failed to suppress Xaero world map key inputs.", exception);
-            }
+    public static void suppressConflictingOpenMapInput() {
+        if (!isOpenMapKeyConflicted()) {
+            return;
         }
+        KeyMapping xaeroOpenMap = xaeroOpenMapKey();
+        if (xaeroOpenMap == null) {
+            return;
+        }
+        while (xaeroOpenMap.consumeClick()) {
+            // 吃掉城镇里积压的点击，避免离开城镇后补触发 Xaero 世界地图
+        }
+        xaeroOpenMap.setDown(false);
     }
 
-    private static void clearKeyMapping(KeyMapping keyMapping) {
-        while (keyMapping.consumeClick()) {
-            // 清空累计点击，避免离开城镇后补触发。
+    /** Xaero 世界地图的"打开地图"键；未安装世界地图时为 null（解析一次后缓存）。 */
+    @Nullable
+    public static KeyMapping xaeroOpenMapKey() {
+        if (!openMapKeyResolved) {
+            openMapKeyResolved = true;
+            try {
+                Field field = Class.forName(WORLD_MAP_CONTROLS_CLASS)
+                        .getDeclaredField(WORLD_MAP_OPEN_KEY_FIELD);
+                field.setAccessible(true);
+                if (field.get(null) instanceof KeyMapping mapping) {
+                    openMapKey = mapping;
+                }
+            } catch (ReflectiveOperationException ignored) {
+                // Xaero World Map 未安装：无需处理。
+            }
         }
-        keyMapping.setDown(false);
+        return openMapKey;
+    }
+
+    /**
+     * 城镇地图与 Xaero 世界地图是否绑在同一个物理键上（含修饰键）。只比较实际绑定而不看
+     * {@code KeyConflictContext}：玩家按的是同一个键，就必须二选一。
+     */
+    public static boolean isOpenMapKeyConflicted() {
+        KeyMapping xaeroOpenMap = xaeroOpenMapKey();
+        KeyMapping townMap = ModKeyBindings.TOGGLE_MAP_MODE;
+        if (xaeroOpenMap == null || townMap.isUnbound() || xaeroOpenMap.isUnbound()) {
+            return false;
+        }
+        return townMap.getKey().equals(xaeroOpenMap.getKey())
+                && townMap.getKeyModifier() == xaeroOpenMap.getKeyModifier();
     }
 }

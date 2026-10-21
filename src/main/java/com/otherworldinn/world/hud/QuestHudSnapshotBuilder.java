@@ -18,10 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * 任务系统 HUD 条目构建（主 mod 自渲染管线，与 OtherworldInnHud 无关）。
- *
- * <p>kind=quest：每个已接取未完成的任务一条，需求行 = 全部活跃节点的目标。
- * 复用 {@link TaskHudSnapshotBuilder} 的条目格式与显示文案助手，保证与委托/故事委托条目同构。
+ * 任务系统 HUD 条目构建：{@code kind=quest} 时每个已接取未完成的任务生成一条，需求行 = 全部活跃节点的目标。
+ * 复用 {@link TaskHudSnapshotBuilder} 的条目格式与文案助手，保证与委托/故事委托条目同构。
  */
 final class QuestHudSnapshotBuilder {
     private static final String KIND_QUEST = "quest";
@@ -31,7 +29,6 @@ final class QuestHudSnapshotBuilder {
     private static final String TYPE_BLOCK_INTERACT = "interact_block";
     private static final String TYPE_ADVANCEMENT = "advancement";
     private static final String TYPE_REGION = "region";
-    private static long lastMarkerDebugLogAt;
 
     private QuestHudSnapshotBuilder() {}
 
@@ -69,87 +66,8 @@ final class QuestHudSnapshotBuilder {
             }
             task.put("Requirements", requirements);
             task.put("Rewards", activeNodeRewards(quest, progress));
-            task.put("Markers", activeNodeMarkers(player, quest, progress));
             tasks.add(task);
         }
-    }
-
-    /** 活跃节点的指示点（绝对坐标）：relative 为真时相对城镇出生点偏移。 */
-    private static ListTag activeNodeMarkers(ServerPlayer player, QuestDefinition quest, TeamQuestData.QuestProgress progress) {
-        ListTag markers = new ListTag();
-        net.minecraft.server.level.ServerLevel townLevel =
-                player.server.getLevel(com.otherworldinn.world.dimension.TownDimensions.TOWN_LEVEL);
-        for (QuestNodeDef node : quest.nodes()) {
-            if (!progress.getActiveNodeIds().contains(node.id()) || node.marker() == null) {
-                continue;
-            }
-            net.minecraft.core.BlockPos pos = node.marker();
-            if (node.markerRelative() && townLevel != null) {
-                pos = pos.offset(townLevel.getSharedSpawnPos());
-            }
-            CompoundTag markerTag = new CompoundTag();
-            markerTag.putInt("X", pos.getX());
-            markerTag.putInt("Y", pos.getY());
-            markerTag.putInt("Z", pos.getZ());
-            markers.add(markerTag);
-            // #region debug-point B:quest-marker-server
-            if (System.currentTimeMillis() - lastMarkerDebugLogAt >= 1000L) {
-                lastMarkerDebugLogAt = System.currentTimeMillis();
-                try {
-                    java.net.http.HttpClient.newHttpClient()
-                            .sendAsync(
-                                    java.net.http.HttpRequest.newBuilder(java.net.URI.create(readDebugServerUrl()))
-                                            .header("Content-Type", "application/json")
-                                            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(
-                                                    "{\"sessionId\":\"" + readDebugSessionId()
-                                                            + "\",\"runId\":\"post-fix\",\"hypothesisId\":\"B\",\"location\":\"QuestHudSnapshotBuilder.activeNodeMarkers\",\"msg\":\"[DEBUG] server marker snapshot\",\"data\":{\"quest\":\""
-                                                            + escapeDebug(quest.id()) + "\",\"node\":\""
-                                                            + escapeDebug(node.id()) + "\",\"markerRelative\":"
-                                                            + node.markerRelative() + ",\"markerX\":"
-                                                            + pos.getX() + ",\"markerY\":"
-                                                            + pos.getY() + ",\"markerZ\":"
-                                                            + pos.getZ() + ",\"player\":\""
-                                                            + escapeDebug(player.getScoreboardName()) + "\"},\"ts\":"
-                                                            + System.currentTimeMillis() + "}"))
-                                            .build(),
-                                    java.net.http.HttpResponse.BodyHandlers.discarding())
-                            .exceptionally(ex -> null);
-                } catch (Exception ignored) {
-                }
-            }
-            // #endregion
-        }
-        return markers;
-    }
-
-    private static String readDebugServerUrl() {
-        try {
-            java.nio.file.Path path = java.nio.file.Path.of(".dbg", "quest-marker-position.env");
-            for (String line : java.nio.file.Files.readAllLines(path)) {
-                if (line.startsWith("DEBUG_SERVER_URL=")) {
-                    return line.substring("DEBUG_SERVER_URL=".length()).trim();
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "http://127.0.0.1:7777/event";
-    }
-
-    private static String readDebugSessionId() {
-        try {
-            java.nio.file.Path path = java.nio.file.Path.of(".dbg", "quest-marker-position.env");
-            for (String line : java.nio.file.Files.readAllLines(path)) {
-                if (line.startsWith("DEBUG_SESSION_ID=")) {
-                    return escapeDebug(line.substring("DEBUG_SESSION_ID=".length()).trim());
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "quest-marker-position";
-    }
-
-    private static String escapeDebug(String value) {
-        return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     private static CompoundTag createQuestRequirement(

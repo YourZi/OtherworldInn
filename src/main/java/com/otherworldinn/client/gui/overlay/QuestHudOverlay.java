@@ -3,10 +3,8 @@ package com.otherworldinn.client.gui.overlay;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import com.otherworldinn.OtherworldInn;
-import com.otherworldinn.client.quest.QuestMarkerProjector;
 import com.otherworldinn.client.quest.QuestHudState;
 import com.otherworldinn.init.ModKeyBindings;
-import com.otherworldinn.mixin.MixinGameRendererAccessor;
 import com.otherworldinn.util.ClientServices;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,10 +57,6 @@ public final class QuestHudOverlay {
     private static final int HINT_COLOR = 0xFF8A8A8A;
     private static final int PREFIX_MAIN_COLOR = 0xFFE8B45A;
     private static final int PREFIX_SIDE_COLOR = 0xFF8FC7C7;
-    private static final int MARKER_EDGE_MARGIN = 24;
-    private static final int MARKER_ICON_RADIUS = 4;
-    private static final int MARKER_ARROW_RADIUS = 8;
-    private static long lastMarkerDebugLogAt;
 
     private static final long APPEAR_DURATION_MS = 220L;
     private static final long DISAPPEAR_DURATION_MS = 260L;
@@ -139,10 +133,8 @@ public final class QuestHudOverlay {
 
         // 构建当前帧的块（快照顺序：任务在前，委托/故事委托在后）
         List<TaskBlock> current = new ArrayList<>();
-        List<int[]> activeMarkers = new ArrayList<>();
         if (!hidden) {
             for (QuestHudState.HudTask task : QuestHudState.getTasks()) {
-                activeMarkers.addAll(task.markers());
                 List<DisplayLine> lines = new ArrayList<>();
                 int titleColor = "main".equals(task.category()) ? PREFIX_MAIN_COLOR : PREFIX_SIDE_COLOR;
                 appendWrapped(lines, font, withCategoryPrefix(task), titleColor, 0);
@@ -333,189 +325,6 @@ public final class QuestHudOverlay {
                     withAlpha(HINT_COLOR, hintAlpha),
                     false);
         }
-
-        renderMarkers(guiGraphics, mc, deltaTracker, activeMarkers);
-    }
-
-    /**
-     * 指示点渲染：只保留最近一个活跃任务点，投影为 HUD 2D 锚点。
-     * 屏幕内按真实位置显示，离屏/身后时吸附到边缘并旋转箭头。
-     */
-    private static void renderMarkers(
-            GuiGraphics guiGraphics, Minecraft mc, DeltaTracker deltaTracker, List<int[]> markers) {
-        if (markers.isEmpty() || mc.player == null || mc.gameRenderer == null) {
-            return;
-        }
-        if (!mc.player.level().dimension().equals(com.otherworldinn.world.dimension.TownDimensions.TOWN_LEVEL)) {
-            return;
-        }
-        Camera camera = mc.gameRenderer.getMainCamera();
-        if (camera == null) {
-            return;
-        }
-        int[] marker = findNearestMarker(markers, camera.getPosition());
-        if (marker == null) {
-            return;
-        }
-        Vec3 camPos = camera.getPosition();
-        Vec3 relative = new Vec3(marker[0] + 0.5D, marker[1] + 0.5D, marker[2] + 0.5D).subtract(camPos);
-        var look = camera.getLookVector();
-        var up = camera.getUpVector();
-        var left = camera.getLeftVector();
-        double localX = -(relative.x * left.x() + relative.y * left.y() + relative.z * left.z());
-        double localY = relative.x * up.x() + relative.y * up.y() + relative.z * up.z();
-        double localZ = relative.x * look.x() + relative.y * look.y() + relative.z * look.z();
-
-        double verticalFov = resolveVerticalFovDegrees(mc, camera, deltaTracker);
-        QuestMarkerProjector.Result result = QuestMarkerProjector.project(
-                localX,
-                localY,
-                localZ,
-                verticalFov,
-                guiGraphics.guiWidth(),
-                guiGraphics.guiHeight(),
-                MARKER_EDGE_MARGIN);
-        // #region debug-point A:quest-marker-client
-        if (System.currentTimeMillis() - lastMarkerDebugLogAt >= 500L) {
-            lastMarkerDebugLogAt = System.currentTimeMillis();
-            try {
-                java.net.http.HttpClient.newHttpClient()
-                        .sendAsync(
-                                java.net.http.HttpRequest.newBuilder(java.net.URI.create(readDebugServerUrl()))
-                                        .header("Content-Type", "application/json")
-                                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(
-                                                "{\"sessionId\":\"" + readDebugSessionId()
-                                                        + "\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\",\"location\":\"QuestHudOverlay.renderMarkers\",\"msg\":\"[DEBUG] client marker projection\",\"data\":{\"markerX\":"
-                                                        + marker[0] + ",\"markerY\":"
-                                                        + marker[1] + ",\"markerZ\":"
-                                                        + marker[2] + ",\"cameraX\":"
-                                                        + camPos.x + ",\"cameraY\":"
-                                                        + camPos.y + ",\"cameraZ\":"
-                                                        + camPos.z + ",\"lookX\":"
-                                                        + look.x() + ",\"lookY\":"
-                                                        + look.y() + ",\"lookZ\":"
-                                                        + look.z() + ",\"upX\":"
-                                                        + up.x() + ",\"upY\":"
-                                                        + up.y() + ",\"upZ\":"
-                                                        + up.z() + ",\"leftX\":"
-                                                        + left.x() + ",\"leftY\":"
-                                                        + left.y() + ",\"leftZ\":"
-                                                        + left.z() + ",\"localX\":"
-                                                        + localX + ",\"localY\":"
-                                                        + localY + ",\"localZ\":"
-                                                        + localZ + ",\"verticalFov\":"
-                                                        + verticalFov + ",\"screenX\":"
-                                                        + result.screenX() + ",\"screenY\":"
-                                                        + result.screenY() + ",\"clamped\":"
-                                                        + result.clampedToEdge() + ",\"angle\":"
-                                                        + result.angleDegrees() + ",\"guiWidth\":"
-                                                        + guiGraphics.guiWidth() + ",\"guiHeight\":"
-                                                        + guiGraphics.guiHeight() + "},\"ts\":"
-                                                        + System.currentTimeMillis() + "}"))
-                                        .build(),
-                                java.net.http.HttpResponse.BodyHandlers.discarding())
-                        .exceptionally(ex -> null);
-            } catch (Exception ignored) {
-            }
-        }
-        // #endregion
-        if (result.clampedToEdge()) {
-            drawMarkerArrow(guiGraphics, result.screenX(), result.screenY(), (float) result.angleDegrees());
-        } else {
-            drawMarkerDot(guiGraphics, result.screenX(), result.screenY());
-        }
-    }
-
-    private static double resolveVerticalFovDegrees(Minecraft mc, Camera camera, DeltaTracker deltaTracker) {
-        try {
-            return ((MixinGameRendererAccessor) mc.gameRenderer)
-                    .otherworldinn$invokeGetFov(camera, deltaTracker.getGameTimeDeltaPartialTick(true), true);
-        } catch (Exception ignored) {
-            return mc.options.fov().get();
-        }
-    }
-
-    private static String readDebugServerUrl() {
-        try {
-            java.nio.file.Path path = java.nio.file.Path.of(".dbg", "quest-marker-position.env");
-            for (String line : java.nio.file.Files.readAllLines(path)) {
-                if (line.startsWith("DEBUG_SERVER_URL=")) {
-                    return line.substring("DEBUG_SERVER_URL=".length()).trim();
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "http://127.0.0.1:7777/event";
-    }
-
-    private static String readDebugSessionId() {
-        try {
-            java.nio.file.Path path = java.nio.file.Path.of(".dbg", "quest-marker-position.env");
-            for (String line : java.nio.file.Files.readAllLines(path)) {
-                if (line.startsWith("DEBUG_SESSION_ID=")) {
-                    return escapeDebug(line.substring("DEBUG_SESSION_ID=".length()).trim());
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "quest-marker-position";
-    }
-
-    private static String escapeDebug(String value) {
-        return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
-
-    private static int[] findNearestMarker(List<int[]> markers, Vec3 cameraPos) {
-        int[] nearest = null;
-        double nearestDistance = Double.MAX_VALUE;
-        for (int[] marker : markers) {
-            if (marker == null || marker.length < 3) {
-                continue;
-            }
-            double distance = cameraPos.distanceToSqr(marker[0] + 0.5D, marker[1] + 0.5D, marker[2] + 0.5D);
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearest = marker;
-            }
-        }
-        return nearest;
-    }
-
-    /** 指示点图标纹理（8x8）：存在则优先使用，缺失回退为程序绘制的圆点。 */
-    private static final ResourceLocation MARKER_ICON =
-            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "textures/gui/quest_hud/marker_icon.png");
-    /** 离屏箭头纹理（16x16）。 */
-    private static final ResourceLocation MARKER_ARROW_ICON =
-            ResourceLocation.fromNamespaceAndPath(OtherworldInn.MODID, "textures/gui/quest_hud/marker_arrow.png");
-
-    private static void drawMarkerDot(GuiGraphics guiGraphics, double cx, double cy) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate((float) cx, (float) cy, 0.0F);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        guiGraphics.blit(MARKER_ICON, -MARKER_ICON_RADIUS, -MARKER_ICON_RADIUS, 0, 0, 8, 8, 8, 8);
-        RenderSystem.disableBlend();
-        guiGraphics.pose().popPose();
-    }
-
-    private static void drawMarkerArrow(GuiGraphics guiGraphics, double cx, double cy, float angleDegrees) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate((float) cx, (float) cy, 0.0F);
-        guiGraphics.pose().mulPose(Axis.ZP.rotationDegrees(angleDegrees));
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        guiGraphics.blit(
-                MARKER_ARROW_ICON,
-                -MARKER_ARROW_RADIUS,
-                -MARKER_ARROW_RADIUS,
-                0,
-                0,
-                16,
-                16,
-                16,
-                16);
-        RenderSystem.disableBlend();
-        guiGraphics.pose().popPose();
     }
 
     private static void drawLines(

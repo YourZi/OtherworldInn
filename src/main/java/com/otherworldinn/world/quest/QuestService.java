@@ -56,6 +56,8 @@ public final class QuestService {
         reevaluateTeam(team, server);
         // 接取本身必须推送 HUD：首个节点可能是状态判定且无推进，否则客户端不知道新任务存在
         com.otherworldinn.world.hud.QuestHudSync.syncTeam(team, server.overworld());
+        // 同上：接取时立刻把该节点的委托标点推给队友，不等下一次状态变化
+        QuestWaypointSync.syncTeam(team, server);
         return true;
     }
 
@@ -83,6 +85,8 @@ public final class QuestService {
         TeamManager.getInstance().getData(server).markDirty();
         // 自有同步管线，不经 OtherworldInnHud 的 TaskHudSnapshotSync
         com.otherworldinn.world.hud.QuestHudSync.syncTeam(team, server.overworld());
+        // 委托标点（Xaero）与 HUD 走同一批状态变化点
+        QuestWaypointSync.syncTeam(team, server);
     }
 
     // ---------- 状态评估 ----------
