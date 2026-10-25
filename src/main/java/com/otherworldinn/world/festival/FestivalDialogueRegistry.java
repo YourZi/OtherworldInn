@@ -46,8 +46,8 @@ public final class FestivalDialogueRegistry {
                 "farmer",
                 "deep_winter_festival",
                 LocalizedText.of(
-                        "地都冻上了，活儿少。不过热乎的粮食和存菜还是管够的。",
-                        "The ground's frozen solid, so there's little to do — but warm grain and stored greens are plentiful."));
+                        "地都冻上了，活儿少了。不过热乎的粮食和存菜还是管够的。",
+                        "Ground's frozen, not much work. Still got warm grain and stored greens enough."));
 
         // ── 铁匠 ──
         register(
@@ -106,8 +106,8 @@ public final class FestivalDialogueRegistry {
                 "grocer",
                 "spring_festival",
                 LocalizedText.of(
-                        "春祭特供上架啦！花苗、肥料都有，要装点门面的可别错过。",
-                        "Festival specials are on the shelf! Saplings and fertilizer — don't miss them while decorating for the spring."));
+                        "春祭特供上架啦！花苗肥料都有，要装点门面的可别错过。",
+                        "Spring festival stock's out! Saplings, fertilizer — don't miss them if you're dressing the place up."));
         register(
                 "grocer",
                 "midsummer_night",
@@ -132,8 +132,8 @@ public final class FestivalDialogueRegistry {
                 "butcher",
                 "spring_festival",
                 LocalizedText.of(
-                        "春天的羔羊肉最嫩了，要做节日大餐的话，我这儿现切。",
-                        "Spring lamb is at its tenderest. If you're cooking a festival feast, I'll cut it fresh."));
+                        "春天的羔羊肉最嫩了，要做节日大餐的话，给你现切加工都行。",
+                        "Spring lamb's at its tenderest. Cooking a feast? I'll cut it fresh."));
         register(
                 "butcher",
                 "midsummer_night",
@@ -176,8 +176,8 @@ public final class FestivalDialogueRegistry {
                 "builder",
                 "deep_winter_festival",
                 LocalizedText.of(
-                        "入冬前我把屋顶都检修了一遍，这下雪也冻不着。要备些木料吗？",
-                        "I checked every roof before winter — no snow's getting in. Stocking up on timber?"));
+                        "入冬前我把屋顶都检修了一遍，这下雪也压不坏了。要备些木料吗？",
+                        "Fixed every roof before winter, so snow won't crush them now. Stocking up on timber?"));
 
         // ── 渔夫 ──
         register(
@@ -202,8 +202,8 @@ public final class FestivalDialogueRegistry {
                 "fisherman",
                 "deep_winter_festival",
                 LocalizedText.of(
-                        "海风变冷了，港口冻上了，想喝口热鱼汤的话，我这儿有料。",
-                        "The sea wind's turned cold and the harbor's frozen over. I've the fixings for hot fish soup, if you're keen."));
+                        "海风变冷了，港口要冻上了，想喝口热鱼汤的话，我这儿还有点食材。",
+                        "Sea wind's turned cold, harbor's freezing. Fancy hot fish soup? I've got the makings."));
 
         // ── 游商 ──
         register(

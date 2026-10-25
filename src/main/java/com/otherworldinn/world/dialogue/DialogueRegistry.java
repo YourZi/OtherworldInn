@@ -31,8 +31,8 @@ public final class DialogueRegistry {
                         "铁火未冷，要打什么？", 
                         "The forge is hot. What are you after?"),
                     LocalizedText.of(
-                        "矿石、矿锭、工具都在这，挑你顺手的", 
-                        "Ores, ingots, and tools. Pick what suits your hand."),
+                        "矿石矿锭、工具材料之类的都在这，喜欢什么自己挑", 
+                        "Ores, ingots, tools, materials — have a look, take what suits you."),
                     null,
                     LocalizedText.of("关于锅炉房", "About the Boiler Room"),
                     null,
@@ -62,8 +62,8 @@ public final class DialogueRegistry {
                         "田里刚收了货，想买点啥？", 
                         "Fresh harvest just came in. Need anything?"),
                     LocalizedText.of(
-                        "种子、作物、农具都有，慢慢挑", 
-                        "Seeds, produce, and farming goods. Take your time."),
+                        "种子作物、农具什么的都有，诺", 
+                        "Seeds, crops, tools — take your time."),
                     LocalizedText.of("关于温室", "About the Greenhouse"),
                     null,
                     "fix_greenhouse",
@@ -108,13 +108,13 @@ public final class DialogueRegistry {
                             "新鲜的肉，刚宰的！要买点什么？",
                             "Fresh meat, just butchered! What do you need?"),
                     LocalizedText.of(
-                            "生肉、皮革、骨头都有，做饭前先来我这儿转转。",
-                            "Raw meat, leather, and bones. Come by before you start cooking."),
+                            "生肉皮革骨头什么的都有，缺食材多来我这儿转转呗。",
+                            "Raw meat, leather, bones — come by when you run short."),
                     LocalizedText.of("最近什么肉卖得好",
                             "What\'s been selling well lately?"),
                     LocalizedText.of(
-                            "牛肉和猪肉最抢手，鸡肉也不差。鱼嘛...偶尔有人买。",
-                            "Beef and pork sell out fastest. Chicken too. Fish... well, occasionally."));
+                            "牛肉和猪肉卖的最好，但是也看季节时候吧。",
+                            "Beef and pork sell best, though it depends on the season."));
 
     private static final DialogueDefinition BUILDER_DIALOGUE =
             buildSimpleStoreDialogueWithChat(
@@ -123,8 +123,8 @@ public final class DialogueRegistry {
                             "要盖房子？找我准没错！",
                             "Building something? You\'ve come to the right person!"),
                     LocalizedText.of(
-                            "木材、石料、砖瓦——好材料才能盖好房子。",
-                            "Timber, stone, and bricks. Only good materials make good buildings."),
+                            "木材石料砖瓦我这都有，看上什么材料了？",
+                            "Timber, stone, bricks — all here. What were you after?"),
                     LocalizedText.of("可以帮忙修建吗",
                             "Can you help me build something?"),
                     LocalizedText.of(
@@ -138,13 +138,13 @@ public final class DialogueRegistry {
                             "今天的鱼获不错，来看看？",
                             "Today\'s catch is decent. Take a look?"),
                     LocalizedText.of(
-                            "鱼、水产、还有一些海里的稀罕东西。",
-                            "Fish, seafood, and some rare finds from the sea."),
+                            "鱼、水产、还有一些海里的乱七八糟的东西。",
+                            "Fish, seafood, and all sorts of junk pulled out of the sea."),
                     LocalizedText.of("钓鱼有什么诀窍吗",
                             "Any tips for fishing?"),
                     LocalizedText.of(
-                            "有耐心就行。雨天鱼更容易上钩，清晨和傍晚也是好时候。",
-                            "Patience is key. Rain helps, and dawn or dusk are best."));
+                            "有耐心就行。雨天鱼更容易上钩，也得看季节和早晚时间。",
+                            "Patience is enough. Rain helps, and so does the season and time of day."));
     private static final DialogueDefinition WANDERING_TRADER_DIALOGUE =
             buildWanderingTraderDialogue();
     private static final List<DialogueDefinition> GUEST_DIALOGUES =
@@ -275,8 +275,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_heavy_pack_food",
                             LocalizedText.of(
-                                    "跑了一整天，先来份热乎的饭再说。",
-                                    "I've been on the road all day. A hot meal comes first.")),
+                                    "跑了一整天，先来碗热乎的再说。",
+                                    "Run around all day — first thing you want is something hot.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_road",
                             LocalizedText.of(
@@ -295,8 +295,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_heavy_pack_weather",
                             LocalizedText.of(
-                                    "看这天色要变，幸好找到地方落脚了。",
-                                    "The weather looks changing. Glad I found shelter.")),
+                                    "看这天色不太妙啊，幸好找到地方落脚了。",
+                                    "Sky looks bad. Good thing I found somewhere to stay.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_rest",
                             LocalizedText.of(
@@ -357,8 +357,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_ultra_rich_legacy",
                             LocalizedText.of(
-                                    "老牌旅馆就是不一样，底蕴深厚。",
-                                    "Established inns are different. They have depth.")),
+                                    "老牌旅馆就是不一样，底蕴深厚嘿。",
+                                    "An old inn is something else. Real depth to it, hey.")),
 
                     // VIP Guest Dialogues
                     buildGuestLineDialogue(
@@ -379,8 +379,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_vip_advanced_security",
                             LocalizedText.of(
-                                    "我的随从稍后到，先把房门权限准备好。",
-                                    "My attendants arrive later. Prepare room access in advance.")),
+                                    "我的随从稍后到，先把东西准备好。",
+                                    "My attendants arrive later. Get things ready first.")),
                     buildGuestLineDialogue(
                             "guest_vip_advanced_order",
                             LocalizedText.of(
@@ -389,8 +389,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_vip_advanced_reward",
                             LocalizedText.of(
-                                    "把事情办漂亮了，回头少不了赏金。",
-                                    "Do this properly, and there will be a reward.")),
+                                    "把事情办好了回头少不了你的那一份。",
+                                    "Get it done right, and your cut won't be forgotten.")),
                     buildGuestLineDialogue(
                             "guest_vip_feedback",
                             LocalizedText.of(
@@ -431,8 +431,8 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_sponsor_recommend",
                             LocalizedText.of(
-                                    "我会向更多朋友推荐这里，好地方要分享。",
-                                    "I'll recommend this to more friends. Good places should be shared.")),
+                                    "我会向更多朋友推荐这里，好地方要分享啊。",
+                                    "I'll recommend this place to more friends. Good places should be shared.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_improvement",
                             LocalizedText.of(

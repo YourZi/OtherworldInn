@@ -70,6 +70,7 @@ public final class DialogueService {
         if (definition == null) {
             return false;
         }
+        DialogueDefinition baseDefinition = definition;
         // 节日激活期间用节日问候版对话替换（仅换 root 文案，结构原样保留）
         definition = FestivalDialogueRegistry.overrideIfFestivalActive(definition, entity);
         DialogueNodeDef root = definition.getNode(definition.rootNodeId());
@@ -85,7 +86,8 @@ public final class DialogueService {
                         entity.getUUID(),
                         resolveStoryStage(player, entity));
         SESSIONS.put(player.getUUID(), session);
-        sendNodeToPlayer(player, session, root);
+        String greetingKey = definition == baseDefinition ? pickGreetingKey(definition) : null;
+        sendNodeToPlayer(player, session, root, greetingKey);
         if (entity instanceof StoryGuestEntity storyGuest) {
             addStoryGuestTodosForVisibleOptions(player, storyGuest, root);
         }
@@ -207,9 +209,26 @@ public final class DialogueService {
         }
     }
 
+    /** 从该对话的问候语池随机取一条的翻译键；池为空返回 null（回退到节点自身文本）。 */
+    @Nullable
+    private static String pickGreetingKey(DialogueDefinition definition) {
+        List<LocalizedText> pool = GreetingPools.of(definition.id());
+        if (pool.isEmpty()) {
+            return null;
+        }
+        return GreetingPools.textKey(
+                definition.id(),
+                java.util.concurrent.ThreadLocalRandom.current().nextInt(pool.size()));
+    }
+
     private static void sendNodeToPlayer(
             ServerPlayer player, DialogueSession session, DialogueNodeDef node) {
-        String nodeTextKey = resolveNodeTextKey(player, session, node);
+        sendNodeToPlayer(player, session, node, null);
+    }
+
+    private static void sendNodeToPlayer(
+            ServerPlayer player, DialogueSession session, DialogueNodeDef node, @Nullable String greetingKey) {
+        String nodeTextKey = greetingKey != null ? greetingKey : resolveNodeTextKey(player, session, node);
         DialogueNodeView nodeView =
                 new DialogueNodeView(
                         session.entityId(),
