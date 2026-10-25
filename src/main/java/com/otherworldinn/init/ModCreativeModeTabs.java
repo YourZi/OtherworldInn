@@ -37,6 +37,7 @@ public class ModCreativeModeTabs {
                                                 output.accept(ModItems.PICNIC_BOX.get());
                                                 output.accept(ModItems.FACILITY_UPGRADE_TEMPLATE.get());
                                                 output.accept(ModItems.ORGANIC_FERTILIZER.get());
+                                                output.accept(ModItems.MIRACLE_POTION.get());
                                                 output.accept(ModItems.MARSHMALLOW.get());
                                                 output.accept(ModItems.MARSHMALLOW_STICK.get());
                                                 output.accept(ModItems.MUSIC_DISC_OUTER_WILDS.get());

@@ -146,6 +146,8 @@ public class MagicianEntity extends StoreEntity {
         entries.add(new CatalogEntry(new ItemStack(Items.GLOWSTONE_DUST), 8, 48));
 
         entries.add(new CatalogEntry(new ItemStack(ModItems.SPACE_SPHERE.get()), 64, 4, 2));
+        // 奇迹药水：2 级好感解锁，每天补货 8 瓶，64 金币一瓶
+        entries.add(new CatalogEntry(new ItemStack(ModItems.MIRACLE_POTION.get()), 64, 8, 2));
         entries.add(new CatalogEntry(new ItemStack(Items.BOOK), 8, 64, 2));
         entries.add(new CatalogEntry(new ItemStack(Items.DIAMOND), 64, 8, 4));
         entries.add(new CatalogEntry(enchantedBook(Enchantments.MENDING, 1), 128, 2, 4));

@@ -8,6 +8,7 @@ import com.otherworldinn.item.CoinItem;
 import com.otherworldinn.item.EndSpaceSphereItem;
 import com.otherworldinn.item.InnKeyItem;
 import com.otherworldinn.item.InnUpgradeVoucherItem;
+import com.otherworldinn.item.MiraclePotionItem;
 import com.otherworldinn.item.MarshmallowOnStickItem;
 import com.otherworldinn.item.LandDeedItem;
 import com.otherworldinn.item.MessyBedSheetItem;
@@ -101,6 +102,16 @@ public class ModItems {
                                                     EquipmentSlotGroup.MAINHAND)),
                                     true));
     public static final DeferredItem<RoomKeyItem> ROOM_KEY = ROOM_KEY_REG.register();
+
+
+    public static final ItemReg<MiraclePotionItem> MIRACLE_POTION_REG =
+            new ItemReg<>("miracle_potion", MiraclePotionItem::new)
+                    .rarity(Rarity.EPIC)
+                    .stacksTo(16)
+                    .noModel()
+                    .lang("Miracle Potion", "奇迹药水");
+    public static final DeferredItem<MiraclePotionItem> MIRACLE_POTION =
+            MIRACLE_POTION_REG.register();
 
     public static final ItemReg<BedSheetItem> BED_SHEET_REG =
             new ItemReg<>("bed_sheet", BedSheetItem::new)

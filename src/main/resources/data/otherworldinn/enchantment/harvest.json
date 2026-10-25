@@ -1,0 +1,21 @@
+{
+  "description": {
+    "translate": "enchantment.otherworldinn.harvest"
+  },
+  "supported_items": "#c:tools/shear",
+  "slots": [
+    "mainhand"
+  ],
+  "max_level": 3,
+  "weight": 2,
+  "min_cost": {
+    "base": 20,
+    "per_level_above_first": 8
+  },
+  "max_cost": {
+    "base": 50,
+    "per_level_above_first": 8
+  },
+  "anvil_cost": 4,
+  "effects": {}
+}
