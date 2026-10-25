@@ -53,3 +53,6 @@ scripts/
 
 # Logs
 *.log
+# Python 缓存（scripts 里的检查脚本）
+__pycache__/
+
