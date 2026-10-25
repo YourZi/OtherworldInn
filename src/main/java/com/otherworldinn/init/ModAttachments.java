@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.world.fatigue.FatigueData;
+import com.otherworldinn.world.husbandry.HusbandryData;
 import com.otherworldinn.world.picnic.PicnicBoxData;
 import com.otherworldinn.world.teleport.DeathExploreAnchorData;
 import com.otherworldinn.world.teleport.NetherPortalReturnData;
@@ -41,6 +42,12 @@ public final class ModAttachments {
                     () -> AttachmentType.serializable(NetherPortalReturnData::new)
                             .copyOnDeath()
                             .build());
+
+    /** 养殖动物的好感度（挂在 Animal 实体上，随实体存档）。 */
+    public static final Supplier<AttachmentType<HusbandryData>> HUSBANDRY =
+            ATTACHMENT_TYPES.register(
+                    "husbandry",
+                    () -> AttachmentType.serializable(HusbandryData::new).build());
 
     private ModAttachments() {}
 }

@@ -9,6 +9,13 @@ public final class ModGameRules {
                     GameRules.Category.SPAWNING,
                     GameRules.BooleanValue.create(false));
 
+    /** 是否允许原版动物繁殖（小麦/胡萝卜等直接生育）。默认关闭，改由养殖系统接管。 */
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_ALLOW_VANILLA_BREEDING =
+            GameRules.register(
+                    "allowVanillaBreeding",
+                    GameRules.Category.SPAWNING,
+                    GameRules.BooleanValue.create(false));
+
     private ModGameRules() {}
 
     public static void init() {}

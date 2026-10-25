@@ -14,6 +14,7 @@ import com.otherworldinn.network.packet.S2CDeathExploreAnchorSyncPacket;
 import com.otherworldinn.network.packet.S2CDialogueClosePacket;
 import com.otherworldinn.network.packet.S2CDialogueNodePacket;
 import com.otherworldinn.network.packet.S2CFatigueSyncPacket;
+import com.otherworldinn.network.packet.S2CHusbandrySyncPacket;
 import com.otherworldinn.network.packet.S2CFestivalInnAttributeBoostPacket;
 import com.otherworldinn.network.packet.S2CFestivalShopDiscountPacket;
 import com.otherworldinn.network.packet.S2CPicnicBoxSyncPacket;
@@ -88,6 +89,10 @@ public class ModMessages {
                 S2CQuestWaypointPacket.TYPE,
                 S2CQuestWaypointPacket.STREAM_CODEC,
                 S2CQuestWaypointPacket::handle);
+        registrar.playToClient(
+                S2CHusbandrySyncPacket.TYPE,
+                S2CHusbandrySyncPacket.STREAM_CODEC,
+                S2CHusbandrySyncPacket::handle);
 
         registrar.playToServer(
                 C2STeleportPacket.TYPE, C2STeleportPacket.STREAM_CODEC, C2STeleportPacket::handle);

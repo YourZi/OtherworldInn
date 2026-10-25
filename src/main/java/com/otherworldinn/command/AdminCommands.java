@@ -20,6 +20,10 @@ import com.otherworldinn.world.festival.FestivalDefinition;
 import com.otherworldinn.world.festival.FestivalRegistry;
 import com.otherworldinn.world.festival.FestivalService;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
+import com.otherworldinn.util.WorldDayUtils;
+import com.otherworldinn.world.husbandry.HusbandryData;
+import com.otherworldinn.world.husbandry.HusbandryService;
+import com.otherworldinn.world.husbandry.HusbandrySync;
 import com.otherworldinn.world.storyguest.StoryGuestDefinition;
 import com.otherworldinn.world.storyguest.StoryGuestProgress;
 import com.otherworldinn.world.storyguest.StoryGuestSavedData;
@@ -27,6 +31,7 @@ import com.otherworldinn.world.storyguest.StoryGuestService;
 import com.otherworldinn.world.team.TeamData;
 import com.otherworldinn.world.team.service.TeamManager;
 import com.otherworldinn.world.inn.service.WanderingTraderManager;
+import java.util.Collection;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -35,6 +40,8 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,10 +52,78 @@ import net.minecraft.world.phys.Vec3;
 public class AdminCommands {
     private static final AABB TOWN_STORE_SCAN_AREA = new AABB(-1024, -64, -1024, 1024, 384, 1024);
 
+    /**
+     * 调试：把目标选择器命中的动物好感度设为指定值（0~MAX_AFFECTION），并同步给客户端。
+     *
+     * <p>用标准目标选择器，所以 {@code @e[type=cow,distance=..16]}、{@code @n} 之类都能用；
+     * 非动物目标会被跳过。
+     */
+    private static int setHusbandryAffection(CommandContext<CommandSourceStack> context)
+            throws CommandSyntaxException {
+        Collection<? extends Entity> targets = EntityArgument.getEntities(context, "targets");
+        int value = IntegerArgumentType.getInteger(context, "value");
+        ServerLevel level = context.getSource().getLevel();
+        long day = WorldDayUtils.currentDay(level);
+        int applied = 0;
+        for (Entity entity : targets) {
+            if (!(entity instanceof Animal animal)) {
+                continue;
+            }
+            HusbandryData data = HusbandryService.data(animal);
+            data.setAffection(value);
+            // 顺手重置照顾计时，避免刚设完值就被惰性衰减扣回去
+            data.markCare(day);
+            HusbandrySync.broadcast(animal);
+            applied++;
+        }
+        if (applied == 0) {
+            context.getSource().sendFailure(Component.literal("目标选择器没有匹配到养殖动物"));
+            return 0;
+        }
+        final int count = applied;
+        context.getSource()
+                .sendSuccess(
+                        () ->
+                                Component.literal(
+                                        "已将 "
+                                                + count
+                                                + " 只动物的好感度设为 "
+                                                + value
+                                                + "（"
+                                                + String.format(
+                                                        java.util.Locale.ROOT,
+                                                        "%.2f",
+                                                        value
+                                                                / (float) HusbandryData
+                                                                        .AFFECTION_PER_HEART)
+                                                + " 心）"),
+                        true);
+        return applied;
+    }
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("innadmin")
                         .requires(s -> s.hasPermission(2))
+                        .then(
+                                Commands.literal("husbandry")
+                                        .then(
+                                                Commands.literal("set")
+                                                        .then(
+                                                                Commands.argument(
+                                                                                "targets",
+                                                                                EntityArgument.entities())
+                                                                        .then(
+                                                                                Commands.argument(
+                                                                                                "value",
+                                                                                                IntegerArgumentType
+                                                                                                        .integer(
+                                                                                                                0,
+                                                                                                                HusbandryData
+                                                                                                                        .MAX_AFFECTION))
+                                                                                        .executes(
+                                                                                                AdminCommands
+                                                                                                        ::setHusbandryAffection)))))
                         .then(
                                 Commands.literal("facility")
                                         .then(

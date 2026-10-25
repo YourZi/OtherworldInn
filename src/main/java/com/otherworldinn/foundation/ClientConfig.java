@@ -30,6 +30,7 @@ public class ClientConfig {
     public final ModConfigSpec.BooleanValue showWorldPlayTime;
     public final ModConfigSpec.BooleanValue showServerPlayTime;
 
+
     public ClientConfig(ModConfigSpec.Builder builder) {
         builder.push("camera");
         cameraX = builder.comment("Camera X Position").defineInRange("x", -46.188, -100000.0, 100000.0);

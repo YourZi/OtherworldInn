@@ -11,6 +11,8 @@ import com.otherworldinn.world.dialogue.DialogueDefinition;
 import com.otherworldinn.world.dialogue.DialogueNodeDef;
 import com.otherworldinn.world.dialogue.DialogueOptionDef;
 import com.otherworldinn.world.dialogue.DialogueRegistry;
+import com.otherworldinn.world.dialogue.GreetingPools;
+import com.otherworldinn.world.dialogue.LocalizedText;
 import com.otherworldinn.world.festival.FestivalRegistry;
 import com.otherworldinn.world.festival.FestivalDialogueRegistry;
 import com.otherworldinn.world.inn.facility.FacilityRegistry;
@@ -134,6 +136,9 @@ public class ModLanguageProvider extends LanguageProvider {
     private void addManualTranslations() {
         entry("itemGroup.otherworldinn").zh("旅社物语").en("Otherworld Inn");
         entry("gamerule.enableSponsorGuest").zh("启用赞助旅客").en("Enable Sponsor Guest");
+        entry("gamerule.allowVanillaBreeding")
+                .zh("允许原版动物繁殖")
+                .en("Allow Vanilla Animal Breeding");
 
         entry("key.categories.otherworldinn").zh("旅社物语").en("Otherworld Inn");
 
@@ -148,6 +153,28 @@ public class ModLanguageProvider extends LanguageProvider {
                 .en("Inn Overlay: %s");
         entry("message.otherworldinn.inn_overlay.on").zh("开").en("ON");
         entry("message.otherworldinn.inn_overlay.off").zh("关").en("OFF");
+        entry("message.otherworldinn.feed_refused")
+                .zh("它现在不饿")
+                .en("It's not hungry right now.");
+        entry("enchantment.otherworldinn.harvest").zh("收获").en("Harvest");
+        entry("enchantment.otherworldinn.harvest.desc")
+                .zh("手持带此附魔的剪刀右键养殖动物，可取走一份它的产物。等级越高代价越低、产量越高。")
+                .en("Right-click a farm animal with these shears to take some of its produce. Higher levels cost less and yield more.");
+        entry("item.otherworldinn.miracle_potion.tooltip")
+                .zh("让动物进入发情状态，可以和同类配对繁殖，需要两只同类。")
+                .en("Puts the animal into heat so it can pair up and breed. Two of the same kind are needed.");
+        entry("message.otherworldinn.miracle_potion.too_young")
+                .zh("它还太小了")
+                .en("It's too young for that.");
+        entry("message.otherworldinn.harvest.need_trust")
+                .zh("它还不够信任你")
+                .en("It doesn't trust you enough.");
+        entry("message.otherworldinn.harvest.cooldown")
+                .zh("今天已经采过了")
+                .en("Already harvested today.");
+        entry("message.otherworldinn.harvest.cannot_use")
+                .zh("你无法对它使用这个")
+                .en("You can't use this on it.");
         entry("skill.fishing").zh("钓鱼").en("Fishing");
         entry("skill.magic").zh("钓鱼").en("Fishing");
 
@@ -1483,6 +1510,15 @@ public class ModLanguageProvider extends LanguageProvider {
                         entry(optionKey).zh(option.label().zh()).en(option.label().en());
                     }
                 }
+            }
+        }
+        // 问候语池：dialogue.otherworldinn.<npc>.greeting.<i>
+        for (DialogueDefinition dialogue : DialogueRegistry.allDialogues()) {
+            List<LocalizedText> pool = GreetingPools.of(dialogue.id());
+            for (int i = 0; i < pool.size(); i++) {
+                entry(GreetingPools.textKey(dialogue.id(), i))
+                        .zh(pool.get(i).zh())
+                        .en(pool.get(i).en());
             }
         }
         // 节日版对话：克隆自基础对话，选项 key 已在上面注册过（seenOptionKeys 去重），

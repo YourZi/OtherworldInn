@@ -4,6 +4,10 @@
   "package": "com.otherworldinn.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MixinAnimalHusbandry",
+    "MixinAnimalBreedingCooldown",
+    "MixinSweetBerryBushBlock",
+    "MixinPatPatServerPacketManager",
     "MixinBeehiveBlockEntityHoneyCauldron",
     "MixinBaseFireBlock",
     "MixinNetherPortalBlock",
@@ -49,6 +53,7 @@
     "MixinHangingEntity"
   ],
   "client": [
+    "MixinParticleEngineMapMode",
     "MixinDeskBellRenderer",
     "MixinDeskBellBlockEntity",
     "MixinDepotRenderer",
