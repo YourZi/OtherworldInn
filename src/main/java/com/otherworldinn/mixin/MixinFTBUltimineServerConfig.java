@@ -27,11 +27,11 @@ public interface MixinFTBUltimineServerConfig {
             return;
         }
         FTBUltimineConfigState.minBlocks =
-                COSTS_LIMITS.addInt("min_blocks", 0)
+                COSTS_LIMITS.addInt("min_blocks", 4)
                         .range(0, 32768)
                         .comment(
-                                "Min amount of blocks that can be ultimined at once when skill-scaling is active",
-                                "When used with Reskillable Reimagined mining skill, actual max blocks scales linearly from min_blocks to max_blocks");
+                                "Blocks you can ultimine at mining skill level 1 (the starting value)",
+                                "With Reskillable Reimagined mining skill, the limit scales linearly from min_blocks (level 1) to max_blocks (max level)");
     }
 
     @Inject(method = "getMaxBlocks", at = @At("RETURN"), cancellable = true, remap = false)
@@ -51,7 +51,11 @@ public interface MixinFTBUltimineServerConfig {
         int maxSkillLevel = Math.max(1, ReskillableCompat.getMaxLevel());
         int miningSkillLevel =
                 Mth.clamp(ReskillableCompat.getSkillLevel(player, "mining"), 1, maxSkillLevel);
-        double ratio = (double) miningSkillLevel / (double) maxSkillLevel;
+        // 1 级映射到 min_blocks，满级映射到 max_blocks（原来是 1 级就有 (max-min)/maxLevel 的额度）
+        double ratio =
+                maxSkillLevel <= 1
+                        ? 1.0D
+                        : (double) (miningSkillLevel - 1) / (double) (maxSkillLevel - 1);
         int scaledBlocks =
                 configuredMin
                         + (int) Math.round((configuredMax - configuredMin) * ratio);
