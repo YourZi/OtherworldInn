@@ -18,12 +18,24 @@ ALLOWED_CLIENT_PATH_PARTS = (
     Path("src/main/java/com/otherworldinn/client"),
     Path("src/main/java/com/otherworldinn/compat/waystones/client"),
     Path("src/main/java/com/otherworldinn/compat/jei"),
+    # Exposure 的提示逻辑整体放在 client 子包里，只被客户端事件与 client mixin 调用
+    Path("src/main/java/com/otherworldinn/compat/exposure/client"),
+    # 数据生成器只在 runData 的独立 JVM 里加载，永远不进专用服务端
+    Path("src/main/java/com/otherworldinn/datagen"),
 )
 
 ALLOWED_CLIENT_FILES = {
     Path("src/main/java/com/otherworldinn/init/ModClientEvents.java"),
     Path("src/main/java/com/otherworldinn/init/ModKeyBindings.java"),
     Path("src/main/java/com/otherworldinn/init/ModTooltips.java"),
+    # 已标注 Dist.CLIENT，只在客户端事件总线注册、只在客户端加载
+    Path("src/main/java/com/otherworldinn/init/ModClientCommandEvents.java"),
+    # 只由上面的 ModClientCommandEvents（Dist.CLIENT）注册，服务端不会加载
+    Path("src/main/java/com/otherworldinn/command/PanoramixScreenshotCommands.java"),
+    # 只被 XaeroMapBlocker（Dist.CLIENT）与两个 client mixin 调用，服务端不会加载；
+    # 若将来有 common 代码调用它们，必须挪进 compat/xaero/client
+    Path("src/main/java/com/otherworldinn/compat/xaero/XaeroCompatBridge.java"),
+    Path("src/main/java/com/otherworldinn/compat/xaero/XaeroMapBlocker.java"),
 }
 
 
@@ -51,9 +63,19 @@ def is_under(path: Path, parent: Path) -> bool:
         return False
 
 
+def is_s2c_packet(path: Path) -> bool:
+    """服务端只会发送 S2C 包、不会收到并执行它的 handler，client 引用位于 lambda 体内。"""
+    return (
+        path.parent == Path("src/main/java/com/otherworldinn/network/packet")
+        and path.name.startswith("S2C")
+    )
+
+
 def is_allowed_client_file(path: Path, client_mixin_files: set[Path]) -> bool:
     relative = rel(path)
     if relative in ALLOWED_CLIENT_FILES or relative in client_mixin_files:
+        return True
+    if is_s2c_packet(relative):
         return True
     return any(is_under(relative, allowed) for allowed in ALLOWED_CLIENT_PATH_PARTS)
 

@@ -89,15 +89,9 @@ public class OtherworldInn {
 
         // 注册配置
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
-        // 模组列表里的"配置"按钮 → GUI 动效开关（仅客户端）
-        if (net.neoforged.fml.loading.FMLEnvironment.dist
-                == net.neoforged.api.distmarker.Dist.CLIENT) {
-            modContainer.registerExtensionPoint(
-                    net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-                    (net.neoforged.neoforge.client.gui.IConfigScreenFactory)
-                            (container, parent) ->
-                                    new com.otherworldinn.client.gui.screen.GuiAnimationConfigScreen(parent));
-        }
+        // 模组列表里的"配置"按钮由客户端入口 OtherworldInnClient 注册。
+        // 注意：这里不能出现 IConfigScreenFactory 的类常量——它的方法签名含 Screen，
+        // 会让专用服务端在解析主类时触发 "Attempted to load class Screen for invalid dist"。
 
         // 注册生命周期事件
         modEventBus.addListener(this::commonSetup);
@@ -105,6 +99,7 @@ public class OtherworldInn {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(HoneyCauldronInteractions::bootstrap);
+        event.enqueueWork(com.otherworldinn.world.husbandry.HusbandryService::bootstrap);
         event.enqueueWork(HoneyCauldronCompat::init);
 
         // Create 兼容性初始化

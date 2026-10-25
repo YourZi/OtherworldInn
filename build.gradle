@@ -146,8 +146,8 @@ neoForge {
         data {
             data()
 
-            // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
-            // gameDirectory = project.file('run-data')
+            // 与 runClient 分开：run/mods 里放的可选模组（如 PatPat）不参与 datagen
+            gameDirectory = project.file('run-data')
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
@@ -199,15 +199,6 @@ def createUtilitiesModuleJar = tasks.register("createUtilitiesModuleJar", Jar) {
     }
 }
 
-def otherWorldInnHudModuleJar = tasks.register("otherWorldInnHudModuleJar", Jar) {
-    from(zipTree(layout.projectDirectory.file("libs/OtherworldInnHud-neoforge-0.1.1.jar")))
-    destinationDirectory.set(layout.buildDirectory.dir("tmp/jarjar-libs"))
-    archiveFileName.set("OtherworldInnHud-neoforge-0.1.1-module.jar")
-    manifest {
-        attributes("Automatic-Module-Name": "com.xiwanzi.otherworldinnhud")
-    }
-}
-
 dependencies {
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     implementation("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
@@ -248,10 +239,20 @@ dependencies {
     localRuntime("dev.ftb.mods:ftb-ultimine-neoforge:${ftb_ultimine_version}")
     compileOnly("maven.modrinth:starcatcher:${starcatcher_version}")
     localRuntime("maven.modrinth:starcatcher:${starcatcher_version}")
+    // PatPat：抚摸动作（Shift+右键）的来源模组。compileOnly 只用来引用它的包类型
+    // （服务端 handlePacket 的 mixin 注入点），玩家没装也能正常运行。
+    // 只做编译期依赖：PatPat 的统计自动保存线程会在开发环境的 datagen 结束时阻塞 JVM 退出，
+    // 因此不进 runtimeClasspath；开发客户端改为把 jar 放进 run/mods（见 docs）。
+    compileOnly("maven.modrinth:patpat:${patpat_version}")
     implementation(jarJar(files(createUtilitiesModuleJar)))
     localRuntime(files("libs/createutilities-0.3.2+1.21.1.jar"))
-    implementation(jarJar(files(otherWorldInnHudModuleJar)))
-    localRuntime(files("libs/OtherworldInnHud-neoforge-0.1.1.jar"))
+    // HUD 模组不再 jarJar 内嵌：它没有做专用服务端隔离，内嵌会让服务端启动时崩
+    // （RuntimeDistCleaner: Attempted to load class net/minecraft/client/gui/screens/Screen）。
+    // 现在只做编译期依赖，正式运行由整合包的 overrides/mods 提供。
+    compileOnly(files("libs/OtherworldInnHud-neoforge-0.1.1.jar"))
+    // localRuntime 暂时注释：HUD 没有做专用服务端隔离，会让 runServer 崩。
+    // 需要在开发客户端看 HUD 时再打开（或把 jar 放进 run/mods 并接受服务端不可用）。
+    // localRuntime(files("libs/OtherworldInnHud-neoforge-0.1.1.jar"))
 
     implementation(jarJar("io.github.llamalad7:mixinextras-neoforge:${mixin_extras_version}"))
 

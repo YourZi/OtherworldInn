@@ -105,6 +105,26 @@ config="${mod_id}.mixins.json"
     ordering="AFTER"
     side="BOTH"
 
+# Otherworld Inn HUD: HUD overlay API. No longer jarJar-embedded because it has no
+# dedicated-server guard (it loads client GUI classes during mod construction, which crashes
+# a dedicated server). Provided by the modpack's overrides/mods instead, and required on the
+# client only - servers must NOT install it.
+[[dependencies.${mod_id}]]
+    modId="otherworldinn_hud"
+    type="required"
+    versionRange="[0.1.1,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+# PatPat provides the Shift+RMB patting action (client-side animation).
+# Optional: patting still grants affection without it, just no animation.
+[[dependencies.${mod_id}]]
+    modId="patpat"
+    type="optional"
+    versionRange="[1.3.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
 # stop your mod loading on the server for example.
