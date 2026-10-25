@@ -1,3 +1,4 @@
 {
-  "type": "otherworldinn:chest_coin"
+  "type": "otherworldinn:chest_coin",
+  "conditions": []
 }
