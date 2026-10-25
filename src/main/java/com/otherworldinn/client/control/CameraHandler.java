@@ -56,6 +56,7 @@ public class CameraHandler {
     private static int prevGridX = 0;
     private static int prevGridZ = 0;
     private static boolean restorePlayerPositionOnExit = true;
+
     private static ResourceKey<Level> lastClientDimension = null;
 
     @SubscribeEvent
@@ -114,6 +115,11 @@ public class CameraHandler {
         startPitch = targetPitch;
 
         updateDummyEntity(startPos, startYaw, startPitch);
+        if (dummyCameraEntity != null) {
+            // 同步"上一 tick 位置"：否则首帧相机位置会在 (xo,yo,zo)=(0,0,0) 与目标位置之间插值，
+            // 表现为进入地图时闪过一片天空/虚空。旋转旧值已由 updateDummyEntity 同步。
+            dummyCameraEntity.setOldPosAndRot();
+        }
         applyLocalMapModeHiddenTag(mc, true);
 
         mc.setCameraEntity(dummyCameraEntity);
