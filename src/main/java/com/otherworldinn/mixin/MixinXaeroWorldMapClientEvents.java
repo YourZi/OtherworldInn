@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Pseudo
 @Mixin(targets = "xaero.map.events.ClientEvents", remap = false)
 public abstract class MixinXaeroWorldMapClientEvents {
-    @Inject(method = "handleClientRunTickStart", at = @At("HEAD"), cancellable = true, remap = false)
-    private void otherworldinn$blockXaeroWorldMapHotkeysInTown(CallbackInfo ci) {
+    @Inject(method = "handleClientRunTickStart", at = @At("HEAD"), remap = false)
+    private void otherworldinn$suppressConflictingMapKeyInTown(CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         if (!XaeroCompatBridge.isTownBlocked(mc)) {
             return;
         }
+        // 只吃掉与城镇地图冲突的那一次按键，Xaero 的其它快捷键（含重绑定后的打开地图键）照常工作
         XaeroCompatBridge.suppressConflictingOpenMapInput();
-        ci.cancel();
     }
 }

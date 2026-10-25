@@ -93,8 +93,8 @@ public final class XaeroWaypointBridge {
                         WAYPOINT_NAME,
                         color,
                         purpose,
-                        true,
-                        false);
+                        false, // temporary：必须为 false，否则不会被存档保存
+                        true); // yIncluded：必须为 true，否则标点忽略 Y、跟随玩家高度
                 add.invoke(waypointSet, waypoint);
             }
         } catch (ClassNotFoundException | NoSuchMethodException exception) {

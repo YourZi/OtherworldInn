@@ -22,23 +22,9 @@ public final class XaeroMapBlocker {
             return;
         }
 
-        boolean inTown = XaeroCompatBridge.isTownBlocked(mc);
-
-        if (inTown) {
-            // 只在"城镇地图与 Xaero 世界地图同键"时压制那一个键，其它绑定的 Xaero 键不受影响
+        if (XaeroCompatBridge.isTownBlocked(mc)) {
+            // 城镇地图与 Xaero 世界地图绑同一个键时，只吃掉那次冲突输入，不禁止打开 Xaero 地图
             XaeroCompatBridge.suppressConflictingOpenMapInput();
-            XaeroCompatBridge.closeBlockedWorldMapScreen(mc);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onScreenOpening(ScreenEvent.Opening event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (!XaeroCompatBridge.isTownBlocked(mc) || event.getScreen() == null) {
-            return;
-        }
-        if (XaeroCompatBridge.isBlockedWorldMapScreen(event.getScreen())) {
-            event.setCanceled(true);
         }
     }
 }
