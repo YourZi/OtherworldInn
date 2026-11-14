@@ -1,16 +1,20 @@
 package com.otherworldinn.entity.guest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.entity.base.VipGuestEntity;
 import com.otherworldinn.util.ClientServices;
 import com.otherworldinn.world.inn.GuestData;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 public class OrdinaryVipGuestEntity extends VipGuestEntity {
     private static final ResourceLocation DEFAULT_TEXTURE =
@@ -58,5 +62,17 @@ public class OrdinaryVipGuestEntity extends VipGuestEntity {
             return DEFAULT_TEXTURE;
         }
         return TEXTURES.get(Math.abs(this.getSkinVariant()) % TEXTURES.size());
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(
+            ServerLevelAccessor level,
+            DifficultyInstance difficulty,
+            MobSpawnType reason,
+            @Nullable SpawnGroupData spawnData) {
+        spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData);
+        // 与其他旅客一致：随机皮肤变体，否则 getSkinTexture 恒取排序后的第一张。
+        this.setSkinVariant(this.getRandom().nextInt(10000));
+        return spawnData;
     }
 }
