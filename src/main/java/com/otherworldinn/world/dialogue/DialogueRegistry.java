@@ -28,49 +28,49 @@ public final class DialogueRegistry {
             buildStoreDialogueWithFacilityTopics(
                     "blacksmith",
                     LocalizedText.of(
-                        "铁火未冷，要打什么？", 
-                        "The forge is hot. What are you after?"),
+                        "炉火正旺，想打点什么趁早说。", 
+                        "The forge fire is roaring. If you want something forged, speak up now."),
                     LocalizedText.of(
-                        "矿石矿锭、工具材料之类的都在这，喜欢什么自己挑", 
-                        "Ores, ingots, tools, materials — have a look, take what suits you."),
+                        "矿石、铸锭、工具和材料全在这儿了，看中什么自己挑。", 
+                        "Ores, ingots, tools, and materials are all right here. Pick whatever catches your eye."),
                     null,
-                    LocalizedText.of("关于锅炉房", "About the Boiler Room"),
+                    LocalizedText.of("关于锅炉房……", "About the Boiler Room"),
                     null,
                     "fix_boiler_room",
                     null,
                     null,
-                    LocalizedText.of("地下那座锅炉房好久没人修理了，不知道还能不能用", 
-                                     "No one has repaired the boiler room downstairs for a long time. I don't even know if it still works."),
-                    LocalizedText.of("你把它修好了？太好了，我们的机器可以用了",
-                                     "You repaired it? That's great."),
-                    LocalizedText.of("关于矿井", "About the Mine"),
-                    LocalizedText.of("那边的矿井前段时间坏了，要是修好的话就能很方便地搞到矿物了。",
-                                     "The mine over there broke down a while back. If it were fixed, getting ores would be a lot easier."),
-                    LocalizedText.of("有了那座矿井，能及时拿到很多材料，真是省了我很多事。",
-                                     "With that mine working, we get materials on time. It's saved me a lot of trouble."),
+                    LocalizedText.of("地下那个老锅炉房都闲置多久了，也不知道还能不能打起火来。", 
+                                     "That old boiler room underground has been sitting idle for ages. I don't even know if it can still spark a fire."),
+                    LocalizedText.of("你居然把它修好了？干得漂亮！这下咱们的机器又能转起来了。",
+                                     "You actually fixed it? Beautiful work! Now our machines can get spinning again."),
+                    LocalizedText.of("关于矿井……", "About the Mine"),
+                    LocalizedText.of("那边那废矿井塌了好一阵子了。要是有人能去修一修，我打铁用的矿石就不愁了。",
+                                     "That abandoned mineshaft over there collapsed a while ago. If someone could go fix it, I wouldn't have to worry about ores for my forging."),
+                    LocalizedText.of("多亏了那座矿井，现在好材料源源不断，可帮了我大忙了。",
+                                     "Thanks to that mine, the good materials are flowing in endlessly now. You really did me a huge favor."),
                     "fix_mine",
-                    LocalizedText.of("它在什么位置？", "Where is it?"),
+                    LocalizedText.of("那地方具体在哪儿？", "Where is it?"),
                     LocalizedText.of(
-                            "在前面右转，穿过集市再右转的小通道里。",
-                            "Turn right ahead, pass through the market, then take the small alley on the right."),
-                    LocalizedText.of("借用一下铁砧", "Borrow the Anvil"),
+                            "往前走右转，穿过集市再往右拐，那条小巷子走到底就是了。",
+                            "Go straight, turn right, pass through the market, and take a right again. It's at the very end of that small alleyway."),
+                    LocalizedText.of("借你的铁砧用用", "Borrow the Anvil"),
                     FUNCTION_OPEN_VIRTUAL_ANVIL);
     private static final DialogueDefinition FARMER_DIALOGUE =
             buildStoreDialogueWithFacilityTopics(
                     "farmer",
                     LocalizedText.of(
-                        "田里刚收了货，想买点啥？", 
+                        "田里刚收上来一批好货，想来点什么？", 
                         "Fresh harvest just came in. Need anything?"),
                     LocalizedText.of(
-                        "种子作物、农具什么的都有，诺", 
+                        "种子、作物还有农具全都有，喏，都在这儿了。", 
                         "Seeds, crops, tools — take your time."),
-                    LocalizedText.of("关于温室", "About the Greenhouse"),
+                    LocalizedText.of("关于温室……", "About the Greenhouse"),
                     null,
                     "fix_greenhouse",
                     null,
-                    LocalizedText.of("对面那座温室废弃很久了...以前可好用了",
+                    LocalizedText.of("对面那温室荒废好些年头啦……想当年它还好好的时候，种出来的菜可水灵了。",
                                      "That greenhouse across the way has been abandoned for ages... it used to be so useful."),
-                    LocalizedText.of("你居然真的把它修好了，感谢你的付出，现在种地更方便了", 
+                    LocalizedText.of("你居然真把它给修好了？太感谢了，这下种地可方便太多了！", 
                                      "You actually got it repaired. Thank you for putting in the work."),
                     null,
                     null,
@@ -86,10 +86,10 @@ public final class DialogueRegistry {
             buildSimpleStoreDialogue(
                     "magician",
                     LocalizedText.of(
-                        "你面前这么可爱的魔女是谁呢？没错，就是我，你需要什么？", 
+                        "站在你面前这位迷人的魔女是谁呢？没错，就是我~ 想要点什么神奇的小玩意儿？", 
                         "The arcane stirs. What do you seek?"),
                     LocalizedText.of(
-                        "材料和书卷都在这，想要什么自己挑",
+                        "材料和魔法书卷都在这儿了，看上哪个自己挑吧。",
                         "Materials and tomes are ready. Mind the explosive stuff."));
     private static final DialogueDefinition GROCER_DIALOGUE =
             buildGrocerDialogue(
@@ -98,52 +98,52 @@ public final class DialogueRegistry {
                             "要买什么？我这里什么都有",
                             "What do you want to buy? I have everything."),
                     LocalizedText.of(
-                            "一些乱七八糟的东西，随意看看吧",
+                            "都是些稀奇古怪的小玩意儿，随便看看吧。",
                             "A bunch of odds and ends. Feel free to browse."));
 
     private static final DialogueDefinition BUTCHER_DIALOGUE =
             buildSimpleStoreDialogueWithChat(
                     "butcher",
                     LocalizedText.of(
-                            "新鲜的肉，刚宰的！要买点什么？",
+                            "新鲜的鲜肉，刚宰的！来点什么部位？",
                             "Fresh meat, just butchered! What do you need?"),
                     LocalizedText.of(
-                            "生肉皮革骨头什么的都有，缺食材多来我这儿转转呗。",
+                            "生肉、皮革、骨头应有尽有，缺好食材了随时来找我！",
                             "Raw meat, leather, bones — come by when you run short."),
-                    LocalizedText.of("最近什么肉卖得好",
+                    LocalizedText.of("最近店里什么肉最好卖？",
                             "What\'s been selling well lately?"),
                     LocalizedText.of(
-                            "牛肉和猪肉卖的最好，但是也看季节时候吧。",
+                            "牛肉和猪肉卖得最快，不过也得看是什么季节。",
                             "Beef and pork sell best, though it depends on the season."));
 
     private static final DialogueDefinition BUILDER_DIALOGUE =
             buildSimpleStoreDialogueWithChat(
                     "builder",
                     LocalizedText.of(
-                            "要盖房子？找我准没错！",
+                            "想盖房子？找我准没错！",
                             "Building something? You\'ve come to the right person!"),
                     LocalizedText.of(
-                            "木材石料砖瓦我这都有，看上什么材料了？",
+                            "木材、石料、砖瓦我这儿管够，看上哪种建材了？",
                             "Timber, stone, bricks — all here. What were you after?"),
-                    LocalizedText.of("可以帮忙修建吗",
+                    LocalizedText.of("能不能帮我搭把手建房子？",
                             "Can you help me build something?"),
                     LocalizedText.of(
-                            "可以啊，挑几个蓝图看看喜欢哪个",
+                            "包在我身上，先挑挑蓝图，看中哪个款式了？",
                             "I can. Pick some blueprints."));
 
     private static final DialogueDefinition FISHERMAN_DIALOGUE =
             buildSimpleStoreDialogueWithChat(
                     "fisherman",
                     LocalizedText.of(
-                            "今天的鱼获不错，来看看？",
+                            "今天运气不错，刚捞上来的好货，来看看？",
                             "Today\'s catch is decent. Take a look?"),
                     LocalizedText.of(
-                            "鱼、水产、还有一些海里的乱七八糟的东西。",
+                            "鲜鱼、水产，还有从海里捞上来的些稀奇古怪的玩意儿。",
                             "Fish, seafood, and all sorts of junk pulled out of the sea."),
-                    LocalizedText.of("钓鱼有什么诀窍吗",
+                    LocalizedText.of("能传授点钓鱼的秘诀吗？",
                             "Any tips for fishing?"),
                     LocalizedText.of(
-                            "有耐心就行。雨天鱼更容易上钩，也得看季节和早晚时间。",
+                            "稳住气，有耐心就行。雨天鱼儿咬钩更勤，当然也得看季节和时辰。",
                             "Patience is enough. Rain helps, and so does the season and time of day."));
     private static final DialogueDefinition WANDERING_TRADER_DIALOGUE =
             buildWanderingTraderDialogue();
@@ -152,234 +152,234 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_ordinary_welcome",
                             LocalizedText.of(
-                                    "这里比我想象中更温暖，今晚应该能睡个好觉。",
+                                    "呼……这儿比我想象的还要暖和，今晚总算能睡个安稳觉了。",
                                     "This place feels warmer than I expected. I might sleep well tonight.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_weather",
                             LocalizedText.of(
-                                    "外面的风好大，幸好旅馆里很安静。",
+                                    "外头风刮得真邪乎，幸亏旅馆里够暖和安静。",
                                     "The wind outside is harsh. Glad it's calm in the inn.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_checkout",
                             LocalizedText.of(
-                                    "明天我就启程，今晚先好好休息。",
+                                    "明天一早就得赶路，今晚可得好好歇歇脚。",
                                     "I leave at dawn tomorrow. Tonight, I just need good rest.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_bed",
                             LocalizedText.of(
-                                    "这张床看起来挺舒服的，希望被子够暖和。",
+                                    "这床看着挺软和的，希望被子别太薄。",
                                     "This bed looks comfortable. Hope the blankets are warm enough.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_food",
                             LocalizedText.of(
-                                    "听说这里的家常菜不错，晚上得尝尝。",
+                                    "听人说这儿的招牌菜是一绝，晚上可得好好尝尝。",
                                     "I heard the home-style cooking here is good. Should try it tonight.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_bath",
                             LocalizedText.of(
-                                    "赶了一天路，能洗个热水澡真是太好了。",
+                                    "浑身骨头都快散架了，能泡个热水澡简直是诸神保佑。",
                                     "After a long day's travel, a hot bath is exactly what I need.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_fireplace",
                             LocalizedText.of(
-                                    "壁炉里的火真暖和，坐在这儿看书应该不错。",
+                                    "壁炉烧得真旺，坐在这儿翻翻书倒也惬意。",
                                     "The fireplace is so warm. Would be nice to read a book here.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_morning",
                             LocalizedText.of(
-                                    "早上空气真好，适合出去走走。",
+                                    "晨风真清爽，正好出去溜达溜达。",
                                     "The morning air is refreshing. Good for a walk.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_rain",
                             LocalizedText.of(
-                                    "下雨天待在旅馆里真是明智的选择。",
+                                    "这种阴雨天，还是窝在旅馆里最舒坦。",
                                     "Staying at the inn during rain was a wise choice.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_memory",
                             LocalizedText.of(
-                                    "这地方让我想起小时候住过的老旅馆。",
+                                    "啧，这地方真让人怀念，跟我小时候住过的那家老客栈一模一样。",
                                     "This place reminds me of an old inn from my childhood.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_recommend",
                             LocalizedText.of(
-                                    "朋友推荐我来这里的，果然没让我失望。",
+                                    "朋友极力推荐我来这儿落脚，果然名不虚传。",
                                     "A friend recommended this place. It hasn't disappointed.")),
                     buildGuestLineDialogue(
                             "guest_ordinary_return",
                             LocalizedText.of(
-                                    "下次路过这里，我还会再来住的。",
+                                    "下次再路过这片地方，我肯定还来这儿住。",
                                     "I'll stay here again next time I pass through.")),
 
 
                     buildGuestLineDialogue(
                             "guest_rich_service",
                             LocalizedText.of(
-                                    "如果服务继续这么周到，我会常来。",
+                                    "只要服务能保持这个水准，我以后就是常客了。",
                                     "If the service stays this refined, I'll return often.")),
                     buildGuestLineDialogue(
                             "guest_rich_wine",
                             LocalizedText.of(
-                                    "要是晚餐再配点好酒，就更完美了。",
+                                    "饭菜是不错，要是晚餐能再满上一杯好酒，那就绝了。",
                                     "A fine wine with dinner would make this place perfect.")),
                     buildGuestLineDialogue(
                             "guest_rich_tip",
                             LocalizedText.of(
-                                    "照顾得不错，退房时我可能会留点小费。",
+                                    "招待得很周到，退房时我会多留点小费的。",
                                     "Good care deserves a tip when I check out.")),
                     buildGuestLineDialogue(
                             "guest_rich_room",
                             LocalizedText.of(
-                                    "房间布置得还算雅致，就是缺个衣帽间。",
+                                    "房间布置得倒还算雅致，就是差个挂大衣的地方。",
                                     "The room is elegantly decorated, though it lacks a walk-in closet.")),
                     buildGuestLineDialogue(
                             "guest_rich_view",
                             LocalizedText.of(
-                                    "窗外的景色不错，可惜不是海景。",
+                                    "窗外风景挺别致，可惜看不见海。",
                                     "The view from the window is nice, though not oceanfront.")),
                     buildGuestLineDialogue(
                             "guest_rich_business",
                             LocalizedText.of(
-                                    "这里的环境适合谈生意，比较安静。",
+                                    "这地方够清静，挺适合谈点正经买卖。",
                                     "The atmosphere here is suitable for business discussions.")),
                     buildGuestLineDialogue(
                             "guest_rich_linen",
                             LocalizedText.of(
-                                    "床品的质感还可以，是棉的吗？",
+                                    "床单摸着还算舒服，是纯棉的吧？",
                                     "The bedding has decent texture. Is it cotton?")),
                     buildGuestLineDialogue(
                             "guest_rich_quiet",
                             LocalizedText.of(
-                                    "我付了高价就是图个清静，别让我失望。",
+                                    "我可是付了足额的金币，就是图个清静，你们可别让我失望。",
                                     "I'm paying premium for peace and quiet. Don't disappoint.")),
                     buildGuestLineDialogue(
                             "guest_rich_referral",
                             LocalizedText.of(
-                                    "我会把这里推荐给其他讲究的朋友。",
+                                    "不错，我会把这家店推荐给我那些挑剔的朋友们。",
                                     "I'll recommend this place to other discerning friends.")),
                     buildGuestLineDialogue(
                             "guest_rich_standard",
                             LocalizedText.of(
-                                    "以这个价位来说，服务水准还算达标。",
+                                    "拿这个价钱来说，你们的服务也算是物有所值了。",
                                     "For this price range, the service standard is acceptable.")),
 
                     buildGuestLineDialogue(
                             "guest_heavy_pack_route",
                             LocalizedText.of(
-                                    "我背着这么多货，能有个落脚点真不容易。",
+                                    "扛着这么一大批货，能找个安稳的落脚点可真不容易。",
                                     "Traveling with this much cargo, a safe stop is priceless.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_storage",
                             LocalizedText.of(
-                                    "这些箱子先放这儿，别让它们淋雨了。",
+                                    "这些货箱先搁这儿，可千万别受潮了。",
                                     "Let me stash these crates here. Keep them out of the rain.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_food",
                             LocalizedText.of(
-                                    "跑了一整天，先来碗热乎的再说。",
+                                    "跑了一整天的商，先给我端碗热乎的浓汤来！",
                                     "Run around all day — first thing you want is something hot.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_road",
                             LocalizedText.of(
-                                    "前面的路不好走，得养足精神再出发。",
+                                    "前头的山路可不好走，我得养足精神再上路。",
                                     "The road ahead is rough. Need to rest well before continuing.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_repair",
                             LocalizedText.of(
-                                    "车轮有点松了，附近有铁匠铺吗？",
+                                    "马车的轮毂有点松动，这附近有铁匠铺吗？",
                                     "The wheel's loose. Is there a blacksmith nearby?")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_early",
                             LocalizedText.of(
-                                    "明天天不亮就得走，麻烦早点准备早餐。",
+                                    "明天天不亮我就得走，麻烦后厨早点备好干粮。",
                                     "I leave before dawn tomorrow. Please prepare breakfast early.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_weather",
                             LocalizedText.of(
-                                    "看这天色不太妙啊，幸好找到地方落脚了。",
+                                    "看这天色像是要起风暴，万幸找到了落脚的地方。",
                                     "Sky looks bad. Good thing I found somewhere to stay.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_rest",
                             LocalizedText.of(
-                                    "肩膀都压麻了，得好好歇一晚。",
+                                    "包袱压得我肩膀都麻了，今晚得好好睡一觉。",
                                     "My shoulders are numb from carrying. Need a good night's rest.")),
                     buildGuestLineDialogue(
                             "guest_heavy_pack_return",
                             LocalizedText.of(
-                                    "回程的时候还会路过，记得给我留间房。",
+                                    "等我跑完这趟回程还会路过，记得给我留间上房。",
                                     "I'll pass through on the return trip. Save me a room.")),
 
                     // Ultra Rich Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_ultra_rich_suite",
                             LocalizedText.of(
-                                    "这间套房勉强合格，希望夜里足够安静。",
+                                    "这间套房勉强入得了我的眼，希望晚上不会有乱七八糟的噪音。",
                                     "This suite is acceptable. I expect absolute quiet at night.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_privacy",
                             LocalizedText.of(
-                                    "我不喜欢被打扰，安排人手时请注意。",
+                                    "我这人最讨厌被打扰，没事别让下人来烦我。",
                                     "I dislike interruptions. Make sure your staff knows that.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_guard",
                             LocalizedText.of(
-                                    "我的行李很贵重，安保别出差错。",
+                                    "我的行李可都价值连城，你们的安保最好别出什么岔子。",
                                     "My luggage is valuable. Security must not fail.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_staff",
                             LocalizedText.of(
-                                    "让最经验丰富的员工来服务，新手不要。",
+                                    "叫你们这儿最机灵的侍者来伺候，别拿笨手笨脚的新人敷衍我。",
                                     "Assign your most experienced staff. No trainees.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_perfection",
                             LocalizedText.of(
-                                    "细节决定品质，枕头的高度要刚刚好。",
+                                    "细节才能彰显品位，比如这枕头的高度就得恰到好处。",
                                     "Details define quality. The pillow height must be perfect.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_expectation",
                             LocalizedText.of(
-                                    "我习惯的标准很高，希望你们跟得上。",
+                                    "我平时出行的排场可不小，希望你们这儿的服务能跟得上。",
                                     "My standards are exceptionally high. I hope you can meet them.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_discretion",
                             LocalizedText.of(
-                                    "我的行程要保密，不要对外透露。",
+                                    "我的行程绝对保密，要是走漏了风声，唯你是问。",
                                     "My itinerary is confidential. Do not disclose it.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_taste",
                             LocalizedText.of(
-                                    "装饰品的品味还可以，是真品吗？",
+                                    "墙上这装饰品看着还有点品味，不会是赝品吧？",
                                     "The decor shows some taste. Are these pieces authentic?")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_investment",
                             LocalizedText.of(
-                                    "这家旅馆有投资潜力，我会关注一下。",
+                                    "这家旅馆倒有点投资的潜力，我会留意留意的。",
                                     "This inn has investment potential. I'll keep an eye on it.")),
                     buildGuestLineDialogue(
                             "guest_ultra_rich_legacy",
                             LocalizedText.of(
-                                    "老牌旅馆就是不一样，底蕴深厚嘿。",
+                                    "到底是老牌旅馆，这陈设、这底蕴，就是跟那些新店不一样。",
                                     "An old inn is something else. Real depth to it, hey.")),
 
                     // VIP Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_vip_ordinary_schedule",
                             LocalizedText.of(
-                                    "我的行程很紧，麻烦按时叫醒我。",
+                                    "我的日程排得很满，明早千万记得按时叫醒我。",
                                     "My schedule is tight. Wake me on time, please.")),
                     buildGuestLineDialogue(
                             "guest_vip_ordinary_tea",
                             LocalizedText.of(
-                                    "如果能送一壶热茶到房间就更好了。",
+                                    "要是能给我屋里送壶刚泡好的热茶，那就再好不过了。",
                                     "A pot of hot tea to the room would be lovely.")),
                     buildGuestLineDialogue(
                             "guest_vip_ordinary_review",
                             LocalizedText.of(
-                                    "服务不错，我会给旅馆写个好评。",
+                                    "招待得很用心，我会给你们留个好名声的。",
                                     "The service is excellent. I'll leave a positive review.")),
                     buildGuestLineDialogue(
                             "guest_vip_advanced_security",
                             LocalizedText.of(
-                                    "我的随从稍后到，先把东西准备好。",
+                                    "我的随从稍后就到，先把他们的铺盖都准备妥当。",
                                     "My attendants arrive later. Get things ready first.")),
                     buildGuestLineDialogue(
                             "guest_vip_advanced_order",
@@ -389,64 +389,64 @@ public final class DialogueRegistry {
                     buildGuestLineDialogue(
                             "guest_vip_advanced_reward",
                             LocalizedText.of(
-                                    "把事情办好了回头少不了你的那一份。",
+                                    "只要把本老爷伺候好了，少不了你的赏钱。",
                                     "Get it done right, and your cut won't be forgotten.")),
                     buildGuestLineDialogue(
                             "guest_vip_feedback",
                             LocalizedText.of(
-                                    "服务流程很规范，我会向上级汇报。",
+                                    "这里的服务流程非常严谨，我会如实记录下来的。",
                                     "The service process is well-standardized. I'll report upward.")),
 
                     // Sponsor Guest Dialogues
                     buildGuestLineDialogue(
                             "guest_sponsor_photo",
                             LocalizedText.of(
-                                    "这里氛围真棒，我想拍张照留念。",
+                                    "这里的氛围简直绝了，我得用留影机拍张照留个纪念。",
                                     "The vibe here is great. I want to take a commemorative photo.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_renovation",
                             LocalizedText.of(
-                                    "旅馆改造后舒服多了，辛苦你们了。",
+                                    "旅馆翻新之后住着舒服多了，真是辛苦你们了。",
                                     "The renovations made this place so much nicer. Well done.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_support",
                             LocalizedText.of(
-                                    "继续加油，我会一直支持这家旅馆。",
+                                    "保持这个势头，我会一直光顾你们生意的！",
                                     "Keep it up. I'll keep supporting this inn.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_growth",
                             LocalizedText.of(
-                                    "看到旅馆越来越好，我很欣慰。",
+                                    "看着这家旅馆一点点变得热闹起来，我这心里也挺高兴。",
                                     "It's heartwarming to see the inn improving.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_community",
                             LocalizedText.of(
-                                    "这里有种家的感觉，旅客们都很友善。",
+                                    "这儿真有一种家的温馨感，大伙儿也都挺和善的。",
                                     "This place feels like home. The guests are all friendly.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_tradition",
                             LocalizedText.of(
-                                    "老旅馆的味道保留得很好，有情怀。",
+                                    "老旅馆的韵味保留得非常完美，真是难得的情怀。",
                                     "The old inn charm is well preserved. It has character.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_recommend",
                             LocalizedText.of(
-                                    "我会向更多朋友推荐这里，好地方要分享啊。",
+                                    "我回去一定要把这儿推荐给朋友们，这么好的地方可不能藏私。",
                                     "I'll recommend this place to more friends. Good places should be shared.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_improvement",
                             LocalizedText.of(
-                                    "还有什么需要改进的？我可以提供建议。",
+                                    "如果需要什么关于经营的建议，随时可以来问我。",
                                     "What else needs improvement? I can offer suggestions.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_future",
                             LocalizedText.of(
-                                    "期待旅馆未来的发展，我会持续关注。",
+                                    "真期待这家旅馆以后会变成什么样，我会一直关注的。",
                                     "Looking forward to the inn's future development. I'll keep watching.")),
                     buildGuestLineDialogue(
                             "guest_sponsor_appreciation",
                             LocalizedText.of(
-                                    "感谢你们保持这里的原汁原味，很难得。",
+                                    "谢谢你们把这里的原汁原味保留了下来，在如今这世道可太难得了。",
                                     "Thank you for maintaining the authentic feel. It's rare.")));
 
     private static final List<DialogueDefinition> ALL_DIALOGUES;
@@ -551,13 +551,13 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "ask_goods",
-                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        LocalizedText.of("你这儿都卖些什么", "What Do You Sell?"),
                                         DialogueOptionType.BRANCH,
                                         askGoods,
                                         null),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -575,7 +575,7 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -602,13 +602,13 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "ask_goods",
-                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        LocalizedText.of("你这儿都卖些什么", "What Do You Sell?"),
                                         DialogueOptionType.BRANCH,
                                         askGoods,
                                         null),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -627,7 +627,7 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -692,7 +692,7 @@ public final class DialogueRegistry {
         rootOptions.add(
                 new DialogueOptionDef(
                         "ask_goods",
-                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                        LocalizedText.of("你这儿都卖些什么", "What Do You Sell?"),
                         DialogueOptionType.BRANCH,
                         askGoods,
                         null));
@@ -738,7 +738,7 @@ public final class DialogueRegistry {
         rootOptions.add(
                 new DialogueOptionDef(
                         "leave",
-                        LocalizedText.of("先告辞", "Leave"),
+                        LocalizedText.of("先告辞了", "Leave"),
                         DialogueOptionType.BRANCH,
                         null,
                         null));
@@ -803,7 +803,7 @@ public final class DialogueRegistry {
         askGoodsOptions.add(
                 new DialogueOptionDef(
                         "leave",
-                        LocalizedText.of("先告辞", "Leave"),
+                        LocalizedText.of("先告辞了", "Leave"),
                         DialogueOptionType.BRANCH,
                         null,
                         null));
@@ -830,7 +830,7 @@ public final class DialogueRegistry {
             greenhouseOptions.add(
                     new DialogueOptionDef(
                             "leave",
-                            LocalizedText.of("先告辞", "Leave"),
+                            LocalizedText.of("先告辞了", "Leave"),
                             DialogueOptionType.BRANCH,
                             null,
                             null));
@@ -873,7 +873,7 @@ public final class DialogueRegistry {
             boilerOptions.add(
                     new DialogueOptionDef(
                             "leave",
-                            LocalizedText.of("先告辞", "Leave"),
+                            LocalizedText.of("先告辞了", "Leave"),
                             DialogueOptionType.BRANCH,
                             null,
                             null));
@@ -906,7 +906,7 @@ public final class DialogueRegistry {
                 boilerLocationOptions.add(
                         new DialogueOptionDef(
                                 "leave",
-                                LocalizedText.of("先告辞", "Leave"),
+                                LocalizedText.of("先告辞了", "Leave"),
                                 DialogueOptionType.BRANCH,
                                 null,
                                 null));
@@ -939,7 +939,7 @@ public final class DialogueRegistry {
             mineOptions.add(
                     new DialogueOptionDef(
                             "leave",
-                            LocalizedText.of("先告辞", "Leave"),
+                            LocalizedText.of("先告辞了", "Leave"),
                             DialogueOptionType.BRANCH,
                             null,
                             null));
@@ -976,7 +976,7 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "ask_goods",
-                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        LocalizedText.of("你这儿都卖些什么", "What Do You Sell?"),
                                         DialogueOptionType.BRANCH,
                                         askGoods,
                                         null),
@@ -988,7 +988,7 @@ public final class DialogueRegistry {
                                         null),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1012,7 +1012,7 @@ public final class DialogueRegistry {
                                         null),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1030,7 +1030,7 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_STORE),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1063,13 +1063,13 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_RECYCLE),
                                 new DialogueOptionDef(
                                         "ask_goods",
-                                        LocalizedText.of("这里卖什么", "What Do You Sell?"),
+                                        LocalizedText.of("你这儿都卖些什么", "What Do You Sell?"),
                                         DialogueOptionType.BRANCH,
                                         askGoods,
                                         null),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1078,8 +1078,8 @@ public final class DialogueRegistry {
                 new DialogueNodeDef(
                         askGoods,
                         LocalizedText.of(
-                                "这次带的都是市面上的新鲜货，想找点什么？",
-                                "Fresh stock from my travels. What are you looking for?"),
+                                "这次我带的可都是市面上难得一见的新鲜货，想寻点什么？",
+                                "This time I've brought fresh novelties rarely seen on the market. What might you be looking for?"),
                         List.of(
                                 new DialogueOptionDef(
                                         "open_store",
@@ -1095,7 +1095,7 @@ public final class DialogueRegistry {
                                         FUNCTION_OPEN_RECYCLE),
                                 new DialogueOptionDef(
                                         "leave",
-                                        LocalizedText.of("先告辞", "Leave"),
+                                        LocalizedText.of("先告辞了", "Leave"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));

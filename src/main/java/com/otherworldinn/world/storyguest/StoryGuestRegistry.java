@@ -286,12 +286,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "路上攒了不少歌，纸快写满了，墨也快没了。能借我五张纸和一个墨囊吗？下次来给你唱首新写的。",
-                                "Got a bunch of songs from the road, but I'm almost out of paper and ink. Can you spare five sheets and an ink sac? I'll sing you something new next time."),
+                                "这一路走来攒下不少曲子，羊皮纸快写满了，墨水也快见底了。能借我五张纸和一个墨囊吗？等下次见面，我给你唱首刚写好的新歌！",
+                                "I've gathered quite a few tunes on this journey, but my parchment is almost full and my ink is running dry. Could you lend me five pieces of Paper and an Ink Sac? Next time we meet, I'll sing you a brand-new song!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_offer_supplies",
-                                                LocalizedText.of("这些你先拿去用吧", "Take these and make good use of them"),
+                                                LocalizedText.of("这些东西你先拿着应急吧。", "Take these and make good use of them"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -305,14 +305,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_minstrel_decline_supplies",
-                                                LocalizedText.of("抱歉，我手头也紧", "Sorry, I'm running short too"),
+                                                LocalizedText.of("实在不好意思，我最近手头也紧。", "Sorry, I'm running short too"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_intro",
-                                        LocalizedText.of("等我准备好了再来找你", "Come back when I've prepared"),
+                                        LocalizedText.of("我去准备一下，回头再来找你。", "Come back when I've prepared"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -321,12 +321,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "太好了。歌这种东西，不赶紧写下来的话，转头就忘了。",
-                                "Perfect. Songs — if you don't write 'em down quick, they're gone by the time you turn around."),
+                                "太好了！灵感这东西，就像林间的风，不赶紧记下来，一转头可就溜走啦。",
+                                "Wonderful! Inspiration is like the wind through the forest—if you don't jot it down quickly, it slips away the moment you turn your head."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_leave_after_help",
-                                                LocalizedText.of("那我等你下次回来", "Then I'll wait for your return"),
+                                                LocalizedText.of("那我就等你下次回来再聊。", "Then I'll wait for your return"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -336,12 +336,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "没事，没纸我也能编几句。就是不方便记，背一下也是不错的。",
-                                "It's fine, I can still make up a few lines without paper. Just awkward to keep — I'll go over them in my head a few times."),
+                                "没关系，就算没纸我也能哼出几段旋律。大不了就记在脑子里，多唱几遍也就背下来了。",
+                                "That's alright, I can still hum a few melodies without paper. At worst, I'll just memorize them in my head and sing them a few times to make them stick."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_leave_after_refuse",
-                                                LocalizedText.of("愿你路上仍有歌可唱", "May the road still give you songs"),
+                                                LocalizedText.of("愿你的旅途总有歌声相伴。", "May the road still give you songs"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -359,12 +359,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这趟见识了好多风景，就差一个能定下副歌的画面了。你要是路过平原，帮我拍张开阔点的照片呗？说不定这首就能收尾了。",
-                                "Saw so much this trip — just missing one image to fix the chorus. If you pass the plains, take a wide open shot for me? Might finally finish this one."),
+                                "这趟旅行见识了不少美景，可惜副歌部分总觉得还差一点画面感。你要是路过平原，能不能帮我带一张视野开阔的照片？说不定那正是这首歌完美的收尾呢。",
+                                "I've seen many beautiful sights on this journey, but the chorus still lacks a certain imagery. If you pass by a plains biome, could you bring back a photo with a wide, open view? It might be the perfect finale for this song."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_accept_plains_photo_task",
-                                                LocalizedText.of("好，我下次替你看看", "Sure, I'll keep an eye out next time"),
+                                                LocalizedText.of("没问题，下次我替你去看看。", "Sure, I'll keep an eye out next time"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -375,7 +375,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_minstrel_decline_plains_photo_task",
-                                                LocalizedText.of("这次恐怕没有空闲", "I may not have the time this round"),
+                                                LocalizedText.of("抱歉，这次我实在抽不出空。", "I may not have the time this round"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -385,12 +385,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "不用刻意找。看着开阔舒服的地方就行。",
-                                "Don't overthink it. Somewhere open. Somewhere that feels like it has room left."),
+                                "不用刻意去寻，只要看着视野开阔、让人心情舒畅的地方就好啦。",
+                                "No need to go out of your way. As long as it's a place with a wide, sweeping view that lifts the spirit, it will be perfect."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_leave_after_accept_photo",
-                                                LocalizedText.of("我记下了", "I'll remember that"),
+                                                LocalizedText.of("行，这事儿我记在心上了。", "I'll remember that"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -400,12 +400,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "没关系，有些歌放久了反而更有意思了，下次再说吧。",
-                                "No matter. Some songs only work after they sit a while. Next time."),
+                                "没事儿，有些旋律在心里沉淀久了，反而更有韵味。下次有机会再说吧。",
+                                "No worries. Sometimes, melodies gain more charm when they settle in the heart for a while. Let's wait for another chance."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_leave_after_decline_photo",
-                                                LocalizedText.of("那就留到下次吧", "Then save it for next time"),
+                                                LocalizedText.of("没事，那就等下次再说吧。", "Then save it for next time"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -424,13 +424,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "一路上你帮过的忙，借我的纸墨也好，拍回来的平原也好，我都记着呢。",
-                                "All the help you've given me on the road — the paper and ink, the plains photo — I remember it."),
+                                "这一路多亏了你的帮忙，无论是借我的纸笔，还是带回来的平原风光，我都记在心里呢。",
+                                "I owe so much to your help along the way. Whether it was the paper and ink you lent me, or the scenery of the plains you brought back, I've kept it all in my heart."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_minstrel_reward_settle",
                                                 LocalizedText.of(
-                                                        "等你唱完再说留下的事",
+                                                        "等你把这曲子唱完，再决定去留吧。",
                                                         "Finish your song, then we'll talk about staying"),
                                                 DialogueOptionType.BRANCH,
                                                 settled,
@@ -450,7 +450,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_minstrel_reward_travel_after_supplies",
                                                 LocalizedText.of(
-                                                        "至少你写下来了",
+                                                        "能把这些写下来，就已经很不错了。",
                                                         "At least you've written down what you meant to sing"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -469,7 +469,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_minstrel_reward_travel_after_photo",
                                                 LocalizedText.of(
-                                                        "至少你找到了灵感",
+                                                        "不管怎样，至少你找到了写歌的灵感。",
                                                         "At least you've found the inspiration"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -488,7 +488,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_minstrel_reward_farewell",
                                                 LocalizedText.of(
-                                                        "我们这回都没赶上",
+                                                        "看来咱们这回都没碰上好时候。",
                                                         "Perhaps neither of us caught the right moment this time"),
                                                 DialogueOptionType.BRANCH,
                                                 farewell,
@@ -508,12 +508,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         settled,
                         LocalizedText.of(
-                                "你说得对。我飘太久了，都快忘了好歌不一定非要在路上唱完。这张唱片你先拿着，等我把后面也理顺了，再回来慢慢唱给你听。",
-                                "You're right. I've been drifting so long I almost forgot — a good song doesn't have to be finished on the road. Keep this disc for now. Once I get the rest sorted, I'll come back and sing it for you, no rush."),
+                                "你说得对。我四处漂泊太久，差点忘了好歌不一定非要在路上唱完。这张唱片你先收着，等我把后面的曲调理顺了，再回来慢慢唱给你听。",
+                                "You're right. I've been wandering for so long that I almost forgot: a good song doesn't have to be finished on the road. Keep this music disc for now. Once I smooth out the rest of the melody, I'll come back and sing it to you."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_after_settle_reward",
-                                        LocalizedText.of("那我等你唱完", "Then I'll wait to hear the full song"),
+                                        LocalizedText.of("那我洗耳恭听你的新作。", "Then I'll wait to hear the full song"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -522,12 +522,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         traveling,
                         LocalizedText.of(
-                                "歌是写完了，但是我的旅程还不想停。给你个唱片，就当我把还没唱完的那段先放你这儿了。等我别的地方也转一圈，补上后半段，说不定哪天就顺路绕回来了。",
-                                "Song's written, but my feet aren't done. Take the disc — the unsung half, left with you for now. Once I've wandered more and filled it in, maybe I'll circle back this way."),
+                                "曲子是写完了，但我的旅程还远未结束。这张唱片送你，就当是我把还没唱完的故事先寄存在这儿了。等我去更多的地方转转，补齐了后半段，说不定哪天就又绕回这家旅社啦。",
+                                "The song is finished, but my journey is far from over. I'm giving you this music disc as a token of the unfinished stories I'm leaving here. After I travel to more places and fill in the rest of the tale, maybe one day I'll circle back to this inn."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_after_travel_reward",
-                                        LocalizedText.of("愿有人听你唱歌", "May the next road still give you an audience"),
+                                        LocalizedText.of("愿你的歌声走到哪儿都有知音。", "May the next road still give you an audience"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -536,12 +536,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         farewell,
                         LocalizedText.of(
-                                "这回还是差了口气。没关系，人有碰不上的时候，歌也一样。我先接着赶路，下次再说吧。",
-                                "Still a breath short. That's all right — people miss each other, songs too. I'll keep on the road; we'll talk next time."),
+                                "看来这次还是差了点缘分。无妨，人有错失之时，歌亦有未完之曲。我要继续赶路了，咱们后会有期。",
+                                "It seems we lacked a bit of luck this time. No matter; people miss their moments, and songs have their unfinished verses. I must continue my journey. Until we meet again."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_after_farewell",
-                                        LocalizedText.of("那祝你下回顺一点", "Hope next time goes smoother"),
+                                        LocalizedText.of("祝你接下来的路顺风顺水。", "Hope next time goes smoother"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -556,12 +556,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我现在挺愿意把脚步放慢的。旅社里的人声、杯子碰来碰去、还有晚风，比赶路的时候更惬意休闲。",
-                                "I'm happy to slow down now. The voices here, cups clinking, the evening wind — easier to keep time for a chorus than when you're rushing along."),
+                                "我现在倒是挺愿意放慢脚步的。旅社里的嘈杂人声、酒杯的碰撞，还有夜晚的微风，可比匆匆赶路时惬意多啦。",
+                                "I'm actually quite willing to slow my pace now. The lively chatter in the inn, the clinking of tankards, and the evening breeze are far more pleasant than rushing endlessly on the road."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_final",
-                                        LocalizedText.of("等你唱新段落给我听", "Save the next verse for me"),
+                                        LocalizedText.of("期待下次能听到你的新段落。", "Save the next verse for me"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -576,12 +576,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我在给前几天写的那几句找调子。这里的环境特别惬意，适合慢慢打磨作品。",
-                                "Trying to find a tune for the lines I wrote the other day. The light here's easy on the eyes — good for slowly polishing a song."),
+                                "我正在给前几天写的那几句词找合适的调子。这里的氛围真的太棒了，特别适合慢下来打磨作品。",
+                                "I'm trying to find the right melody for those lyrics I wrote a few days ago. The atmosphere here is truly wonderful, perfectly suited for slowing down and polishing my work."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_minstrel_leave_chatter",
-                                        LocalizedText.of("那你接着慢慢磨", "Go on, keep polishing"),
+                                        LocalizedText.of("你慢慢找灵感，我不打扰了。", "Go on, keep polishing"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -639,12 +639,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我在试下一季的新菜品，总觉得还差一点本地特色口味。你帮我凑一顿家常饭吧：面包、熟牛肉、烤土豆、南瓜派，再来瓶蜂蜜。",
-                                "Testing next season's menu, but it still lacks something local. Help me put together a home-style meal: bread, cooked beef, baked potato, pumpkin pie, and a bottle of honey."),
+                                "我正在研发下一季的新菜，总觉得还差点本地的风味。你能帮我凑一顿地道的家常饭吗？面包、熟牛肉、烤土豆、南瓜派，最好再来瓶蜂蜜！",
+                                "I'm developing new dishes for next season, but I feel they're lacking a bit of local flavor. Could you help me put together an authentic home-style meal? Bread, Steak, Baked Potato, Pumpkin Pie, and preferably a Honey Bottle!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_offer_supplies",
-                                                LocalizedText.of("行，我给你凑一份", "Alright, I'll put it together for you"),
+                                                LocalizedText.of("没问题，我帮你凑齐。", "Alright, I'll put it together for you"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -664,14 +664,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_chef_decline_supplies",
-                                                LocalizedText.of("抱歉，我这回凑不齐", "Sorry, I can't gather all that this time"),
+                                                LocalizedText.of("抱歉，你要的食材我这会儿实在是凑不齐。", "Sorry, I can't gather all that this time"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_chef_leave_intro",
-                                        LocalizedText.of("我先去给你备着", "Let me go prepare them for you"),
+                                        LocalizedText.of("行，我这就去帮你准备。", "Let me go prepare them for you"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -680,12 +680,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "对，就是这样。做菜嘛都要先尝尝的。",
-                                "That's it. Food has to land in a belly first — then the feel comes back."),
+                                "对，就是这个味儿！做菜嘛，总得先尝过百家饭才能有灵感。",
+                                "Yes, that's the exact flavor! You know, to cook well, you have to taste a hundred different home-cooked meals to find real inspiration."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_leave_after_help",
-                                                LocalizedText.of("那我等你把菜做出来", "Then I'll wait to see what you cook"),
+                                                LocalizedText.of("好，我等着尝你的新菜。", "Then I'll wait to see what you cook"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -695,12 +695,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "那我先拿别的顶着好了。",
-                                "I'll make do with something else for now."),
+                                "行吧，那我先拿别的食材凑合一下试试。",
+                                "Alright then, I'll just try to make do with some other ingredients for now."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_leave_after_refuse",
-                                                LocalizedText.of("那你先慢慢试着", "Take your time figuring it out"),
+                                                LocalizedText.of("那你先慢慢试，不着急。", "Take your time figuring it out"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -718,12 +718,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这几天我在这儿前前后后看了几回，心里大概有点数了。现在我还想看看，这地方平时是怎么养活人的。你方便的话，帮我拍张农场动物的照片回来。鸡猪牛羊都行，有生活气息就行。",
-                                "Looked around a few times these days; I have a rough sense now. Next I want to see how this place feeds itself. If you can, photograph the farm animals — chickens, pigs, sheep, cows. Just needs to look lived in."),
+                                "这几天我在附近转悠了几圈，心里大概有谱了。现在我想看看这地方平时是怎么产出食材的。要是方便的话，帮我拍张农场动物的照片吧。鸡猪牛羊都行，只要有那种鲜活的烟火气就行！",
+                                "I've wandered around the area for a few days, and I have a rough idea now. Next, I want to see how this place produces its ingredients. If it's convenient, could you take a photo of some farm animals? Chickens, pigs, cows, or sheep—any will do, as long as it captures that lively rustic charm!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_accept_farm_photo_task",
-                                                LocalizedText.of("行，我帮你拍回来", "Sure, I'll bring back a photo for you"),
+                                                LocalizedText.of("没问题，我这就去农场帮你把照片拍回来。", "Sure, I'll bring back a photo for you"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -734,7 +734,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_chef_decline_farm_photo_task",
-                                                LocalizedText.of("抱歉，这回我去不了", "Sorry, I can't make it this time"),
+                                                LocalizedText.of("不好意思啊，这趟我实在抽不出空去农场。", "Sorry, I can't make it this time"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -744,12 +744,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "厨房也好农场也好，有够味的烟火气的地方就可以了。",
-                                "Doesn't need to look tidy. Kitchens, farms — places that are really lived in never are."),
+                                "不管是厨房还是农场，只要是充满市井烟火气的地方就足够了。",
+                                "Whether it's a kitchen or a farm, as long as it's a place full of rustic charm and everyday life, it will do perfectly."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_leave_after_accept_photo",
-                                                LocalizedText.of("好，我知道该拍什么了", "Got it, I know what to look for"),
+                                                LocalizedText.of("放心，我知道该重点拍哪些食材了。", "Got it, I know what to look for"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -759,12 +759,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "没事，忙人也得先顾忙人的事。等你哪天有空，再替我看一眼。",
-                                "No problem. Busy hands have their own business. Whenever you find time, take that look for me."),
+                                "没事，忙的话你先顾自己的事。等哪天有空了，再替我去瞅一眼就行。",
+                                "No worries, if you're busy, take care of your own matters first. Just take a look for me whenever you have some free time."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_leave_after_decline_photo",
-                                                LocalizedText.of("那就下次再说", "Then save it for next time"),
+                                                LocalizedText.of("那只能等下次有机会再去拍了。", "Then save it for next time"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -783,13 +783,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "不管怎么样，手感总归是找回来一些。趁着这股热乎劲儿，我也该好好盘算下一季的新菜品了。",
-                                "However it went, I've got some of my feel back. While it's still warm, time to plan next season's dishes."),
+                                "无论如何，做菜的手感总算是找回来一些了。趁着这股热乎劲儿，我得好好琢磨琢磨下一季的新菜单了。",
+                                "Regardless, I've finally gotten some of my cooking touch back. While the inspiration is still hot, I need to carefully ponder over next season's new menu."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_chef_reward_full",
                                                 LocalizedText.of(
-                                                        "要不你就留下开灶",
+                                                        "要不你干脆就留在这儿掌勺吧？",
                                                         "Why not stay and fire up the kitchen"),
                                                 DialogueOptionType.BRANCH,
                                                 full,
@@ -807,7 +807,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_chef_reward_partial_after_food",
                                                 LocalizedText.of(
-                                                        "至少你已经把味道尝出来了",
+                                                        "至少你已经摸到门道了。",
                                                         "At least you've found the flavor"),
                                                 DialogueOptionType.BRANCH,
                                                 partial,
@@ -824,7 +824,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_chef_reward_partial_after_photo",
                                                 LocalizedText.of(
-                                                        "至少你看见了",
+                                                        "至少你亲眼见过了，也不算白跑。",
                                                         "At least you've seen how many mouths this place can feed"),
                                                 DialogueOptionType.BRANCH,
                                                 partial,
@@ -841,7 +841,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_chef_reward_none",
                                                 LocalizedText.of(
-                                                        "你要不再多试几回",
+                                                        "别灰心，要不再多试几次？",
                                                         "Maybe try a few more rounds"),
                                                 DialogueOptionType.BRANCH,
                                                 none,
@@ -859,12 +859,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         full,
                         LocalizedText.of(
-                                "那我还会常来的。这饭袋你拿着。等我把新菜品研究好了再叫你来吃热的。",
-                                "Then I'll be back often. Take this lunch bag. Once I've sorted the new dishes, I'll call you over for something hot."),
+                                "那我以后肯定常来。这饭袋你留着用吧，等我把新菜彻底研究透了，一定请你吃口热乎的！",
+                                "Then I'll definitely be a regular here. You keep this lunch bag. Once I've completely perfected my new recipes, I'll be sure to treat you to a hot meal!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_chef_leave_after_full_reward",
-                                        LocalizedText.of("那你得给我留个位子", "Save me a seat then"),
+                                        LocalizedText.of("那你开席的时候，可得给我留个好位子尝鲜啊。", "Save me a seat then"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -873,12 +873,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         partial,
                         LocalizedText.of(
-                                "火候还差点，但我已经不想走了。饭袋你先拿去用，等我研究一下本地口味，再试试新的菜品。",
-                                "Heat's still off, but I don't feel like leaving. Take the lunch bag for now — once I really know this place, I'll bring out my best recipes."),
+                                "火候虽说还差那么点意思，但我已经舍不得离开这儿了。饭袋你先拿着，等我彻底摸透了本地人的口味，再端出我的新招牌菜。",
+                                "The heat is still a little off, but I'm already reluctant to leave this place. Take this lunch bag for now. Once I've thoroughly figured out the locals' tastes, I'll serve up my new signature dish."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_chef_leave_after_partial_reward",
-                                        LocalizedText.of("那你可别让我等太久", "Don't keep me waiting too long"),
+                                        LocalizedText.of("那你可别让我等太久啊。", "Don't keep me waiting too long"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -887,12 +887,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         none,
                         LocalizedText.of(
-                                "这回你没怎么搭上手，可我还是想在这儿多待一阵。",
-                                "You didn't get much done this time, but I still want to stay a while."),
+                                "虽说这次你没帮上什么大忙，但我还挺喜欢这儿的，打算再多留一阵子。",
+                                "Even though you couldn't help much this time, I actually quite like it here and plan to stay a bit longer."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_chef_leave_after_none_reward",
-                                        LocalizedText.of("那你先待一阵", "Then keep the fire going for now"),
+                                        LocalizedText.of("那你先在这儿安顿一阵。", "Then keep the fire going for now"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -907,12 +907,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我最近在琢磨，怎么把这儿的家常味和各处来的旅人的口味揉到一块儿。到时候你记得来吃第一口。",
-                                "Lately I'm working out how to blend local home cooking with travellers' tastes. When it's ready, come be the first to try it."),
+                                "我最近一直在琢磨，怎么把本地的家常风味和各地旅人的口味完美地揉到一块儿。等做出来了，你可得来尝第一口！",
+                                "Lately, I've been pondering how to perfectly blend local home-style flavors with the tastes of travelers from all over. When I finally make it, you have to come take the first bite!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_chef_leave_final",
-                                        LocalizedText.of("做好了记得先留我一口", "Save me the first bite when it's ready"),
+                                        LocalizedText.of("做好了可得先让我尝尝鲜。", "Save me the first bite when it's ready"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -927,12 +927,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我在你这研究出了好多新菜品，这里人还挺会吃的。",
-                                "I've worked out a lot of new dishes here. Folks around here really know how to eat."),
+                                "我在你们这儿研究出了不少新花样，不得不说，这里的客人都挺懂吃的。",
+                                "I've developed quite a few new dishes while staying here. I must say, the patrons at this inn really know their food."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_chef_leave_chatter",
-                                        LocalizedText.of("那你接着试", "Go on, keep testing"),
+                                        LocalizedText.of("你先接着试，我回头再来。", "Go on, keep testing"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -990,12 +990,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "先说清楚，我不是在求你施舍，我只是想把样子收拾一下看得过去。你要是肯给我两块金锭和十六团白羊毛，至少能让我别寒酸得太难看。",
-                                "Let me be clear — this isn't charity, I just want to look presentable. Two gold ingots and sixteen white wool, and I won't look so shabby."),
+                                "提前声明，我可不是在乞求施舍，我只是想把这身行头收拾得体面些。如果你能提供两块金锭和十六团白羊毛，至少能让我看起来不至于如此落魄。",
+                                "Let me be clear, I am not begging for charity. I simply wish to make my attire presentable. If you could provide two Gold Ingots and sixteen White Wool, it would at least keep me from looking so destitute."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_offer_attire",
-                                                LocalizedText.of("行，我帮你", "Fine, I'll help you"),
+                                                LocalizedText.of("没问题，包在我身上。", "Fine, I'll help you"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -1009,14 +1009,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_noble_decline_attire",
-                                                LocalizedText.of("抱歉，我现在拿不出这么多", "Sorry, I can't spare that much right now"),
+                                                LocalizedText.of("实在抱歉，这行头我暂时也凑不齐。", "Sorry, I can't spare that much right now"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_noble_leave_intro",
-                                        LocalizedText.of("我先去替你找找", "Let me go look for them"),
+                                        LocalizedText.of("你歇着，我去帮你找找看。", "Let me go look for them"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1025,12 +1025,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "总算不用像刚从泥地里爬出来了。这份人情我记住了。",
-                                "Finally I don't look like I crawled out of the mud. I'll remember this."),
+                                "终于不用像刚从泥坑里爬出来那样难堪了。这份人情，我艾什福德记下了。",
+                                "Finally, I no longer have to look as though I just crawled out of a mud pit. I, Ashford, shall remember this favor."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_leave_after_attire_help",
-                                                LocalizedText.of("那你先把这身穿稳了", "Then keep this outfit steady"),
+                                                LocalizedText.of("那你先把这身体面行头穿稳当了吧。", "Then keep this outfit steady"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1040,12 +1040,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "也罢。要是一个姓氏只剩衣料和镀金撑场面，那本来也没剩多少了。",
-                                "Very well. If a name is held together by nothing but cloth and gilt, then perhaps there was little of it left to hold."),
+                                "也罢。如果一个古老的姓氏只能靠几尺衣料和镀金来死撑门面，那它本身也没剩下多少荣光了。",
+                                "Very well. If an ancient name must rely solely on a few yards of fabric and gilding to keep up appearances, then there wasn't much glory left to it anyway."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_leave_after_attire_refuse",
-                                                LocalizedText.of("你这嘴还是够硬", "Your tongue's still sharp"),
+                                                LocalizedText.of("你的脾气倒是一点没变，还是这么嘴硬。", "Your tongue's still sharp"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1063,12 +1063,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这大陆上像样的宅子已经没剩几个了。你要是路过林地府邸，替我拍张照片。我想看看，这世上还留着几分旧日门面。",
-                                "There aren't many proper estates left on this continent. If you pass a woodland mansion, snap a photo for me. I want to see how much of the old grandeur still stands."),
+                                "如今这片大陆上，像样的宅邸已经屈指可数了。要是你偶然路过林地府邸，替我留个影吧。我想确认一下，这世上究竟还保留着几分旧日的体面。",
+                                "There are precious few proper estates left on this continent now. If you happen to pass by a Woodland Mansion, please take a picture for me. I want to see just how much of the old world's dignity remains."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_accept_mansion_photo_task",
-                                                LocalizedText.of("行，我替你去看看", "Fine, I'll go look for you"),
+                                                LocalizedText.of("没问题，我替你去宅子那边走一趟。", "Fine, I'll go look for you"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -1079,7 +1079,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_noble_decline_mansion_photo_task",
-                                                LocalizedText.of("抱歉，这种地方我未必去得成", "Sorry, I may never make it to such a place"),
+                                                LocalizedText.of("抱歉，那种大宅子我恐怕进不去。", "Sorry, I may never make it to such a place"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -1089,12 +1089,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "我就想看看窗啊墙啊，还有那点门面在就行。",
-                                "No need for a good angle. I just want the windows, the walls, whatever face it still has."),
+                                "哪怕只是拍些残窗破墙也行，我只希望能看到昔日门面的几分影子。",
+                                "Even a photo of broken windows and ruined walls will do. I only wish to catch a glimpse of its former grandeur."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_leave_after_accept_photo",
-                                                LocalizedText.of("好，我记下了", "Alright, I'll remember"),
+                                                LocalizedText.of("好，这事儿我记下了。", "Alright, I'll remember"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1104,12 +1104,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "也是。不是谁都愿意专程跑去看一栋还没塌完的旧房子。",
-                                "Fair enough. Not everyone wants to go out of their way to look at a ruin that still hasn't finished falling."),
+                                "也是。毕竟不是谁都有这份闲心，跑去瞻仰一栋摇摇欲坠的旧宅。",
+                                "I suppose so. After all, not everyone has the leisure to go pay respects to a crumbling old mansion."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_leave_after_decline_photo",
-                                                LocalizedText.of("那这回就先算了", "Let's leave it for now"),
+                                                LocalizedText.of("既然这样，那这回就算了吧。", "Let's leave it for now"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1128,13 +1128,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这几天我想了不少。不管以前那点排场还能剩几分，总得找个地方重新安稳一下。你能借我四颗绿宝石和一颗钻石吗？这笔账我会记着。",
-                                "I've thought a lot these days. Whatever pomp is left, this name needs a place to settle again. Can you lend me four emeralds and a diamond? I'll remember it."),
+                                "这几天我想了许多。不管过往的荣光还剩几分，我总得找个地方重新立足。能借我四颗绿宝石和一颗钻石作为起步资金吗？这笔账，我会铭记于心。",
+                                "I have thought a great deal these past few days. Regardless of how much past glory remains, I must find a place to re-establish myself. Could you lend me four Emeralds and one Diamond as starting capital? I shall keep this debt firmly in mind."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_noble_offer_fund",
                                                 LocalizedText.of(
-                                                        "给，你先拿这笔周转一下",
+                                                        "这笔钱你先拿着周转，别客气。",
                                                         "Here, take this to keep going"),
                                                 DialogueOptionType.BRANCH,
                                                 full,
@@ -1153,7 +1153,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_noble_settle_after_some_help",
                                                 LocalizedText.of(
-                                                        "现在这样也够你过一阵了",
+                                                        "凭你现在的底子，对付一阵子不成问题。",
                                                         "What you have now should last you a while"),
                                                 DialogueOptionType.BRANCH,
                                                 partial,
@@ -1168,7 +1168,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_noble_settle_after_photo_only",
                                                 LocalizedText.of(
-                                                        "至少你心里的东西还在",
+                                                        "哪怕物是人非，至少你心里的念想还在。",
                                                         "At least what you carry inside is still there"),
                                                 DialogueOptionType.BRANCH,
                                                 partial,
@@ -1185,7 +1185,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_noble_settle_without_help",
                                                 LocalizedText.of(
-                                                        "要不你就先留下吧",
+                                                        "没别的地方去，要不你就在这儿先落脚吧。",
                                                         "Why not just stay for now"),
                                                 DialogueOptionType.BRANCH,
                                                 none,
@@ -1204,12 +1204,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         full,
                         LocalizedText.of(
-                                "很好。既然连最后这点周转也有了，我也该承认，这旅社比我当初想的像样得多。这只旧怀表给你吧，我没什么可报答你的了。",
-                                "Good. With even this last bit of capital settled, I'll admit it: this inn is far more decent than I first judged. Take this old pocket watch — it's watched too much pointless ceremony. Now you keep it."),
+                                "很好。既然有了这笔周转资金，我也必须承认，这家旅社比我最初预想的要体面得多。这只旧怀表你收下吧，这是我目前唯一拿得出手的谢礼了。",
+                                "Excellent. With this capital secured, I must admit that this inn is far more respectable than I initially presumed. Please accept this old pocket watch; it is the only decent token of gratitude I can currently offer."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_noble_leave_after_full_reward",
-                                        LocalizedText.of("那你就在这儿住下吧", "Then settle in here"),
+                                        LocalizedText.of("既然回不去了，不如就在这儿长住吧。", "Then settle in here"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1218,12 +1218,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         partial,
                         LocalizedText.of(
-                                "我本来以为只是暂时呆一会。可是一旦过惯了有人点灯开门的日子，很难再回到流亡了。没什么可以报答你的，把这只旧怀表拿着吧。",
-                                "I thought I'd only stay a while. But once you're used to lamps lit and a door opened for you, it's hard to go back to exile. Nothing else to repay you with — take this old watch."),
+                                "我原本以为这只是短暂的落脚。可一旦重新习惯了有人点灯、有人开门的安稳日子，就很难再回到颠沛流离之中了。无以为报，这只旧怀表请你务必收下。",
+                                "I thought this would be but a brief stay. Yet, once you grow accustomed to the comfort of lit lamps and opened doors again, returning to a life of exile is difficult. Having nothing else to repay you, please, you must take this old pocket watch."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_noble_leave_after_partial_reward",
-                                        LocalizedText.of("那你就安心住下吧", "Then stay and make peace with it"),
+                                        LocalizedText.of("那你就在这儿安心住下吧，没人赶你。", "Then stay and make peace with it"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1232,12 +1232,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         none,
                         LocalizedText.of(
-                                "别误会，我不是舍不得走。懒得再对另一群陌生人解释我是谁了。这里至少有住的地方，餐点也不算丢人。",
-                                "Don't get me wrong — I'm not sorry to leave. I'm just tired of explaining myself to another room of strangers. Here there's a roof, meals that aren't embarrassing."),
+                                "别误会，我可不是舍不得走，只是懒得再去向另一群陌生人解释我的身份罢了。这里至少有个落脚处，饭菜也勉强能入口。",
+                                "Don't misunderstand, it's not that I'm reluctant to leave. I simply cannot be bothered to explain my lineage to yet another group of strangers. At least there's a place to rest here, and the food is somewhat palatable."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_noble_leave_after_none_reward",
-                                        LocalizedText.of("那你就别再折腾着走了", "Then stop dragging yourself around"),
+                                        LocalizedText.of("既然如此，就别再瞎折腾了，安心待着吧。", "Then stop dragging yourself around"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1252,12 +1252,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我最近在学着把日子过得像个住客，而不是等着过去回头认错的人。说实话，这地方还真算待得住。",
-                                "Lately I've been learning to live like a resident, not someone waiting for the past to come back and apologize. Honestly, this place is surprisingly livable."),
+                                "我最近正在学习如何像个普通的住客那样生活，而不是像个怨妇一样等着过去来向我认错。老实说，这地方还真挺让人留恋的。",
+                                "Lately I've been learning how to live like an ordinary guest, rather than sulking like a bitter soul waiting for the past to apologize to me. To be honest, this place has quite a charm to it."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_noble_leave_final",
-                                        LocalizedText.of("看来你是慢慢适应了", "Looks like you're settling in"),
+                                        LocalizedText.of("瞧你这样子，倒是渐渐习惯这里了。", "Looks like you're settling in"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1272,12 +1272,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "在你这住的多了我也放下了不少，感觉总算清净了。",
-                                "Having stayed here so much, I've let go of a lot. It's finally quiet."),
+                                "在你这里住久了，很多过往我也渐渐放下了。现在的心境，总算是清净了不少。",
+                                "Having stayed here so long, I've gradually let go of much of my past. My mind is finally at peace."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_noble_leave_chatter",
-                                        LocalizedText.of("你就别再嘴硬了", "You can drop the tough act now"),
+                                        LocalizedText.of("嘴硬心软，说的就是你吧。", "You can drop the tough act now"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1337,12 +1337,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我路上采的样本，一到地方药性就散掉了。你要是能给我两份下界疣、一份烈焰粉和一个玻璃瓶就好了，我先把这瓶药调了。",
-                                "Samples I gather on the road lose their potency the moment I arrive. Two nether wart, a blaze powder, a glass bottle, and I can brew this batch."),
+                                "我在路上采集的样本，还没到地方药性就挥发光了！真是气人。你能帮我找两份下界疣、一份烈焰粉和一个玻璃瓶吗？我想先把这瓶急需的药剂调配出来。",
+                                "The samples I gathered on the road lost their potency before I even arrived! How infuriating. Could you find me two Nether Warts, one Blaze Powder, and a Glass Bottle? I need to brew this urgent potion right away."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_offer_supplies",
-                                                LocalizedText.of("给，你先拿去用着", "Here, take these for now"),
+                                                LocalizedText.of("给，你先拿去应急吧。", "Here, take these for now"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -1358,14 +1358,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_alchemist_decline_supplies",
-                                                LocalizedText.of("抱歉，我这会儿没有这些", "Sorry, don't have those right now"),
+                                                LocalizedText.of("抱歉啊，我手头暂时没你要的这些材料。", "Sorry, don't have those right now"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_intro",
-                                        LocalizedText.of("我先去替你找找", "Let me go look for them"),
+                                        LocalizedText.of("你歇着，我去帮你找找看。", "Let me go look for them"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1374,12 +1374,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "好，至少这回容器溶剂和材料都齐了。接下来就差个火候的参照。",
-                                "Good — vessel, solvent, materials, all here this time. Just need a reference to judge the heat by."),
+                                "太好了，容器、溶剂和材料总算是凑齐了。接下来只差掌握正确的火候了。",
+                                "Excellent! The vessels, solvents, and materials are all finally here. Now I just need to master the proper heat."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_leave_after_help",
-                                                LocalizedText.of("那我等你下回结果", "Then I'll wait for your next result"),
+                                                LocalizedText.of("那我就期待你下次的实验结果了。", "Then I'll wait for your next result"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1389,12 +1389,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "行，那我只能拿剩下的药先硬撑。能不能成，就得看运气了。",
-                                "Then I'll push on with what's left of the ingredients. Whether it works is down to luck."),
+                                "唉，那我只能拿剩下的残次品硬撑一下了。能不能成，全看运气咯。",
+                                "Alas, I'll just have to make do with these leftover dregs. Whether the brew succeeds is entirely up to luck."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_leave_after_refuse",
-                                                LocalizedText.of("你自己多小心点", "Stay careful out there"),
+                                                LocalizedText.of("你自己多加小心，别勉强。", "Stay careful out there"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1412,12 +1412,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我这几天先拿手头这些东西反复试了试，现在还缺个靠谱参照。你要是路过下界堡垒，帮我拍张照片回来。我想看看那边的火和石头，现在还够不够我的需求。",
-                                "I've been testing with what I have these past few days. Now I need a solid reference. If you pass a Nether fortress, bring back a photo. I want to see if the fire and stone there can still meet my needs."),
+                                "这几天我用手头现有的材料反复试错，发现还是缺一个靠谱的火候参照。要是你顺路去下界堡垒，帮我拍张那里的照片吧。我想观察一下那边的火焰温度和地狱岩的质地，看看符不符合我的实验需求。",
+                                "I've been repeatedly testing the materials I have on hand, but I still lack a reliable reference for the heat. If you happen to pass by a Nether Fortress, please take a photo for me. I want to observe the temperature of the flames and the texture of the netherrack to see if they meet my experimental needs."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_accept_fortress_photo_task",
-                                                LocalizedText.of("行，我替你拍回来", "Sure, I'll bring back a photo"),
+                                                LocalizedText.of("交给我吧，我去给你拍回来。", "Sure, I'll bring back a photo"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -1428,7 +1428,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_alchemist_decline_fortress_photo_task",
-                                                LocalizedText.of("抱歉，我这回去不了", "Sorry, I can't make it this time"),
+                                                LocalizedText.of("不好意思，这趟我恐怕抽不开身。", "Sorry, I can't make it this time"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -1438,12 +1438,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "拍个大概，能看出来是什么地方就够了。",
-                                "Rough shot's fine. As long as I can tell what kind of place it is."),
+                                "拍个大概就行，只要能认出是下界堡垒的地貌就可以啦。",
+                                "A rough shot is fine, as long as I can recognize the terrain of a Nether Fortress."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_leave_after_accept_photo",
-                                                LocalizedText.of("好，我记住了", "Got it, I'll remember"),
+                                                LocalizedText.of("好，这事儿我记下了。", "Got it, I'll remember"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1453,12 +1453,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "那算了，我找找别的材料也可以，炼金材料都是相通的。",
-                                "Then never mind — I can look for other materials. Alchemy ingredients all connect in the end."),
+                                "那就算了，我找找别的替代材料吧，毕竟炼金术的原理都是相通的。",
+                                "Never mind then, I'll look for substitute materials. After all, the principles of alchemy are all interconnected."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_leave_after_decline_photo",
-                                                LocalizedText.of("那就留到下次吧", "Save it for next time then"),
+                                                LocalizedText.of("没事，那就等下次再说吧。", "Save it for next time then"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1477,13 +1477,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这几天的实验弄得我满手是灰，总算是熬出了一瓶像样的成品。手感找得差不多了，想想这瓶药水能用在哪儿吧。",
-                                "Days of experiments left my hands grey, but I finally brewed a decent batch. Got the feel back — now, where would this potion be useful?"),
+                                "这几天的实验弄得我灰头土脸的，不过总算是熬出了一瓶完美的成品！手感全找回来了，现在得好好想想这瓶药水该用在什么地方。",
+                                "These past few days of experiments have left me covered in soot, but I've finally brewed a perfect batch! I've completely gotten my touch back. Now I must carefully consider where to use this potion."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_alchemist_reward_settle",
                                                 LocalizedText.of(
-                                                        "要不你和药都先留这儿",
+                                                        "我看你和这些药剂还是都先留在这儿吧。",
                                                         "Why don't you and the draught both stay"),
                                                 DialogueOptionType.BRANCH,
                                                 settled,
@@ -1503,7 +1503,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_alchemist_reward_travel_after_supplies",
                                                 LocalizedText.of(
-                                                        "至少你已经调出成品了",
+                                                        "往好处想，至少你已经能配出成品了。",
                                                         "At least you've brewed a finished batch"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -1522,7 +1522,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_alchemist_reward_travel_after_photo",
                                                 LocalizedText.of(
-                                                        "至少你把火候找回来了",
+                                                        "不管怎么说，至少你找回掌控火候的感觉了。",
                                                         "At least you've recovered your heat control"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -1541,7 +1541,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_alchemist_reward_farewell",
                                                 LocalizedText.of(
-                                                        "你要不再试一轮",
+                                                        "要不……你再重新试一锅？",
                                                         "Maybe run one more round of tests"),
                                                 DialogueOptionType.BRANCH,
                                                 farewell,
@@ -1561,12 +1561,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         settled,
                         LocalizedText.of(
-                                "行。这瓶好点的就先留给你了。",
-                                "Fine. I'll leave you the better bottle."),
+                                "行吧，那这瓶品质最好的就先留给你防身啦。",
+                                "Very well. I'll leave this highest-quality potion with you for protection."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_after_settle_reward",
-                                        LocalizedText.of("那我等你下次调得更稳", "Then I'll wait for your next improved batch"),
+                                        LocalizedText.of("那我等你下次配出更稳定的药剂。", "Then I'll wait for your next improved batch"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1575,12 +1575,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         traveling,
                         LocalizedText.of(
-                                "我现在是调出了能喝的东西，但是不是我要的最好的结果。这瓶你拿着，算谢你的帮助了。我还得去找下一组材料。",
-                                "Close. I've brewed something drinkable, but not a reason to stay. Take the draught — best of this leg. I still need the next set of materials."),
+                                "虽然现在勉强调出了能喝的药剂，但离我心目中的完美品质还差得远。这瓶你先拿着，权当谢你的帮忙了。我还得继续去寻找下一组实验材料。",
+                                "Although I've managed to brew a drinkable potion, it's still far from the perfection I seek. Take this bottle as thanks for your help. I must continue my search for the next set of experimental materials."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_after_travel_reward",
-                                        LocalizedText.of("你别把自己先炸了", "Don't blow yourself up first"),
+                                        LocalizedText.of("悠着点，别先把你自己给炸飞了。", "Don't blow yourself up first"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1589,12 +1589,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         farewell,
                         LocalizedText.of(
-                                "这回取到的数据还不够，暂时下不了结论。没关系，炼金学嘛本来就得多犯错，我先去别处把缺的东西补上。",
-                                "Not enough data yet to conclude anything. That's fine — alchemy lets you be wrong a few times. I'll go fill in what's missing."),
+                                "这次收集的数据还是太单薄了，做不出什么像样的结论。不过没关系，炼金术嘛，哪有不经历失败的？我准备去别处转转，把缺的材料都补齐。",
+                                "The data gathered this time is too sparse to draw any decent conclusions. But no matter, what is alchemy without a few failures? I'm going to travel elsewhere to gather the missing materials."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_after_farewell",
-                                        LocalizedText.of("那我等你的好消息", "Then I'll wait for your good news"),
+                                        LocalizedText.of("行，那我就静候佳音了。", "Then I'll wait for your good news"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1609,12 +1609,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我最近在研究新的配方。以前的老是失败不成预期，我就想着万一是初始配方错了呢。",
-                                "Lately I'm working on new formulas. The old ones kept failing — maybe the base recipe was wrong all along."),
+                                "我最近正在埋头研究新配方。以前的实验老是达不到预期，我就在想，万一是一开始的理论基础就错了呢？",
+                                "I've been burying myself in researching new formulas lately. My past experiments never met expectations, so I started wondering: what if my foundational theories were wrong all along?"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_final",
-                                        LocalizedText.of("那你就慢慢熬着看", "Then take your time and see"),
+                                        LocalizedText.of("那你就守着那口锅慢慢熬吧。", "Then take your time and see"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1629,12 +1629,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我今天在调一份不靠烈焰起效的药。希望它在该管用的时候别掉链子。",
-                                "Today I'm brewing something that doesn't need blaze to work. What I want is for it not to fail when it matters."),
+                                "我今天在尝试调配一份不需要烈焰粉就能起效的药剂。希望它在关键时刻可千万别掉链子。",
+                                "Today I'm trying to brew a potion that works without Blaze Powder. I just hope it doesn't fail me at a critical moment."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_alchemist_leave_chatter",
-                                        LocalizedText.of("调好了记得让我看看", "Let me see it when it's ready"),
+                                        LocalizedText.of("新药剂调好了记得给我长长见识。", "Let me see it when it's ready"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1692,12 +1692,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我基本能肯定这大陆下面埋着一层被人忘掉的古文明。但要挖出来，还得要准备准备。借我一把铁镐和十六支火把呗，下次我带真正的线索回来。",
-                                "I'm fairly sure a forgotten civilization lies under this land. Digging it out takes preparation — lend me an iron pickaxe and sixteen torches, and next time I'll bring real leads."),
+                                "我有九成的把握，这片大陆的地层深处埋藏着一个被遗忘的古老文明！但要让它重见天日，我还得做些准备。能借我一把铁镐和十六支火把吗？下次我一定带回决定性的线索！",
+                                "I am ninety percent certain that a forgotten ancient civilization lies buried deep within the strata of this continent! But to bring it to light, I need to make preparations. Could you lend me an Iron Pickaxe and sixteen Torches? Next time, I will surely bring back decisive clues!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_offer_tools",
-                                                LocalizedText.of("工具你先拿去用", "Take these tools and start digging"),
+                                                LocalizedText.of("这些工具你先拿去应付一下吧。", "Take these tools and start digging"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -1711,14 +1711,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_archaeologist_decline_tools",
-                                                LocalizedText.of("抱歉，我现在没有这些", "Sorry, don't have these right now"),
+                                                LocalizedText.of("真不好意思，我手头正好缺这些工具。", "Sorry, don't have these right now"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_intro",
-                                        LocalizedText.of("我先去给你找找", "Let me see if I can find some"),
+                                        LocalizedText.of("你等着，我这就去帮你找找。", "Let me see if I can find some"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1727,12 +1727,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "太好了。你帮我省了不少麻烦，没有工具可难受了。",
-                                "Right. What ruins archaeology isn't dirt — it's a find turning up and having nothing to hand. You've saved me a lot of grief."),
+                                "太感谢了！你可帮我省了大麻烦，一个考古学家要是没有趁手的工具，简直比没带脑子还难受。",
+                                "Thank you so much! You've saved me a great deal of trouble. For an archaeologist, being without proper tools is almost worse than being without a brain."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_leave_after_tools_help",
-                                                LocalizedText.of("那你记得带证据回来", "Then come back with evidence"),
+                                                LocalizedText.of("那你可得好好干，别忘了把证据带回来。", "Then come back with evidence"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1742,12 +1742,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "那我就继续拿老办法慢慢挖。也不是不能挖，就是慢点。",
-                                "Guess I'll keep digging the old way then. Not that I can't — just slower."),
+                                "那我只能用老办法徒手慢慢刨了。也不是不行，就是效率实在太低了。",
+                                "Then I'll just have to dig slowly by hand, the old-fashioned way. It's not impossible, just terribly inefficient."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_leave_after_tools_refuse",
-                                                LocalizedText.of("你下去的时候小心点", "Be careful down there"),
+                                                LocalizedText.of("下遗迹的时候自己多加小心，别逞强。", "Be careful down there"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1765,12 +1765,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我这几天先把手边能看的东西都看了一遍，现在还差一张能说服人的现场照片。你要是路过沙漠神殿或丛林神庙，替我拍一张。入口石头什么的我都想看看。",
-                                "Been through everything at hand these past days; what I need is one convincing field photo. If you pass a desert temple or jungle temple, take one for me — the entrance, the stone."),
+                                "这几天我已经把手头的文献和破片都研究透了，现在就缺一张具有说服力的现场照片。你要是路过沙漠神殿或是丛林神庙，务必替我拍张照！入口的结构、石砖的风化程度，这些都是极其宝贵的资料。",
+                                "I've thoroughly studied all the documents and fragments I have, and now all I lack is a convincing field photograph. If you pass by a Desert Pyramid or a Jungle Temple, be sure to take a picture for me! The entrance structure, the weathering of the stone bricks—these are incredibly precious data."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_accept_temple_photo_task",
-                                                LocalizedText.of("行，我替你留意一下", "Alright, I'll keep an eye out"),
+                                                LocalizedText.of("行，我到了那边会帮你多留心拍几张的。", "Alright, I'll keep an eye out"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -1781,7 +1781,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_archaeologist_decline_temple_photo_task",
-                                                LocalizedText.of("抱歉，这种地方我未必碰得上", "Sorry, I may never run across such a place"),
+                                                LocalizedText.of("抱歉，那种遗迹我这趟未必能碰得着。", "Sorry, I may never run across such a place"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -1791,12 +1791,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "不用拍得多精致，只要看得出入口之类的结构就够我写不少东西了。",
-                                "Doesn't need to be pretty. If I can see the entrance and the lay of the land, that tells me plenty."),
+                                "不用拍得多么精美，只要能清晰辨认出入口的建筑结构，就足够我写出两篇论文了！",
+                                "It doesn't need to be perfectly composed. As long as the architectural structure of the entrance is clearly recognizable, that's enough for me to write two whole papers!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_leave_after_accept_photo",
-                                                LocalizedText.of("好，我知道该看什么了", "Got it, I know what to look for"),
+                                                LocalizedText.of("明白，我知道该重点拍些什么了。", "Got it, I know what to look for"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1806,12 +1806,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "也行，遗迹也不会跑，有的是办法看到。那我先把现有笔记理一下。",
-                                "Fine. Ruins aren't in a rush to be seen. I'll tidy up the notes I have."),
+                                "也是，反正遗迹在那里又不会长腿跑掉，总有机会看到的。那我先理一理现有的考察笔记吧。",
+                                "Fair enough. The ruins aren't going to grow legs and run away; there will always be another chance. I'll just organize my current field notes for now."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_leave_after_decline_photo",
-                                                LocalizedText.of("那我等你下回的发现", "Then I'll wait for your next find"),
+                                                LocalizedText.of("那我就期待你下次能有什么大发现了。", "Then I'll wait for your next find"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -1831,13 +1831,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我这几天研究的差不多了，已经呼之欲出了。再来一块回响碎片和一块远古残骸当样本，这研究就能差不多走通了。你愿意帮我出把力吗？",
-                                "Digging up the past is piecing a mirror from broken glass. I've fitted what I can these past days. Bring me an echo shard and ancient debris as samples, and this argument's closed. Care to help?"),
+                                "经过这几天的日夜钻研，真相已经呼之欲出了！只要再有一块回响碎片和一块远古残骸作为对照样本，这个课题就能彻底走通了！你愿意再帮我出把力吗？",
+                                "After days and nights of intense study, the truth is on the verge of being revealed! With just one Echo Shard and one Ancient Debris as control samples, this research will be completely validated! Would you be willing to lend me a hand once more?"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_archaeologist_reward_full",
                                                 LocalizedText.of(
-                                                        "样本我给你带来了",
+                                                        "你要的遗迹样本我给你带回来了。",
                                                         "I've brought the samples for you"),
                                                 DialogueOptionType.BRANCH,
                                                 full,
@@ -1860,7 +1860,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_archaeologist_reward_relics_only",
                                                 LocalizedText.of(
-                                                        "样本我带来了",
+                                                        "你要的样本我带回来了，看看合不合用。",
                                                         "I've brought the samples."),
                                                 DialogueOptionType.BRANCH,
                                                 relics,
@@ -1878,7 +1878,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_archaeologist_reward_evidence_only",
                                                 LocalizedText.of(
-                                                        "听起来你已经查得够深了",
+                                                        "听你的意思，这背后的水已经被你蹚得够深了。",
                                                         "Sounds like you've dug deep enough"),
                                                 DialogueOptionType.BRANCH,
                                                 evidence,
@@ -1891,7 +1891,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_archaeologist_reward_none",
                                                 LocalizedText.of(
-                                                        "那你就继续挖吧",
+                                                        "既然如此，那你就继续在这里挖挖看吧。",
                                                         "Then keep digging"),
                                                 DialogueOptionType.BRANCH,
                                                 none,
@@ -1910,12 +1910,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         full,
                         LocalizedText.of(
-                                "太好了，这下就不缺什么了，一切资料都连上了。这把旧刷子你拿着吧，真的很好用。",
-                                "Good — no more guessing. Tools, photos, samples all connect. The research can move. Take this old brush; it's been with me a long while and works better than it looks."),
+                                "完美！这下拼图彻底完整了，所有的线索都串联起来了！这把跟随我多年的考古刷送你吧，清理文物的时候它可是帮了大忙。",
+                                "Perfect! The puzzle is finally complete, and all the clues connect! Take this archaeological brush that has accompanied me for years; it's been an immense help in cleaning artifacts."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_after_full_reward",
-                                        LocalizedText.of("那你就把它查透吧", "Then research it through to the end"),
+                                        LocalizedText.of("那你就趁热打铁，把这背后的秘密彻底挖出来吧。", "Then research it through to the end"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1924,12 +1924,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         relics,
                         LocalizedText.of(
-                                "这两个样本很有分量。前面的证据虽然还不够整齐，但研究先往下推完全够了。这把刷子送你，老好用了，怎么都用不坏。",
-                                "These two samples carry weight. The rest isn't tidy, but it's plenty to push on. Take this brush — old, but it handles far better than new ones."),
+                                "这两个样本的分量简直不可估量！虽然之前的证据链还有些零碎，但有了它们，研究完全可以继续往下推进了。这把刷子送你，手感极佳，可是我用过最结实的工具了。",
+                                "The value of these two samples is simply immeasurable! Although the previous chain of evidence was a bit fragmented, with these, the research can fully advance. Take this brush—it handles excellently and is the sturdiest tool I've ever used."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_after_relic_reward",
-                                        LocalizedText.of("那这把刷子我收下了", "Then I'll gladly keep this brush"),
+                                        LocalizedText.of("多谢，那这把考古刷我就不客气收下了。", "Then I'll gladly keep this brush"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1938,12 +1938,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         evidence,
                         LocalizedText.of(
-                                "关键样本还差一点，我不走了。我会继续待在这儿挖到水落石出为止。",
-                                "Still missing the key sample, but I don't want to leave now. Twisted clues mean something's still buried. I'll stay and dig till it gives."),
+                                "还差最后一点关键样本，我不打算走了。我就在这儿耗着，直到把所有的秘密都挖出来为止。",
+                                "I'm still missing the final key sample, so I don't plan on leaving. I'll stay right here and dig until every last secret is unearthed."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_after_evidence_only",
-                                        LocalizedText.of("那你加油", "Keep at it"),
+                                        LocalizedText.of("那你继续努力，祝你早日查明真相。", "Keep at it"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1952,12 +1952,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         none,
                         LocalizedText.of(
-                                "这回你帮我补上的不多，可我反倒更确定这地方值得住下。好啃的线索到处都是，难啃的才有意思。",
-                                "You didn't fill in much this time, but it makes me more sure this place is worth staying in. Easy leads are everywhere — the stubborn ones are what's interesting."),
+                                "虽然这次你帮我找到的线索不多，但我反而更确信这地方大有文章。毕竟那些一眼就能看透的遗迹太无趣，像这种硬骨头啃起来才带劲！",
+                                "Even though you didn't find many clues for me this time, it only makes me more certain that there's something huge hidden here. After all, ruins that can be figured out at a glance are too boring; these tough mysteries are the real thrill!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_after_none",
-                                        LocalizedText.of("期待你的成果", "Looking forward to your results"),
+                                        LocalizedText.of("期待你早日有新发现。", "Looking forward to your results"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1972,12 +1972,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我最近在把附近的地层结构和风化痕迹重新整理一遍。这里的环境还挺适合琢磨这些东西的。",
-                                "Lately I'm redoing the nearby strata and weathering records. This place is actually good for thinking about this sort of thing."),
+                                "我最近正在把附近的地层结构和风化痕迹重新做一次系统性的整理。这里的地理环境，真的是个天然的研究室。",
+                                "I've recently been doing a systematic reorganization of the nearby strata structures and weathering traces. The geographical environment here truly is a natural laboratory."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_final",
-                                        LocalizedText.of("等你把新笔记整理好", "Let me read the next notes when ready"),
+                                        LocalizedText.of("我等着拜读你整理好的新笔记。", "Let me read the next notes when ready"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -1992,12 +1992,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "最近又有新发现，你这附近好东西还挺多嘛。",
-                                "Fresh finds lately — plenty of good things near this place."),
+                                "最近又有了不少新发现，你这附近埋着的“宝贝”可比我想象的要多得多啊！",
+                                "I've made quite a few new discoveries lately. There are far more treasures buried around here than I ever imagined!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_archaeologist_leave_chatter",
-                                        LocalizedText.of("期待你的成果", "Looking forward to your results"),
+                                        LocalizedText.of("期待你早日有新发现。", "Looking forward to your results"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2057,12 +2057,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "路上的劫匪没要我的命，但把货车和样品箱砸得稀巴烂。你要是能给我八块皮革、十二根线和六块铁锭，我稍微还能补一补抢救一下。",
-                                "Bandits didn't kill me, but they smashed the wagon and sample chests to bits. Eight leather, twelve string, six iron ingots and I can at least patch the worst of it."),
+                                "路上的那帮强盗虽然没要了我的命，但把我的货车和样品箱砸了个稀巴烂！你要是能支援我八块皮革、十二根线和六块铁锭，我还能勉强抢救一下剩下的货物。",
+                                "Those bandits on the road didn't take my life, but they smashed my wagon and sample chests to splinters! If you could spare eight Leather, twelve String, and six Iron Ingots, I might just be able to salvage the remaining goods."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_offer_wagon_supplies",
-                                                LocalizedText.of("行，我帮你把这些装起来", "Alright, let me help you pack those"),
+                                                LocalizedText.of("没问题，我帮你把货装好。", "Alright, let me help you pack those"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -2078,14 +2078,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_decline_wagon_supplies",
-                                                LocalizedText.of("抱歉，我现在凑不出这么多", "Sorry, I can't gather that much right now"),
+                                                LocalizedText.of("抱歉，我这会儿也拿不出那么多物资。", "Sorry, I can't gather that much right now"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_intro",
-                                        LocalizedText.of("我先去给你找找", "Let me go look for them"),
+                                        LocalizedText.of("你等着，我这就去帮你找找。", "Let me go look for them"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2094,12 +2094,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "多谢，至少还有保住的货物和我的命，留得青山不怕没柴烧。",
-                                "Thanks. At least I still have the cargo that survived — and my life. Where there's a hill, there's firewood."),
+                                "多谢了。好歹命保住了，货物也抢救回一部分，留得青山在，不怕没柴烧！",
+                                "Many thanks. At least my life is spared, and I salvaged part of the cargo. Where there's a mountain, there's firewood to be found!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_leave_after_wagon_help",
-                                                LocalizedText.of("那你可得把剩下的护好了", "You'd better guard the rest well"),
+                                                LocalizedText.of("剩下的货你可得看好了。", "You'd better guard the rest well"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2109,12 +2109,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "行吧，商人也不是只靠一辆好车活着。剩下这些样品，还够我撑一阵场面。",
-                                "Fine. A merchant doesn't live or die by one good wagon. What's left of these samples is still enough to hold a shop for a while."),
+                                "也罢，真正的商人可不是只靠一辆漂亮的马车吃饭。就凭剩下的这些样品，也足够我重新打开局面了。",
+                                "Very well. A true merchant doesn't rely solely on a fancy wagon to make a living. Even with just these remaining samples, it's enough for me to turn things around."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_leave_after_wagon_refuse",
-                                                LocalizedText.of("那你接下来多小心", "Stay careful out there"),
+                                                LocalizedText.of("那你接下来的路可得多加小心。", "Stay careful out there"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2132,12 +2132,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我把手上还能看的样品和旧账理了理，光看这些也不够，我还得知道这地方值不值得长期投资。你要是下过矿洞，帮我拍张照片回来。我想看看这边的矿脉怎么样，能不能做大生意。",
-                                "Sorted the samples and old accounts I have, but that's not enough. I need to know if this region is worth long-term investment. If you've been down a mine, bring me a photo — I want to see whether these veins are luck or real business."),
+                                "我把手头还能见人的样品和旧账本理了一遍，光看这些还不够，我得确认这地方到底值不值得我长期砸钱。你要是下过矿洞，帮我拍张矿脉的照片回来。我倒要看看这边的矿产成色如何，能不能做笔大买卖。",
+                                "I've sorted through the presentable samples and old ledgers I have left, but it's not enough. I need to confirm if this place is worth long-term investment. If you ever go down a mine, snap a photo of an ore vein for me. I want to see the quality of the minerals here and if there's a big deal to be made."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_accept_ore_photo_task",
-                                                LocalizedText.of("行，我替你看一眼", "Sure, I'll take a look for you"),
+                                                LocalizedText.of("包在我身上，我替你去探探路。", "Sure, I'll take a look for you"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
                                                 null)
@@ -2148,7 +2148,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(2)),
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_decline_ore_photo_task",
-                                                LocalizedText.of("抱歉，我这回不下矿洞", "Sorry, not visiting any caves this time"),
+                                                LocalizedText.of("抱歉，我这趟不去矿洞那边。", "Sorry, not visiting any caves this time"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
                                                 null)
@@ -2158,12 +2158,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "差不多有点规模的矿洞给我看就行，我没什么要求。",
-                                "Don't need much ore. If it looks like a real operation, I'll get the idea."),
+                                "只要是有点规模的矿洞就行，能看出矿脉走向就可以，我不挑。",
+                                "Any decent-sized mine will do, as long as I can see the direction of the ore veins. I'm not picky."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_leave_after_accept_photo",
-                                                LocalizedText.of("好，我记住了", "Got it, I'll remember"),
+                                                LocalizedText.of("好，这事儿我记下了。", "Got it, I'll remember"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2173,12 +2173,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "无妨。谨慎本来就是生意的一部分，我先把手上这些东西理干净。",
-                                "No harm. Caution is part of trade. I'll clear what I have on hand."),
+                                "无妨。做生意本来就该谨慎行事，我先把自己手头的烂摊子理清楚再说。",
+                                "No harm done. Caution is essential in business anyway. I'll just focus on sorting out the mess I have on hand first."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_leave_after_decline_photo",
-                                                LocalizedText.of("那就留到下次吧", "Save it for next time then"),
+                                                LocalizedText.of("没事，那就等下次再说吧。", "Save it for next time then"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2197,13 +2197,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "账本和样品箱都重新理过一遍了，盘缠也算点清楚了。接下来这生意该怎么做确实该仔细筹划一下。",
-                                "Ledger and sample cases sorted again, and the funds are counted. How this business goes forward — time to plan that carefully."),
+                                "账本和样品箱都重新清点过了，剩下的盘缠也核算清楚了。接下来这笔买卖该怎么做大，确实得好好盘算盘算。",
+                                "The ledgers and sample chests have been recounted, and my remaining travel funds tallied. Now, I really need to carefully scheme how to turn this into a massive enterprise."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_reward_settle",
                                                 LocalizedText.of(
-                                                        "我看这地方值得你押货",
+                                                        "我看这地方风水不错，值得你押一把。",
                                                         "I'd say this place is worth your goods"),
                                                 DialogueOptionType.BRANCH,
                                                 settled,
@@ -2223,7 +2223,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_reward_travel_after_wagon",
                                                 LocalizedText.of(
-                                                        "我看你先别把本钱全押上",
+                                                        "稳妥起见，还是别把本钱全押上。",
                                                         "I'd say don't stake all your capital yet"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -2242,7 +2242,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_reward_travel_after_photo",
                                                 LocalizedText.of(
-                                                        "我看这地方还差点意思",
+                                                        "我觉得这儿的生意恐怕不太好做。",
                                                         "I don't think this place is quite there yet"),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
@@ -2261,7 +2261,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_gem_merchant_reward_farewell",
                                                 LocalizedText.of(
-                                                        "你不如再去别处看看",
+                                                        "觉得这儿不行，就去别处碰碰运气吧。",
                                                         "Maybe you should try elsewhere"),
                                                 DialogueOptionType.BRANCH,
                                                 farewell,
@@ -2282,12 +2282,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         settled,
                         LocalizedText.of(
-                                "太好了！货箱修回来了，矿脉看着也不差。这颗星核你拿着，本来不是会摆上柜台的东西。算额外谢你的救命之恩了。",
-                                "That'll do. Cases fixed, veins look decent. Take this star core — not the sort of thing I'd put on a counter. Thanks, and a bit of trust I'm staking here."),
+                                "太棒了！货箱修好了，矿脉的成色也远超我的预期。这颗星核你收下，这可是非卖品，就当是额外答谢你的救命之恩了！",
+                                "Fantastic! The cargo chests are fixed, and the ore quality far exceeds my expectations. Take this Nether Star—it's strictly not for sale, but consider it an extra reward for saving my life!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_after_settle_reward",
-                                        LocalizedText.of("那你就在这儿开张吧", "Then go ahead and open shop"),
+                                        LocalizedText.of("那你安心在这儿做生意吧。", "Then go ahead and open shop"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2296,12 +2296,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         traveling,
                         LocalizedText.of(
-                                "还差一点。你帮我保住了部分本钱，也让我看见这地方有点样子，但还没到让我把所有精力都压上的地步。这星核你拿着，我继续去别处再看看。",
-                                "Close, but not quite. You saved part of my capital and the place shows promise — not enough to stake everything. Take the star core; I'll compare prices elsewhere."),
+                                "还是差了点意思。虽然你帮我保住了部分本钱，这地方也确实有几分潜力，但还没到让我孤注一掷的地步。这星核你拿着，我打算再去别处考察考察。",
+                                "Still missing a little something. Though you helped me secure some of my capital, and this place has potential, it's not enough for me to wager everything. Take this Nether Star; I plan to scout for opportunities elsewhere."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_after_travel_reward",
-                                        LocalizedText.of("那你就去别处再看看", "Then go look around elsewhere"),
+                                        LocalizedText.of("那你再去别的地方碰碰运气。", "Then go look around elsewhere"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2310,12 +2310,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         farewell,
                         LocalizedText.of(
-                                "这回你没帮多少，但是也是缘分一场。这个星核给你了。识货的人不一定总能成交，但我至少认得出谁配看到我压箱底的东西。我继续走走，直到找到更合适的地方。",
-                                "You didn't help much this time, but call it fate. Take the star core. Knowing goods doesn't always close a deal — but I can tell who deserves to see my reserves. I'll keep moving till somewhere fits."),
+                                "虽说这次没帮上什么忙，但也算相识一场，这枚星核就送你了。懂行的人未必每次都能做成买卖，但我看得出谁配得上我压箱底的宝贝。我得继续上路了，去寻觅个更合适的落脚处。",
+                                "Though you couldn't help much this time, we did cross paths. Have this Nether Star. A shrewd merchant doesn't close a deal every time, but I know who's worthy of my most prized treasures. I must hit the road again to find a more suitable place to settle."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_after_farewell",
-                                        LocalizedText.of("那就祝你下笔买卖顺利", "May your next deal go smoothly"),
+                                        LocalizedText.of("那就祝你下一单生意兴隆。", "May your next deal go smoothly"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2330,12 +2330,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我最近在整理一批以前不会轻易亮出来的货。这里的人看东西不只盯着价，这点挺难得。",
-                                "Been reorganizing stock I'd never have displayed lightly before. People here don't just look at price tags — that's rare enough to appreciate."),
+                                "我最近在盘点一批平时绝不轻易示人的尖货。这里的客人品味不错，买东西不只盯着价签看，这在如今可太难得了。",
+                                "Lately, I've been inventorying a batch of top-tier goods I rarely show to anyone. The patrons here have good taste; they don't just stare at the price tags when buying, which is incredibly rare these days."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_final",
-                                        LocalizedText.of("等你把好货摆出来", "Let me see when you put out the good stuff"),
+                                        LocalizedText.of("等着看你把好东西摆出来。", "Let me see when you put out the good stuff"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2350,12 +2350,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我今天在对旧账。做生意最难是认出谁和什么地方值得交货，值钱的东西反而是最次要的了。",
-                                "Going through old accounts today. The hard part of trade is knowing who and where deserves the goods — the valuables are the least of it."),
+                                "我今天在核对旧账。其实做生意最难的，是眼光——看准什么人、什么地方值得你托付心血。相比之下，那些值钱的货物反而都是次要的了。",
+                                "I'm checking old ledgers today. Truthfully, the hardest part of business is having an eye for it—knowing exactly who and what places are worth your dedication. Compared to that, the valuable goods are secondary."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_gem_merchant_leave_chatter",
-                                        LocalizedText.of("听你这么说，你心里挺有数", "Sounds like you've got it figured out"),
+                                        LocalizedText.of("看来你心里已经有底了。", "Sounds like you've got it figured out"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2413,12 +2413,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "我的盾还顶得住，但是身上盔甲绑带都快散了。你借我六块铁锭、四块皮革和八团红羊毛怎么样，我收拾修理一下。",
-                                "Shield still holds, but the straps on this armor are coming apart. Lend me six iron ingots, four leather, eight red wool, and I'll patch it up."),
+                                "我这面老盾牌倒是还顶得住，但身上的盔甲绑带快要散架了。能不能借我六块铁锭、四块皮革和八团红羊毛？我得把这身行头好好修理一番。",
+                                "My old shield can still take a beating, but the straps on my armor are falling apart. Could you lend me six Iron Ingots, four Leather, and eight Red Wool? I need to give this gear a proper repair."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_old_knight_offer_repairs",
-                                                LocalizedText.of("给，你先收好", "Here, take these first"),
+                                                LocalizedText.of("给你，先把这些收好。", "Here, take these supplies for now."),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
                                                 null)
@@ -2434,14 +2434,14 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                                 "story_old_knight_decline_repairs",
-                                                LocalizedText.of("抱歉，我现在没有这些材料", "Sorry, don't have those materials right now"),
+                                                LocalizedText.of("抱歉，我这会儿凑不齐你要的材料。", "Sorry, don't have those materials right now"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
                                                 null)
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_old_knight_leave_intro",
-                                        LocalizedText.of("我先去替你找找", "Let me go look for those"),
+                                        LocalizedText.of("你歇着，我去帮你找找看。", "You rest. I'll go see if I can find them for you."),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2450,12 +2450,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "好了。至少重新把旧装备穿稳了。",
-                                "There. At least the old kit's strapped on straight again."),
+                                "呼，总算弄好了。至少这身旧盔甲又能稳稳地穿在身上了。",
+                                "Phew, finally done. At least this old set of armor will sit securely on my shoulders once more."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_old_knight_leave_after_help",
-                                                LocalizedText.of("那你先把行头收拾好了", "Then get your kit settled first"),
+                                                LocalizedText.of("先把你的装备保养好吧。", "Then get your kit settled first"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2465,12 +2465,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "也罢。老兵总得学会带着缺口继续站着。",
-                                "So be it. An old soldier learns to stand even with pieces missing."),
+                                "也罢。真正的老兵，总得学会带着残破的盔甲继续站得笔挺。",
+                                "So be it. A true veteran must learn to stand tall, even in broken armor."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_old_knight_leave_after_refuse",
-                                                LocalizedText.of("你自己先站稳了", "Keep your footing first"),
+                                                LocalizedText.of("别逞强了，你自己先站稳脚跟再说。", "Keep your footing first"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2488,14 +2488,14 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "感谢你帮我把旧行头重新看了一遍。能收拾的先收拾，收拾不齐的也只能先背着。人一缓下来就会开始琢磨自己后面还想怎么走。",
-                                "Thanks for going through my old kit with me. Fixed what I could, carried the rest. Once you slow down, you start wondering where you want to go next."),
+                                "感谢你帮我把这身老行头重新拾掇了一遍。能修补的都修补了，实在破得没法看的也只能将就着穿。人啊，一旦停下来歇口气，就会忍不住琢磨以后到底该往哪儿走。",
+                                "Thank you for helping me get this old gear back in shape. I fixed what could be fixed, and I'll just have to make do with the rest. You know, once a man stops to catch his breath, he can't help but wonder where his path leads next."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_old_knight_reward_settle",
                                                 LocalizedText.of(
-                                                        "要不你就先歇下吧",
-                                                        "Why don't you rest for now"),
+                                                        "别硬撑了，干脆就在这儿歇下吧。",
+                                                        "Don't push yourself so hard. Why not just rest here?"),
                                                 DialogueOptionType.BRANCH,
                                                 settled,
                                                 null)
@@ -2511,8 +2511,8 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_old_knight_reward_travel",
                                                 LocalizedText.of(
-                                                        "你要走，我也不拦你",
-                                                        "If you want to leave, I won't stop you"),
+                                                        "腿长在你身上，你要走我绝不拦你。",
+                                                        "They're your own two feet. If you want to leave, I won't stop you."),
                                                 DialogueOptionType.BRANCH,
                                                 traveling,
                                                 null)
@@ -2528,12 +2528,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         settled,
                         LocalizedText.of(
-                                "也好。这面旧盾你拿着，它替我挡过不少事。",
-                                "Very well. Take this old shield — it's taken plenty of hits for me."),
+                                "这样也好。这面旧盾牌你收下吧，它曾替我挡下过不少灾厄。",
+                                "Perhaps that is for the best. Take this old shield; it has warded off many disasters for me over the years."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_old_knight_leave_after_settle_reward",
-                                        LocalizedText.of("那你就安心歇着吧", "Then rest easy here"),
+                                        LocalizedText.of("既然累了，就安心在这儿歇歇脚吧。", "Since you're weary, rest your feet here for a while."),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2542,12 +2542,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         traveling,
                         LocalizedText.of(
-                                "还没到卸甲的时候。没事，老兵本来就该继续往前走。哪天走累了我再回来敲你的门。",
-                                "Not time to hang up the armor. That's fine — old soldiers keep walking. When I'm truly tired, I'll knock on your door again."),
+                                "还没到卸甲归田的时候。无妨，老兵的宿命本就是不断前行。等哪天真走累了，我再来敲你这客栈的门。",
+                                "It is not yet time to hang up my armor. No matter, an old soldier's fate is to keep marching forward. When I finally tire of the road, I'll come knocking on your inn's door again."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_old_knight_leave_after_travel",
-                                        LocalizedText.of("别再走太远了", "Just don't wander too far"),
+                                        LocalizedText.of("听我一句劝，以后别再往远处折腾了。", "Take my advice, don't wander so far afield anymore."),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2562,12 +2562,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "在这儿歇了几天，老骨头总算没那么痛了。人一上了年纪，就不想总在路上瞎折腾。过去那些沉甸甸的念想，今天也该有个着落了。",
-                                "Few days of rest and these old bones finally ache a little less. When you get old, you stop wanting to wear yourself out on the road. All those heavy thoughts from before — today feels right to put them down."),
+                                "在这儿歇了几天，这把老骨头总算是没那么酸痛了。人一上了年纪，就不想再成天在风雨里瞎折腾。过去那些沉甸甸的念想和荣耀，如今也该有个安放的地方了。",
+                                "After resting here for a few days, these old bones finally ache a little less. When you get on in years, you no longer want to brave the wind and rain every day. Those heavy memories and past glories... it is time they found a place to rest."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_old_knight_leave_final",
-                                        LocalizedText.of("那就让待在这儿吧", "Then let it stay here with you"),
+                                        LocalizedText.of("那就踏踏实实在这儿养老吧。", "Then settle down and retire here in peace."),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2582,12 +2582,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "最近在学着习惯没有号角叫你起床的早晨，旅社里这种慢日子比打仗舒服多了。",
-                                "Getting used to mornings without a horn. Slow days at an inn are more comfortable than fighting, honestly."),
+                                "我最近正在努力习惯那些没有冲锋号角的清晨。老实说，旅社里这种悠哉的日子，可比在刀尖上舔血舒服多了。",
+                                "Lately, I've been trying to get used to mornings without the sound of a charging horn. Truth be told, these leisurely days at the inn are far more comfortable than living on the edge of a blade."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_old_knight_leave_chatter",
-                                        LocalizedText.of("你也该享几天福了", "About time you enjoyed a few days"),
+                                        LocalizedText.of("奔波大半辈子，你也该享享清福了。", "After half a lifetime on the road, it's time you enjoyed some peace."),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2604,13 +2604,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "嘿，正好碰见你。我在海边跑了两天，纸快用光了，羽毛笔也折了一根。你要是手头有三张纸和一根羽毛，先借我顶一顶？下回我拿点好东西给你看。",
-                                "Hey, just the person. I've been running along the coast for two days — almost out of paper and snapped a quill too. If you've got three sheets and a feather on you, can you spot me? I'll show you something good next time."),
+                                "嘿，正好碰见你！我在海边吹了两天海风，画纸快用光了，羽毛笔也画折了一根。你要是手头有三张纸和一根羽毛，能不能先借我顶一顶？等下次见面，我绝对拿点稀罕东西给你开开眼！",
+                                "Hey, just the person I wanted to see! I've been braving the sea breeze for two days; I'm almost out of paper, and I even snapped a quill. If you have three pieces of Paper and a Feather on hand, could you lend them to me? Next time we meet, I'll show you something truly rare!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_offer_supplies",
                                                 LocalizedText.of(
-                                                        "给，拿去用吧",
+                                                        "给，这些物资你先拿去对付一下。",
                                                         "Here, take these"),
                                                 DialogueOptionType.BRANCH,
                                                 helped,
@@ -2626,7 +2626,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_decline_supplies",
                                                 LocalizedText.of(
-                                                        "我这没有，你另想办法",
+                                                        "我这儿没有多余的物资，你可能得另想办法了。",
                                                         "Don't have any, figure it out"),
                                                 DialogueOptionType.BRANCH,
                                                 refused,
@@ -2634,7 +2634,7 @@ public final class StoryGuestRegistry {
                                         .withEffects(DialogueEffectDef.advanceStoryStage(1)),
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_intro",
-                                        LocalizedText.of("我先去给你找找", "Let me see if I can find some"),
+                                        LocalizedText.of("你等着，我这就去帮你找找。", "Let me see if I can find some"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2643,12 +2643,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         helped,
                         LocalizedText.of(
-                                "帮大忙了！等我把这张图画完，回来一定好好谢你。",
-                                "Huge help! Once I finish this map, I'll come back and thank you properly."),
+                                "帮大忙了！等我把这张海图绘制完毕，回来一定好好请你喝一杯！",
+                                "You're a lifesaver! Once I finish drawing up this nautical chart, I'll definitely come back and buy you a drink!"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_end_intro_helped",
-                                                LocalizedText.of("路上小心", "Travel safely"),
+                                                LocalizedText.of("路上多加小心，别迷路了。", "Travel safely"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2658,12 +2658,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         refused,
                         LocalizedText.of(
-                                "没事，我再凑合凑合。反正线索还在，人没丢就行。",
-                                "No worries, I'll make do. The clues are still there, and I haven't gotten lost — that's what counts."),
+                                "没事，我再想想办法凑合一下。反正关键的线索还在脑子里，人没丢就行。",
+                                "No worries, I'll figure out a way to make do. The key landmarks are still in my head anyway; as long as I don't get lost, I'll be fine."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_end_intro_refused",
-                                                LocalizedText.of("那祝你接下来顺利", "Good luck out there"),
+                                                LocalizedText.of("那祝你接下来的测绘一切顺利。", "Good luck out there"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2681,13 +2681,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "上次那些纸笔帮了大忙，海图差不多补完了。还差一张海洋的照片，我想跟潮汐记录对一对。你下次出门，帮我拍张海边的照片呗？",
-                                "Those supplies really helped — chart's almost done. Just need an ocean photo to cross-check my tide notes. Next time you're out, can you snap one of the sea for me?"),
+                                "上次你借我的纸笔可是帮了大忙，海图已经补得七七八八了。现在就差一张海洋的照片，我想跟潮汐的记录再核对一下。你下次出门，能不能顺手帮我拍张海边的风景？",
+                                "The paper and pen you lent me last time were a huge help; the nautical chart is mostly filled in. Now I just need a photo of the ocean to cross-reference with my tide records. Next time you head out, could you snap a picture of the seascape for me?"),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_accept_ocean_photo_task",
                                                 LocalizedText.of(
-                                                        "我替你留意海上",
+                                                        "放心，出海的时候我会帮你留意这片海域的。",
                                                         "Sure. I'll keep an eye out for a seascape for you"),
                                                 DialogueOptionType.BRANCH,
                                                 accepted,
@@ -2700,7 +2700,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_decline_ocean_photo_task",
                                                 LocalizedText.of(
-                                                        "这次我恐怕帮不上忙",
+                                                        "实在抱歉，这趟出海我恐怕是帮不上什么忙了。",
                                                         "I don't think I can help with that this time"),
                                                 DialogueOptionType.BRANCH,
                                                 declined,
@@ -2711,12 +2711,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         accepted,
                         LocalizedText.of(
-                                "随便拍就行，只要是海上的景色都行。海浪、雾气、海平线，拍到了就能帮我校地图。",
-                                "Just snap whatever. Any ocean view works — waves, fog, the horizon. Whatever you get helps me check the map."),
+                                "随便拍就行，只要是海上的景色我都收！海浪、晨雾、海平线，只要拍到了就能帮我校对这该死的地图坐标。",
+                                "Just snap anything, I'll take any view of the sea! Waves, morning fog, the horizon—anything you capture will help me calibrate these blasted map coordinates."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_leave_after_accept_ocean_photo_task",
-                                                LocalizedText.of("我记下了", "I'll remember that"),
+                                                LocalizedText.of("行，这事儿我记在心上了。", "I'll remember that"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2726,12 +2726,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         declined,
                         LocalizedText.of(
-                                "行，那我先把别的空白补上。海边等下回再慢慢对好了。",
-                                "All right, I'll fill the other blanks first. The coast can wait till next time."),
+                                "行吧，那我先把地图上其他的空白区域填补上。海边的细节等下次有机会再慢慢核对好了。",
+                                "Alright then, I'll just fill in the other blank areas on the map first. I can slowly verify the coastal details the next time I get a chance."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_leave_after_decline_ocean_photo_task",
-                                                LocalizedText.of("那就留到下次吧", "Save it for next time then"),
+                                                LocalizedText.of("没事，那就等下次再说吧。", "Save it for next time then"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null)
@@ -2750,13 +2750,13 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "最近跑了不少地方，包里的草图也攒了一摞，休息整理一下吧。来，看看有没有你用得上的。",
-                                "Been to a lot of places lately; sketches are piling up. Time to sit down and sort them. Have a look — anything you can use?"),
+                                "最近风里雨里跑了不少地方，背包里的草图都快塞不下了，是时候坐下来好好整理一番了。来，你看看这些废稿里有没有你能用得上的？",
+                                "I've braved the wind and rain across many lands lately, and my pack is overflowing with sketches. It's time to sit down and sort through them properly. Here, take a look and see if there are any drafts you can use."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_reward_both_tasks",
                                                 LocalizedText.of(
-                                                        "这回我确实帮上你了",
+                                                        "看来这回我是真帮上你的大忙了。",
                                                         "I really helped you out this time"),
                                                 DialogueOptionType.BRANCH,
                                                 bothCompleted,
@@ -2774,7 +2774,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_reward_one_task_supplies",
                                                 LocalizedText.of(
-                                                        "能帮到你就好",
+                                                        "能解你的燃眉之急就好。",
                                                         "I'm glad I could help"),
                                                 DialogueOptionType.BRANCH,
                                                 oneCompleted,
@@ -2791,7 +2791,7 @@ public final class StoryGuestRegistry {
                                 new DialogueOptionDef(
                                                 "story_cartographer_reward_one_task_photo",
                                                 LocalizedText.of(
-                                                        "至少我还带回了线索",
+                                                        "不管怎么说，至少我帮你把关键线索带回来了。",
                                                         "At least I brought back a clue"),
                                                 DialogueOptionType.BRANCH,
                                                 oneCompleted,
@@ -2807,7 +2807,7 @@ public final class StoryGuestRegistry {
                                                 DialogueEffectDef.setNextVisitRange(4, 7)),
                                 new DialogueOptionDef(
                                         "story_cartographer_reward_no_tasks",
-                                        LocalizedText.of("我没帮上什么", "Looks like I didn't help you much this time"),
+                                        LocalizedText.of("惭愧，这次好像没帮上你什么实质性的忙。", "Looks like I didn't help you much this time"),
                                         DialogueOptionType.BRANCH,
                                         noneCompleted,
                                         null)
@@ -2824,12 +2824,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         bothCompleted,
                         LocalizedText.of(
-                                "本来只想把罗盘给真正帮过我的人。现在看来光给个罗盘还差点意思。这金币也拿着，算我谢你了。",
-                                "I only meant to give this compass to someone who really helped. A compass alone feels thin now. Take these coins too — from me, and from the sea."),
+                                "原本我这罗盘，只打算送给真正帮过我大忙的人。但现在看来，光送个罗盘还不足以表达我的谢意。这些金币你也收下吧，算是我的一点心意。",
+                                "I originally planned to give this compass only to someone who truly helped me. But now it seems a compass alone isn't enough to express my gratitude. Please take these gold coins as well, as a token of my appreciation."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_leave_after_both_rewards",
-                                                LocalizedText.of("那我就不客气了", "Then I'll gladly take them"),
+                                                LocalizedText.of("既然如此，那这份谢礼我就不客气地收下了。", "Then I'll gladly take them"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null))));
@@ -2838,12 +2838,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         oneCompleted,
                         LocalizedText.of(
-                                "感谢你帮我找这么多东西了，这个罗盘给你，往后你自己出门说不定也用得上。",
-                                "Supplies or that seascape — either way I owe you. Take this compass; might come in handy when you go roaming."),
+                                "谢谢你帮我找齐了这些物件。这个旧罗盘送给你吧，以后出门远行，说不定能派上用场。",
+                                "Thank you for finding these items for me. I want you to have this old compass; it might just come in handy on your future travels."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_after_one_reward",
-                                        LocalizedText.of("谢谢，这份礼我收着", "Thanks, I'll keep this gift safe"),
+                                        LocalizedText.of("多谢，那这份心意我就收下了。", "Thanks, I'll keep this gift safe"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2852,12 +2852,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         noneCompleted,
                         LocalizedText.of(
-                                "路上总有些事赶不上。没事，没画完的我先记着。下回见面聊点轻松的。",
-                                "Some things on the road just don't come together. No hard feelings. I'll keep the loose ends in mind — next time let's just chat about something easy."),
+                                "旅途中总有错过的风景。没关系，缺的这几笔我先在心里记下。下次见面，咱们聊点开心的。",
+                                "There are always missed sights on a journey. No matter, I'll just keep these missing details in mind for now. Let's chat about happier things next time we meet."),
                         List.of(
                                 new DialogueOptionDef(
                                                 "story_cartographer_leave_after_no_reward",
-                                                LocalizedText.of("下次再聊", "We'll talk again next time"),
+                                                LocalizedText.of("行吧，那咱们下次再聊。", "We'll talk again next time"),
                                                 DialogueOptionType.BRANCH,
                                                 null,
                                                 null))));
@@ -2872,12 +2872,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "这阵子总算能安安稳稳把草图摊开了。以前匆忙赶路的时候老怕丢东西了。",
-                                "Finally I can spread the sketches out in peace. On the road I was always afraid of losing things. Now I can draw slowly."),
+                                "这阵子总算能找个平坦的桌子，安安稳稳地把草图摊开来了。以前匆匆忙忙赶路的时候，我老提心吊胆怕图纸被风吹跑了。",
+                                "I've finally found a flat table where I can peacefully spread out my sketches. When I was rushing along the road, I was always terrified my maps would blow away in the wind."),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_final",
-                                        LocalizedText.of("看来这里挺适合你", "Seems like this place suits you"),
+                                        LocalizedText.of("看来这地方还挺对你的胃口。", "Seems like this place suits you"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
@@ -2892,12 +2892,12 @@ public final class StoryGuestRegistry {
                 new DialogueNodeDef(
                         root,
                         LocalizedText.of(
-                                "趁还记得清楚，我得赶紧画到图上。下回我再来的时候再给你讲段更有意思的啦。",
-                                "Better get these wind and tide marks down while I still remember. Next time I'm through, I'll have a better story."),
+                                "趁着脑子里的画面还清晰，我得赶紧把它们落在纸上。等下回我再来的时候，保证给你讲一段更刺激的探险故事！",
+                                "While the images are still fresh in my mind, I need to get them down on paper. When I come back next time, I promise to tell you an even more thrilling tale of adventure!"),
                         List.of(
                                 new DialogueOptionDef(
                                         "story_cartographer_leave_chatter",
-                                        LocalizedText.of("那就等你下次再说", "Then tell me next time"),
+                                        LocalizedText.of("那等你完成这部分地图我们再聊。", "Then tell me next time"),
                                         DialogueOptionType.BRANCH,
                                         null,
                                         null))));
