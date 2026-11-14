@@ -107,11 +107,12 @@ config="${mod_id}.mixins.json"
 
 # Otherworld Inn HUD: HUD overlay API. No longer jarJar-embedded because it has no
 # dedicated-server guard (it loads client GUI classes during mod construction, which crashes
-# a dedicated server). Provided by the modpack's overrides/mods instead, and required on the
-# client only - servers must NOT install it.
+# a dedicated server). Provided by the modpack's overrides/mods instead, and optional here:
+# making it "required" breaks datagen (runData runs in CLIENT dist and does not ship the jar).
+# Clients from the modpack always have it; servers must NOT install it.
 [[dependencies.${mod_id}]]
     modId="otherworldinn_hud"
-    type="required"
+    type="optional"
     versionRange="[0.1.1,)"
     ordering="AFTER"
     side="CLIENT"
