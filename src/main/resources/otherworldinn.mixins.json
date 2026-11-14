@@ -29,6 +29,8 @@
     "MixinSeasonalCropGrowthHandler",
     "MixinSereneSeasonsCalendarItem",
     "MixinServerLevel",
+    "MixinServerLevelSnowCover",
+    "MixinRandomUpdateHandlerSnowMelt",
     "MixinLevelStructuralWrite",
     "MixinLittleMaidFarmMoveTask",
     "MixinLittleMaidTaskNormalFarm",

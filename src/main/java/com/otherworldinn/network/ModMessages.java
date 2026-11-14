@@ -22,6 +22,7 @@ import com.otherworldinn.network.packet.S2CPriceSyncPacket;
 import com.otherworldinn.network.packet.S2CQuestHudPacket;
 import com.otherworldinn.network.packet.S2CQuestWaypointPacket;
 import com.otherworldinn.network.packet.S2CTaskHudSnapshotPacket;
+import com.otherworldinn.network.packet.S2CSnowCoverPacket;
 import com.otherworldinn.network.packet.S2CTeamSyncPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,6 +42,8 @@ public class ModMessages {
 
         registrar.playToClient(
                 S2CTeamSyncPacket.TYPE, S2CTeamSyncPacket.STREAM_CODEC, S2CTeamSyncPacket::handle);
+        registrar.playToClient(
+                S2CSnowCoverPacket.TYPE, S2CSnowCoverPacket.STREAM_CODEC, S2CSnowCoverPacket::handle);
         registrar.playToClient(
                 S2CDialogueNodePacket.TYPE,
                 S2CDialogueNodePacket.STREAM_CODEC,

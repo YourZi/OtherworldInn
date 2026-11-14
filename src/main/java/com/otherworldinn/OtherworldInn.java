@@ -56,6 +56,11 @@ public class OtherworldInn {
             TagKey.create(
                     Registries.BLOCK,
                     ResourceLocation.fromNamespaceAndPath(MODID, "protected_zone_natural_conversions"));
+    /** 不参与程序化覆雪的方块（会动、或模型不适合盖雪的模组方块；数据包可扩展）。 */
+    public static final TagKey<Block> SNOW_COVER_IGNORED =
+            TagKey.create(
+                    Registries.BLOCK,
+                    ResourceLocation.fromNamespaceAndPath(MODID, "snow_cover_ignored"));
     /**
      * 保护区内允许玩家/女仆清除的方块（房间整洁类，如 {@code otherworldinn:clutter}）：命中该标签的方块
      * 变成空气时底层结构性写入闸门一律放行，避免"事件层放行、写入层静默拒绝"导致清不掉。

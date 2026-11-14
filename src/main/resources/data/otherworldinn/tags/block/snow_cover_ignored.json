@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:all_signs",
+    "#minecraft:candles",
+    "minecraft:lantern",
+    "minecraft:soul_lantern",
+    "minecraft:end_rod",
+    "minecraft:flower_pot",
+    "minecraft:decorated_pot",
+    "minecraft:bell"
+  ]
+}
