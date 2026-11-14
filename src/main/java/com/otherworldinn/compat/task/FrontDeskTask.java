@@ -5,6 +5,7 @@ import com.github.tartaricacid.touhoulittlemaid.entity.ai.brain.task.MaidArriveA
 import com.github.tartaricacid.touhoulittlemaid.entity.ai.brain.task.MaidMoveToPredicateBlockTask;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
+import com.github.tartaricacid.touhoulittlemaid.init.InitSounds;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.otherworldinn.OtherworldInn;
@@ -47,10 +48,16 @@ public class FrontDeskTask implements IMaidTask {
         return ICON;
     }
 
+    /** 工作时随机播放的语音；返回 null 会导致这个任务"不说话"（其余原版任务都会返回语音）。 */
     @Override
-    @Nullable
     public SoundEvent getAmbientSound(EntityMaid maid) {
-        return null;
+        return InitSounds.MAID_IDLE.get();
+    }
+
+    /** 任务动作摘要（原版任务都返回一句可读描述，默认实现只会显示任务 id）。
+     *  注意：不加 {@code @Override} —— 该方法自 TLM 1.5.3 起才存在于接口，编译期依赖是 1.5.0。 */
+    public String getMaidActionSummary() {
+        return "在前台接待客人";
     }
 
     @Override
