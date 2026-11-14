@@ -30,6 +30,9 @@ public class ClientConfig {
     public final ModConfigSpec.BooleanValue showWorldPlayTime;
     public final ModConfigSpec.BooleanValue showServerPlayTime;
 
+    public final ModConfigSpec.BooleanValue snowCover;
+    public final ModConfigSpec.BooleanValue snowCoverForce;
+
 
     public ClientConfig(ModConfigSpec.Builder builder) {
         builder.push("camera");
@@ -62,6 +65,17 @@ public class ClientConfig {
         showServerPlayTime =
                 builder.comment("服务器列表条目显示累计游玩时长（客户端本地统计，存到 config/otherworldinn_server_playtime.properties）")
                         .define("showServerPlayTime", true);
+        builder.pop();
+
+        builder.comment("真实覆雪：给台阶、半砖、栅栏、墙、箱子等不完整方块程序化渲染一层雪")
+                .push("snow_cover");
+        snowCover =
+                builder.comment("开启后，为不完整方块（台阶/半砖/栅栏/墙……）程序化渲染雪盖")
+                        .define("enabled", true);
+        snowCoverForce =
+                builder.comment("强制覆雪：默认关闭。开启后无视天气，所有可覆雪表面一律铺雪；",
+                        "关闭时交给天气/温度/光照决定——与原版降雪一致，只在正在下雪且方块光 < 10 的地方积雪")
+                        .define("force", false);
         builder.pop();
     }
 
@@ -101,5 +115,35 @@ public class ClientConfig {
         } catch (RuntimeException notLoadedYet) {
             return true;
         }
+    }
+
+    /** 真实覆雪开关（配置未加载时按默认开启）。 */
+    public static boolean snowCover() {
+        try {
+            return INSTANCE.snowCover.get();
+        } catch (RuntimeException notLoadedYet) {
+            return true;
+        }
+    }
+
+    /** 写回真实覆雪开关；游戏内切换后需要自行触发画面刷新。 */
+    public static void setSnowCover(boolean enabled) {
+        INSTANCE.snowCover.set(enabled);
+        SPEC.save();
+    }
+
+    /** 强制覆雪（配置未加载时按默认关闭）。 */
+    public static boolean snowCoverForce() {
+        try {
+            return INSTANCE.snowCoverForce.get();
+        } catch (RuntimeException notLoadedYet) {
+            return false;
+        }
+    }
+
+    /** 写回强制覆雪开关。 */
+    public static void setSnowCoverForce(boolean force) {
+        INSTANCE.snowCoverForce.set(force);
+        SPEC.save();
     }
 }

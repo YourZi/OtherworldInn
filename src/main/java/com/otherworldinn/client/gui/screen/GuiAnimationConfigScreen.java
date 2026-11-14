@@ -1,5 +1,6 @@
 package com.otherworldinn.client.gui.screen;
 
+import com.otherworldinn.client.snow.SnowCoverController;
 import com.otherworldinn.foundation.ClientConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -7,7 +8,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 /**
- * GUI 动效开关的极简配置屏：两个布尔项 + 完成。由 {@code IConfigScreenFactory} 挂在模组列表的"配置"按钮上，
+ * 模组设置屏：GUI 动效两项 + 真实覆雪一项 + 完成。由 {@code IConfigScreenFactory} 挂在模组列表的"配置"按钮上，
  * 改动立即写回 {@code config/otherworldinn-client.toml} 并即时生效（无需重启）。
  */
 public class GuiAnimationConfigScreen extends Screen {
@@ -19,7 +20,7 @@ public class GuiAnimationConfigScreen extends Screen {
     private final Screen parent;
 
     public GuiAnimationConfigScreen(Screen parent) {
-        super(Component.literal("GUI 动效设置 / GUI Animations"));
+        super(Component.literal("Otherworld Inn 设置 / Settings"));
         this.parent = parent;
     }
 
@@ -57,6 +58,28 @@ public class GuiAnimationConfigScreen extends Screen {
                 .bounds(centerX - BUTTON_WIDTH / 2, y, BUTTON_WIDTH, BUTTON_HEIGHT)
                 .build());
 
+        y += GAP;
+        this.addRenderableWidget(Button.builder(
+                        label("真实覆雪", "Real Snow Cover", SnowCoverController.isEnabled()),
+                        button -> {
+                            SnowCoverController.setEnabled(!SnowCoverController.isEnabled());
+                            button.setMessage(label(
+                                    "真实覆雪", "Real Snow Cover", SnowCoverController.isEnabled()));
+                        })
+                .bounds(centerX - BUTTON_WIDTH / 2, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build());
+
+        y += GAP;
+        this.addRenderableWidget(Button.builder(
+                        label("强制覆雪", "Force Snow Cover", SnowCoverController.isForced()),
+                        button -> {
+                            SnowCoverController.setForced(!SnowCoverController.isForced());
+                            button.setMessage(label(
+                                    "强制覆雪", "Force Snow Cover", SnowCoverController.isForced()));
+                        })
+                .bounds(centerX - BUTTON_WIDTH / 2, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build());
+
         y += GAP * 2;
         this.addRenderableWidget(Button.builder(
                         Component.translatable("gui.done"),
@@ -75,6 +98,12 @@ public class GuiAnimationConfigScreen extends Screen {
                 this.width / 2,
                 40,
                 0xA0A0A0);
+        guiGraphics.drawCenteredString(
+                this.font,
+                Component.literal("真实覆雪：台阶 / 半砖 / 栅栏 / 墙 / 箱子等不完整方块的雪盖"),
+                this.width / 2,
+                this.height - 40,
+                0x808080);
     }
 
     @Override

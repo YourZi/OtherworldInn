@@ -2,6 +2,7 @@ package com.otherworldinn.init;
 
 import com.otherworldinn.OtherworldInn;
 import com.otherworldinn.client.command.HusbandryDebugCommand;
+import com.otherworldinn.client.command.SnowCoverCommand;
 import com.otherworldinn.command.PanoramixScreenshotCommands;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,5 +16,6 @@ public class ModClientCommandEvents {
     public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
         PanoramixScreenshotCommands.register(event.getDispatcher());
         HusbandryDebugCommand.register(event.getDispatcher());
+        SnowCoverCommand.register(event.getDispatcher());
     }
 }
